@@ -1,0 +1,3 @@
+proc ~ tostring(val) {
+  return ~ '' + val;
+}

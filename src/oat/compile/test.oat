@@ -1,0 +1,1 @@
+[{"Type":"log","Name":"","ExpStr":["true"],"ExpAct":[],"Params":[],"Args":[],"Condition":[]},{"Type":"log","Name":"","ExpStr":["false"],"ExpAct":[],"Params":[],"Args":[],"Condition":[]},{"Type":"let","Name":"test","ExpStr":["\"HElloWORLD\""],"ExpAct":[],"Params":[],"Args":[],"Condition":[]}]

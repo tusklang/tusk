@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  <head>
+    <link rel='stylesheet' href='docs.css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset='utf-8'>
+  </head>
+  <div id='sidebar' class='sidebar'></div>
+  <div class='body'>
+    <h1 id='title'>Methods</h1>
+    <br>
+    <div id='text' class='indent'>
+      Methods are blocks of code that are reusable and modifiable by parameters.
+      <br>
+      <br>
+      To declare a process in Omm you can use the proc keyword.
+      <p class='text-omm'>
+        <span class='keyword'>proc</span>
+        <span class='operator'>~</span>
+        <span class='process'>myProc()</span>
+        {
+          <br>
+          <span class='comment indent'>-- do stuff</span>
+          <br>
+        }
+      </p>
+      <h3>Return</h3>
+      Return statements are used to prevent the rest of the process from executing or send a value to a variable. The syntax for return statements is:
+      <p class='text-omm'>
+        <span class='keyword'>return</span>
+        <span class='operator'>~</span>
+        <span class='string'>'Your Value'</span>;
+        <span class='comment'>-- Your Value</span>
+      </p>
+      <h3>Method parameters</h3>
+      Parameters are variables that only accessible within the process. Every time you call the process you can change the parameters.
+      <p class='text-omm'>
+        <span class='keyword'>proc</span>
+        <span class='operator'>~</span>
+        <span class='process'>myMethod(<span class='var'>param1</span>, <span class='var'>param2</span>)</span>
+        {
+          <br>
+          <span class='comment indent'>-- do stuff</span>
+          <br>
+        }
+      </p>
+      <h3>Calling a function</h3>
+      The syntax to call a function is kind of complicated. You will can use the #~ keyword to call a process.
+      <p class='text-omm'>
+        <span class='keyword'>proc</span>
+        <span class='operator'>~</span>
+        <span class='process'>myMethod(<span class='var'>param1</span>, <span class='var'>param2</span>)</span>
+        {
+          <br>
+          <span class='comment indent'>-- do stuff</span>
+          <br>
+        }
+        <br>
+        <br>
+        <span class='keyword'>#</span><span class='operator'>~</span><span class='process'>myProc(<span class='string'>'value 1'</span>, <span class='boolean'>true</span>)</span>
+      </p>
+      <h3>Extra Resources</h3>
+      Processes are confusing so I recommend <a href='https://www.tutorialspoint.com/javascript/javascript_functions.htm'>this</a> site to understand these more. The syntax is a bit different, but you may be able to understand it.
+    </div>
+  </div>
+</body>
+
+<script src='/docs/docs.js'></script>
+
+</html>
