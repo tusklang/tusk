@@ -18,6 +18,7 @@ type Returner struct {
   Val       []string
   Variables   map[string]Variable
   Exp     [][]string
+  Type        string
 }
 
 func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint64, functions []Funcs, vars_ map[string]Variable, groupReturn bool) Returner {
@@ -59,9 +60,9 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
       case "global":
         vars[actions[i].Name] = Variable{ actions[i].Name, "global", parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], []Action{} }
       case "log":
-        fmt.Println(strings.Join(parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], ""))
+        log(strings.Join(parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], ""))
       case "print":
-        fmt.Print(strings.Join(parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], ""))
+        log(strings.Join(parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], ""))
       case "expression":
         exp = append(exp, mathParse([][]string{ actions[i].ExpStr }, functions, line, calc_params, vars, dir)...)
       case "group":
@@ -70,6 +71,11 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         if groupReturn {
           return grouped
         }
+
+        if grouped.Type == "return" || grouped.Type == "break" || grouped.Type == "skip" {
+          return Returner{ grouped.Val, grouped.Variables, grouped.Exp, grouped.Type }
+        }
+
       case "process":
         if actions[i].Name == "" {
           fmt.Println("There Was An Error: Anonymous Processes Are Not Yet Supported\n\nproc(\n^^^^ <-- Error On Line " + strconv.Itoa(int(line)))
@@ -79,6 +85,11 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         }
       case "#":
         proc := vars[actions[i].Name]
+
+        if proc.Name == "" {
+          fmt.Println("There Was An Error: " + actions[i].Name + " is not a function\n\n#~" + actions[i].Name[1:] + "(\n^^^ <-- Error On Line " + strconv.Itoa(int(line)))
+          os.Exit(1)
+        }
 
         procParams := proc.Value
         nParams := make(map[string]Variable)
@@ -110,14 +121,27 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
           exp = append(exp, mathParse([][]string{ parsed.Val }, functions, line, calc_params, vars, dir)...)
         }
       case "return":
-        return Returner{ parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], vars, mathParse(exp, functions, line, calc_params, vars, dir) }
+        return Returner{ parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], vars, mathParse(exp, functions, line, calc_params, vars, dir), "return" }
       case "conditional":
         for o := 0; o < len(actions[i].Condition); o++ {
 
           val := mathParse(parser(actions[i].Condition[o].Condition, calc_params, dir, line, functions, vars, false).Exp, functions, line, calc_params, vars, dir)[0][0]
 
           if val != "false" && val != "undefined" && val != "null" {
-            parser(actions[i].Condition[o].Actions, calc_params, dir, line, functions, vars, false)
+            parsed := parser(actions[i].Condition[o].Actions, calc_params, dir, line, functions, vars, false)
+
+            if parsed.Type == "return" {
+              return Returner{ parsed.Val, parsed.Variables, parsed.Exp, "return" }
+            }
+
+            if parsed.Type == "break" {
+              return Returner{ parsed.Val, parsed.Variables, parsed.Exp, "break" }
+            }
+
+            if parsed.Type == "skip" {
+              return Returner{ parsed.Val, parsed.Variables, parsed.Exp, "skip" }
+            }
+
             break
           }
         }
@@ -169,9 +193,9 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
 
         exp = append(exp, []string{ text })
       case "break":
-        return Returner{ []string{"break"}, vars, [][]string{} }
+        return Returner{ []string{"break"}, vars, [][]string{}, "break" }
       case "skip":
-        return Returner{ []string{"skip"}, vars, [][]string{} }
+        return Returner{ []string{"skip"}, vars, [][]string{}, "skip" }
       case "eval":
 
         calculated := mathParse([][]string{actions[i].ExpStr}, functions, line, calc_params, vars, dir)[0][0]
@@ -203,10 +227,22 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
       case "loop":
 
         for ;parser(actions[i].Condition[0].Condition, calc_params, dir, line, functions, vars, false).Exp[0][0] == "true"; {
-          var returned = parser(actions[i].Condition[0].Actions, calc_params, dir, line, functions, vars, false)
+          var parsed = parser(actions[i].Condition[0].Actions, calc_params, dir, line, functions, vars, false)
 
-          for k, v := range returned.Variables {
+          for k, v := range parsed.Variables {
             vars[k] = v
+          }
+
+          if parsed.Type == "return" {
+            return Returner{ parsed.Val, parsed.Variables, parsed.Exp, "return" }
+          }
+
+          if parsed.Type == "break" {
+            break
+          }
+
+          if parsed.Type == "skip" {
+            continue
           }
         }
       case "ascii":
@@ -239,5 +275,5 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
     }
   }
 
-  return Returner{ []string{}, vars, mathParse(exp, functions, line, calc_params, vars, dir) }
+  return Returner{ []string{}, vars, mathParse(exp, functions, line, calc_params, vars, dir), "" }
 }

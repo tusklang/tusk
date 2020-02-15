@@ -2,426 +2,456 @@
   {
     "name": "let",
     "remove": "let",
-    "pattern": "let~",
+    "pattern": "^(let~)",
     "type": "id"
   },
   {
     "name": "=>",
     "remove": "=>",
-    "pattern": "=>{",
+    "pattern": "^(\\=\\>\\{)",
     "type": "operation"
+  },
+  {
+    "name": "len",
+    "remove": "len",
+    "pattern": "^(len~)",
+    "type": "id"
+  },
+  {
+    "name": "~~~",
+    "remove": "~~~",
+    "pattern": "^((~~~)(?=\\d+))",
+    "type": "id"
+  },
+  {
+    "name": "!~~",
+    "remove": "!~~",
+    "pattern": "^((\\!~~)(?=\\d+))",
+    "type": "id"
+  },
+  {
+    "name": "~~",
+    "remove": "~~",
+    "pattern": "^(~~(?=\\d+))",
+    "type": "id"
+  },
+  {
+    "name": "!~",
+    "remove": "!~",
+    "pattern": "^((~\\!)(?=\\d+))",
+    "type": "id"
   },
   {
     "name": "abstract",
     "remove": "abstract",
-    "pattern": "abstract~",
+    "pattern": "^(abstract~)",
     "type": "id"
   },
   {
     "name": "alt",
     "remove": "alt",
-    "pattern": "alt(",
+    "pattern": "^(alt\\()",
     "type": "id"
   },
   {
     "name": "log",
     "remove": "log",
-    "pattern": "log~",
+    "pattern": "^(log~)",
     "type": "id"
   },
   {
     "name": "goto",
     "remove": "goto",
-    "pattern": "goto~",
+    "pattern": "^(goto~)",
     "type": "id"
   },
   {
     "name": "print",
     "remove": "print",
-    "pattern": "print~",
+    "pattern": "^(print~)",
     "type": "id"
   },
   {
     "name": "^",
     "remove": "**",
-    "pattern": "**",
+    "pattern": "^(\\*\\*)",
     "type": "operation"
   },
   {
     "name": ".",
     "remove": ".",
-    "pattern": ".[",
+    "pattern": "^(\\.\\[)",
     "type": "id"
   },
   {
     "name": "newlineN",
     "remove": "\n",
-    "pattern": "\n",
+    "pattern": "^\n",
     "type": "newline"
   },
   {
     "name": "newlineN",
     "remove": "\r\n",
-    "pattern": "\r\n",
+    "pattern": "^(\r\n)",
     "type": "newline"
   },
   {
     "name": "newlineS",
     "remove": ";",
-    "pattern": ";",
+    "pattern": "^\\;",
     "type": "newline"
   },
   {
     "name": "~",
     "remove": "~",
-    "pattern": "~",
+    "pattern": "^\\~",
     "type": "operation"
   },
   {
     "name": "[:",
     "remove": "[:",
-    "pattern": "[:",
+    "pattern": "^(\\[\\:)",
     "type": "operation"
   },
   {
     "name": ":]",
     "remove": ":]",
-    "pattern": ":]",
+    "pattern": "^(\\:\\])",
     "type": "operation"
   },
   {
     "name": ":",
     "remove": ":",
-    "pattern": ":",
+    "pattern": "^\\:",
     "type": "assignment"
   },
   {
     "name": "+",
     "remove": "+",
-    "pattern": "+",
+    "pattern": "^\\+",
     "type": "math"
   },
   {
     "name": "-",
     "remove": "-",
-    "pattern": "-",
+    "pattern": "^\\-",
     "type": "math"
   },
   {
     "name": "*",
     "remove": "*",
-    "pattern": "*",
+    "pattern": "^\\*",
     "type": "math"
   },
   {
-    "name": "/",
-    "remove": "/",
-    "pattern": "/",
+    "name": "",
+    "remove": "",
+    "pattern": "^\\/",
     "type": "math"
   },
   {
     "name": "%",
     "remove": "%",
-    "pattern": "%",
+    "pattern": "^\\%",
     "type": "math"
   },
   {
     "name": "^",
     "remove": "^",
-    "pattern": "^",
+    "pattern": "^\\^",
     "type": "math"
   },
   {
     "name": "(",
     "remove": "(",
-    "pattern": "(",
+    "pattern": "^\\(",
     "type": "operation"
   },
   {
     "name": ")",
     "remove": ")",
-    "pattern": ")",
+    "pattern": "^\\)",
     "type": "operation"
   },
   {
     "name": "{",
     "remove": "{",
-    "pattern": "{",
+    "pattern": "^\\{",
     "type": "operation"
   },
   {
     "name": "}",
     "remove": "}",
-    "pattern": "}",
+    "pattern": "^\\}",
     "type": "operation"
   },
   {
     "name": "[",
     "remove": "[",
-    "pattern": "[",
+    "pattern": "^\\[",
     "type": "operation"
   },
   {
     "name": "]",
     "remove": "]",
-    "pattern": "]",
+    "pattern": "^\\]",
     "type": "operation"
   },
   {
     "name": "process",
     "remove": "proc",
-    "pattern": "proc(",
+    "pattern": "^(proc\\()",
     "type": "id"
   },
   {
     "name": "process",
     "remove": "proc",
-    "pattern": "proc~",
+    "pattern": "^(proc\\~)",
     "type": "id"
   },
   {
     "name": "global",
     "remove": "global",
-    "pattern": "global~",
+    "pattern": "^(global\\~)",
     "type": "id"
   },
   {
     "name": "#",
     "remove": "#",
-    "pattern": "#",
+    "pattern": "^\\#",
     "type": "id"
   },
   {
     "name": ",",
     "remove": ",",
-    "pattern": ",",
+    "pattern": "^\\,",
     "type": "operation"
   },
   {
     "name": "return",
     "remove": "return",
-    "pattern": "return~",
+    "pattern": "^(return\\~)",
     "type": "id"
   },
   {
     "name": "if",
     "remove": "if",
-    "pattern": "if(",
+    "pattern": "^(if\\()",
     "type": "id"
   },
   {
     "name": "elseif",
     "remove": "elseif",
-    "pattern": "elseif(",
+    "pattern": "^(elseif\\()",
     "type": "id"
   },
   {
     "name": "else",
     "remove": "else",
-    "pattern": "else{",
+    "pattern": "^(else\\{)",
     "type": "id"
   },
   {
     "name": "true",
     "remove": "true",
-    "pattern": "true",
+    "pattern": "^(true)",
     "type": "value"
   },
   {
     "name": "false",
     "remove": "false",
-    "pattern": "false",
+    "pattern": "^(false)",
     "type": "value"
   },
   {
     "name": "undefined",
     "remove": "undefined",
-    "pattern": "undefined",
+    "pattern": "^(undefined)",
     "type": "value"
   },
   {
     "name": "null",
     "remove": "null",
-    "pattern": "null",
+    "pattern": "^(null)",
     "type": "value"
   },
   {
     "name": "loop",
     "remove": "loop",
-    "pattern": "loop(",
+    "pattern": "^(loop\\()",
     "type": "id"
   },
   {
     "name": "<=",
     "remove": "<=",
-    "pattern": "<=",
+    "pattern": "^(\\<\\=)",
     "type": "comparison"
   },
   {
     "name": ">=",
     "remove": ">=",
-    "pattern": ">=",
+    "pattern": "^(\\>\\=)",
     "type": "comparison"
   },
   {
     "name": ">",
     "remove": ">",
-    "pattern": ">",
+    "pattern": "^\\>",
     "type": "comparison"
   },
   {
     "name": "<",
     "remove": "<",
-    "pattern": "<",
+    "pattern": "^\\<",
     "type": "comparison"
   },
   {
     "name": "!==",
     "remove": "!==",
-    "pattern": "!==",
+    "pattern": "^(\\!\\=\\=)",
     "type": "id"
   },
   {
     "name": "!=",
     "remove": "!=",
-    "pattern": "!=",
+    "pattern": "^(\\!\\=)",
     "type": "id"
   },
   {
     "name": "=",
     "remove": "==",
-    "pattern": "==",
+    "pattern": "^(\\=\\=)",
     "type": "comparison"
   },
   {
     "name": "=",
     "remove": "=",
-    "pattern": "=",
+    "pattern": "^\\=",
     "type": "comparison"
   },
   {
     "name": "import",
     "remove": "import",
-    "pattern": "import~",
+    "pattern": "^(import\\~)",
     "type": "id"
   },
   {
     "name": "read",
     "remove": "read",
-    "pattern": "read~",
+    "pattern": "^(read\\~)",
     "type": "id"
   },
   {
     "name": "&",
     "remove": "&&",
-    "pattern": "&&",
+    "pattern": "^(\\&\\&)",
     "type": "id"
   },
   {
     "name": "!|",
-    "pattern": "!|",
+    "pattern": "^(\\!\\|)",
     "type": "id"
   },
   {
     "name": "$|",
     "remove": "$|",
-    "pattern": "$|",
+    "pattern": "^(\\$\\|)",
     "type": "id"
   },
   {
     "name": "!$|",
     "remove": "$!|",
-    "pattern": "$!|",
+    "pattern": "^(\\$\\!\\|)",
     "type": "id"
   },
   {
     "name": "!$|",
     "remove": "!$|",
-    "pattern": "!$|",
+    "pattern": "^(\\!\\$\\|)",
     "type": "id"
   },
   {
     "name": "!&",
     "remove": "!&",
-    "pattern": "!&",
+    "pattern": "^(\\!\\&)",
     "type": "id"
   },
   {
     "name": "|",
     "remove": "||",
-    "pattern": "||",
+    "pattern": "^(\\|\\|)",
     "type": "id"
   },
   {
     "name": "!",
     "remove": "!",
-    "pattern": "!",
+    "pattern": "^\\!",
     "type": "id"
   },
   {
     "name": "&",
     "remove": "&&",
-    "pattern": "&&",
+    "pattern": "^(\\&\\&)",
     "type": "id"
   },
   {
     "name": "&",
     "remove": "&",
-    "pattern": "&",
+    "pattern": "^\\&",
     "type": "id"
   },
   {
     "name": "|",
     "remove": "|",
-    "pattern": "|",
+    "pattern": "^\\|",
     "type": "id"
   },
   {
     "name": "break",
     "remove": "break",
-    "pattern": "break;",
+    "pattern": "^(break\\;)",
     "type": "id"
   },
   {
     "name": "skip",
     "remove": "skip",
-    "pattern": "skip;",
+    "pattern": "^(skip\\;)",
     "type": "id"
   },
   {
     "name": "eval",
     "remove": "eval",
-    "pattern": "eval~",
+    "pattern": "^(eval\\~)",
     "type": "id"
   },
   {
     "name": "typeof",
     "remove": "typeof",
-    "pattern": "typeof~",
+    "pattern": "^(typeof\\~)",
     "type": "id"
   },
   {
     "name": "loop",
     "remove": "while",
-    "pattern": "while(",
+    "pattern": "^(while\\()",
     "type": "id"
   },
   {
     "name": "err",
     "remove": "err",
-    "pattern": "err~",
+    "pattern": "^(err\\~)",
     "type": "id"
   },
   {
     "name": "ascii",
     "remove": "ascii",
-    "pattern": "ascii~",
+    "pattern": "^(ascii\\~)",
     "type": "id"
   },
   {
     "name": "parse",
     "remove": "parse",
-    "pattern": "parse~",
+    "pattern": "^(parse\\~)",
     "type": "id"
   }
 ]

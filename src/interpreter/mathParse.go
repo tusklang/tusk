@@ -21,7 +21,7 @@ func mathParse(exp [][]string, functions []Funcs, line uint64, calc_params param
       for o := 0; o < len(exp[i]); o++ {
         if strings.HasPrefix(exp[i][o], "$") {
 
-          if i - 1 != -1 {
+          if o - 1 != -1 {
             if exp[i][o - 1] == "~" {
               continue
             }
@@ -284,6 +284,46 @@ func mathParse(exp [][]string, functions []Funcs, line uint64, calc_params param
           exp[index[0]] = replaceFrom(exp[index[0]], index[1] - 1, index[1] + 1, "true")
         } else {
           exp[index[0]] = replaceFrom(exp[index[0]], index[1] - 1, index[1] + 1, "false")
+        }
+      }
+    }
+
+    for ;arrayContain2Nest(exp, "~~") || arrayContain2Nest(exp, "!~"); {
+      if indexOf2Nest("~~", exp)[0] < indexOf2Nest("!~", exp)[0] || indexOf2Nest("!~", exp)[0] == -1 {
+        index := indexOf2Nest("~~", exp)
+
+        if isLess(add(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 1], calc_params, line, functions), exp[index[0]][index[1] + 3]) || isLess(subtract(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 1], calc_params, line, functions), exp[index[0]][index[1] + 3]) {
+          exp[index[0]] = replaceFrom(exp[index[0]], index[1] - 1, index[1] + 3, "true")
+        } else {
+          exp[index[0]] = replaceFrom(exp[index[0]], index[1] - 1, index[1] + 3, "false")
+        }
+      } else {
+        index := indexOf2Nest("!~", exp)
+
+        if !(isLess(add(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 1], calc_params, line, functions), exp[index[0]][index[1] + 4]) || isLess(subtract(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 1], calc_params, line, functions), exp[index[0]][index[1] + 4])) {
+          exp[index[0]] = replaceFrom(exp[index[0]], index[1] - 1, index[1] + 3, "true")
+        } else {
+          exp[index[0]] = replaceFrom(exp[index[0]], index[1] - 1, index[1] + 3, "false")
+        }
+      }
+    }
+
+    for ;arrayContain2Nest(exp, "~~~") || arrayContain2Nest(exp, "!~~"); {
+      if indexOf2Nest("~~", exp)[0] < indexOf2Nest("!~", exp)[0] || indexOf2Nest("!~", exp)[0] == -1 {
+        index := indexOf2Nest("~~~", exp)
+
+        if returnInit(add(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 3], calc_params, line, functions)) == returnInit(exp[index[0]][index[1] + 3]) && returnInit(subtract(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 1], calc_params, line, functions)) == returnInit(exp[index[0]][index[1] + 3]) {
+          exp[index[0]] = replaceFrom(exp[index[0]], index[1] - 1, index[1] + 3, "true")
+        } else {
+          exp[index[0]] = replaceFrom(exp[index[0]], index[1] - 1, index[1] + 3, "false")
+        }
+      } else {
+        index := indexOf2Nest("!~~", exp)
+
+        if !(returnInit(add(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 1], calc_params, line, functions)) == returnInit(exp[index[0]][index[1] + 3]) && returnInit(subtract(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 1], calc_params, line, functions)) == returnInit(exp[index[0]][index[1] + 3])) {
+          exp[index[0]] = replaceFrom(exp[index[0]], index[1] - 1, index[1] + 3, "true")
+        } else {
+          exp[index[0]] = replaceFrom(exp[index[0]], index[1] - 1, index[1] + 3, "false")
         }
       }
     }

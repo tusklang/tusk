@@ -30,7 +30,6 @@ func actionizer(lex []string) []Action {
     switch (lex[i]) {
       case "newlineN":
         actions = append(actions, Action{ "newline", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
-        continue actionReader
       case "let":
         exp_ := []string{}
 
@@ -515,7 +514,7 @@ func actionizer(lex []string) []Action {
         exp := actionizer(exp_)
 
         actions = append(actions, Action{ "group", "", exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{} })
-        i+=(len(exp_))
+        i+=(len(exp_) + 1)
       case "process":
         if lex[i + 1] == "~" {
           var procName = lex[i + 2]
@@ -549,7 +548,7 @@ func actionizer(lex []string) []Action {
 
             logic_ = append(logic_, lex[o])
 
-            if cbCnt == 0 || lex[o] == "newlineS" {
+            if cbCnt == 0 {
               break
             }
           }
@@ -586,7 +585,7 @@ func actionizer(lex []string) []Action {
 
             logic_ = append(logic_, lex[o])
 
-            if cbCnt == 0 && lex[o] == "newlineS" {
+            if cbCnt == 0 {
               break
             }
           }
