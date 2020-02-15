@@ -17,29 +17,34 @@
         <a class="nav-link" href="/">Home</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/docs?page=intro.html">Documentation</a>
+        <a class="nav-link" href="/docs/intro.html">Documentation</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/downloads.html">Downloads</a>
+        <a class="nav-link" href="/downloads.php">Downloads</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/about.php">About</a>
       </li>
     </ul>
   </nav>
-  <p id='about'>
-    Omm is a general purpose mathematics programming language
-  </p>
-  <div class="download">
-    <button onclick='document.location.href="/download/1.0.4/launcher.msi"'>
-        <div class='big'>Lastest Stable Version</div>
-        <div class='small-download'>1.0.4</div>
-    </button>
-    <button onclick='document.location.href="/download/1.1.0/launcher.msi"'>
-      <div class='big'>Newest Beta Version</div>
-      <div class='small-download'>1.1.0</div>
-    </button>
-  </div>
+  <table class='table table-striped table-hover'>
+    <thead>
+    <tr>
+      <th scope='col'>Version</th>
+      <th scope='col'>Download</th>
+      <th scope='col'>Release Date</th>
+      <th scope='col'>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope='row'>1.0.0</th>
+      <td><a href='/download/1.0.0/launcher.msi'>Download</a></td>
+      <td>TBD ~ February 18th 2020</td>
+      <td>Inital Release</td>
+    </tr>
+  </tbody>
+  </table>
   <div class='footer'>
     <img src='/Logos/Logo2.gif' id='foot-img' onclick='document.location.href="/"'>
     <a id='foot-img-txt'>Omm</a>

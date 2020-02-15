@@ -17,13 +17,13 @@
         <a class="nav-link" href="/">Home</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/docs?page=intro.html">Documentation</a>
+        <a class="nav-link" href="/docs/intro.html">Documentation</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/downloads.html">Downloads</a>
+        <a class="nav-link" href="/downloads.php">Downloads</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/about.php">About</a>
       </li>
     </ul>
   </nav>
