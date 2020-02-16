@@ -6,6 +6,10 @@ import "strings"
 import "strconv"
 import "bufio"
 import "regexp"
+import "os/exec"
+
+//json lib created by the jsoniter group on github
+import "github.com/json-iterator/go"
 
 type Variable struct {
   Name        string
@@ -21,7 +25,23 @@ type Returner struct {
   Type        string
 }
 
+func mergeVars(map1, map2 map[string]Variable) map[string]Variable {
+  combined := map[string]Variable{}
+
+  for k, v := range map1 {
+    combined[k] = v
+  }
+
+  for k, v := range map2 {
+    combined[k] = v
+  }
+
+  return combined;
+}
+
 func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint64, functions []Funcs, vars_ map[string]Variable, groupReturn bool) Returner {
+
+  var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
   var vars = vars_
   var line = line_
@@ -64,7 +84,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
       case "print":
         log(strings.Join(parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], ""))
       case "expression":
-        exp = append(exp, mathParse([][]string{ actions[i].ExpStr }, functions, line, calc_params, vars, dir)...)
+        exp = append(exp, mathParse(&[][]string{ actions[i].ExpStr }, functions, line, calc_params, vars, dir)...)
       case "group":
         grouped := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false)
 
@@ -118,17 +138,21 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         if len(parsed.Val) <= 0 {
           exp = append(exp, []string{ "undefined" })
         } else {
-          exp = append(exp, mathParse([][]string{ parsed.Val }, functions, line, calc_params, vars, dir)...)
+          exp = append(exp, mathParse(&[][]string{ parsed.Val }, functions, line, calc_params, vars, dir)...)
         }
       case "return":
-        return Returner{ parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], vars, mathParse(exp, functions, line, calc_params, vars, dir), "return" }
+        return Returner{ parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], vars, mathParse(&exp, functions, line, calc_params, vars, dir), "return" }
       case "conditional":
         for o := 0; o < len(actions[i].Condition); o++ {
 
-          val := mathParse(parser(actions[i].Condition[o].Condition, calc_params, dir, line, functions, vars, false).Exp, functions, line, calc_params, vars, dir)[0][0]
+          opars := parser(actions[i].Condition[o].Condition, calc_params, dir, line, functions, vars, false).Exp
+
+          val := mathParse(&opars, functions, line, calc_params, vars, dir)[0][0]
 
           if val != "false" && val != "undefined" && val != "null" {
             parsed := parser(actions[i].Condition[o].Actions, calc_params, dir, line, functions, vars, false)
+
+            vars = mergeVars(vars, parsed.Variables)
 
             if parsed.Type == "return" {
               return Returner{ parsed.Val, parsed.Variables, parsed.Exp, "return" }
@@ -150,9 +174,20 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         fileName := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0][0]
 
         file := read(dir + fileName, "Cannot Find File: " + fileName, true)
+        fileNQ, _ := NQReplace(file)
 
-        lexxed := lexer(file)
-        actions := actionizer(lexxed)
+        lexCmd := exec.Command("./lexer/main-win.exe")
+
+        lexCmd.Stdin = strings.NewReader(fileNQ + "\n")
+
+        _lex, _ := lexCmd.CombinedOutput()
+        lex_ := string(_lex)
+
+        var lex []string
+
+        json.Unmarshal([]byte(lex_), &lex)
+
+        actions := actionizer(lex)
         parsed := parser(actions, calc_params, dir, line, functions, vars, false)
 
         for k, v := range parsed.Variables {
@@ -166,17 +201,17 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
 
         val, _ := glossaryIndex(actions[i].ExpStr, actions[i].Indexes, functions, line, calc_params, vars, dir)
 
-        exp = append(exp, mathParse([][]string{ val }, functions, line, calc_params, vars, dir)[0])
+        exp = append(exp, mathParse(&[][]string{ val }, functions, line, calc_params, vars, dir)[0])
       case "arrayIndex":
 
         val, _ := arrayIndex(actions[i].ExpStr, actions[i].Indexes, functions, line, calc_params, vars, dir)
 
-        exp = append(exp, mathParse([][]string{ val }, functions, line, calc_params, vars, dir)[0])
+        exp = append(exp, mathParse(&[][]string{ val }, functions, line, calc_params, vars, dir)[0])
       case "expressionIndex":
 
         var val []string
 
-        expStr := mathParse([][]string{ actions[i].ExpStr }, functions, line, calc_params, vars, dir)[0]
+        expStr := mathParse(&[][]string{ actions[i].ExpStr }, functions, line, calc_params, vars, dir)[0]
 
         if expStr[0] == "[:" {
           val, _ = glossaryIndex(expStr, actions[i].Indexes, functions, line, calc_params, vars, dir)
@@ -186,7 +221,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
           val, _ = stringIndex(expStr, actions[i].Indexes, functions, line, calc_params, vars, dir)
         }
 
-        exp = append(exp, mathParse([][]string{ val }, functions, line, calc_params, vars, dir)[0])
+        exp = append(exp, mathParse(&[][]string{ val }, functions, line, calc_params, vars, dir)[0])
       case "read":
         fmt.Print(strings.Join(parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], ""))
         text, _ := scanner.ReadString('\n')
@@ -198,9 +233,22 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         return Returner{ []string{"skip"}, vars, [][]string{}, "skip" }
       case "eval":
 
-        calculated := mathParse([][]string{actions[i].ExpStr}, functions, line, calc_params, vars, dir)[0][0]
-        lexxed := lexer(calculated[1:][:len(calculated) - 1])
-        actions := actionizer(lexxed)
+        calculated := mathParse(&[][]string{actions[i].ExpStr}, functions, line, calc_params, vars, dir)[0][0]
+
+        fileNQ, _ := NQReplace(calculated)
+
+        lexCmd := exec.Command("./lexer/main-win.exe")
+
+        lexCmd.Stdin = strings.NewReader(fileNQ + "\n")
+
+        _lex, _ := lexCmd.CombinedOutput()
+        lex_ := string(_lex)
+
+        var lex []string
+
+        json.Unmarshal([]byte(lex_), &lex)
+
+        actions := actionizer(lex)
         parser(actions, calc_params, dir, line, functions, vars, false)
       case "typeof":
 
@@ -226,12 +274,16 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         fmt.Println("There Was An Error: " + parsed + " On Line " + strconv.Itoa(int(line)))
       case "loop":
 
-        for ;parser(actions[i].Condition[0].Condition, calc_params, dir, line, functions, vars, false).Exp[0][0] == "true"; {
+        cond := [][]string{ actions[i].Condition[0].Condition[0].ExpStr }
+
+        curBool := mathParse(&cond, functions, line, calc_params, vars, dir)[0][0]
+
+        for ;curBool != "false" && curBool != "undefined" && curBool != "null"; {
           var parsed = parser(actions[i].Condition[0].Actions, calc_params, dir, line, functions, vars, false)
 
-          for k, v := range parsed.Variables {
-            vars[k] = v
-          }
+          vars = mergeVars(vars, parsed.Variables)
+
+          curBool = mathParse(&cond, functions, line, calc_params, vars, dir)[0][0]
 
           if parsed.Type == "return" {
             return Returner{ parsed.Val, parsed.Variables, parsed.Exp, "return" }
@@ -247,7 +299,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         }
       case "ascii":
         parsed := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false)
-        calculated := mathParse([][]string{ parsed.Exp[0] }, functions, line, calc_params, vars, dir)[0][0]
+        calculated := mathParse(&[][]string{ parsed.Exp[0] }, functions, line, calc_params, vars, dir)[0][0]
 
         if !(strings.HasPrefix(calculated, "'") || strings.HasPrefix(calculated, "\"") || strings.HasPrefix(calculated, "`")) {
           fmt.Println("There Was An Error: You Cannot Get An ASCII Value Of A Non-String\n\n" + calculated + "\n^ <- Error On Line " + strconv.Itoa(int(line)))
@@ -258,7 +310,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         exp = append(exp, []string{ strconv.Itoa(int(calculated_)) })
       case "parse":
         parsed := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false)
-        calculated := mathParse([][]string{ parsed.Exp[0] }, functions, line, calc_params, vars, dir)[0][0]
+        calculated := mathParse(&[][]string{ parsed.Exp[0] }, functions, line, calc_params, vars, dir)[0][0]
 
         numCheck, _ := regexp.MatchString("\\d+", calculated)
 
@@ -275,5 +327,5 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
     }
   }
 
-  return Returner{ []string{}, vars, mathParse(exp, functions, line, calc_params, vars, dir), "" }
+  return Returner{ []string{}, vars, mathParse(&exp, functions, line, calc_params, vars, dir), "" }
 }

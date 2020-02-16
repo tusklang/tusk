@@ -1,3 +1,17 @@
 proc ~ tostring(val) {
   return ~ '' + val;
 }
+proc ~ isPrime(val) {
+  cur: val - 1;
+
+  loop (cur > 1) {
+    if (val % cur = 0) {
+      return false;
+    }
+
+    cur: cur - 1;
+    log ~ cur;
+  }
+
+  return true;
+}

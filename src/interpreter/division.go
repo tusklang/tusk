@@ -34,7 +34,7 @@ func division(_num1 string, _num2 string, calc_params paramCalcOpts, line uint64
   }
 
   for ;len(_num2) > len(_num1); {
-    _num1+="000000000000000000000000000000000000000000000"
+    _num1+=strings.Repeat("0", 20)
   }
 
   zeroesRep := strings.Repeat("0", calc_params.precision)

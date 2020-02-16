@@ -9,7 +9,7 @@ void printer(int color, string val) {
 
   hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
   SetConsoleTextAttribute(hConsole, color);
-  cout << val << endl;
+  cout << val;
 
   SetConsoleTextAttribute(hConsole, 7);
 }

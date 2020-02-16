@@ -3,11 +3,20 @@ package main
 import "strings"
 import "regexp"
 
+//json lib created by the jsoniter group on github
+import "github.com/json-iterator/go"
+
 func replaceFrom(orig []string, start, end int, with string) []string {
   return append(append(orig[:start], with), orig[end + 1:]...)
 }
 
-func mathParse(exp [][]string, functions []Funcs, line uint64, calc_params paramCalcOpts, vars map[string]Variable, dir string) [][]string {
+func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params paramCalcOpts, vars map[string]Variable, dir string) [][]string {
+
+  var json = jsoniter.ConfigCompatibleWithStandardLibrary
+
+  exp := *gexp
+
+  orig, _ := json.Marshal(exp)
 
   if len(exp) == 0 {
     return [][]string{[]string{"0"}}
@@ -229,7 +238,7 @@ func mathParse(exp [][]string, functions []Funcs, line uint64, calc_params param
     }
 
     for ;arrayContain2Nest(exp, ">=") || arrayContain2Nest(exp, "<="); {
-      if indexOf2Nest(">=", exp)[0] < indexOf2Nest("<=", exp)[0] || indexOf2Nest("<=", exp)[0] == -1 {
+      if (indexOf2Nest(">=", exp)[0] < indexOf2Nest("<=", exp)[0] || indexOf2Nest("<=", exp)[0] == -1)  && indexOf2Nest(">=", exp)[0] != -1 {
         index := indexOf2Nest(">=", exp)
 
         if !isLess(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 1]) {
@@ -249,7 +258,7 @@ func mathParse(exp [][]string, functions []Funcs, line uint64, calc_params param
     }
 
     for ;arrayContain2Nest(exp, ">") || arrayContain2Nest(exp, "<"); {
-      if indexOf2Nest(">", exp)[0] < indexOf2Nest("<", exp)[0] || indexOf2Nest("<", exp)[0] == -1 {
+      if (indexOf2Nest(">", exp)[0] < indexOf2Nest("<", exp)[0] || indexOf2Nest("<", exp)[0] == -1) && indexOf2Nest(">", exp)[0] != -1 {
         index := indexOf2Nest(">", exp)
 
         if !isLess(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 1]) && returnInit(exp[index[0]][index[1] - 1]) != returnInit(exp[index[0]][index[1] + 1]) {
@@ -269,7 +278,7 @@ func mathParse(exp [][]string, functions []Funcs, line uint64, calc_params param
     }
 
     for ;arrayContain2Nest(exp, "=") || arrayContain2Nest(exp, "!="); {
-      if indexOf2Nest("=", exp)[0] < indexOf2Nest("!=", exp)[0] || indexOf2Nest("!=", exp)[0] == -1 {
+      if (indexOf2Nest("=", exp)[0] < indexOf2Nest("!=", exp)[0] || indexOf2Nest("!=", exp)[0] == -1) && indexOf2Nest("=", exp)[0] != -1 {
         index := indexOf2Nest("=", exp)
 
         if returnInit(exp[index[0]][index[1] - 1]) == returnInit(exp[index[0]][index[1] + 1]) {
@@ -289,7 +298,7 @@ func mathParse(exp [][]string, functions []Funcs, line uint64, calc_params param
     }
 
     for ;arrayContain2Nest(exp, "~~") || arrayContain2Nest(exp, "!~"); {
-      if indexOf2Nest("~~", exp)[0] < indexOf2Nest("!~", exp)[0] || indexOf2Nest("!~", exp)[0] == -1 {
+      if (indexOf2Nest("~~", exp)[0] < indexOf2Nest("!~", exp)[0] || indexOf2Nest("!~", exp)[0] == -1) && indexOf2Nest("!~", exp)[0] != -1 {
         index := indexOf2Nest("~~", exp)
 
         if isLess(add(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 1], calc_params, line, functions), exp[index[0]][index[1] + 3]) || isLess(subtract(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 1], calc_params, line, functions), exp[index[0]][index[1] + 3]) {
@@ -309,7 +318,7 @@ func mathParse(exp [][]string, functions []Funcs, line uint64, calc_params param
     }
 
     for ;arrayContain2Nest(exp, "~~~") || arrayContain2Nest(exp, "!~~"); {
-      if indexOf2Nest("~~", exp)[0] < indexOf2Nest("!~", exp)[0] || indexOf2Nest("!~", exp)[0] == -1 {
+      if (indexOf2Nest("~~~", exp)[0] < indexOf2Nest("!~~", exp)[0] || indexOf2Nest("!~~", exp)[0] == -1) && indexOf2Nest("~~~", exp)[0] != -1 {
         index := indexOf2Nest("~~~", exp)
 
         if returnInit(add(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 3], calc_params, line, functions)) == returnInit(exp[index[0]][index[1] + 3]) && returnInit(subtract(exp[index[0]][index[1] - 1], exp[index[0]][index[1] + 1], calc_params, line, functions)) == returnInit(exp[index[0]][index[1] + 3]) {
@@ -343,7 +352,7 @@ func mathParse(exp [][]string, functions []Funcs, line uint64, calc_params param
         exp_ = append(exp_, exp[index[0]][i])
       }
 
-      val := returnInit(mathParse([][]string{ exp_}, functions, line, calc_params, vars, dir)[0][0])
+      val := returnInit(mathParse(&[][]string{ exp_}, functions, line, calc_params, vars, dir)[0][0])
 
       if val == "false" || val == "undefined" || val == "null" {
         exp[index[0]] = replaceFrom(exp[index[0]], index[1], index[1] + len(exp_), "true")
@@ -353,7 +362,7 @@ func mathParse(exp [][]string, functions []Funcs, line uint64, calc_params param
     }
 
     for ;arrayContain2Nest(exp, "|") || arrayContain2Nest(exp, "&"); {
-      if indexOf2Nest("|", exp)[0] < indexOf2Nest("&", exp)[0] || indexOf2Nest("&", exp)[0] == -1 {
+      if (indexOf2Nest("|", exp)[0] < indexOf2Nest("&", exp)[0] || indexOf2Nest("&", exp)[0] == -1) && indexOf2Nest("|", exp)[0] != -1 {
         index := indexOf2Nest("|", exp)
 
         val1 := returnInit(exp[index[0]][index[1] - 1])
@@ -378,6 +387,14 @@ func mathParse(exp [][]string, functions []Funcs, line uint64, calc_params param
       }
     }
 
-    return exp
+    _exp, _ := json.Marshal(exp)
+
+    json.Unmarshal(orig, &*gexp)
+
+    var exp_ [][]string
+
+    json.Unmarshal(_exp, &exp_)
+
+    return exp_
   }
 }
