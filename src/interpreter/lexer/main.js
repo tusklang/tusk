@@ -4,7 +4,7 @@ const keywords = require('./keywords.json')
 var stdinBuffer = fs.readFileSync(0)
 , file = stdinBuffer.toString();
 
-file = require('procInit')(file);
+file = require('./procInit')(file);
 
 var lex = [];
 
