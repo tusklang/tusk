@@ -1,8 +1,11 @@
 const keywords = require('./keywords.json')
+, neccParse = require('./neccParse')
 , fs = require('fs');
 
-var stdinBuffer = fs.readFileSync(0)
-, file = stdinBuffer.toString();
+// var stdinBuffer = fs.readFileSync(0)
+// , file = stdinBuffer.toString();
+
+file = '~~~';
 
 file = require('./procInit')(file);
 
@@ -16,10 +19,25 @@ for (let i = 0; i < keywords.length; i++) {
 
   if (pattern.test(file)) {
 
-    file = file.substr(keywords[i].remove.length);
-    lex.push(keywords[i].name);
-    i = -1;
-    continue;
+    if (keywords[i].after_soft_necc && !neccParse(file.substr(keywords[i].remove.length), keywords[i].after_soft_necc)) continue;
+    if (keywords[i].after_necc && !neccParse(file.substr(keywords[i].remove.length), keywords[i].after_necc)) {
+
+      if (file.substr(keywords[i].remove.length)[0]) console.log('Error: Unexpected ' + '\'' + file.substr(keywords[i].remove.length)[0] + '\'');
+      else console.log('Error: Expected Something After ' + keywords[i].remove);
+
+      process.exit(1);
+    } else if (keywords[i].after_prohib && neccParse(file.substr(keywords[i].remove.length), keywords[i].after_prohib)) {
+
+      if (file.substr(keywords[i].remove.length)[0]) console.log('Error: Unexpected ' + '\'' + file.substr(keywords[i].remove.length)[0] + '\'');
+      else console.log('Error: Expected Something After ' + keywords[i].remove);
+
+      process.exit(1);
+    } else {
+      file = file.substr(keywords[i].remove.length);
+      lex.push(keywords[i].name);
+      i = -1;
+      continue;
+    }
   }
 
   if (i + 1 == keywords.length) {

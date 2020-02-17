@@ -9,7 +9,8 @@
     "name": "=>",
     "remove": "=>",
     "pattern": "^(\\=\\>\\{)",
-    "type": "operation"
+    "type": "operation",
+    "after_necc": ["{"]
   },
   {
     "name": "len",
@@ -20,26 +21,30 @@
   {
     "name": "~~~",
     "remove": "~~~",
-    "pattern": "^((~~~)(?=\\d+))",
-    "type": "id"
+    "pattern": "^((~~~))",
+    "type": "id",
+    "after_necc": ["\\d"]
   },
   {
     "name": "!~~",
     "remove": "!~~",
-    "pattern": "^((\\!~~)(?=\\d+))",
-    "type": "id"
+    "pattern": "^((\\!~~))",
+    "type": "id",
+    "after_necc": ["\\d"]
   },
   {
     "name": "~~",
     "remove": "~~",
-    "pattern": "^(~~(?=\\d+))",
-    "type": "id"
+    "pattern": "^(~~)",
+    "type": "id",
+    "after_necc": ["\\d"]
   },
   {
     "name": "!~",
     "remove": "!~",
-    "pattern": "^((~\\!)(?=\\d+))",
-    "type": "id"
+    "pattern": "^(~\\!)",
+    "type": "id",
+    "after_necc": ["\\d"]
   },
   {
     "name": "abstract",
@@ -111,7 +116,8 @@
     "name": "[:",
     "remove": "[:",
     "pattern": "^(\\[\\:)",
-    "type": "operation"
+    "type": "operation",
+    "after_prohib": ["*keywords"]
   },
   {
     "name": ":]",
@@ -144,8 +150,8 @@
     "type": "math"
   },
   {
-    "name": "",
-    "remove": "",
+    "name": "/",
+    "remove": "/",
     "pattern": "^\\/",
     "type": "math"
   },
@@ -255,25 +261,29 @@
     "name": "true",
     "remove": "true",
     "pattern": "^(true)",
-    "type": "value"
+    "type": "value",
+    "after_soft_necc": ["*operators"]
   },
   {
     "name": "false",
     "remove": "false",
     "pattern": "^(false)",
-    "type": "value"
+    "type": "value",
+    "after_soft_necc": ["*operators"]
   },
   {
     "name": "undefined",
     "remove": "undefined",
     "pattern": "^(undefined)",
-    "type": "value"
+    "type": "value",
+    "after_soft_necc": ["*operators"]
   },
   {
     "name": "null",
     "remove": "null",
     "pattern": "^(null)",
-    "type": "value"
+    "type": "value",
+    "after_soft_necc": ["*operators"]
   },
   {
     "name": "loop",
