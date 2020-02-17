@@ -127,6 +127,12 @@
   },
   {
     "name": ":",
+    "remove": ":=",
+    "pattern": "^(\\:\\=)",
+    "type": "assignment"
+  },
+  {
+    "name": ":",
     "remove": ":",
     "pattern": "^\\:",
     "type": "assignment"

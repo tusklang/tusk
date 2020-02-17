@@ -1,3 +1,0 @@
-cur: 0;
-
-loop (cur < 10; cur: cur + 1; log ~ cur;);
