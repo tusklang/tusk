@@ -85,7 +85,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         log(strings.Join(parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], ""))
       case "expression":
         expStr := [][]string{ actions[i].ExpStr }
-        exp = append(exp, mathParse(&expStr, functions, line, calc_params, vars, dir)...)
+        exp = append(exp, mathParse(&expStr, functions, line, calc_params, &vars, dir)...)
         actions[i].ExpStr = expStr[0]
       case "group":
         grouped := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false)
@@ -141,18 +141,18 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
           exp = append(exp, []string{ "undefined" })
         } else {
           val := [][]string{ parsed.Val }
-          exp = append(exp, mathParse(&val, functions, line, calc_params, vars, dir)...)
+          exp = append(exp, mathParse(&val, functions, line, calc_params, &vars, dir)...)
           parsed.Val = val[0]
         }
       case "return":
-        return Returner{ parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], vars, mathParse(&exp, functions, line, calc_params, vars, dir), "return" }
+        return Returner{ parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], vars, mathParse(&exp, functions, line, calc_params, &vars, dir), "return" }
       case "conditional":
 
         for o := 0; o < len(actions[i].Condition); o++ {
 
           opars := parser(actions[i].Condition[o].Condition, calc_params, dir, line, functions, vars, false).Exp
 
-          val := mathParse(&opars, functions, line, calc_params, vars, dir)[0][0]
+          val := mathParse(&opars, functions, line, calc_params, &vars, dir)[0][0]
 
           if val != "false" && val != "undefined" && val != "null" {
             parsed := parser(actions[i].Condition[o].Actions, calc_params, dir, line, functions, vars, false)
@@ -206,17 +206,17 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
 
         val, _ := hashIndex(actions[i].ExpStr, actions[i].Indexes, functions, line, calc_params, vars, dir)
 
-        exp = append(exp, mathParse(&[][]string{ val }, functions, line, calc_params, vars, dir)[0])
+        exp = append(exp, mathParse(&[][]string{ val }, functions, line, calc_params, &vars, dir)[0])
       case "arrayIndex":
 
         val, _ := arrayIndex(actions[i].ExpStr, actions[i].Indexes, functions, line, calc_params, vars, dir)
 
-        exp = append(exp, mathParse(&[][]string{ val }, functions, line, calc_params, vars, dir)[0])
+        exp = append(exp, mathParse(&[][]string{ val }, functions, line, calc_params, &vars, dir)[0])
       case "expressionIndex":
 
         var val []string
 
-        expStr := mathParse(&[][]string{ actions[i].ExpStr }, functions, line, calc_params, vars, dir)[0]
+        expStr := mathParse(&[][]string{ actions[i].ExpStr }, functions, line, calc_params, &vars, dir)[0]
 
         if expStr[0] == "[:" {
           val, _ = hashIndex(expStr, actions[i].Indexes, functions, line, calc_params, vars, dir)
@@ -226,7 +226,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
           val, _ = stringIndex(expStr, actions[i].Indexes, functions, line, calc_params, vars, dir)
         }
 
-        exp = append(exp, mathParse(&[][]string{ val }, functions, line, calc_params, vars, dir)[0])
+        exp = append(exp, mathParse(&[][]string{ val }, functions, line, calc_params, &vars, dir)[0])
       case "read":
         log(strings.Join(parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], ""))
         text, _ := scanner.ReadString('\n')
@@ -238,7 +238,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         return Returner{ []string{"skip"}, vars, [][]string{}, "skip" }
       case "eval":
 
-        calculated := mathParse(&[][]string{actions[i].ExpStr}, functions, line, calc_params, vars, dir)[0][0]
+        calculated := mathParse(&[][]string{actions[i].ExpStr}, functions, line, calc_params, &vars, dir)[0][0]
 
         fileNQ, _ := NQReplace(calculated)
 
@@ -281,14 +281,14 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
 
         cond := [][]string{ actions[i].Condition[0].Condition[0].ExpStr }
 
-        curBool := mathParse(&cond, functions, line, calc_params, vars, dir)[0][0]
+        curBool := mathParse(&cond, functions, line, calc_params, &vars, dir)[0][0]
 
         for ;curBool != "false" && curBool != "undefined" && curBool != "null"; {
           var parsed = parser(actions[i].Condition[0].Actions, calc_params, dir, line, functions, vars, false)
 
           vars = mergeVars(vars, parsed.Variables)
 
-          curBool = mathParse(&cond, functions, line, calc_params, vars, dir)[0][0]
+          curBool = mathParse(&cond, functions, line, calc_params, &vars, dir)[0][0]
 
           if parsed.Type == "return" {
             return Returner{ parsed.Val, parsed.Variables, parsed.Exp, "return" }
@@ -304,7 +304,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         }
       case "ascii":
         parsed := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false)
-        calculated := mathParse(&[][]string{ parsed.Exp[0] }, functions, line, calc_params, vars, dir)[0][0]
+        calculated := mathParse(&[][]string{ parsed.Exp[0] }, functions, line, calc_params, &vars, dir)[0][0]
 
         if !(strings.HasPrefix(calculated, "'") || strings.HasPrefix(calculated, "\"") || strings.HasPrefix(calculated, "`")) {
           fmt.Println("There Was An Error: You Cannot Get An ASCII Value Of A Non-String\n\n" + calculated + "\n^ <- Error On Line " + strconv.Itoa(int(line)))
@@ -315,7 +315,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         exp = append(exp, []string{ strconv.Itoa(int(calculated_)) })
       case "parse":
         parsed := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false)
-        calculated := mathParse(&[][]string{ parsed.Exp[0] }, functions, line, calc_params, vars, dir)[0][0]
+        calculated := mathParse(&[][]string{ parsed.Exp[0] }, functions, line, calc_params, &vars, dir)[0][0]
 
         numCheck, _ := regexp.MatchString("\\d+", calculated)
 
@@ -332,5 +332,5 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
     }
   }
 
-  return Returner{ []string{}, vars, mathParse(&exp, functions, line, calc_params, vars, dir), "" }
+  return Returner{ []string{}, vars, mathParse(&exp, functions, line, calc_params, &vars, dir), "" }
 }

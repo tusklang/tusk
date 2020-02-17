@@ -62,8 +62,8 @@ func hashIndex(expStr_ []string, indexes [][]string, functions []Funcs, line uin
 
       for j := 0; j < len(formatted); j++ {
 
-        left := mathParse(&[][]string{ formatted[j][0] }, functions, line, calc_params, vars, dir)
-        index := mathParse(&[][]string{ indexes[0] }, functions, line, calc_params, vars, dir)
+        left := mathParse(&[][]string{ formatted[j][0] }, functions, line, calc_params, &vars, dir)
+        index := mathParse(&[][]string{ indexes[0] }, functions, line, calc_params, &vars, dir)
 
         if left[0][0] == index[0][1] {
           cur = formatted[j][1]
@@ -140,7 +140,7 @@ func arrayIndex(expStr_ []string, indexes [][]string, functions []Funcs, line ui
     } else if cur[0] == "[" {
       formatted := formatter(cur)
 
-      index, _ := strconv.Atoi(mathParse(&indexes, functions, line, calc_params, vars, dir)[0][1])
+      index, _ := strconv.Atoi(mathParse(&indexes, functions, line, calc_params, &vars, dir)[0][1])
 
       cur = formatted[index]
       indexes = indexes[1:]
@@ -154,7 +154,7 @@ func arrayIndex(expStr_ []string, indexes [][]string, functions []Funcs, line ui
 
 func stringIndex(expStr_ []string, indexes [][]string, functions []Funcs, line uint64, calc_params paramCalcOpts, vars map[string]Variable, dir string) ([]string, [][]string) {
 
-  expStr := mathParse(&[][]string{ expStr_ }, functions, line, calc_params, vars, dir)[0][0]
+  expStr := mathParse(&[][]string{ expStr_ }, functions, line, calc_params, &vars, dir)[0][0]
 
   expStr = expStr[1:len(expStr) - 1]
 
@@ -162,7 +162,7 @@ func stringIndex(expStr_ []string, indexes [][]string, functions []Funcs, line u
     return []string{"undefined"}, indexes
   } else {
 
-    index := mathParse(&[][]string{ indexes[0][1:len(indexes[0]) - 1] }, functions, line, calc_params, vars, dir)[0][0]
+    index := mathParse(&[][]string{ indexes[0][1:len(indexes[0]) - 1] }, functions, line, calc_params, &vars, dir)[0][0]
 
     index_, _ := strconv.Atoi(index)
 

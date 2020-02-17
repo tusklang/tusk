@@ -7,7 +7,7 @@ func replaceFrom(orig []string, start, end int, with string) []string {
   return append(append(orig[:start], with), orig[end + 1:]...)
 }
 
-func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params paramCalcOpts, vars map[string]Variable, dir string) [][]string {
+func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params paramCalcOpts, vars *map[string]Variable, dir string) [][]string {
 
   exp := *gexp
 
@@ -26,6 +26,21 @@ func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params par
   } else if exp[0][0] == "true" || exp[0][0] == "false" || exp[0][0] == "undefined" || exp[0][0] == "null" {
     return exp
   } else {
+    for ;arrayContain2Nest(exp, "(") && arrayContain2Nest(exp, ")"); {
+
+      start := indexOf2Nest("(", exp)
+      end := indexOf2Nest(")", exp)
+      parenExp := exp[start[0]][start[1] + 1:end[1]]
+
+      actions := actionizer(parenExp)
+
+      evaled := parser(actions, calc_params, dir, line, functions, *vars, false)
+
+      *vars = mergeVars(*vars, evaled.Variables)
+
+      exp[start[0]] = replaceFrom(exp[start[0]], start[1], end[1], evaled.Exp[0][0])
+    }
+
     for i := 0; i < len(exp); i++ {
 
       for o := 0; o < len(exp[i]); o++ {
@@ -37,26 +52,15 @@ func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params par
             }
           }
 
-          if vars[exp[i][o]].Value == nil {
-            exp[i][o] = parser(vars[exp[i][o][1:]].ValueActs, calc_params, dir, line, functions, vars, false).Exp[0][0]
+          vars_ := *vars
+
+          if vars_[exp[i][o]].Value == nil {
+            exp[i][o] = parser(vars_[exp[i][o][1:]].ValueActs, calc_params, dir, line, functions, *vars, false).Exp[0][0]
           } else {
-            exp[i][o] = vars[exp[i][o]].Value[0]
+            exp[i][o] = vars_[exp[i][o]].Value[0]
           }
         }
       }
-    }
-
-    for ;arrayContain2Nest(exp, "(") && arrayContain2Nest(exp, ")"); {
-
-      start := indexOf2Nest("(", exp)
-      end := indexOf2Nest(")", exp)
-      parenExp := exp[start[0]][start[1] + 1:end[1]]
-
-      actions := actionizer(parenExp)
-
-      evaled := parser(actions, calc_params, dir, line, functions, vars, false).Exp[0][0]
-
-      exp[start[0]] = replaceFrom(exp[start[0]], start[1], end[1], evaled)
     }
 
     for ;arrayContain2Nest(exp, "^"); {
