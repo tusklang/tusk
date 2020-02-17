@@ -1270,9 +1270,9 @@ func actionizer(lex []string) []Action {
 
           i+=3
 
-          actions = append(actions, Action{ "glossaryIndex", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, indexes })
+          actions = append(actions, Action{ "hashIndex", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, indexes })
         } else {
-          actions = append(actions, Action{ "glossary", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+          actions = append(actions, Action{ "hash", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
         }
       case "[":
         var phrase = []string{}

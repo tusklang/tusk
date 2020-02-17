@@ -198,13 +198,13 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         for k, v := range parsed.Variables {
           vars[k] = v
         }
-      case "glossary":
+      case "hash":
         exp = append(exp, actions[i].ExpStr)
       case "array":
         exp = append(exp, actions[i].ExpStr)
-      case "glossaryIndex":
+      case "hashIndex":
 
-        val, _ := glossaryIndex(actions[i].ExpStr, actions[i].Indexes, functions, line, calc_params, vars, dir)
+        val, _ := hashIndex(actions[i].ExpStr, actions[i].Indexes, functions, line, calc_params, vars, dir)
 
         exp = append(exp, mathParse(&[][]string{ val }, functions, line, calc_params, vars, dir)[0])
       case "arrayIndex":
@@ -219,7 +219,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         expStr := mathParse(&[][]string{ actions[i].ExpStr }, functions, line, calc_params, vars, dir)[0]
 
         if expStr[0] == "[:" {
-          val, _ = glossaryIndex(expStr, actions[i].Indexes, functions, line, calc_params, vars, dir)
+          val, _ = hashIndex(expStr, actions[i].Indexes, functions, line, calc_params, vars, dir)
         } else if expStr[0] == "[" {
           val, _ = arrayIndex(expStr, actions[i].Indexes, functions, line, calc_params, vars, dir)
         } else {
@@ -264,7 +264,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         if strings.HasPrefix(parsed, "'") || strings.HasPrefix(parsed, "\"") || strings.HasPrefix(parsed, "`") {
           exp = append(exp, []string{ "string" })
         } else if strings.HasPrefix(parsed, "[:") {
-          exp = append(exp, []string{ "glossary" })
+          exp = append(exp, []string{ "hash" })
         } else if strings.HasPrefix(parsed, "[") {
           exp = append(exp, []string{ "array" })
         } else if parsed == "true" || parsed == "false" {

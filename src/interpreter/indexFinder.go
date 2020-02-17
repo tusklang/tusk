@@ -2,7 +2,7 @@ package main
 
 import "strconv"
 
-func glossaryIndex(expStr_ []string, indexes [][]string, functions []Funcs, line uint64, calc_params paramCalcOpts, vars map[string]Variable, dir string) ([]string, [][]string) {
+func hashIndex(expStr_ []string, indexes [][]string, functions []Funcs, line uint64, calc_params paramCalcOpts, vars map[string]Variable, dir string) ([]string, [][]string) {
   formatter := func(gl []string) [][][]string {
     formatted := [][][]string{[][]string{[]string{}}}
 
@@ -136,7 +136,7 @@ func arrayIndex(expStr_ []string, indexes [][]string, functions []Funcs, line ui
   for ;len(indexes) > 0; {
 
     if cur[0] == "[:" {
-      cur, indexes = glossaryIndex(cur, indexes, functions, line, calc_params, vars, dir)
+      cur, indexes = hashIndex(cur, indexes, functions, line, calc_params, vars, dir)
     } else if cur[0] == "[" {
       formatted := formatter(cur)
 
