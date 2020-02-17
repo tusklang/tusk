@@ -3,20 +3,21 @@ package main
 import "strings"
 import "regexp"
 
-//json lib created by the jsoniter group on github
-import "github.com/json-iterator/go"
-
 func replaceFrom(orig []string, start, end int, with string) []string {
   return append(append(orig[:start], with), orig[end + 1:]...)
 }
 
 func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params paramCalcOpts, vars map[string]Variable, dir string) [][]string {
 
-  var json = jsoniter.ConfigCompatibleWithStandardLibrary
-
   exp := *gexp
 
-  orig, _ := json.Marshal(exp)
+  var orig = [][][]rune{[][]rune{}}
+
+  for i := 0; i < len(exp); i++ {
+    for o := 0; o < len(exp[i]); o++ {
+      orig[len(orig) - 1] = append(orig[len(orig) - 1], []rune(exp[i][o]))
+    }
+  }
 
   if len(exp) == 0 {
     return [][]string{[]string{"0"}}
@@ -387,14 +388,18 @@ func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params par
       }
     }
 
-    _exp, _ := json.Marshal(exp)
+    _exp := exp
 
-    json.Unmarshal(orig, &*gexp)
+    var copyer = [][]string{[]string{}}
 
-    var exp_ [][]string
+    for i := 0; i < len(orig); i++ {
+      for o := 0; o < len(orig[i]); o++ {
+        copyer[len(copyer) - 1] = append(copyer[len(copyer) - 1], string(orig[i][o]))
+      }
+    }
 
-    json.Unmarshal(_exp, &exp_)
+    *gexp = [][]string(copyer)
 
-    return exp_
+    return _exp
   }
 }

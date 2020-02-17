@@ -1,9 +1,1 @@
-cur: 5;
-
-loop (cur < 10) {
-  if (#~isPrime(cur)) {
-    log ~ cur;
-  }
-
-  cur: cur + 1;
-}
+log ~ #~isPrime(5);

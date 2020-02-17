@@ -84,7 +84,9 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
       case "print":
         log(strings.Join(parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], ""))
       case "expression":
-        exp = append(exp, mathParse(&[][]string{ actions[i].ExpStr }, functions, line, calc_params, vars, dir)...)
+        expStr := [][]string{ actions[i].ExpStr }
+        exp = append(exp, mathParse(&expStr, functions, line, calc_params, vars, dir)...)
+        actions[i].ExpStr = expStr[0]
       case "group":
         grouped := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false)
 
@@ -138,11 +140,14 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         if len(parsed.Val) <= 0 {
           exp = append(exp, []string{ "undefined" })
         } else {
-          exp = append(exp, mathParse(&[][]string{ parsed.Val }, functions, line, calc_params, vars, dir)...)
+          val := [][]string{ parsed.Val }
+          exp = append(exp, mathParse(&val, functions, line, calc_params, vars, dir)...)
+          parsed.Val = val[0]
         }
       case "return":
         return Returner{ parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], vars, mathParse(&exp, functions, line, calc_params, vars, dir), "return" }
       case "conditional":
+
         for o := 0; o < len(actions[i].Condition); o++ {
 
           opars := parser(actions[i].Condition[o].Condition, calc_params, dir, line, functions, vars, false).Exp
@@ -223,7 +228,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
 
         exp = append(exp, mathParse(&[][]string{ val }, functions, line, calc_params, vars, dir)[0])
       case "read":
-        fmt.Print(strings.Join(parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], ""))
+        log(strings.Join(parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], ""))
         text, _ := scanner.ReadString('\n')
 
         exp = append(exp, []string{ text })
