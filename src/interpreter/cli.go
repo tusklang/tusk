@@ -14,7 +14,7 @@ type paramCalcOpts struct {
 func defaults(params paramCalcOpts) paramCalcOpts {
   params.logger = false
   params.mult_thresh = "1000"
-  params.precision = 10000
+  params.precision = 100
 
   return params
 }

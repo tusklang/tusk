@@ -68,6 +68,10 @@ func division(_num1 string, _num2 string, calc_params paramCalcOpts, line uint64
     final+=curQ
   }
 
+  for len(final) < combinedIndex {
+    final = "0" + final;
+  }
+
   final = final[:combinedIndex] + "." + final[combinedIndex:]
 
   return returnInit(final)

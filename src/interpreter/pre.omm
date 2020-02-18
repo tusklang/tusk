@@ -2,10 +2,9 @@ proc ~ tostring(val) {
   return ~ '' + val;
 }
 proc ~ isPrime(val) {
-  cur: val;
+  cur: (val / 2);
 
-  loop (cur--; cur > 1;) {
-
+  loop (cur > 1; cur--;) {
     if (val % cur == 0) {
       return ~ false;
     }
