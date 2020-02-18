@@ -1,13 +1,13 @@
 const keywords = require('./keywords.json')
-, neccParse = require('./neccParse')
+, testKey = require('./testKey.js')
 , fs = require('fs');
 
-// var stdinBuffer = fs.readFileSync(0)
-// , file = stdinBuffer.toString();
-
-file = '~~~';
+var stdinBuffer = fs.readFileSync(0)
+, file = stdinBuffer.toString();
 
 file = require('./procInit')(file);
+
+const copyFile = file;
 
 var lex = [];
 
@@ -15,29 +15,12 @@ for (let i = 0; i < keywords.length; i++) {
 
   if (file.length == 0) break;
 
-  var pattern = new RegExp(keywords[i].pattern);
+  if (testKey(copyFile, file, keywords[i])) {
 
-  if (pattern.test(file)) {
-
-    if (keywords[i].after_soft_necc && !neccParse(file.substr(keywords[i].remove.length), keywords[i].after_soft_necc)) continue;
-    if (keywords[i].after_necc && !neccParse(file.substr(keywords[i].remove.length), keywords[i].after_necc)) {
-
-      if (file.substr(keywords[i].remove.length)[0]) console.log('Error: Unexpected ' + '\'' + file.substr(keywords[i].remove.length)[0] + '\'');
-      else console.log('Error: Expected Something After ' + keywords[i].remove);
-
-      process.exit(1);
-    } else if (keywords[i].after_prohib && neccParse(file.substr(keywords[i].remove.length), keywords[i].after_prohib)) {
-
-      if (file.substr(keywords[i].remove.length)[0]) console.log('Error: Unexpected ' + '\'' + file.substr(keywords[i].remove.length)[0] + '\'');
-      else console.log('Error: Expected Something After ' + keywords[i].remove);
-
-      process.exit(1);
-    } else {
-      file = file.substr(keywords[i].remove.length);
-      lex.push(keywords[i].name);
-      i = -1;
-      continue;
-    }
+    file = file.substr(keywords[i].remove.length);
+    lex.push(keywords[i].name);
+    i = -1;
+    continue;
   }
 
   if (i + 1 == keywords.length) {
@@ -107,7 +90,7 @@ for (let i = 0; i < keywords.length; i++) {
         for (let j = 0; j < keywords.length; j++) {
           let pattern = new RegExp(keywords[j].pattern);
 
-          if (pattern.test(file.substr(o))) break count;
+          if (file.substr(o).search(pattern) == 0) break count;
         }
 
         name+=file[o];

@@ -44,7 +44,5 @@ string replaceWhitespace(string file) {
     }
   }
 
-  cout << nFile;
-
   return nFile;
 }

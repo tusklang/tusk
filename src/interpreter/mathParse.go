@@ -46,8 +46,8 @@ func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params par
       for o := 0; o < len(exp[i]); o++ {
         if strings.HasPrefix(exp[i][o], "$") {
 
-          if o - 1 != -1 {
-            if exp[i][o - 1] == "~" {
+          if o - 2 != -2 {
+            if exp[i][o - 2] == "#" {
               continue
             }
           }

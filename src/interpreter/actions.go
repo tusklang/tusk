@@ -1486,6 +1486,63 @@ func actionizer(lex []string) []Action {
 
           if i + 1 < len_lex {
 
+            if (lex[i + 1] == "++" || lex[i + 1] == "--") && strings.HasPrefix(lex[i], "$") {
+              actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+              i++
+              continue;
+            }
+
+            if (lex[i + 1] == "+=" || lex[i + 1] == "-=" || lex[i + 1] == "*=" || lex[i + 1] == "/=" || lex[i + 1] == "%=" || lex[i + 1] == "^=") && strings.HasPrefix(lex[i], "$") {
+
+              var by_ []string
+
+              cbCnt := 0
+              glCnt := 0
+              bCnt := 0
+              pCnt := 0
+
+              for o := i + 2; o < len_lex; o++ {
+                if lex[o] == "{" {
+                  cbCnt++
+                }
+                if lex[o] == "}" {
+                  cbCnt--
+                }
+
+                if lex[o] == "[:" {
+                  glCnt++
+                }
+                if lex[o] == ":]" {
+                  glCnt--
+                }
+
+                if lex[o] == "[" {
+                  bCnt++
+                }
+                if lex[o] == "]" {
+                  bCnt--
+                }
+
+                if lex[o] == "(" {
+                  pCnt++
+                }
+                if lex[o] == ")" {
+                  pCnt--
+                }
+
+                if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
+                  break
+                }
+
+                by_ = append(by_, lex[o])
+              }
+
+              by := actionizer(by_)
+
+              actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, by, []string{}, []Action{}, []Condition{}, [][]string{} })
+              continue;
+            }
+
             if lex[i + 1] == ":" && strings.HasPrefix(lex[i], "$") {
               exp_ := []string{}
 

@@ -329,6 +329,98 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         } else {
           exp = append(exp, []string{ calculated })
         }
+      case "++":
+
+        if vars[actions[i].Name].Type == "abstract" {
+          fmt.Println("There Was An Error: You Cannot Use The ++ perator On An Abstract Variable")
+          os.Exit(1)
+        }
+
+        val := [][]string{ append(vars[actions[i].Name].Value, []string{ "+", "1" }...) }
+
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+      case "--":
+
+        if vars[actions[i].Name].Type == "abstract" {
+          fmt.Println("There Was An Error: You Cannot Use The -- perator On An Abstract Variable")
+          os.Exit(1)
+        }
+
+        val := [][]string{ append(vars[actions[i].Name].Value, []string{ "-", "1" }...) }
+
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+      case "+=":
+
+        if vars[actions[i].Name].Type == "abstract" {
+          fmt.Println("There Was An Error: You Cannot Use The += perator On An Abstract Variable")
+          os.Exit(1)
+        }
+
+        inc_by := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0][0]
+
+        val := [][]string{ append(vars[actions[i].Name].Value, []string{ "+", inc_by }...) }
+
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+      case "-=":
+
+        if vars[actions[i].Name].Type == "abstract" {
+          fmt.Println("There Was An Error: You Cannot Use The -= perator On An Abstract Variable")
+          os.Exit(1)
+        }
+
+        inc_by := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0][0]
+
+        val := [][]string{ append(vars[actions[i].Name].Value, []string{ "-", inc_by }...) }
+
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+      case "*=":
+
+        if vars[actions[i].Name].Type == "abstract" {
+          fmt.Println("There Was An Error: You Cannot Use The *= perator On An Abstract Variable")
+          os.Exit(1)
+        }
+
+        inc_by := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0][0]
+
+        val := [][]string{ append(vars[actions[i].Name].Value, []string{ "*", inc_by }...) }
+
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+      case "/=":
+
+        if vars[actions[i].Name].Type == "abstract" {
+          fmt.Println("There Was An Error: You Cannot Use The /= perator On An Abstract Variable")
+          os.Exit(1)
+        }
+
+        inc_by := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0][0]
+
+        val := [][]string{ append(vars[actions[i].Name].Value, []string{ "*", inc_by }...) }
+
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+      case "^/":
+
+        if vars[actions[i].Name].Type == "abstract" {
+          fmt.Println("There Was An Error: You Cannot Use The ^= perator On An Abstract Variable")
+          os.Exit(1)
+        }
+
+        inc_by := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0][0]
+
+        val := [][]string{ append(vars[actions[i].Name].Value, []string{ "^", inc_by }...) }
+
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+      case "%=":
+
+        if vars[actions[i].Name].Type == "abstract" {
+          fmt.Println("There Was An Error: You Cannot Use The += perator On An Abstract Variable")
+          os.Exit(1)
+        }
+
+        inc_by := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0][0]
+
+        val := [][]string{ append(vars[actions[i].Name].Value, []string{ "%", inc_by }...) }
+
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
     }
   }
 
