@@ -85,7 +85,7 @@ func actionizer(lex []string) []Action {
 
         actions = append(actions, Action{ "let", lex[i + 2], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{} })
         i+=(4 + len(exp_))
-      case "abstract":
+      case "dynamic":
         exp_ := []string{}
 
         //getting nb semicolons
@@ -138,7 +138,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "abstract", lex[i + 2], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "dynamic", lex[i + 2], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{} })
         i+=(4 + len(exp_))
       case "alt":
 
@@ -513,7 +513,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "group", "", exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "group", "", []string{}, exp, []string{}, []Action{}, []Condition{}, [][]string{} })
         i+=(len(exp_) + 1)
       case "process":
         if lex[i + 1] == "~" {

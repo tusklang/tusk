@@ -2,6 +2,7 @@ const keywords = require('./keywords.json')
 , testKey = require('./testKey.js')
 , fs = require('fs');
 
+//fetch file
 var stdinBuffer = fs.readFileSync(0)
 , file = stdinBuffer.toString();
 

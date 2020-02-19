@@ -5,6 +5,10 @@ import "fmt"
 
 func multiply(_num1 string, _num2 string, calc_params paramCalcOpts, line uint64, functions []Funcs) string {
 
+  if returnInit(_num1) == "0" || returnInit(_num2) == "0" {
+    return "0"
+  }
+
   decIndex := 0
 
   if strings.Contains(_num1, ".") {
@@ -48,7 +52,8 @@ func multiply(_num1 string, _num2 string, calc_params paramCalcOpts, line uint64
       }
     }
 
-    if decIndex != -1 {
+    if decIndex > -1 {
+
       nNum = Reverse(nNum)
 
       nNum = nNum[:decIndex] + "." + nNum[decIndex:]

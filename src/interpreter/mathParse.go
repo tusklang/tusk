@@ -11,6 +11,10 @@ func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params par
 
   exp := *gexp
 
+  //essentially creating a copy of the array that is a different data type
+  //this is because of go mutating the exp
+
+  //******************************************FIX LATER. THIS IS BAD CODE
   var orig = [][][]rune{[][]rune{}}
 
   for i := 0; i < len(exp); i++ {
@@ -18,6 +22,7 @@ func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params par
       orig[len(orig) - 1] = append(orig[len(orig) - 1], []rune(exp[i][o]))
     }
   }
+  //******************************************
 
   if len(exp) == 0 {
     return [][]string{[]string{"0"}}
@@ -29,8 +34,31 @@ func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params par
     for ;arrayContain2Nest(exp, "(") && arrayContain2Nest(exp, ")"); {
 
       start := indexOf2Nest("(", exp)
-      end := indexOf2Nest(")", exp)
-      parenExp := exp[start[0]][start[1] + 1:end[1]]
+
+      pCnt := 0
+
+      var parenExp []string
+
+      var end int
+
+      for i := start[1]; i < len(exp[start[0]]); i++ {
+        if (exp[start[0]][i] == "(") {
+          pCnt++
+        }
+        if (exp[start[0]][i] == ")") {
+          pCnt--
+        }
+
+        parenExp = append(parenExp, exp[start[0]][i])
+
+        end = i
+
+        if pCnt == 0 {
+          break
+        }
+      }
+
+      parenExp = parenExp[1:len(parenExp) - 1]
 
       actions := actionizer(parenExp)
 
@@ -38,7 +66,7 @@ func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params par
 
       *vars = mergeVars(*vars, evaled.Variables)
 
-      exp[start[0]] = replaceFrom(exp[start[0]], start[1], end[1], evaled.Exp[0][0])
+      exp[start[0]] = replaceFrom(exp[start[0]], start[1], end, evaled.Exp[0][0])
     }
 
     for i := 0; i < len(exp); i++ {
@@ -46,7 +74,7 @@ func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params par
       for o := 0; o < len(exp[i]); o++ {
         if strings.HasPrefix(exp[i][o], "$") {
 
-          if o - 2 != -2 {
+          if o - 2 > -1 {
             if exp[i][o - 2] == "#" {
               continue
             }
@@ -394,6 +422,9 @@ func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params par
 
     _exp := exp
 
+    //Renember that copy that was created before? Now we are actually interpreting it!
+
+    //******************************************
     var copyer = [][]string{[]string{}}
 
     for i := 0; i < len(orig); i++ {
@@ -401,6 +432,7 @@ func mathParse(gexp *[][]string, functions []Funcs, line uint64, calc_params par
         copyer[len(copyer) - 1] = append(copyer[len(copyer) - 1], string(orig[i][o]))
       }
     }
+    //******************************************
 
     *gexp = [][]string(copyer)
 

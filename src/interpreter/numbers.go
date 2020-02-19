@@ -104,6 +104,11 @@ func initAdd(num1 string, num2 string) (string, string) {
 }
 
 func addDec(num string) string {
+
+  if num == "undefined" {
+    return "undefined";
+  }
+
   if !strings.Contains(num, ".") {
     return num + ".0"
   }
@@ -114,7 +119,7 @@ func addDec(num string) string {
 func isLess(num1 string, num2 string) bool {
   num1 = returnInit(num1)
   num2 = returnInit(num2)
-  
+
   if num1 == num2 {
 
     return false

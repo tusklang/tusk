@@ -2,9 +2,7 @@ package main
 
 import "os/exec"
 import "strings"
-
-//json lib created by the jsoniter group on github
-import "github.com/json-iterator/go"
+import "encoding/json"
 
 type Funcs struct {
   Name string
@@ -12,8 +10,6 @@ type Funcs struct {
 }
 
 func index(fileName, dir string, calcParams paramCalcOpts) {
-
-  var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
   file := read("./pre.omm", "", true) + read(dir + fileName, "File Not Found: " + dir + fileName, true)
   fileNQ, _ := NQReplace(file)

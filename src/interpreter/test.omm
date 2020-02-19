@@ -1,8 +1,8 @@
-val: 1;
+cur: 2;
 
-loop (true; val++) {
+loop (true) {
 
-  if (#isPrime(val)) {
-    log ~ val;
-  }
+  #isPrime(cur);
+
+  cur++;
 }

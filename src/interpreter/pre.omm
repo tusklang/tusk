@@ -1,13 +1,25 @@
 proc ~ tostring(val) {
   return ~ '' + val;
 }
-proc ~ isPrime(val) {
-  cur: (val / 2);
 
-  loop (cur > 1; cur--;) {
-    if (val % cur == 0) {
+proc ~ Math.floor(val) {
+  return ~ val - (val % 1);
+}
+
+proc ~ Math.ceil(val) {
+  return ~ val + (val % 1);
+}
+
+proc ~ isPrime(val) {
+  cur: val - 1;
+
+  loop (cur > 1) {
+
+    if (val % cur = 0) {
       return ~ false;
     }
+
+    cur--;
   }
 
   return ~ true;

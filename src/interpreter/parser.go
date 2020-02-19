@@ -1,5 +1,6 @@
 package main
 
+//import statements
 import "fmt"
 import "os"
 import "strings"
@@ -7,17 +8,18 @@ import "strconv"
 import "bufio"
 import "regexp"
 import "os/exec"
+import "encoding/json"
 
-//json lib created by the jsoniter group on github
-import "github.com/json-iterator/go"
-
+//creating a variable struct to store vars
 type Variable struct {
   Name        string
   Type        string
   Value     []string
   ValueActs []Action
+  InScope     bool
 }
 
+//creating a returner struct to store return vals
 type Returner struct {
   Val       []string
   Variables   map[string]Variable
@@ -25,6 +27,7 @@ type Returner struct {
   Type        string
 }
 
+//creating a func to merge vars
 func mergeVars(map1, map2 map[string]Variable) map[string]Variable {
   combined := map[string]Variable{}
 
@@ -41,15 +44,15 @@ func mergeVars(map1, map2 map[string]Variable) map[string]Variable {
 
 func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint64, functions []Funcs, vars_ map[string]Variable, groupReturn bool) Returner {
 
-  var json = jsoniter.ConfigCompatibleWithStandardLibrary
-
   var vars = vars_
   var line = line_
 
+  //create a scanner (for i/o with read~)
   scanner := bufio.NewReader(os.Stdin)
 
   var exp = [][]string{}
 
+  //loop through the actions
   for i := 0; i < len(actions); i++ {
 
     switch (actions[i].Type) {
@@ -57,9 +60,9 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         exp = [][]string{}
         line++
       case "let":
-        vars[actions[i].Name] = Variable{ actions[i].Name, "local", parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], []Action{} }
-      case "abstract":
-        vars[actions[i].Name] = Variable{ actions[i].Name, "abstract", []string{}, actions[i].ExpAct }
+        vars[actions[i].Name] = Variable{ actions[i].Name, "local", parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], []Action{}, true }
+      case "dynamic":
+        vars[actions[i].Name] = Variable{ actions[i].Name, "dynamic", []string{}, actions[i].ExpAct, true }
       case "alt":
 
         o := 0
@@ -78,7 +81,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
           o++
         }
       case "global":
-        vars[actions[i].Name] = Variable{ actions[i].Name, "global", parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], []Action{} }
+        vars[actions[i].Name] = Variable{ actions[i].Name, "global", parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], []Action{}, true }
       case "log":
         log(strings.Join(parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false).Exp[0], ""))
       case "print":
@@ -88,6 +91,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         exp = append(exp, mathParse(&expStr, functions, line, calc_params, &vars, dir)...)
         actions[i].ExpStr = expStr[0]
       case "group":
+
         grouped := parser(actions[i].ExpAct, calc_params, dir, line, functions, vars, false)
 
         if groupReturn {
@@ -99,13 +103,25 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         }
 
       case "process":
+
         if actions[i].Name == "" {
           fmt.Println("There Was An Error: Anonymous Processes Are Not Yet Supported\n\nproc(\n^^^^ <-- Error On Line " + strconv.Itoa(int(line)))
           os.Exit(1)
         } else {
-          vars[actions[i].Name] = Variable{ actions[i].Name, "process", actions[i].Params, actions[i].ExpAct }
+          vars[actions[i].Name] = Variable{ actions[i].Name, "process", actions[i].Params, actions[i].ExpAct, true }
         }
       case "#":
+
+        //this is because go is automatically converting the args into the parsed state. FIX IN THE FUTURE!!
+
+        //***********************************************MAKE BETTER
+        var args_, _ = json.Marshal(actions[i].Args)
+
+        var args []Action
+
+        json.Unmarshal(args_, &args)
+        //***********************************************
+
         proc := vars[actions[i].Name]
 
         if proc.Name == "" {
@@ -122,13 +138,18 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
             break
           }
 
-          nParams[procParams[o]] = Variable{ procParams[o], "local", parser([]Action{ actions[i].Args[o] }, calc_params, dir, line, functions, vars, true).Exp[0], []Action{} }
+          nParams[procParams[o]] = Variable{ procParams[o], "local", parser([]Action{ args[o] }, calc_params, dir, line, functions, vars, true).Exp[0], []Action{}, true }
         }
 
         params := make(map[string]Variable)
 
         for k, v := range vars {
-          params[k] = v
+
+          v.InScope = false;
+
+          if (vars[k].Type == "global" || vars[k].Type == "process") {
+            params[k] = v;
+          }
         }
 
         for k, v := range nParams {
@@ -150,12 +171,12 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
 
         for o := 0; o < len(actions[i].Condition); o++ {
 
-          opars := parser(actions[i].Condition[o].Condition, calc_params, dir, line, functions, vars, false).Exp
+          opars := parser(actions[i].Condition[o].Condition, calc_params, dir, line, functions, vars, true).Exp
 
           val := mathParse(&opars, functions, line, calc_params, &vars, dir)[0][0]
 
           if val != "false" && val != "undefined" && val != "null" {
-            parsed := parser(actions[i].Condition[o].Actions, calc_params, dir, line, functions, vars, false)
+            parsed := parser(actions[i].Condition[o].Actions, calc_params, dir, line, functions, vars, true)
 
             vars = mergeVars(vars, parsed.Variables)
 
@@ -284,7 +305,8 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         curBool := mathParse(&cond, functions, line, calc_params, &vars, dir)[0][0]
 
         for ;curBool != "false" && curBool != "undefined" && curBool != "null"; {
-          var parsed = parser(actions[i].Condition[0].Actions, calc_params, dir, line, functions, vars, false)
+
+          var parsed = parser(actions[i].Condition[0].Actions, calc_params, dir, line, functions, vars, true)
 
           vars = mergeVars(vars, parsed.Variables)
 
@@ -331,28 +353,28 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
         }
       case "++":
 
-        if vars[actions[i].Name].Type == "abstract" {
-          fmt.Println("There Was An Error: You Cannot Use The ++ perator On An Abstract Variable")
+        if vars[actions[i].Name].Type == "dynamic" {
+          fmt.Println("There Was An Error: You Cannot Use The ++ Operator On An Abstract Variable")
           os.Exit(1)
         }
 
         val := [][]string{ append(vars[actions[i].Name].Value, []string{ "+", "1" }...) }
 
-        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{}, true }
       case "--":
 
-        if vars[actions[i].Name].Type == "abstract" {
-          fmt.Println("There Was An Error: You Cannot Use The -- perator On An Abstract Variable")
+        if vars[actions[i].Name].Type == "dynamic" {
+          fmt.Println("There Was An Error: You Cannot Use The -- Operator On An Abstract Variable")
           os.Exit(1)
         }
 
         val := [][]string{ append(vars[actions[i].Name].Value, []string{ "-", "1" }...) }
 
-        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{}, true }
       case "+=":
 
-        if vars[actions[i].Name].Type == "abstract" {
-          fmt.Println("There Was An Error: You Cannot Use The += perator On An Abstract Variable")
+        if vars[actions[i].Name].Type == "dynamic" {
+          fmt.Println("There Was An Error: You Cannot Use The += Operator On An Abstract Variable")
           os.Exit(1)
         }
 
@@ -360,11 +382,11 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
 
         val := [][]string{ append(vars[actions[i].Name].Value, []string{ "+", inc_by }...) }
 
-        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{}, true }
       case "-=":
 
-        if vars[actions[i].Name].Type == "abstract" {
-          fmt.Println("There Was An Error: You Cannot Use The -= perator On An Abstract Variable")
+        if vars[actions[i].Name].Type == "dynamic" {
+          fmt.Println("There Was An Error: You Cannot Use The -= Operator On An Abstract Variable")
           os.Exit(1)
         }
 
@@ -372,11 +394,11 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
 
         val := [][]string{ append(vars[actions[i].Name].Value, []string{ "-", inc_by }...) }
 
-        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{}, true }
       case "*=":
 
-        if vars[actions[i].Name].Type == "abstract" {
-          fmt.Println("There Was An Error: You Cannot Use The *= perator On An Abstract Variable")
+        if vars[actions[i].Name].Type == "dynamic" {
+          fmt.Println("There Was An Error: You Cannot Use The *= Operator On An Abstract Variable")
           os.Exit(1)
         }
 
@@ -384,11 +406,11 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
 
         val := [][]string{ append(vars[actions[i].Name].Value, []string{ "*", inc_by }...) }
 
-        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{}, true }
       case "/=":
 
-        if vars[actions[i].Name].Type == "abstract" {
-          fmt.Println("There Was An Error: You Cannot Use The /= perator On An Abstract Variable")
+        if vars[actions[i].Name].Type == "dynamic" {
+          fmt.Println("There Was An Error: You Cannot Use The /= Operator On An Abstract Variable")
           os.Exit(1)
         }
 
@@ -396,11 +418,11 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
 
         val := [][]string{ append(vars[actions[i].Name].Value, []string{ "*", inc_by }...) }
 
-        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{}, true }
       case "^/":
 
-        if vars[actions[i].Name].Type == "abstract" {
-          fmt.Println("There Was An Error: You Cannot Use The ^= perator On An Abstract Variable")
+        if vars[actions[i].Name].Type == "dynamic" {
+          fmt.Println("There Was An Error: You Cannot Use The ^= Operator On An Abstract Variable")
           os.Exit(1)
         }
 
@@ -408,11 +430,11 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
 
         val := [][]string{ append(vars[actions[i].Name].Value, []string{ "^", inc_by }...) }
 
-        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{}, true }
       case "%=":
 
-        if vars[actions[i].Name].Type == "abstract" {
-          fmt.Println("There Was An Error: You Cannot Use The += perator On An Abstract Variable")
+        if vars[actions[i].Name].Type == "dynamic" {
+          fmt.Println("There Was An Error: You Cannot Use The += Operator On An Abstract Variable")
           os.Exit(1)
         }
 
@@ -420,7 +442,7 @@ func parser(actions []Action, calc_params paramCalcOpts, dir string, line_ uint6
 
         val := [][]string{ append(vars[actions[i].Name].Value, []string{ "%", inc_by }...) }
 
-        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{} }
+        vars[actions[i].Name] = Variable{ actions[i].Name, vars[actions[i].Name].Type, mathParse(&val, functions, line, calc_params, &vars, dir)[0], []Action{}, true }
     }
   }
 
