@@ -1,0 +1,8 @@
+cur: 2;
+
+loop (true) {
+
+  #isPrime(cur);
+
+  cur++;
+}
