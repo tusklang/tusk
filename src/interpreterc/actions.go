@@ -32,7 +32,7 @@ func actionizer(lex []string) []Action {
     switch (lex[i]) {
       case "newlineN":
         actions = append(actions, Action{ "newline", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 0 })
-      case "let":
+      case "local":
         exp_ := []string{}
 
         //getting nb semicolons
@@ -85,7 +85,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "let", lex[i + 2], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 1 })
+        actions = append(actions, Action{ "local", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 1 })
         i+=(4 + len(exp_))
       case "dynamic":
         exp_ := []string{}
@@ -140,7 +140,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "dynamic", lex[i + 2], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 2 })
+        actions = append(actions, Action{ "dynamic", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 2 })
         i+=(4 + len(exp_))
       case "alt":
 
@@ -255,7 +255,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "global", lex[i + 2], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 4 })
+        actions = append(actions, Action{ "global", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 4 })
         i+=(4 + len(exp_))
       case "log":
         exp_ := []string{}
@@ -1582,7 +1582,7 @@ func actionizer(lex []string) []Action {
 
               exp := actionizer(exp_)
 
-              actions = append(actions, Action{ "let", lex[i], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 1 })
+              actions = append(actions, Action{ "let", lex[i], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 29 })
               i+=(len(exp))
             } else {
 

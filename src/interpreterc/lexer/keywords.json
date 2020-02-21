@@ -1,8 +1,14 @@
 [
   {
-    "name": "let",
-    "remove": "let",
-    "pattern": "let~",
+    "name": "local",
+    "remove": "local",
+    "pattern": "local~",
+    "type": "id"
+  },
+  {
+    "name": "local",
+    "remove": "lcl",
+    "pattern": "lcl~",
     "type": "id"
   },
   {
@@ -101,6 +107,12 @@
     "name": "abstract",
     "remove": "abstract",
     "pattern": "(abstract~)",
+    "type": "id"
+  },
+  {
+    "name": "abstract",
+    "remove": "abs",
+    "pattern": "(abs~)",
     "type": "id"
   },
   {
@@ -270,6 +282,12 @@
     "name": "process",
     "remove": "proc",
     "pattern": "(proc\\~)",
+    "type": "id"
+  },
+  {
+    "name": "global",
+    "remove": "gbl",
+    "pattern": "(gbl~)",
     "type": "id"
   },
   {

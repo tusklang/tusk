@@ -1,7 +1,7 @@
 These are the action IDs for each action (because c++ doesn't support switch for string)
 
 newline: 0
-let: 1
+local: 1
 dynamic: 2
 alt: 3
 global: 4
@@ -28,6 +28,8 @@ array: 24
 arrayIndex: 25
 ascii: 26
 parse: 27
+len: 28
+let: 29
 ++: 4343
 --: 4545
 +=: 4361

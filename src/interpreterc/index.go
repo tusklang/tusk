@@ -33,7 +33,7 @@ func index(fileName, dir string, calcParams paramCalcOpts) {
 
   cp, _ := json.Marshal(calcParams)
 
-  fmt.Println("kjdwfn")
+  fmt.Println(":sk:'")
 
   C.bind(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir))
 }
