@@ -1,8 +1,1 @@
-cur: 2;
-
-loop (true) {
-
-  #isPrime(cur);
-
-  cur++;
-}
+let ~ test: true;

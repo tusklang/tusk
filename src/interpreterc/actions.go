@@ -2,6 +2,7 @@ package main
 
 import "strings"
 import "regexp"
+import "strconv"
 
 type Condition struct {
   Type            string
@@ -18,6 +19,7 @@ type Action struct {
   Args          []Action
   Condition     []Condition
   Indexes     [][]string
+  ID              int
 }
 
 func actionizer(lex []string) []Action {
@@ -29,7 +31,7 @@ func actionizer(lex []string) []Action {
 
     switch (lex[i]) {
       case "newlineN":
-        actions = append(actions, Action{ "newline", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "newline", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 0 })
       case "let":
         exp_ := []string{}
 
@@ -83,7 +85,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "let", lex[i + 2], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "let", lex[i + 2], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 1 })
         i+=(4 + len(exp_))
       case "dynamic":
         exp_ := []string{}
@@ -138,11 +140,11 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "dynamic", lex[i + 2], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "dynamic", lex[i + 2], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 2 })
         i+=(4 + len(exp_))
       case "alt":
 
-        var alter = Action{ "alt", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} }
+        var alter = Action{ "alt", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 3 }
 
         pCnt := 0
 
@@ -253,7 +255,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "let", lex[i + 2], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "global", lex[i + 2], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 4 })
         i+=(4 + len(exp_))
       case "log":
         exp_ := []string{}
@@ -308,7 +310,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "log", "", exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "log", "", exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 5 })
         i+=(2 + len(exp_))
       case "print":
         exp_ := []string{}
@@ -363,7 +365,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "print", "", exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "print", "", exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 6 })
         i+=(2 + len(exp_))
       case "(":
         var exp = []string{}
@@ -388,7 +390,7 @@ func actionizer(lex []string) []Action {
         i+=len(exp)
 
         if i >= len_lex {
-          actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+          actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 7 })
           break actionReader
         }
 
@@ -449,9 +451,9 @@ func actionizer(lex []string) []Action {
 
           i+=3
 
-          actions = append(actions, Action{ "expressionIndex", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, indexes })
+          actions = append(actions, Action{ "expressionIndex", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, indexes, 8 })
         } else {
-          actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+          actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 7 })
         }
       case "{":
         exp_ := []string{}
@@ -513,7 +515,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "group", "", []string{}, exp, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "group", "", []string{}, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 9 })
         i+=(len(exp_) + 1)
       case "process":
         if lex[i + 1] == "~" {
@@ -557,7 +559,7 @@ func actionizer(lex []string) []Action {
 
           logic := actionizer(logic_)
 
-          actions = append(actions, Action{ "process", procName, []string{}, logic, params, []Action{}, []Condition{}, [][]string{} })
+          actions = append(actions, Action{ "process", procName, []string{}, logic, params, []Action{}, []Condition{}, [][]string{}, 10 })
         } else {
           params := []string{}
 
@@ -594,7 +596,7 @@ func actionizer(lex []string) []Action {
 
           logic := actionizer(logic_)
 
-          actions = append(actions, Action{ "process", "", []string{}, logic, params, []Action{}, []Condition{}, [][]string{} })
+          actions = append(actions, Action{ "process", "", []string{}, logic, params, []Action{}, []Condition{}, [][]string{}, 10 })
         }
         i--
       case "#":
@@ -682,7 +684,7 @@ func actionizer(lex []string) []Action {
           }
         }
 
-        actions = append(actions, Action{ "#", name, []string{}, []Action{}, []string{}, params_, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "#", name, []string{}, []Action{}, []string{}, params_, []Condition{}, [][]string{}, 11 })
         i+=skip_nums
       case "return":
 
@@ -731,7 +733,7 @@ func actionizer(lex []string) []Action {
 
         returner := actionizer(returner_)
 
-        actions = append(actions, Action{ "return", "", []string{}, returner, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "return", "", []string{}, returner, []string{}, []Action{}, []Condition{}, [][]string{}, 12 })
         i+=len(returner) + 2
       case "if":
 
@@ -877,7 +879,7 @@ func actionizer(lex []string) []Action {
           }
         }
 
-        actions = append(actions, Action{ "conditional", "", []string{}, []Action{}, []string{}, []Action{}, conditions, [][]string{} })
+        actions = append(actions, Action{ "conditional", "", []string{}, []Action{}, []string{}, []Action{}, conditions, [][]string{}, 13 })
       case "import":
 
         var file = []string{}
@@ -924,7 +926,7 @@ func actionizer(lex []string) []Action {
         }
 
         actionizedFile := actionizer(file)
-        actions = append(actions, Action{ "import", "", []string{}, actionizedFile, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "import", "", []string{}, actionizedFile, []string{}, []Action{}, []Condition{}, [][]string{}, 14 })
         i+=(2 + len(file))
       case "read":
         var phrase = []string{}
@@ -971,12 +973,12 @@ func actionizer(lex []string) []Action {
         }
 
         actionizedPhrase := actionizer(phrase)
-        actions = append(actions, Action{ "read", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "read", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{}, 15 })
         i+=(2 + len(phrase))
       case "break":
-        actions = append(actions, Action{ "break", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "break", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 16 })
       case "skip":
-        actions = append(actions, Action{ "skip", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "skip", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 17 })
       case "eval":
         var phrase = []string{}
 
@@ -1021,7 +1023,7 @@ func actionizer(lex []string) []Action {
           phrase = append(phrase, lex[o])
         }
 
-        actions = append(actions, Action{ "eval", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "eval", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 18 })
         i+=(2 + len(phrase))
       case "typeof":
         var phrase = []string{}
@@ -1068,7 +1070,7 @@ func actionizer(lex []string) []Action {
         }
 
         actionizedPhrase := actionizer(phrase)
-        actions = append(actions, Action{ "typeof", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "typeof", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{}, 19 })
         i+=(2 + len(phrase))
       case "err":
         var phrase = []string{}
@@ -1115,7 +1117,7 @@ func actionizer(lex []string) []Action {
         }
 
         actionizedPhrase := actionizer(phrase)
-        actions = append(actions, Action{ "err", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "err", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{}, 20 })
         i+=(2 + len(phrase))
       case "loop":
 
@@ -1160,7 +1162,7 @@ func actionizer(lex []string) []Action {
 
         action := actionizer(action_)
 
-        actions = append(actions, Action{ "loop", "", []string{}, action, []string{}, []Action{}, []Condition{ { "loop", condition, action } }, [][]string{} })
+        actions = append(actions, Action{ "loop", "", []string{}, action, []string{}, []Action{}, []Condition{ { "loop", condition, action } }, [][]string{}, 21 })
         i+=(1 + len(condition_) + len(action_))
       case "[:":
         var phrase = []string{}
@@ -1209,7 +1211,7 @@ func actionizer(lex []string) []Action {
         i+=len(phrase)
 
         if i >= len_lex {
-          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+          actions = append(actions, Action{ "hash", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 22 })
           break
         }
 
@@ -1270,9 +1272,9 @@ func actionizer(lex []string) []Action {
 
           i+=3
 
-          actions = append(actions, Action{ "hashIndex", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, indexes })
+          actions = append(actions, Action{ "hashIndex", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, indexes, 23 })
         } else {
-          actions = append(actions, Action{ "hash", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+          actions = append(actions, Action{ "hash", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 22 })
         }
       case "[":
         var phrase = []string{}
@@ -1321,7 +1323,7 @@ func actionizer(lex []string) []Action {
         i+=len(phrase)
 
         if i >= len_lex {
-          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 24 })
           break
         }
 
@@ -1382,9 +1384,9 @@ func actionizer(lex []string) []Action {
 
           i+=3
 
-          actions = append(actions, Action{ "arrayIndex", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, indexes })
+          actions = append(actions, Action{ "arrayIndex", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, indexes, 25 })
         } else {
-          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 24 })
         }
       case "ascii":
         var phrase = []string{}
@@ -1431,7 +1433,7 @@ func actionizer(lex []string) []Action {
         }
 
         actionizedPhrase := actionizer(phrase)
-        actions = append(actions, Action{ "ascii", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "ascii", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{}, 26 })
         i+=(2 + len(phrase))
       case "parse":
         var phrase = []string{}
@@ -1478,7 +1480,7 @@ func actionizer(lex []string) []Action {
         }
 
         actionizedPhrase := actionizer(phrase)
-        actions = append(actions, Action{ "parse", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{} })
+        actions = append(actions, Action{ "parse", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{}, 27 })
         i+=(2 + len(phrase))
       default:
 
@@ -1487,7 +1489,19 @@ func actionizer(lex []string) []Action {
           if i + 1 < len_lex {
 
             if (lex[i + 1] == "++" || lex[i + 1] == "--") && strings.HasPrefix(lex[i], "$") {
-              actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+
+              id_ := []byte(lex[i + 1])
+
+              id := ""
+
+              for o := 0; o < len(id_); o++ {
+                _id := strconv.Itoa(int(id_[o]))
+                id+=_id
+              }
+
+              intID, _ := strconv.Atoi(id)
+
+              actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, intID })
               i++
               continue;
             }
@@ -1539,7 +1553,18 @@ func actionizer(lex []string) []Action {
 
               by := actionizer(by_)
 
-              actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, by, []string{}, []Action{}, []Condition{}, [][]string{} })
+              id_ := []byte(lex[i + 1])
+
+              id := ""
+
+              for o := 0; o < len(id_); o++ {
+                _id := strconv.Itoa(int(id_[o]))
+                id+=_id
+              }
+
+              intID, _ := strconv.Atoi(id)
+
+              actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, by, []string{}, []Action{}, []Condition{}, [][]string{}, intID })
               continue;
             }
 
@@ -1557,7 +1582,7 @@ func actionizer(lex []string) []Action {
 
               exp := actionizer(exp_)
 
-              actions = append(actions, Action{ "let", lex[i], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{} })
+              actions = append(actions, Action{ "let", lex[i], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 1 })
               i+=(len(exp))
             } else {
 
@@ -1598,7 +1623,7 @@ func actionizer(lex []string) []Action {
               i+=len(exp)
 
               if i >= len_lex {
-                actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+                actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 7 })
                 break actionReader
               }
 
@@ -1660,9 +1685,9 @@ func actionizer(lex []string) []Action {
 
                 i+=3
 
-                actions = append(actions, Action{ "expressionIndex", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, indexes })
+                actions = append(actions, Action{ "expressionIndex", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, indexes, 8 })
               } else {
-                actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+                actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 7 })
               }
             }
           } else {
@@ -1704,7 +1729,7 @@ func actionizer(lex []string) []Action {
             i+=len(exp)
 
             if i >= len_lex {
-              actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+              actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 7 })
               break actionReader
             }
 
@@ -1766,9 +1791,9 @@ func actionizer(lex []string) []Action {
 
               i+=3
 
-              actions = append(actions, Action{ "expressionIndex", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, indexes })
+              actions = append(actions, Action{ "expressionIndex", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, indexes, 8 })
             } else {
-              actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{} })
+              actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 7 })
             }
           }
         }

@@ -3,6 +3,7 @@ package main
 import "os/exec"
 import "strings"
 import "encoding/json"
+import "fmt"
 
 // #cgo CFLAGS: -std=c99
 // #include "bind.h"
@@ -28,5 +29,11 @@ func index(fileName, dir string, calcParams paramCalcOpts) {
 
   var acts, _ = json.Marshal(actions)
 
-  C.bind(C.CString(string(acts)), C.CString("HELLO"), C.CString("TES"))
+  _ = acts
+
+  cp, _ := json.Marshal(calcParams)
+
+  fmt.Println("kjdwfn")
+
+  C.bind(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir))
 }
