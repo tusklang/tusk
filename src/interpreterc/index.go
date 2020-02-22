@@ -1,13 +1,20 @@
 package main
 
+import "os"
 import "os/exec"
 import "strings"
 import "encoding/json"
+import _ "unsafe"
 import "fmt"
 
 // #cgo CFLAGS: -std=c99
 // #include "bind.h"
 import "C"
+
+//export Kill
+func Kill() {
+  os.Exit(1)
+}
 
 func index(fileName, dir string, calcParams paramCalcOpts) {
 
@@ -29,11 +36,9 @@ func index(fileName, dir string, calcParams paramCalcOpts) {
 
   var acts, _ = json.Marshal(actions)
 
-  _ = acts
-
   cp, _ := json.Marshal(calcParams)
 
-  fmt.Println(":sk:'")
+  fmt.Println("ank")
 
   C.bind(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir))
 }

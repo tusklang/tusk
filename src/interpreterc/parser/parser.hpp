@@ -26,26 +26,38 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
     int cur = actions[i]["ID"];
 
-    switch (cur) {
-      case 0: //newline
-        line++;
-        break;
-      case 1: //local
-        string name = actions[i]["Name"];
+    try {
+      switch (cur) {
+        case 0: //newline
+          line++;
+          break;
+        case 1: //local
+          string name = actions[i]["Name"];
 
-        json acts = actions[i]["ExpAct"];
+          json acts = actions[i]["ExpAct"];
 
-        struct Returner parsed = parser(acts, calc_params, vars, dir, false, line);
+          vector<vector<string>> parsed = parser(acts, calc_params, vars, dir, false, line).exp;
 
-        json nVar = {
-          {"type", "local"},
-          {"name", name},
-          {"value", parsed.exp},
-          {"valueActs", json::parse("[]")}
-        };
+          if (parsed.size() == 0) {
+            cout << "There Was An Unidentified Error On Line " << line << endl;
+            Kill();
+          }
 
-        vars[name] = nVar;
-        break;
+          json nVar = {
+            {"type", "local"},
+            {"name", name},
+            {"value", parsed},
+            {"valueActs", json::parse("[]")}
+          };
+
+          vars[name] = nVar;
+          break;
+        case 7: //expression
+        //link to fortran
+      }
+    } catch (int e) {
+      cout << "There Was An Unidentified Error On Line " << line << endl;
+      Kill();
     }
   }
 
