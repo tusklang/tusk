@@ -4,7 +4,7 @@ import "os"
 import "os/exec"
 import "strings"
 import "encoding/json"
-import _ "unsafe"
+import "strings"
 import "fmt"
 
 // #cgo CFLAGS: -std=c99
@@ -34,11 +34,11 @@ func index(fileName, dir string, calcParams paramCalcOpts) {
 
   var actions = actionizer(lex)
 
-  var acts, _ = json.Marshal(actions)
+   var acts, _ = json.Marshal(actions)
+  //
+  // cp, _ := json.Marshal(calcParams)
 
-  cp, _ := json.Marshal(calcParams)
+  fmt.Println(string(acts))
 
-  fmt.Println("ank")
-
-  C.bind(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir))
+  // C.bind(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir))
 }
