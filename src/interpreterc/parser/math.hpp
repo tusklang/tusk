@@ -3,12 +3,6 @@
 #include <deque>
 #include <vector>
 #include "json.hpp"
-#include "operations/add.hpp"
-#include "operations/subtract.hpp"
-#include "operations/multiply.hpp"
-#include "operations/divide.hpp"
-#include "operations/exponent.hpp"
-#include "operations/modulo.hpp"
 using namespace std;
 using json = nlohmann::json;
 
@@ -36,7 +30,6 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
 
       tie(gen, spec) = expIndex(exp, "(");
 
-      //maybe switch to a deque
       deque<string> parenExp;
 
       json part = exp[gen];
@@ -69,10 +62,26 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
 
       json evaled = math(parenExpJSON, calc_params, vars, dir, line);
 
-      exp[gen] = exp[gen].erase(evaled.begin() + spec, evaled.begin() + parenExp.size());
+      exp[gen].erase(exp[gen].begin() + spec, exp[gen].begin() + parenExpJSON_.size() + 2);
+      exp[gen].insert(exp[gen].begin() + spec, evaled[0].begin(), evaled[0].end());
+    }
 
-      cout << exp << endl;
-      //exp[gen] = exp[gen].insert(spec, evaled[0][0])
+    //for each operation, maybe re-program into c++
+
+    while (expContain(exp, "^")) {
+
+      int gen, spec;
+
+      tie(gen, spec) = expIndex(exp, "^");
+
+      string num1 = exp[gen][spec - 1]
+      , num2 = exp[gen][spec + 1];
+
+      string cp = calc_params.dump();
+
+      char* val = Exponentiate(strdup(&num1[0]), strdup(&num2[0]), strdup(&cp[0]), line);
+
+      cout << val << " " << "ss" << endl;
     }
 
     return exp;

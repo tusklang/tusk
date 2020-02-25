@@ -19,10 +19,6 @@ struct Returner {
   string                  type;
 };
 
-void Kill() {
-  return;
-}
-
 Returner parser(const json actions, const json calc_params, json vars, const string dir, bool groupReturn, int line) {
 
   json expStr;
@@ -105,6 +101,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string expStr = actions[i]["ExpStr"].dump();
 
             json nExp = json::parse("[" + expStr + "]");
+
+            cout << nExp << endl;
 
             json calculated = math(nExp, calc_params, vars, dir, line);
 

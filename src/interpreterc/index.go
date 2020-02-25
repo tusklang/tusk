@@ -4,7 +4,6 @@ import "os"
 import "os/exec"
 import "strings"
 import "encoding/json"
-import "strings"
 import "fmt"
 
 // #cgo CFLAGS: -std=c99
@@ -35,10 +34,10 @@ func index(fileName, dir string, calcParams paramCalcOpts) {
   var actions = actionizer(lex)
 
    var acts, _ = json.Marshal(actions)
-  //
-  // cp, _ := json.Marshal(calcParams)
 
-  fmt.Println(string(acts))
+  cp, _ := json.Marshal(calcParams)
 
-  // C.bind(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir))
+  fmt.Println("ssss")
+
+  C.bind(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir))
 }
