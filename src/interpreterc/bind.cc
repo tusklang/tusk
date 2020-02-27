@@ -1,4 +1,3 @@
-#include "bind.h"
 #include "parser/run.hpp"
 #include <iostream>
 using namespace std;

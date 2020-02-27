@@ -1600,6 +1600,13 @@ func actionizer(lex []string) []Action {
 
               for o := i; o < len_lex; o++ {
 
+                if !(o + 1 >= len_lex) {
+
+                  if lex[o + 1] == "[" || lex[o + 1] == "]" {
+                    break
+                  }
+                }
+
                 if lex[o] == "(" {
                   pCnt++
                 }
@@ -1705,6 +1712,13 @@ func actionizer(lex []string) []Action {
             pCnt := 0
 
             for o := i; o < len_lex; o++ {
+
+              if !(o + 1 >= len_lex) {
+
+                if lex[o + 1] == "[" || lex[o + 1] == "]" {
+                  break
+                }
+              }
 
               if lex[o] == "(" {
                 pCnt++

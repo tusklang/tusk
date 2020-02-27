@@ -57,40 +57,28 @@ func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
 
   var nNum string
 
-  if isLess(_num2, calc_params.mult_thresh) {
-    nNum = "0"
+  nNum = "0"
 
-    for ;returnInit(_num2) != "0"; {
-      nNum = C.GoString(Add(C.CString(nNum), C.CString(_num1), calc_paramsP, line_))
-      _num2 = C.GoString(Subtract(C.CString(_num2), C.CString("1"), calc_paramsP, line_))
+  for ;returnInit(_num2) != "0"; {
+    nNum = C.GoString(Add(C.CString(nNum), C.CString(_num1), calc_paramsP, line_))
+    _num2 = C.GoString(Subtract(C.CString(_num2), C.CString("1"), calc_paramsP, line_))
 
-      if calc_params.logger {
-        fmt.Println("Omm Logger ~ Multiplication: " + nNum)
-      }
+    if calc_params.logger {
+      fmt.Println("Omm Logger ~ Multiplication: " + nNum)
     }
+  }
 
-    if decIndex > -1 {
+  if decIndex > -1 {
 
-      nNum = Reverse(nNum)
+    nNum = Reverse(nNum)
 
-      nNum = nNum[:decIndex] + "." + nNum[decIndex:]
+    nNum = nNum[:decIndex] + "." + nNum[decIndex:]
 
-      nNum = Reverse(nNum)
-    }
+    nNum = Reverse(nNum)
+  }
 
-    if neg == true {
-      nNum = "-" + nNum
-    }
-  } else {
-    nNum = "0"
-
-    for i, o := len(_num2) - 1, 0; i >= 0; i, o = i - 1, o + 1 {
-      nNum = C.GoString(Add(C.CString(nNum), C.CString(C.GoString(Multiply(C.CString(string([]rune(_num2)[i])), C.CString(_num1), calc_paramsP, line_)) + RepeatAdd("0", o)), calc_paramsP, line_))
-
-      if calc_params.logger {
-        fmt.Println("Omm Logger ~ Multiplication: " + nNum)
-      }
-    }
+  if neg == true {
+    nNum = "-" + nNum
   }
 
   return C.CString(returnInit(nNum))
