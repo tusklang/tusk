@@ -6,7 +6,7 @@ using json = nlohmann::json;
 json hashIndex(json val, json indexes);
 json arrayIndex(json val, json indexes);
 json expressionIndex(json val, json indexes);
-json indexes(json val, json indexes);
+json indexesCalc(json val, json indexes, json calc_params, int line);
 json math(json exp, const json calc_params, json vars, const string dir, int line);
 
 json hashIndex(json val, json indexes, json calc_params, int line) {
@@ -40,19 +40,36 @@ json expressionIndex(json valJ, json indexes, json calc_params, int line) {
   char* cp = &(calc_params.dump())[0];
   char* zero = "0";
 
+  //erase the quotes
+  val.erase(0, 2);
+  val.erase(val.length() - 2, 2);
+
+  //getting the position of the index
   while (IsLessC(zero, indexC) || strcmp(ReturnInitC(zero), ReturnInitC(indexC)) == 0) {
-    cout << val << endl;
     val.erase(val.begin());
-    cout << val << " ";
+    indexC = &(Subtract(indexC, "1", cp, line))[0];
   }
 
-  return "[]"_json;
+  string first(1, val[0]);
+
+  indexes.erase(indexes.begin());
+
+  if (indexes.size() == 0) return json::parse("[\"" + first + "\"]");
+
+  json nIndex = indexes
+  , nCP = calc_params;
+  int nL = line;
+
+  json firstR = json::parse("[[\"\\\"" + first + "\\\"\"]]");
+
+  return indexesCalc(firstR, nIndex, nCP, nL);
 }
 
 
-json indexes(json val, json indexes, json calc_params, int line) {
+json indexesCalc(json val, json indexes, json calc_params, int line) {
 
   string valDump = val.dump();
+
   char* datatype = GetType(&valDump[0]);
 
   if (strcmp(datatype, "hash") == 0) return hashIndex(val, indexes, calc_params, line);

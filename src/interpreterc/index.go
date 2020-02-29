@@ -5,6 +5,7 @@ import "os/exec"
 import "strings"
 import "encoding/json"
 import "regexp"
+import "fmt"
 
 // #cgo CFLAGS: -std=c99
 // #include "bind.h"
