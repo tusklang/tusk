@@ -61,6 +61,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           }
           break;
         case 2: {
+            //dynamic
+
             string name = actions[i]["Name"];
 
             json acts = actions[i]["ExpAct"];
@@ -93,11 +95,25 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             }
           }
           break;
-        case 5:
-          cout << parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0][0].dump() << endl;
+        case 5: {
+
+            string val = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0][0].dump();
+
+            val = val.substr(1);
+            val.pop_back();
+
+            cout << val << endl;
+          }
           break;
-        case 6:
-          cout << parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0][0].dump();
+        case 6: {
+
+            string val = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0][0].dump();
+
+            val = val.substr(1);
+            val.pop_back();
+
+            cout << val;
+          }
           break;
         case 7: {
 
@@ -122,7 +138,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json calculated = math(nExp, calc_params, vars, dir, line);
 
-            expStr.push_back(indexes(calculated, actions[i]["Indexes"]));
+            cout << indexes(calculated, actions[i]["Indexes"], calc_params, line) << endl;
+
+            expStr.push_back(indexes(calculated, actions[i]["Indexes"], calc_params, line));
           }
           break;
       }

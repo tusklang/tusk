@@ -9,6 +9,9 @@ extern "C" {
   extern char* Modulo(char*, char*, char*, int);
   extern char* Exponentiate(char*, char*, char*, int);
   extern char* Cactions(char*);
+  extern char* GetType(char*);
+  extern char* ReturnInitC(char*);
+  extern int IsLessC(char*, char*);
   void bind(char *actions, char *calc_params, char *dir);
 #ifdef __cplusplus
 }

@@ -4,6 +4,7 @@ import "os"
 import "os/exec"
 import "strings"
 import "encoding/json"
+import "regexp"
 
 // #cgo CFLAGS: -std=c99
 // #include "bind.h"
@@ -26,6 +27,28 @@ func Cactions(file *C.char) *C.char {
   return C.CString(string(acts))
 }
 
+//export GetType
+func GetType(cVal *C.char) *C.char {
+  var val [][]string
+
+  json.Unmarshal([]byte(C.GoString(cVal)), &val);
+
+  numMatch, _ := regexp.MatchString("^(\\d|\\.)", val[0][0])
+
+  if strings.HasPrefix(val[0][0], "\"") || strings.HasPrefix(val[0][0], "'") || strings.HasPrefix(val[0][0], "`") {
+    return C.CString("string")
+  } else if strings.HasPrefix(val[0][0], "[:") {
+    return C.CString("hash")
+  } else if strings.HasPrefix(val[0][0], "[") {
+    return C.CString("array")
+  } else if val[0][0] == "true" || val[0][0] == "false" {
+    return C.CString("boolean")
+  } else if numMatch {
+    return C.CString("number")
+  }
+
+  return C.CString("none")
+}
 
 func index(fileName, dir string, calcParams paramCalcOpts) {
 

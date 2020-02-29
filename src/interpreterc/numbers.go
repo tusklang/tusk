@@ -3,6 +3,23 @@ package main
 import "strings"
 import "strconv"
 
+import "C"
+
+//export ReturnInitC
+func ReturnInitC(str *C.char) *C.char {
+  return C.CString( returnInit( C.GoString(str) ) )
+}
+
+//export IsLessC
+func IsLessC(n1, n2 *C.char) C.int {
+
+  if isLess( C.GoString(n1), C.GoString(n2) ) {
+    return 1
+  }
+
+  return 0
+}
+
 func returnInit(str string) string {
   for ;strings.HasPrefix(str, "0"); {
     str = str[1:]
