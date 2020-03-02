@@ -5,7 +5,6 @@ import "os/exec"
 import "strings"
 import "encoding/json"
 import "regexp"
-import "fmt"
 
 // #cgo CFLAGS: -std=c99
 // #include "bind.h"
@@ -44,6 +43,8 @@ func GetType(cVal *C.char) *C.char {
     return C.CString("array")
   } else if val[0][0] == "true" || val[0][0] == "false" {
     return C.CString("boolean")
+  } else if val[0][0] == "undefined" || val[0][0] == "null" {
+    return C.CString("falsey")
   } else if numMatch {
     return C.CString("number")
   }

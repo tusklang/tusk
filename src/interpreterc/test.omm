@@ -1,1 +1,1 @@
-log ~ "hello".[1].[0];
+log ~ "hello".[0];
