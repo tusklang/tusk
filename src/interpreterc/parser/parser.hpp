@@ -5,6 +5,7 @@
 #include "bind.h"
 #include "indexes.hpp"
 #include "math.hpp"
+#include "structs.h"
 using namespace std;
 using json = nlohmann::json;
 

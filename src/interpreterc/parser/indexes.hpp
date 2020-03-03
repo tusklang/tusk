@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <map>
+#include "structs.h"
 #include "json.hpp"
 using namespace std;
 using json = nlohmann::json;
@@ -7,11 +9,112 @@ using json = nlohmann::json;
 json hashIndex(json val, json indexes);
 json arrayIndex(json val, json indexes);
 json expressionIndex(json val, json indexes);
-json indexesCalc(json val, json indexes, json calc_params, int line);
 json math(json exp, const json calc_params, json vars, const string dir, int line);
+Returner parser(const json actions, const json calc_params, json vars, const string dir, bool groupReturn, int line);
+json indexesCalc(json val, json indexes, json calc_params, int line);
 
 json hashIndex(json val, json indexes, json calc_params, int line) {
-  return "[]"_json;
+
+  json inner = val[0];
+
+  inner.erase(inner.begin());
+  inner.erase(inner.end());
+
+  int bCnt = 0
+  , cbCnt = 0
+  , cur = false;
+  vector<vector<string>> hash {
+    {"", ""}
+  };
+
+  for (int i = 0; i < inner.size(); i++) {
+    if (inner[i] == "{") cbCnt++;
+    if (inner[i] == "}") cbCnt--;
+    if (inner[i] == "[") bCnt++;
+    if (inner[i] == "]") bCnt--;
+
+    if (inner[i] == "newlineN") continue;
+
+    if (cbCnt == 0 && bCnt == 0 && inner[i] == ",") {
+
+      vector<string> pusher {"", ""};
+
+      hash.push_back(pusher);
+      continue;
+    }
+
+    if (cbCnt == 0 && bCnt == 0 && inner[i] == ":") {
+      cur = !cur;
+      continue;
+    }
+
+    hash[hash.size() - 1][cur]+=inner[i];
+  }
+
+  map<string, string> hashMap;
+
+  for (int i = 0; i < hash.size(); i++)
+    hashMap.insert(pair<string, string>(hash[i][0].substr(0, hash[i][0].length() - 1).substr(1), hash[i][1]));
+
+  json index = indexes[0];
+
+  //erase the quotes
+  index.erase(index.begin());
+  index.erase(index.end());
+
+  string indexD = index[0].dump();
+
+  //erase the quotes
+  indexD.erase(0, 3);
+  indexD.erase(indexD.length() - 3, 3);
+
+  string value = hashMap[indexD];
+
+  indexes.erase(indexes.begin());
+
+  if (indexes.size() == 0) return json::parse("[\"" + value + "\"]");
+
+  char* datatype = GetType(&value[0]);
+
+  string valueN;
+
+  if (strcmp(datatype, "hash") == 0) {
+    valueN = "\"[:\"" + value.substr(1, value.length() - 2) + "\":]\"";
+  } else if (strcmp(datatype, "array") == 0) {
+
+    string valCopy = value.substr(1, value.length() - 2);
+    vector<string> valVect {""};
+
+    int bCnt = 0
+    , cbCnt = 0;
+
+    for (int i = 0; i < valCopy.length(); i++) {
+      if (valCopy[i] == '{') cbCnt++;
+      if (valCopy[i] == '}') cbCnt--;
+      if (valCopy[i] == '[') bCnt++;
+      if (valCopy[i] == ']') bCnt--;
+
+      string cur(1, valCopy[i]);
+
+      if (bCnt == 0 && cbCnt == 0 && valCopy[i] == ',') {
+        valVect.push_back(",");
+        valVect.push_back("");
+        continue;
+      } else valVect[valVect.size() - 1]+=cur;
+    }
+
+    string valNPut = "";
+
+    for (int i = 0; i < valVect.size(); i++) valNPut+=("\"" + valVect[i] + "\",");
+
+    valueN = "\"[\"," + valNPut + "\"]\"";
+  } else if (strcmp(datatype, "string") == 0) {
+    valueN = "\"\\\"" + value.substr(1, value.length() - 2) + "\\\"\"";
+  }
+
+  json valueR = json::parse("[[" + valueN + "]]");
+
+  return indexesCalc(valueR, indexes, calc_params, line);
 }
 
 json arrayIndex(json val, json indexes, json calc_params, int line) {
@@ -30,6 +133,8 @@ json arrayIndex(json val, json indexes, json calc_params, int line) {
     if (inner[i] == "}") cbCnt--;
     if (inner[i] == "[") bCnt++;
     if (inner[i] == "]") bCnt--;
+
+    if (inner[i] == "newlineN") continue;
 
     if (cbCnt == 0 && bCnt == 0 && inner[i] == ",") {
       arr.push_back("");
@@ -134,9 +239,9 @@ json expressionIndex(json valJ, json indexes, json calc_params, int line) {
 
 json indexesCalc(json val, json indexes, json calc_params, int line) {
 
-  string valDump = val.dump();
+  string getTypeVal = val[0][0];
 
-  char* datatype = GetType(&valDump[0]);
+  char* datatype = GetType(&getTypeVal[0]);
 
   if (strcmp(datatype, "hash") == 0) return hashIndex(val, indexes, calc_params, line);
   else if (strcmp(datatype, "array") == 0) return arrayIndex(val, indexes, calc_params, line);

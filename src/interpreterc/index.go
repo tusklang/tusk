@@ -29,21 +29,20 @@ func Cactions(file *C.char) *C.char {
 
 //export GetType
 func GetType(cVal *C.char) *C.char {
-  var val [][]string
 
-  json.Unmarshal([]byte(C.GoString(cVal)), &val);
+  val := C.GoString(cVal)
 
-  numMatch, _ := regexp.MatchString("^(\\d|\\.)", val[0][0])
+  var numMatch, _ = regexp.MatchString("(\\d|\\.)+", val)
 
-  if strings.HasPrefix(val[0][0], "\"") || strings.HasPrefix(val[0][0], "'") || strings.HasPrefix(val[0][0], "`") {
+  if strings.HasPrefix(val, "\"") || strings.HasPrefix(val, "'") || strings.HasPrefix(val, "`") {
     return C.CString("string")
-  } else if strings.HasPrefix(val[0][0], "[:") {
+  } else if strings.HasPrefix(val, "[:") {
     return C.CString("hash")
-  } else if strings.HasPrefix(val[0][0], "[") {
+  } else if strings.HasPrefix(val, "[") {
     return C.CString("array")
-  } else if val[0][0] == "true" || val[0][0] == "false" {
+  } else if val == "true" || val == "false" {
     return C.CString("boolean")
-  } else if val[0][0] == "undefined" || val[0][0] == "null" {
+  } else if val == "undefined" || val == "null" {
     return C.CString("falsey")
   } else if numMatch {
     return C.CString("number")
