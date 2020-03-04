@@ -63,7 +63,7 @@ for (let i = 0; i < keywords.length; i++) {
         }
       }
 
-      lex.push(exp);
+      lex.push('\'' + exp.substr(1).slice(0, -1) + '\'');
 
       file = file.substr(exp.length);
 

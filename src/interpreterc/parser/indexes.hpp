@@ -21,21 +21,21 @@ json hashIndex(json val, json indexes, json calc_params, int line) {
   inner.erase(inner.end());
 
   int bCnt = 0
-  , cbCnt = 0
+  , glCnt = 0
   , cur = false;
   vector<vector<string>> hash {
     {"", ""}
   };
 
   for (int i = 0; i < inner.size(); i++) {
-    if (inner[i] == "{") cbCnt++;
-    if (inner[i] == "}") cbCnt--;
+    if (inner[i] == "[:") glCnt++;
+    if (inner[i] == ":]") glCnt--;
     if (inner[i] == "[") bCnt++;
     if (inner[i] == "]") bCnt--;
 
     if (inner[i] == "newlineN") continue;
 
-    if (cbCnt == 0 && bCnt == 0 && inner[i] == ",") {
+    if (glCnt == 0 && bCnt == 0 && inner[i] == ",") {
 
       vector<string> pusher {"", ""};
 
@@ -43,7 +43,7 @@ json hashIndex(json val, json indexes, json calc_params, int line) {
       continue;
     }
 
-    if (cbCnt == 0 && bCnt == 0 && inner[i] == ":") {
+    if (glCnt == 0 && bCnt == 0 && inner[i] == ":") {
       cur = !cur;
       continue;
     }
@@ -58,7 +58,7 @@ json hashIndex(json val, json indexes, json calc_params, int line) {
 
   json index = indexes[0];
 
-  //erase the quotes
+  //removing [ and ]
   index.erase(index.begin());
   index.erase(index.end());
 
@@ -70,6 +70,8 @@ json hashIndex(json val, json indexes, json calc_params, int line) {
 
   string value = hashMap[indexD];
 
+  cout << indexes.dump() << endl;
+
   indexes.erase(indexes.begin());
 
   if (indexes.size() == 0) return json::parse("[\"" + value + "\"]");
@@ -79,24 +81,66 @@ json hashIndex(json val, json indexes, json calc_params, int line) {
   string valueN;
 
   if (strcmp(datatype, "hash") == 0) {
-    valueN = "\"[:\"" + value.substr(1, value.length() - 2) + "\":]\"";
+
+    string valueCopy = value.substr(2, value.length() - 4);
+
+    vector<string> hashCopied {""};
+
+    int bCnt = 0
+    , glCnt = 0;
+
+    for (int i = 0; i < valueCopy.length(); i++) {
+      if (valueCopy[i] == '{') glCnt++;
+      if (valueCopy[i] == '}') glCnt--;
+      if (valueCopy[i] == '[') bCnt++;
+      if (valueCopy[i] == ']') bCnt--;
+
+      string curC(1, valueCopy[i]);
+
+      if (bCnt == 0 && glCnt == 0 && valueCopy[i] == ':') {
+        hashCopied.push_back(":");
+        hashCopied.push_back("");
+
+        continue;
+      }
+
+      if (bCnt == 0 && glCnt == 0 && valueCopy[i] == ',') {
+        hashCopied.push_back(",");
+        hashCopied.push_back("");
+
+        continue;
+      }
+
+      hashCopied[hashCopied.size() - 1]+=valueCopy[i];
+    }
+
+    hashCopied.insert(hashCopied.begin(), "[:");
+    hashCopied.push_back(":]");
+
+    string puts = "";
+
+    for (int i = 0; i < hashCopied.size(); i++) puts+=("\"" + hashCopied[i] + "\",");
+
+    valueN = puts;
+
+    cout << valueN << endl;
   } else if (strcmp(datatype, "array") == 0) {
 
     string valCopy = value.substr(1, value.length() - 2);
     vector<string> valVect {""};
 
     int bCnt = 0
-    , cbCnt = 0;
+    , glCnt = 0;
 
     for (int i = 0; i < valCopy.length(); i++) {
-      if (valCopy[i] == '{') cbCnt++;
-      if (valCopy[i] == '}') cbCnt--;
+      if (valCopy[i] == '{') glCnt++;
+      if (valCopy[i] == '}') glCnt--;
       if (valCopy[i] == '[') bCnt++;
       if (valCopy[i] == ']') bCnt--;
 
       string cur(1, valCopy[i]);
 
-      if (bCnt == 0 && cbCnt == 0 && valCopy[i] == ',') {
+      if (bCnt == 0 && glCnt == 0 && valCopy[i] == ',') {
         valVect.push_back(",");
         valVect.push_back("");
         continue;
@@ -109,7 +153,7 @@ json hashIndex(json val, json indexes, json calc_params, int line) {
 
     valueN = "\"[\"," + valNPut + "\"]\"";
   } else if (strcmp(datatype, "string") == 0) {
-    valueN = "\"\\\"" + value.substr(1, value.length() - 2) + "\\\"\"";
+    valueN = "\"\\\'" + value.substr(1, value.length() - 2) + "\\\'\"";
   }
 
   json valueR = json::parse("[[" + valueN + "]]");
@@ -125,18 +169,18 @@ json arrayIndex(json val, json indexes, json calc_params, int line) {
   inner.erase(inner.end());
 
   int bCnt = 0
-  , cbCnt = 0;
+  , glCnt = 0;
   vector<string> arr {""};
 
   for (int i = 0; i < inner.size(); i++) {
-    if (inner[i] == "{") cbCnt++;
-    if (inner[i] == "}") cbCnt--;
+    if (inner[i] == "[:") glCnt++;
+    if (inner[i] == ":]:") glCnt--;
     if (inner[i] == "[") bCnt++;
     if (inner[i] == "]") bCnt--;
 
     if (inner[i] == "newlineN") continue;
 
-    if (cbCnt == 0 && bCnt == 0 && inner[i] == ",") {
+    if (glCnt == 0 && bCnt == 0 && inner[i] == ",") {
       arr.push_back("");
       continue;
     }
@@ -165,7 +209,7 @@ json arrayIndex(json val, json indexes, json calc_params, int line) {
   //getting the position of the index
   while (IsLessC(zero, indexC)) {
 
-    if (arrJ.size() == 0) return json::parse("[\"undefined\"]");
+    if (arrJ.size() == 0) return json::parse("[\'undefined\']");
 
     arrJ.erase(arrJ.begin());
 
@@ -177,7 +221,7 @@ json arrayIndex(json val, json indexes, json calc_params, int line) {
   first.erase(first.length() - 3, 3);
   indexes.erase(indexes.begin());
 
-  if (indexes.size() == 0) return json::parse("[\"" + first + "\"]");
+  if (indexes.size() == 0) return json::parse("[\'" + first + "\']");
 
   json firstR = json::parse("[[" + first + "]]");
 
@@ -214,7 +258,7 @@ json expressionIndex(json valJ, json indexes, json calc_params, int line) {
   //getting the position of the index
   while (IsLessC(zero, indexC)) {
 
-    if (val.length() == 0) return json::parse("[\"undefined\"]");
+    if (val.length() == 0) return json::parse("[\'undefined\']");
 
     val = val.substr(1);
 
@@ -225,13 +269,13 @@ json expressionIndex(json valJ, json indexes, json calc_params, int line) {
 
   indexes.erase(indexes.begin());
 
-  if (indexes.size() == 0) return json::parse("[\"\\\"" + first + "\\\"\"]");
+  if (indexes.size() == 0) return json::parse("[\'\\\'" + first + "\\\'\']");
 
   json nIndex = indexes
   , nCP = calc_params;
   int nL = line;
 
-  json firstR = json::parse("[[\"\\\"" + first + "\\\"\"]]");
+  json firstR = json::parse("[[\'\\\'" + first + "\\\'\']]");
 
   return indexesCalc(firstR, nIndex, nCP, nL);
 }
@@ -247,5 +291,5 @@ json indexesCalc(json val, json indexes, json calc_params, int line) {
   else if (strcmp(datatype, "array") == 0) return arrayIndex(val, indexes, calc_params, line);
   else if (strcmp(datatype, "string") == 0) return expressionIndex(val, indexes, calc_params, line);
 
-  return json::parse("[\"undefined\"]");
+  return json::parse("[\'undefined\']");
 }
