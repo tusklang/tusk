@@ -104,15 +104,15 @@
     "type": "id"
   },
   {
-    "name": "abstract",
-    "remove": "abstract",
-    "pattern": "(abstract~)",
+    "name": "dynamic",
+    "remove": "dyn",
+    "pattern": "(dyn~)",
     "type": "id"
   },
   {
-    "name": "abstract",
-    "remove": "abs",
-    "pattern": "(abs~)",
+    "name": "dynamic",
+    "remove": "dynamic",
+    "pattern": "(dynamic~)",
     "type": "id"
   },
   {

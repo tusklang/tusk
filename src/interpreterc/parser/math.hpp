@@ -33,8 +33,9 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
         if (exp[i][o].dump().substr(1, exp[i][o].dump().length() - 2).rfind("$", 0) == 0) {
           json var = vars[exp[i][o].dump().substr(1, exp[i][o].dump().length() - 2)];
 
-          if (var["value"][0][0].dump() != "null") {
-            exp[i][o] = var["value"][0][0];
+          if (var["value"][0][0].dump() != "null") exp[i][o] = var["value"][0][0];
+          else {
+            exp[i][o] = parser(var["valueActs"], calc_params, vars, dir, false, line).exp[0][0];
           }
         }
       }

@@ -1,3 +1,5 @@
-lcl ~ test: 11;
+lcl ~ test: [:
+  "tets": [1]
+:].["tets"];
 
-log ~ test + 11;
+log ~ test;

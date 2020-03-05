@@ -60,8 +60,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             json nVar = {
               {"type", "dynamic"},
               {"name", name},
-              {"value", acts},
-              {"valueActs", json::parse("[]")}
+              {"value", json::parse("[]")},
+              {"valueActs", acts}
             };
             vars[name] = nVar;
           }
