@@ -83,6 +83,8 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
 
           json var = vars[exp[i][o].dump().substr(1, exp[i][o].dump().length() - 2)];
 
+          cout << var["value"][0][0] << endl;
+
           if (var["value"][0][0].dump() != "null") {
             exp[i].erase(exp[i].begin() + o, exp[i].begin() + o + 1);
 

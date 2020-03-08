@@ -1,5 +1,5 @@
-lcl ~ test: [:
-  "hello": 11
-:];
+{
+  global ~ test: 1;
+}
 
-log ~ test.["hello"];
+log ~ test;

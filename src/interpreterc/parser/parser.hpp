@@ -87,24 +87,35 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           }
           break;
         case 4: {
+          
             //global
 
             string name = actions[i]["Name"];
 
             json acts = actions[i]["ExpAct"];
 
+            json parsed = parser(acts, calc_params, vars, dir, false, line).exp;
+
+            if (parsed.size() == 0) {
+              cout << "There Was An Unidentified Error On Line " << line << endl;
+              Kill();
+            }
+
             json nVar = {
               {"type", "global"},
               {"name", name},
-              {"value", acts},
+              {"value", parsed},
               {"valueActs", json::parse("[]")}
             };
+
             vars[name] = nVar;
           }
           break;
         case 5: {
 
             //log
+
+            cout << actions[i]["ExpAct"] << endl;
 
             string val = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0][0].dump();
 
@@ -152,6 +163,21 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             json index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, line);
 
             expStr.push_back(index);
+          }
+          break;
+        case 9: {
+
+            //group
+
+            json acts = actions[i]["ExpAct"];
+
+            Returner parsed = parser(acts, calc_params, vars, dir, false, line);
+
+            for (auto o = parsed.variables.begin(); o != parsed.variables.end(); o++)
+              if (o.value()["type"] != "global")
+                parsed.variables.erase(o);
+
+            vars.insert(parsed.variables.begin(), parsed.variables.end());
           }
           break;
         case 22: {
