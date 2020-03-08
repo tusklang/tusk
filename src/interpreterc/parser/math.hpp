@@ -27,20 +27,6 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
   if (exp[0][0] == "true" || exp[0][0] == "false") return exp;
   else {
 
-    for (int i = 0; i < exp.size(); i++) {
-      for (int o = 0; o < exp[i].size(); o++) {
-
-        if (exp[i][o].dump().substr(1, exp[i][o].dump().length() - 2).rfind("$", 0) == 0) {
-          json var = vars[exp[i][o].dump().substr(1, exp[i][o].dump().length() - 2)];
-
-          if (var["value"][0][0].dump() != "null") exp[i][o] = var["value"][0][0];
-          else {
-            exp[i][o] = parser(var["valueActs"], calc_params, vars, dir, false, line).exp[0][0];
-          }
-        }
-      }
-    }
-
     while (expContain(exp, "(") && expContain(exp, ")")) {
 
       int gen, spec;
@@ -90,7 +76,20 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
       exp[gen].insert(exp[gen].begin() + spec, evaled[0].begin(), evaled[0].end());
     }
 
-    //for each operation, maybe re-program into c++
+    for (int i = 0; i < exp.size(); i++) {
+      for (int o = 0; o < exp[i].size(); o++) {
+
+        if (exp[i][o].dump().substr(1, exp[i][o].dump().length() - 2).rfind("$", 0) == 0) {
+
+          json var = vars[exp[i][o].dump().substr(1, exp[i][o].dump().length() - 2)];
+
+          if (var["value"][0][0].dump() != "null") exp[i][o] = var["value"][0][0];
+          else exp[i][o] = parser(var["valueActs"], calc_params, vars, dir, false, line).exp[0][0];
+        }
+      }
+    }
+
+    //for each operation, maybe re-program into c++ or even better, fortran
 
     while (expContain(exp, "^")) {
 
