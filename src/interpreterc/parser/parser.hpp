@@ -154,9 +154,18 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             expStr.push_back(index);
           }
           break;
-        case 25: {
+        case 22: {
 
-            //arrayIndex
+            //hash
+
+            json expStr_ = json::parse(actions[i]["ExpStr"].dump());
+
+            expStr.push_back(expStr_);
+          }
+          break;
+        case 23: {
+
+            //hashIndex
 
             string expStr_ = actions[i]["ExpStr"].dump();
 
@@ -169,9 +178,18 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             expStr.push_back(index);
           }
           break;
-        case 23: {
+        case 24: {
 
-            //hashIndex
+            //array
+
+            json expStr_ = json::parse(actions[i]["ExpStr"].dump());
+
+            expStr.push_back(expStr_);
+          }
+          break;
+        case 25: {
+
+            //arrayIndex
 
             string expStr_ = actions[i]["ExpStr"].dump();
 

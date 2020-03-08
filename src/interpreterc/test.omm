@@ -1,8 +1,5 @@
 lcl ~ test: [:
-  "hello": [:
-    "hello": [11]
-  :],
-  "test": 29
+  "hello": 11
 :];
 
-log ~ test.["test"];
+log ~ test.["hello"];

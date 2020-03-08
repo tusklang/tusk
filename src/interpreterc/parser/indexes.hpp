@@ -145,6 +145,8 @@ json arrayIndex(json valJ, json indexes, json calc_params, int line) {
 
 json expressionIndex(json valJ, json indexes, json calc_params, int line) {
 
+  cout << indexes << endl;
+
   string val = valJ[0][0].dump()
   , expVal = "";
 

@@ -83,8 +83,17 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
 
           json var = vars[exp[i][o].dump().substr(1, exp[i][o].dump().length() - 2)];
 
-          if (var["value"][0][0].dump() != "null") exp[i][o] = var["value"][0][0];
-          else exp[i][o] = parser(var["valueActs"], calc_params, vars, dir, false, line).exp[0][0];
+          if (var["value"][0][0].dump() != "null") {
+            exp[i].erase(exp[i].begin() + o, exp[i].begin() + o + 1);
+
+            for (int j = 0; j < var["value"][0].size(); j++)
+              exp[i].insert(exp[i].begin() + j + o, var["value"][0][j]);
+          } else {
+            exp[i].erase(exp[i].begin() + o, exp[i].begin() + o + 1);
+
+            for (int j = 0; j < parser(var["valueActs"], calc_params, vars, dir, false, line).exp[0].size(); j++)
+              exp[i].insert(exp[i].begin() + j + o, parser(var["valueActs"], calc_params, vars, dir, false, line).exp[0][j]);
+          }
         }
       }
     }
