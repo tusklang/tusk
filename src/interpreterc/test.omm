@@ -1,1 +1,8 @@
-log ~ ["hello"].[0].[0];
+lcl ~ test: [:
+  "hello": [:
+    "hello": [11]
+  :],
+  "test": 29
+:];
+
+log ~ test.["test"];

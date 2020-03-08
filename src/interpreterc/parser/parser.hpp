@@ -181,8 +181,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, line);
 
-            cout << index << endl;
-
             expStr.push_back(index);
           }
           break;

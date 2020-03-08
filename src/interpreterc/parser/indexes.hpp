@@ -14,9 +14,81 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 json indexesCalc(json val, json indexes, json calc_params, int line);
 
 json hashIndex(json valJ, json indexes, json calc_params, int line) {
-  cout << valJ << endl;
 
-  return valJ;
+  valJ = valJ[0];
+
+  valJ.erase(valJ.begin());
+  valJ.erase(valJ.end());
+
+  vector<json> vals { json::parse("[]") };
+
+  int bCnt = 0
+  , glCnt = 0;
+
+  for (int i = 0; i < valJ.size(); i++) {
+    if (valJ[i] == "[") bCnt++;
+    if (valJ[i] == "]") bCnt--;
+    if (valJ[i] == "[:") glCnt++;
+    if (valJ[i] == ":]") glCnt--;
+
+    if (valJ[i] == "newlineN") continue;
+
+    if (valJ[i] == "," && bCnt == 0 && glCnt == 0) {
+      vals.push_back(json::parse("[]"));
+      continue;
+    }
+
+    vals[vals.size() - 1].push_back(valJ[i]);
+  }
+
+  map<string, json> valMap;
+
+  for (int i = 0; i < vals.size(); i++) {
+
+    int bCnt = 0
+    , glCnt = 0;
+
+    pair<string, json> curVal = pair<string, json>("", "[]"_json);
+    int cur = 0;
+
+    for (int o = 0; o < vals[i].size(); o++) {
+      if (vals[i][o] == "[") bCnt++;
+      if (vals[i][o] == "]") bCnt--;
+      if (vals[i][o] == "[:") glCnt++;
+      if (vals[i][o] == ":]") glCnt--;
+
+      if (vals[i][o] == ":" && bCnt == 0 && glCnt == 0) {
+        cur = 1;
+        continue;
+      }
+
+      if (cur == 0) curVal.first+=vals[i][o];
+      else curVal.second.push_back(vals[i][o]);
+    }
+
+    if (curVal.first.rfind("\'", 0) == 0 || curVal.first.rfind("\"", 0) == 0 || curVal.first.rfind("`", 0) == 0)
+      curVal.first = curVal.first.substr(1, curVal.first.length() - 2);
+
+    valMap.insert(curVal);
+  }
+
+  json _curIndex = indexes[0];
+
+  _curIndex.erase(_curIndex.begin());
+  _curIndex.erase(_curIndex.end());
+
+  string curIndex = (string) _curIndex[0];
+
+  if (curIndex.rfind("\'", 0) == 0 || curIndex.rfind("\"", 0) == 0 || curIndex.rfind("`", 0) == 0)
+    curIndex = curIndex.substr(1, curIndex.length() - 2);
+
+  json val = valMap[curIndex];
+
+  indexes.erase(indexes.begin());
+
+  if (indexes.size() == 0) return val;
+
+  return indexesCalc(json::parse("[" + val.dump() + "]"), indexes, calc_params, line);
 }
 
 json arrayIndex(json valJ, json indexes, json calc_params, int line) {
@@ -36,7 +108,12 @@ json arrayIndex(json valJ, json indexes, json calc_params, int line) {
     if (valJ[i] == "[:") glCnt++;
     if (valJ[i] == ":]") glCnt++;
 
-    if (valJ[i] == "," && bCnt == 0 && glCnt == 0) vals.push_back(json::parse("[]"));
+    if (valJ[i] == "newlineN") continue;
+
+    if (valJ[i] == "," && bCnt == 0 && glCnt == 0) {
+      vals.push_back(json::parse("[]"));
+      continue;
+    }
 
     vals[vals.size() - 1].push_back(valJ[i]);
   }
