@@ -316,6 +316,51 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             vars.insert(parsed.variables.begin(), parsed.variables.end());
           }
           break;
+        case 15: {
+
+            //read
+
+            string in;
+
+            cout << ((string) parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0][0]) << " ";
+
+            cin >> in;
+
+            expStr.push_back(json::parse("[\"\'" + in + "\'\"]"));
+          }
+          break;
+        case 16:
+
+          //break
+          return Returner{ "[]"_json, vars, expStr, "break" };
+          break;
+        case 17:
+
+          //skip
+          return Returner{ "[]"_json, vars, expStr, "skip" };
+          break;
+        case 18: {
+
+            //eval
+
+            string _code = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0][0].dump()
+            , code = _code.substr(2, _code.length() - 4);
+
+            char* codeNQ = NQReplaceC(&code[0]);
+
+            char* lex = CLex(codeNQ);
+
+            char* __acts = Cactions(lex);
+
+            string _acts(__acts);
+
+            json acts = json::parse(_acts);
+
+            Returner parsed = parser(acts, calc_params, vars, dir, false, line);
+
+            expStr.push_back(json::parse("[" + parsed.value[0] + "]"));
+          }
+          break;
         case 22: {
 
             //hash

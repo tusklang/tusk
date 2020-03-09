@@ -3,6 +3,9 @@ package main
 import "fmt"
 import "strings"
 
+// #cgo CFLAGS: -std=c99
+import "C"
+
 func Chunk(val string, by int) []string {
   nVal := []string{}
   last := 0
@@ -88,6 +91,14 @@ func NQindexOf(val string, sub string) int {
   }
 
   return -1
+}
+
+//export NQReplaceC
+func NQReplaceC(s *C.char) *C.char {
+
+  final, _ := NQReplace(C.GoString(s))
+
+  return C.CString(final)
 }
 
 func NQReplace(s string) (string, error) {

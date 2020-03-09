@@ -1023,7 +1023,8 @@ func actionizer(lex []string) []Action {
           phrase = append(phrase, lex[o])
         }
 
-        actions = append(actions, Action{ "eval", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 18 })
+        actionized := actionizer(phrase)
+        actions = append(actions, Action{ "eval", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, [][]string{}, 18 })
         i+=(2 + len(phrase))
       case "typeof":
         var phrase = []string{}
