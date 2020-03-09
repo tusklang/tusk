@@ -1,1 +1,1 @@
-eval ~ "log ~ 'Hello'";
+log ~ "hello" + (typeof ~ "hello");

@@ -358,7 +358,29 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             Returner parsed = parser(acts, calc_params, vars, dir, false, line);
 
-            expStr.push_back(json::parse("[" + parsed.value[0] + "]"));
+            expStr.push_back(json::parse("[\"" + parsed.value[0] + "\"]"));
+          }
+          break;
+        case 19: {
+
+            //typeof
+
+            Returner parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line);
+
+            string exp = parsed.exp[0][0].dump().substr(1, parsed.exp[0][0].dump().length() - 2);
+
+            char* _type = GetType(&exp[0]);
+
+            string type(_type);
+
+            expStr.push_back(json::parse("[\"" + type + "\"]"));
+          }
+          break;
+        case 20: {
+
+            //err
+
+            
           }
           break;
         case 22: {
