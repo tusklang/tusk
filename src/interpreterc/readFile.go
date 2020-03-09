@@ -4,6 +4,14 @@ import "fmt"
 import "os"
 import "bufio"
 
+// #cgo CFLAGS: -std=c99
+import "C"
+
+//export CReadFile
+func CReadFile(fileName, err *C.char, newline C.int) *C.char {
+  return C.CString(read(C.GoString(fileName), C.GoString(err), int(newline) == 1))
+}
+
 func read(fileName string, err string, newline bool) string {
   filePointer, error := os.Open(fileName)
 

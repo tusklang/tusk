@@ -12,6 +12,8 @@ extern "C" {
   extern char* GetType(char*);
   extern char* ReturnInitC(char*);
   extern int IsLessC(char*, char*);
+  extern char* CReadFile(char*, char*, int);
+  extern char* CLex(char*);
   void bind(char *actions, char *calc_params, char *dir);
 #ifdef __cplusplus
 }

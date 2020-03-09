@@ -1,1 +1,3 @@
-
+proc ~ test(test) {
+  return ~ test;
+}

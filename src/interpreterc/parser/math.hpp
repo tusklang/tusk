@@ -1,4 +1,3 @@
-#include <iostream>
 #include <deque>
 #include <vector>
 #include "json.hpp"
@@ -73,7 +72,8 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
       json evaled = parsed.exp[0];
 
       exp[gen].erase(exp[gen].begin() + spec, exp[gen].begin() + parenExpJSON_.size() + 2);
-      exp[gen].insert(exp[gen].begin() + spec, evaled[0].begin(), evaled[0].end());
+
+      exp[gen].insert(exp[gen].begin() + spec, evaled.begin(), evaled.end());
     }
 
     for (int i = 0; i < exp.size(); i++) {
@@ -83,7 +83,12 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
 
           json var = vars[exp[i][o].dump().substr(1, exp[i][o].dump().length() - 2)];
 
-          cout << var["value"][0][0] << endl;
+          if (var["type"] == "process") {
+            cout << "There Was An Error On Line " << line << ": You cannot have a process in an expression without the '#' keyword"
+            << "\n\n" << ((string) var["name"]).substr(1) << endl << "^ <-- Expected '#' here" << endl;
+
+            Kill();
+          }
 
           if (var["value"][0][0].dump() != "null") {
             exp[i].erase(exp[i].begin() + o, exp[i].begin() + o + 1);
@@ -100,7 +105,7 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
       }
     }
 
-    //for each operation, maybe re-program into c++ or even better, fortran
+    //TODO: for each operation, maybe re-program into c++ or even better, fortran
 
     while (expContain(exp, "^")) {
 

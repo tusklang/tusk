@@ -51,6 +51,23 @@ func GetType(cVal *C.char) *C.char {
   return C.CString("none")
 }
 
+//export CLex
+func CLex(_file *C.char) *C.char {
+
+  file := C.GoString(_file)
+
+  lexCmd := exec.Command("./lexer/main-win.exe")
+
+  fileNQ, _ := NQReplace(file)
+
+  lexCmd.Stdin = strings.NewReader(fileNQ + "\n")
+
+  _lex, _ := lexCmd.CombinedOutput()
+  lex_ := string(_lex)
+
+  return C.CString(lex_)
+}
+
 func index(fileName, dir string, calcParams paramCalcOpts) {
 
   file := read("./pre.omm", "", true) + read(dir + fileName, "File Not Found: " + dir + fileName, true)
