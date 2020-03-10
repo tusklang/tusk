@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <deque>
+#include <string>
 #include "json.hpp"
 #include "bind.h"
 #include "indexes.hpp"
@@ -393,8 +393,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //loop
 
-            cout << actions[i]["Condition"][0]["Actions"].dump(1) << endl;
-
             json cond = actions[i]["Condition"][0]["Condition"]
             , acts = actions[i]["Condition"][0]["Actions"];
 
@@ -461,6 +459,37 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             json index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, line);
 
             expStr.push_back(index);
+          }
+          break;
+        case 26: {
+
+            //ascii
+
+            string parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0][0].dump();
+
+            parsed = parsed.substr(1, parsed.length() - 2);
+
+            char first = parsed[0];
+
+            expStr.push_back(json::parse("[\"" + to_string((int) first) + "\"]"));
+          }
+          break;
+        case 27: {
+
+            //parse
+
+            string parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0][0].dump();
+
+            parsed = parsed.substr(1, parsed.length() - 2);
+
+            if (!(strcmp(GetType(&parsed[0]), "string") == 0 || strcmp(GetType(&parsed[0]), "number") == 0)) {
+              cout << "There Was An Error: `parse~` cannot be used on a non-string or number" << "\n\nparse~" + parsed << "\n^ <-- Error On Line " + line;
+              Kill();
+            }
+
+            if (strcmp(GetType(&parsed[0]), "string") == 0)
+              expStr.push_back(json::parse("[\"" + parsed.substr(1, parsed.length() - 2) + "\"]"));
+            else expStr.push_back(json::parse("[\"" + parsed + "\"]"));
           }
           break;
       }

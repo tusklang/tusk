@@ -28,8 +28,7 @@ array: 24
 arrayIndex: 25
 ascii: 26
 parse: 27
-len: 28
-let: 29
+let: 28
 ++: 4343
 --: 4545
 +=: 4361

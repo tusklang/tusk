@@ -1,3 +1,6 @@
-loop(true) {
-  log ~ "1";
+global ~ i: 0;
+
+loop (i <= 100;) {
+  log ~ i;
+  global ~ i: i + 1;
 }

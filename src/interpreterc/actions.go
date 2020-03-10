@@ -1583,7 +1583,7 @@ func actionizer(lex []string) []Action {
 
               exp := actionizer(exp_)
 
-              actions = append(actions, Action{ "let", lex[i], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 29 })
+              actions = append(actions, Action{ "let", lex[i], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 28 })
               i+=(len(exp))
             } else {
 
