@@ -1,1 +1,3 @@
-log ~ "hello" + (typeof ~ "hello");
+loop(true) {
+  log ~ "1";
+}

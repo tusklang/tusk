@@ -380,7 +380,39 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //err
 
-            
+            Returner parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line);
+
+            string exp = parsed.exp[0][0].dump().substr(1, parsed.exp[0][0].dump().length() - 2);
+
+            cout << exp << "\n\nerr~" << exp << "\n^^^^ <-- Error On Line " << line << endl;
+
+            Kill();
+          }
+          break;
+        case 21: {
+
+            //loop
+
+            cout << actions[i]["Condition"][0]["Actions"].dump(1) << endl;
+
+            json cond = actions[i]["Condition"][0]["Condition"]
+            , acts = actions[i]["Condition"][0]["Actions"];
+
+            json condP = parser(cond, calc_params, vars, dir, false, line).exp[0][0];
+
+            while (condP != "false" && condP != "undefined" && condP != "null") {
+
+              Returner parsed = parser(acts, calc_params, vars, dir, true, line);
+
+              //filter the variables that are not global
+              for (auto o = parsed.variables.begin(); o != parsed.variables.end(); o++)
+                if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
+                  parsed.variables.erase(o);
+
+              vars.insert(parsed.variables.begin(), parsed.variables.end());
+
+              condP = parser(cond, calc_params, vars, dir, false, line).exp[0][0];
+            }
           }
           break;
         case 22: {
