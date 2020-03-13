@@ -83,7 +83,7 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
 
           json var = vars[exp[i][o].dump().substr(1, exp[i][o].dump().length() - 2)];
 
-          if (var["type"] == "process") {
+          if (var["type"].dump() == "\"process\"") {
             cout << "There Was An Error On Line " << line << ": You cannot have a process in an expression without the '#' keyword"
             << "\n\n" << ((string) var["name"]).substr(1) << endl << "^ <-- Expected '#' here" << endl;
 

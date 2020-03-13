@@ -492,6 +492,76 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             else expStr.push_back(json::parse("[\"" + parsed + "\"]"));
           }
           break;
+        case 28: {
+
+            //let
+
+            string name = actions[i]["Name"];
+
+            json acts = actions[i]["ExpAct"];
+
+            json parsed = parser(acts, calc_params, vars, dir, false, line).exp;
+
+            if (parsed.size() == 0) {
+              cout << "There Was An Unidentified Error On Line " << line << endl;
+              Kill();
+            }
+
+            json nVar;
+
+            if (vars[name].find("type") != vars[name].end())
+              nVar = {
+                {"type", vars[name]["type"]},
+                {"name", name},
+                {"value", parsed},
+                {"valueActs", json::parse("[]")}
+              };
+            else
+              nVar = {
+                {"type", "local"},
+                {"name", name},
+                {"value", parsed},
+                {"valueActs", json::parse("[]")}
+              };
+
+            vars[name] = nVar;
+          }
+          break;
+        case 4343: {
+
+            //++
+
+            string name = actions[i]["Name"];
+
+            json nVar;
+
+            if (vars[name]["type"] != "dynamic") {
+
+              if (vars[name].find("value") != vars[name].end()) {
+
+                string _val = vars[name]["value"].dump()
+                , val = _val.substr(1, _val.length() - 2);
+                char* _added = Add(&(val)[0], "1", &calc_params.dump()[0], line);
+                string added(_added);
+
+                nVar = {
+                  {"type", vars[name]["type"]},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+              } else
+                nVar = {
+                  {"type", "local"},
+                  {"name", name},
+                  {"value", json::parse("[[\"1\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+            }
+
+            vars[name] = nVar;
+          }
+          break;
       }
     } catch (int e) {
       cout << "There Was An Unidentified Error On Line " << line << endl;

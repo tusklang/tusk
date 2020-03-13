@@ -1,6 +1,4 @@
-global ~ i: 0;
+test: 1;
+test++
 
-loop (i <= 100;) {
-  log ~ i;
-  global ~ i: i + 1;
-}
+log ~ test;
