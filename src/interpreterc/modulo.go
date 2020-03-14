@@ -29,8 +29,6 @@ func Modulo(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *
     return C.CString("0")
   }
 
-  calc_params.precision = 0;
-
   divved_ := addDec(C.GoString(Division(C.CString(_num1), C.CString(_num2), calc_paramsP, line_)))
 
   divved := divved_[:strings.Index(divved_, ".")]

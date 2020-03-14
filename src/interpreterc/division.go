@@ -1,7 +1,6 @@
 package main
 
 import "strings"
-import "fmt"
 import "encoding/json"
 
 // #cgo CFLAGS: -std=c99
@@ -55,19 +54,11 @@ func Division(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
     _num1+=strings.Repeat("0", 20)
   }
 
-  zeroesRep := strings.Repeat("0", calc_params.precision)
-
-  _num1+=zeroesRep
-
   curVal := ""
   final := ""
 
   for i := 0; i < len(_num1); i++ {
     curVal+=string([]rune(_num1)[i])
-
-    if calc_params.logger {
-      fmt.Println("Omm Logger ~ Division: " + final)
-    }
 
     if isLess(curVal, _num2) {
       final+="0"

@@ -39,10 +39,6 @@ func Exponentiate(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.
     for ;isLess("0", _num2); {
       final = C.GoString(Multiply(C.CString(final), C.CString(_num1), calc_paramsP, line_))
       _num2 = C.GoString(Subtract(C.CString(_num2), C.CString("1"), calc_paramsP, line_))
-
-      if calc_params.logger {
-        fmt.Println("Omm Logger ~ Exponentiation: " + final)
-      }
     }
 
     final = C.GoString(Division(C.CString("1"), C.CString(final), calc_paramsP, line_))
@@ -52,10 +48,6 @@ func Exponentiate(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.
 
       final = C.GoString(Multiply(C.CString(final), C.CString(_num1), calc_paramsP, line_))
       _num2 = C.GoString(Subtract(C.CString(_num2), C.CString("1"), calc_paramsP, line_))
-
-      if calc_params.logger {
-        fmt.Println("Omm Logger ~ Exponentiation: " + final)
-      }
     }
   }
 

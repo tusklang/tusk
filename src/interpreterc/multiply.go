@@ -1,7 +1,6 @@
 package main
 
 import "strings"
-import "fmt"
 import "encoding/json"
 
 // #cgo CFLAGS: -std=c99
@@ -62,10 +61,6 @@ func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
   for ;returnInit(_num2) != "0"; {
     nNum = C.GoString(Add(C.CString(nNum), C.CString(_num1), calc_paramsP, line_))
     _num2 = C.GoString(Subtract(C.CString(_num2), C.CString("1"), calc_paramsP, line_))
-
-    if calc_params.logger {
-      fmt.Println("Omm Logger ~ Multiplication: " + nNum)
-    }
   }
 
   if decIndex > -1 {

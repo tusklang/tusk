@@ -3,7 +3,6 @@ package main
 import "strings"
 import "strconv"
 import "math"
-import "fmt"
 import "encoding/json"
 
 // #cgo CFLAGS: -std=c99
@@ -69,10 +68,6 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
       }
 
       final = sum + final;
-
-      if calc_params.logger {
-        fmt.Println("Omm Logger ~ Addition: " + final)
-      }
     }
 
     final = final[:decPlace] + "." + final[decPlace:]
@@ -116,10 +111,6 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
         sum := strconv.Itoa(int(n1 - n2))
 
         final = sum + final
-
-        if calc_params.logger {
-          fmt.Println("Omm Logger ~ Addition: " + final)
-        }
       }
 
       final = "-" + final[:decPlace] + "." + final[decPlace:]
@@ -156,10 +147,6 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
         sum := strconv.Itoa(int(n1 - n2))
 
         final = sum + final
-
-        if calc_params.logger {
-          fmt.Println("Omm Logger ~ Addition: " + final)
-        }
       }
 
       final = final[:decPlace] + "." + final[decPlace:]
@@ -205,10 +192,6 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
         sum := strconv.Itoa(int(n1 - n2))
 
         final = sum + final
-
-        if calc_params.logger {
-          fmt.Println("Omm Logger ~ Addition: " + final)
-        }
       }
 
       final = final[:decPlace] + "." + final[decPlace:]
@@ -248,10 +231,6 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
       }
 
       final = "-" + final[:decPlace] + "." + final[decPlace:]
-
-      if calc_params.logger {
-        fmt.Println("Omm Logger ~ Addition: " + final)
-      }
     }
 
   } else if strings.HasPrefix(num1_, "-") && strings.HasPrefix(num2_, "-") {
@@ -283,10 +262,6 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
       }
 
       final = sum + final;
-
-      if calc_params.logger {
-        fmt.Println("Omm Logger ~ Addition: " + final)
-      }
     }
 
     final = "-" + final[:decPlace] + "." + final[decPlace:]

@@ -539,8 +539,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               if (vars[name].find("value") != vars[name].end()) {
 
-                string _val = vars[name]["value"].dump()
-                , val = _val.substr(1, _val.length() - 2);
+                string _val = vars[name]["value"][0].dump()
+                , val = _val.substr(2, _val.length() - 4);
+
                 char* _added = Add(&(val)[0], "1", &calc_params.dump()[0], line);
                 string added(_added);
 
@@ -555,6 +556,282 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                   {"type", "local"},
                   {"name", name},
                   {"value", json::parse("[[\"1\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+            }
+
+            vars[name] = nVar;
+          }
+          break;
+        case 4545: {
+
+            //--
+
+            string name = actions[i]["Name"];
+
+            json nVar;
+
+            if (vars[name]["type"] != "dynamic") {
+
+              if (vars[name].find("value") != vars[name].end()) {
+
+                string _val = vars[name]["value"][0].dump()
+                , val = _val.substr(2, _val.length() - 4);
+
+                char* _added = Subtract(&(val)[0], "1", &calc_params.dump()[0], line);
+                string added(_added);
+
+                nVar = {
+                  {"type", vars[name]["type"]},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+              } else
+                nVar = {
+                  {"type", "local"},
+                  {"name", name},
+                  {"value", json::parse("[[\"1\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+            }
+
+            vars[name] = nVar;
+          }
+          break;
+        case 4361: {
+
+            //+=
+
+            string name = actions[i]["Name"];
+
+            json __inc = actions[i]["ExpAct"]
+            , _inc = parser(__inc, calc_params, vars, dir, false, line).exp[0][0];
+            string inc = _inc.dump().substr(1, _inc.dump().length() - 2);
+
+            json nVar;
+
+            if (vars[name]["type"] != "dynamic") {
+
+              if (vars[name].find("value") != vars[name].end()) {
+
+                string _val = vars[name]["value"][0].dump()
+                , val = _val.substr(2, _val.length() - 4);
+
+                char* _added = Add(&(val)[0], &inc[0], &calc_params.dump()[0], line);
+                string added(_added);
+
+                nVar = {
+                  {"type", vars[name]["type"]},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+              } else
+                nVar = {
+                  {"type", "local"},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + inc + "\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+            }
+
+            vars[name] = nVar;
+          }
+          break;
+        case 4561: {
+
+            //-=
+
+            string name = actions[i]["Name"];
+
+            json __inc = actions[i]["ExpAct"]
+            , _inc = parser(__inc, calc_params, vars, dir, false, line).exp[0][0];
+            string inc = _inc.dump().substr(1, _inc.dump().length() - 2);
+
+            json nVar;
+
+            if (vars[name]["type"] != "dynamic") {
+
+              if (vars[name].find("value") != vars[name].end()) {
+
+                string _val = vars[name]["value"][0].dump()
+                , val = _val.substr(2, _val.length() - 4);
+
+                char* _added = Subtract(&(val)[0], &inc[0], &calc_params.dump()[0], line);
+                string added(_added);
+
+                nVar = {
+                  {"type", vars[name]["type"]},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+              } else
+                nVar = {
+                  {"type", "local"},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + inc + "\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+            }
+
+            vars[name] = nVar;
+          }
+          break;
+        case 4261: {
+
+            //*=
+
+            string name = actions[i]["Name"];
+
+            json __inc = actions[i]["ExpAct"]
+            , _inc = parser(__inc, calc_params, vars, dir, false, line).exp[0][0];
+            string inc = _inc.dump().substr(1, _inc.dump().length() - 2);
+
+            json nVar;
+
+            if (vars[name]["type"] != "dynamic") {
+
+              if (vars[name].find("value") != vars[name].end()) {
+
+                string _val = vars[name]["value"][0].dump()
+                , val = _val.substr(2, _val.length() - 4);
+
+                char* _added = Multiply(&(val)[0], &inc[0], &calc_params.dump()[0], line);
+                string added(_added);
+
+                nVar = {
+                  {"type", vars[name]["type"]},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+              } else
+                nVar = {
+                  {"type", "local"},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + inc + "\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+            }
+
+            vars[name] = nVar;
+          }
+          break;
+        case 4761: {
+
+            ///=
+
+            string name = actions[i]["Name"];
+
+            json __inc = actions[i]["ExpAct"]
+            , _inc = parser(__inc, calc_params, vars, dir, false, line).exp[0][0];
+            string inc = _inc.dump().substr(1, _inc.dump().length() - 2);
+
+            json nVar;
+
+            if (vars[name]["type"] != "dynamic") {
+
+              if (vars[name].find("value") != vars[name].end()) {
+
+                string _val = vars[name]["value"][0].dump()
+                , val = _val.substr(2, _val.length() - 4);
+
+                char* _added = Division(&(val)[0], &inc[0], &calc_params.dump()[0], line);
+                string added(_added);
+
+                nVar = {
+                  {"type", vars[name]["type"]},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+              } else
+                nVar = {
+                  {"type", "local"},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + inc + "\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+            }
+
+            vars[name] = nVar;
+          }
+          break;
+        case 9461: {
+
+            //^=
+
+            string name = actions[i]["Name"];
+
+            json __inc = actions[i]["ExpAct"]
+            , _inc = parser(__inc, calc_params, vars, dir, false, line).exp[0][0];
+            string inc = _inc.dump().substr(1, _inc.dump().length() - 2);
+
+            json nVar;
+
+            if (vars[name]["type"] != "dynamic") {
+
+              if (vars[name].find("value") != vars[name].end()) {
+
+                string _val = vars[name]["value"][0].dump()
+                , val = _val.substr(2, _val.length() - 4);
+
+                char* _added = Exponentiate(&(val)[0], &inc[0], &calc_params.dump()[0], line);
+                string added(_added);
+
+                nVar = {
+                  {"type", vars[name]["type"]},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+              } else
+                nVar = {
+                  {"type", "local"},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + inc + "\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+            }
+
+            vars[name] = nVar;
+          }
+          break;
+        case 3761: {
+
+            //%=
+
+            string name = actions[i]["Name"];
+
+            json __inc = actions[i]["ExpAct"]
+            , _inc = parser(__inc, calc_params, vars, dir, false, line).exp[0][0];
+            string inc = _inc.dump().substr(1, _inc.dump().length() - 2);
+
+            json nVar;
+
+            if (vars[name]["type"] != "dynamic") {
+
+              if (vars[name].find("value") != vars[name].end()) {
+
+                string _val = vars[name]["value"][0].dump()
+                , val = _val.substr(2, _val.length() - 4);
+
+                char* _added = Modulo(&(val)[0], &inc[0], &calc_params.dump()[0], line);
+                string added(_added);
+
+                nVar = {
+                  {"type", vars[name]["type"]},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"valueActs", json::parse("[]")}
+                };
+              } else
+                nVar = {
+                  {"type", "local"},
+                  {"name", name},
+                  {"value", json::parse("[[\"" + inc + "\"]]")},
                   {"valueActs", json::parse("[]")}
                 };
             }

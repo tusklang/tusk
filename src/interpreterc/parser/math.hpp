@@ -104,7 +104,7 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
         }
       }
     }
-
+    
     //TODO: for each operation, maybe re-program into c++ or even better, fortran
 
     while (expContain(exp, "^")) {
