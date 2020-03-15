@@ -1,3 +1,6 @@
+#ifndef MATH_HPP_
+#define MATH_HPP_
+
 #include <deque>
 #include <vector>
 #include "json.hpp"
@@ -104,7 +107,7 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
         }
       }
     }
-    
+
     //TODO: for each operation, maybe re-program into c++ or even better, fortran
 
     while (expContain(exp, "^")) {
@@ -226,3 +229,5 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
     return exp;
   }
 }
+
+#endif

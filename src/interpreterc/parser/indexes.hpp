@@ -1,3 +1,6 @@
+#ifndef INDEXES_HPP
+#define INDEXES_HPP
+
 #include <vector>
 #include <map>
 #include "structs.h"
@@ -207,3 +210,5 @@ json indexesCalc(json val, json indexes, json calc_params, int line) {
 
   return json::parse("[\'undefined\']");
 }
+
+#endif

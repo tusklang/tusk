@@ -1,5 +1,6 @@
 i: 0;
+
 loop (true) {
-  log ~ i;
   i++;
+  log ~ i;
 }
