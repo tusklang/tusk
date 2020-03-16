@@ -17,10 +17,10 @@ extern "C" {
   };
 
   struct Returner {
-    vector<string> value;
-    json variables;
-    json exp;
-    string type;
+    vector<string>          value;
+    json                    variables;
+    json                    exp;
+    string                  type;
   };
 #ifdef __cplusplus
 }

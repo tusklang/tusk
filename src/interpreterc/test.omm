@@ -1,4 +1,4 @@
-i: 0;
+global ~ i: 0;
 
 loop (true) {
   i++;

@@ -181,19 +181,10 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //filter the variables that are not global
             for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-              if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
-                pVars.erase(o);
+              if (!(o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end()))
+                vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
 
-            vars.insert(pVars.begin(), pVars.end());
-
-            if (groupReturn) {
-
-              if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
-              if (parsed.type == "skip") return Returner{ parsed.value, vars, parsed.exp, "skip" };
-              if (parsed.type == "break") return Returner{ parsed.value, vars, parsed.exp, "break" };
-
-              return Returner{ parsed.value, vars, parsed.exp, parsed.type };
-            }
+            if (groupReturn) return Returner{ parsed.value, vars, parsed.exp, parsed.type };
           }
           break;
         case 10: {
@@ -250,10 +241,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //filter the variables that are not global
             for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-              if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
-                pVars.erase(o);
-
-            vars.insert(pVars.begin(), pVars.end());
+              if (!(o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end()))
+                vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
 
             expStr.push_back((json) parsed.value);
           }
@@ -280,10 +269,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 //filter the variables that are not global
                 for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-                  if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
-                    pVars.erase(o);
-
-                vars.insert(pVars.begin(), pVars.end());
+                  if (!(o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end()))
+                    vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
 
                 if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
                 if (parsed.type == "skip") return Returner{ parsed.value, vars, parsed.exp, "skip" };
@@ -318,10 +305,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //filter the variables that are not global
             for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-              if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
-                pVars.erase(o);
-
-            vars.insert(pVars.begin(), pVars.end());
+              if (!(o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end()))
+                vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
           }
           break;
         case 15: {
@@ -438,16 +423,14 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               //filter the variables that are not global
               for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-                if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
-                  pVars.erase(o);
-
-              vars.insert(pVars.begin(), pVars.end());
+                if (!(o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end()))
+                  vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
 
               if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
               if (parsed.type == "skip") continue;
               if (parsed.type == "break") break;
 
-              //condP = parser(cond, calc_params, vars, dir, false, line).exp[0][0];
+              condP = parser(cond, calc_params, vars, dir, false, line).exp[0][0];
             }
 
           }
