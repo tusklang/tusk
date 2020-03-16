@@ -6,6 +6,9 @@ import "encoding/json"
 // #cgo CFLAGS: -std=c99
 import "C"
 
+//any number > 1
+const MULT_THRESH_LEN = 4;
+
 //export Multiply
 func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.char {
 
@@ -56,24 +59,41 @@ func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
 
   var nNum string
 
-  nNum = "0"
-
-  for ;returnInit(_num2) != "0"; {
-    nNum = C.GoString(Add(C.CString(nNum), C.CString(_num1), calc_paramsP, line_))
-    _num2 = C.GoString(Subtract(C.CString(_num2), C.CString("1"), calc_paramsP, line_))
+  if len(_num1) < len(_num2) {
+    _num1, _num2 = _num2, _num1
   }
 
-  if decIndex > -1 {
+  if len(_num1) >= MULT_THRESH_LEN && len(_num2) >= MULT_THRESH_LEN {
 
-    nNum = Reverse(nNum)
+    final := "0"
 
-    nNum = nNum[:decIndex] + "." + nNum[decIndex:]
+    for i := len(_num2) - 1; i >= 0; i-- {
+      mult := C.GoString(Multiply(C.CString(_num1), C.CString(_num2[i:i + 1]), calc_paramsP, line_)) + strings.Repeat("0", len(_num2) - i - 1)
+      final = C.GoString(Add(C.CString(final), C.CString(mult), calc_paramsP, line_))
+    }
 
-    nNum = Reverse(nNum)
-  }
+    nNum = final
+  } else {
 
-  if neg == true {
-    nNum = "-" + nNum
+    nNum = "0"
+
+    for ;returnInit(_num2) != "0"; {
+      nNum = C.GoString(Add(C.CString(nNum), C.CString(_num1), calc_paramsP, line_))
+      _num2 = C.GoString(Subtract(C.CString(_num2), C.CString("1"), calc_paramsP, line_))
+    }
+
+    if decIndex > -1 {
+
+      nNum = Reverse(nNum)
+
+      nNum = nNum[:decIndex] + "." + nNum[decIndex:]
+
+      nNum = Reverse(nNum)
+    }
+
+    if neg == true {
+      nNum = "-" + nNum
+    }
   }
 
   return C.CString(returnInit(nNum))
