@@ -2,6 +2,7 @@ package main
 
 import "strings"
 import "strconv"
+import "fmt"
 
 import "C"
 
@@ -21,6 +22,22 @@ func IsLessC(n1, n2 *C.char) C.int {
 }
 
 func returnInit(str string) string {
+
+  if C.GoString(GetType(C.CString(str))) == "string" {
+    str = strconv.Itoa(len(str) - 2)
+  }
+
+  if str == "true" {
+    str = "1"
+  }
+  if str == "false" {
+    str = "0"
+  }
+
+  if C.GoString(GetType(C.CString(str))) == "falsey" {
+    str = "0"
+  }
+
   for ;strings.HasPrefix(str, "0"); {
     str = str[1:]
   }
@@ -134,6 +151,37 @@ func addDec(num string) string {
 }
 
 func isLess(num1 string, num2 string) bool {
+
+  if C.GoString(GetType(C.CString(num1))) == "string" {
+    num1 = strconv.Itoa(len(num1) - 2)
+  }
+
+  if C.GoString(GetType(C.CString(num2))) == "string" {
+    num2 = strconv.Itoa(len(num2) - 2)
+  }
+
+  if num1 == "true" {
+    num1 = "1"
+  }
+  if num1 == "false" {
+    num1 = "0"
+  }
+
+  if num2 == "true" {
+    num2 = "1"
+  }
+  if num2 == "false" {
+    num2 = "0"
+  }
+
+  if C.GoString(GetType(C.CString(num1))) == "falsey" {
+    num1 = "0"
+  }
+
+  if C.GoString(GetType(C.CString(num2))) == "falsey" {
+    num2 = "0"
+  }
+
   num1 = returnInit(num1)
   num2 = returnInit(num2)
 

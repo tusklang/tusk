@@ -228,7 +228,7 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
     }
 
     while (expContain(exp, "=") || expContain(exp, "!=") || expContain(exp, "<") || expContain(exp, ">") || expContain(exp, "<=") || expContain(exp, ">=")) {
-      vector<tuple<int, int>> indexes {expIndex(exp, "="), expIndex(exp, "!="), expIndex(exp, "<"), expIndex(exp, ">"),expIndex(exp, "<="), expIndex(exp, "=>")};
+      vector<tuple<int, int>> indexes {expIndex(exp, "="), expIndex(exp, "!="), expIndex(exp, "<"), expIndex(exp, ">"),expIndex(exp, "<="), expIndex(exp, ">=")};
 
       int min = 0;
 
@@ -311,7 +311,7 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
         case 4: {
             int gen, spec;
 
-            tie(gen, spec) = expIndex(exp, ">");
+            tie(gen, spec) = expIndex(exp, "<=");
 
             string f = exp[gen][spec - 1]
             , l = exp[gen][spec + 1];
@@ -326,7 +326,7 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
         case 5: {
             int gen, spec;
 
-            tie(gen, spec) = expIndex(exp, ">");
+            tie(gen, spec) = expIndex(exp, ">=");
 
             string f = exp[gen][spec - 1]
             , l = exp[gen][spec + 1];
