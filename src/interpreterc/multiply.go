@@ -7,7 +7,7 @@ import "encoding/json"
 import "C"
 
 //any number > 1
-const MULT_THRESH_LEN = 4;
+const MULT_THRESH_LEN = 6;
 
 //export Multiply
 func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.char {

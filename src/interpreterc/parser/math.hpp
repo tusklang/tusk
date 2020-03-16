@@ -3,6 +3,7 @@
 
 #include <deque>
 #include <vector>
+#include <string.h>
 #include "json.hpp"
 #include "bind.h"
 #include "structs.h"
@@ -224,6 +225,121 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
 
         exp[gen].insert(exp[gen].begin() + spec - 1, val);
       }
+    }
+
+    while (expContain(exp, "=") || expContain(exp, "!=") || expContain(exp, "<") || expContain(exp, ">") || expContain(exp, "<=") || expContain(exp, ">=")) {
+      vector<tuple<int, int>> indexes {expIndex(exp, "="), expIndex(exp, "!="), expIndex(exp, "<"), expIndex(exp, ">"),expIndex(exp, "<="), expIndex(exp, "=>")};
+
+      int min = 0;
+
+      for (int i = 0; i < indexes.size(); i++) {
+        int ngen, nspec, ogen, ospec;
+
+        tie(ngen, nspec) = indexes[i];
+        tie(ogen, ospec) = indexes[min];
+
+        if (ngen == -1 || nspec == -1) continue;
+        if (ogen || ospec) min = i;
+
+        if (ogen > ngen) min = i;
+        else if (ogen == ngen && ospec > nspec) min = i;
+        else continue;
+      }
+
+      switch (min) {
+        case 0: {
+            int gen, spec;
+
+            tie(gen, spec) = expIndex(exp, "=");
+
+            string f = exp[gen][spec - 1]
+            , l = exp[gen][spec + 1];
+
+            exp[gen].erase(exp[gen].begin() + spec - 1, exp[gen].begin() + spec + 2);
+
+            if (strcmp(ReturnInitC(&f[0]), ReturnInitC(&l[0])) == 0) exp[gen].insert(exp[gen].begin() + spec - 1, "true");
+            else exp[gen].insert(exp[gen].begin() + spec - 1, "false");
+
+          }
+          break;
+        case 1: {
+
+            int gen, spec;
+
+            tie(gen, spec) = expIndex(exp, "!=");
+
+            string f = exp[gen][spec - 1]
+            , l = exp[gen][spec + 1];
+
+            exp[gen].erase(exp[gen].begin() + spec - 1, exp[gen].begin() + spec + 2);
+
+            if (!(strcmp(ReturnInitC(&f[0]), ReturnInitC(&l[0])) == 0)) exp[gen].insert(exp[gen].begin() + spec - 1, "true");
+            else exp[gen].insert(exp[gen].begin() + spec - 1, "false");
+
+          }
+          break;
+        case 2: {
+            int gen, spec;
+
+            tie(gen, spec) = expIndex(exp, "<");
+
+            string f = exp[gen][spec - 1]
+            , l = exp[gen][spec + 1];
+
+            exp[gen].erase(exp[gen].begin() + spec - 1, exp[gen].begin() + spec + 2);
+
+            if (IsLessC(&f[0], &l[0])) exp[gen].insert(exp[gen].begin() + spec - 1, "true");
+            else exp[gen].insert(exp[gen].begin() + spec - 1, "false");
+
+          }
+          break;
+        case 3: {
+            int gen, spec;
+
+            tie(gen, spec) = expIndex(exp, ">");
+
+            string f = exp[gen][spec - 1]
+            , l = exp[gen][spec + 1];
+
+            exp[gen].erase(exp[gen].begin() + spec - 1, exp[gen].begin() + spec + 2);
+
+            if (!IsLessC(&f[0], &l[0]) && strcmp(ReturnInitC(&f[0]), ReturnInitC(&l[0])) != 0) exp[gen].insert(exp[gen].begin() + spec - 1, "true");
+            else exp[gen].insert(exp[gen].begin() + spec - 1, "false");
+
+          }
+          break;
+        case 4: {
+            int gen, spec;
+
+            tie(gen, spec) = expIndex(exp, ">");
+
+            string f = exp[gen][spec - 1]
+            , l = exp[gen][spec + 1];
+
+            exp[gen].erase(exp[gen].begin() + spec - 1, exp[gen].begin() + spec + 2);
+
+            if (IsLessC(&f[0], &l[0]) || strcmp(ReturnInitC(&f[0]), ReturnInitC(&l[0])) == 0) exp[gen].insert(exp[gen].begin() + spec - 1, "true");
+            else exp[gen].insert(exp[gen].begin() + spec - 1, "false");
+
+          }
+          break;
+        case 5: {
+            int gen, spec;
+
+            tie(gen, spec) = expIndex(exp, ">");
+
+            string f = exp[gen][spec - 1]
+            , l = exp[gen][spec + 1];
+
+            exp[gen].erase(exp[gen].begin() + spec - 1, exp[gen].begin() + spec + 2);
+
+            if (!IsLessC(&f[0], &l[0])) exp[gen].insert(exp[gen].begin() + spec - 1, "true");
+            else exp[gen].insert(exp[gen].begin() + spec - 1, "false");
+
+          }
+          break;
+      }
+
     }
 
     return exp;

@@ -69,7 +69,7 @@ for (let i = 0; i < keywords.length; i++) {
 
       i = -1;
       continue;
-    } else if (/^(\d|\-|\+)/.test(file)) {
+    } else if (/^(\d|\-|\+|\.)/.test(file)) {
 
       var num = '';
 
@@ -78,7 +78,7 @@ for (let i = 0; i < keywords.length; i++) {
         file = file.substr(1)
       }
 
-      while (/^\d+/.test(file)) {
+      while (/^(\d|\.)+/.test(file)) {
         num+=file[0];
 
         file = file.substr(1);
