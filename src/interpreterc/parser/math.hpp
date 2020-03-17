@@ -227,8 +227,8 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
       }
     }
 
-    while (expContain(exp, "=") || expContain(exp, "!=") || expContain(exp, "<") || expContain(exp, ">") || expContain(exp, "<=") || expContain(exp, ">=")) {
-      vector<tuple<int, int>> indexes {expIndex(exp, "="), expIndex(exp, "!="), expIndex(exp, "<"), expIndex(exp, ">"),expIndex(exp, "<="), expIndex(exp, ">=")};
+    while (expContain(exp, "=") || expContain(exp, "!=") || expContain(exp, "<") || expContain(exp, ">") || expContain(exp, "<=") || expContain(exp, ">=") || expContain(exp, "~~") || expContain(exp, "!~~") || expContain(exp, "~~~") || expContain(exp, "!~~~")) {
+      vector<tuple<int, int>> indexes {expIndex(exp, "="), expIndex(exp, "!="), expIndex(exp, "<"), expIndex(exp, ">"),expIndex(exp, "<="), expIndex(exp, ">="), expIndex(exp, "~~"), expIndex(exp, "!~~"), expIndex(exp, "~~~"), expIndex(exp, "!~~~")};
 
       int min = 0;
 
@@ -336,6 +336,110 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
             if (!IsLessC(&f[0], &l[0])) exp[gen].insert(exp[gen].begin() + spec - 1, "true");
             else exp[gen].insert(exp[gen].begin() + spec - 1, "false");
 
+          }
+          break;
+        case 6: {
+            int gen, spec;
+
+            tie(gen, spec) = expIndex(exp, "~~");
+
+            string f = exp[gen][spec - 1]
+            , l = exp[gen][spec + 3]
+            , dif = exp[gen][spec + 1];
+
+            if (dif.rfind("-", 0) == 0) dif = dif.substr(1);
+
+            exp[gen].erase(exp[gen].begin() + spec - 1, exp[gen].begin() + spec + 4);
+
+            if (
+              (
+                IsLessC(Subtract(&f[0], &dif[0], &calc_params.dump()[0], line), &l[0])
+                ||
+                strcmp(ReturnInitC(&l[0]), ReturnInitC(Subtract(&f[0], &dif[0], &calc_params.dump()[0], line))) == 0
+              )
+              ||
+              (
+                IsLessC(Add(&f[0], &dif[0], &calc_params.dump()[0], line), &l[0])
+                ||
+                strcmp(ReturnInitC(&l[0]), ReturnInitC(Add(&f[0], &dif[0], &calc_params.dump()[0], line))) == 0
+              )
+            ) exp[gen].insert(exp[gen].begin() + spec - 1, "true");
+            else exp[gen].insert(exp[gen].begin() + spec - 1, "false");
+          }
+          break;
+        case 7: {
+            int gen, spec;
+
+            tie(gen, spec) = expIndex(exp, "!~~");
+
+            string f = exp[gen][spec - 1]
+            , l = exp[gen][spec + 3]
+            , dif = exp[gen][spec + 1];
+
+            if (dif.rfind("-", 0) == 0) dif = dif.substr(1);
+
+            exp[gen].erase(exp[gen].begin() + spec - 1, exp[gen].begin() + spec + 4);
+
+            if (!(
+              (
+                IsLessC(Subtract(&f[0], &dif[0], &calc_params.dump()[0], line), &l[0])
+                ||
+                strcmp(ReturnInitC(&l[0]), ReturnInitC(Subtract(&f[0], &dif[0], &calc_params.dump()[0], line))) == 0
+              )
+              ||
+              (
+                IsLessC(Add(&f[0], &dif[0], &calc_params.dump()[0], line), &l[0])
+                ||
+                strcmp(ReturnInitC(&l[0]), ReturnInitC(Add(&f[0], &dif[0], &calc_params.dump()[0], line))) == 0
+              )
+            )) exp[gen].insert(exp[gen].begin() + spec - 1, "true");
+            else exp[gen].insert(exp[gen].begin() + spec - 1, "false");
+          }
+          break;
+        case 8: {
+            int gen, spec;
+
+            tie(gen, spec) = expIndex(exp, "~~~");
+
+            string f = exp[gen][spec - 1]
+            , l = exp[gen][spec + 3]
+            , dif = exp[gen][spec + 1];
+
+            if (dif.rfind("-", 0) == 0) dif = dif.substr(1);
+
+            exp[gen].erase(exp[gen].begin() + spec - 1, exp[gen].begin() + spec + 4);
+
+            if (
+              strcmp(ReturnInitC(Add(&f[0], &dif[0], &calc_params.dump()[0], line)), ReturnInitC(&l[0])) == 0
+              ||
+              strcmp(ReturnInitC(Subtract(&f[0], &dif[0], &calc_params.dump()[0], line)), ReturnInitC(&l[0])) == 0
+            ) exp[gen].insert(exp[gen].begin() + spec - 1, "true");
+            else exp[gen].insert(exp[gen].begin() + spec - 1, "false");
+          }
+          break;
+        case 9: {
+            int gen, spec;
+
+            tie(gen, spec) = expIndex(exp, "!~~~");
+
+            string f = exp[gen][spec - 1]
+            , l = exp[gen][spec + 3]
+            , dif = exp[gen][spec + 1];
+
+            if (dif.rfind("-", 0) == 0) dif = dif.substr(1);
+
+            exp[gen].erase(exp[gen].begin() + spec - 1, exp[gen].begin() + spec + 4);
+
+            if (
+              IsLessC(Add(&f[0], &dif[0], &calc_params.dump()[0], line), &l[0])
+              ||
+              (
+                IsLessC(&l[0], Subtract(&f[0], &dif[0], &calc_params.dump()[0], line))
+                ||
+                strcmp(ReturnInitC(&l[0]), ReturnInitC(Subtract(&f[0], &dif[0], &calc_params.dump()[0], line))) == 0
+              )
+            ) exp[gen].insert(exp[gen].begin() + spec - 1, "true");
+            else exp[gen].insert(exp[gen].begin() + spec - 1, "false");
           }
           break;
       }

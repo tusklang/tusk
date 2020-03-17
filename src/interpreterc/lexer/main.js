@@ -84,7 +84,11 @@ for (let i = 0; i < keywords.length; i++) {
         file = file.substr(1);
       }
 
+      if (num == "-" || num == "+") num+="1";
+
       lex.push(num);
+
+      if (file.startsWith("(")) lex.push("*");
 
       i = -1;
       continue;
