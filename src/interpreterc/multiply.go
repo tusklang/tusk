@@ -81,19 +81,19 @@ func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
       nNum = C.GoString(Add(C.CString(nNum), C.CString(_num1), calc_paramsP, line_))
       _num2 = C.GoString(Subtract(C.CString(_num2), C.CString("1"), calc_paramsP, line_))
     }
+  }
 
-    if decIndex > -1 {
+  if decIndex > -1 {
 
-      nNum = Reverse(nNum)
+    nNum = Reverse(nNum)
 
-      nNum = nNum[:decIndex] + "." + nNum[decIndex:]
+    nNum = nNum[:decIndex] + "." + nNum[decIndex:]
 
-      nNum = Reverse(nNum)
-    }
+    nNum = Reverse(nNum)
+  }
 
-    if neg == true {
-      nNum = "-" + nNum
-    }
+  if neg == true {
+    nNum = "-" + nNum
   }
 
   return C.CString(returnInit(nNum))
