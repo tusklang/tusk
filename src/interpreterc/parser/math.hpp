@@ -134,7 +134,7 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
       int multg, mults, divg, divs;
 
       tie(multg, mults) = expIndex(exp, "*");
-      tie(divg, divs) = expIndex(exp, "-");
+      tie(divg, divs) = expIndex(exp, "/");
 
       if (multg > divg || mults > divs || divs == -1) {
         int gen, spec;

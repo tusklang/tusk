@@ -6,6 +6,8 @@ import "encoding/json"
 // #cgo CFLAGS: -std=c99
 import "C"
 
+const PREC = 1000
+
 //export Division
 func Division(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.char {
 
@@ -32,7 +34,7 @@ func Division(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
   _num2 = addDec(returnInit(_num2))
 
   decO1Index := strings.Index(_num1, ".")
-  decO2Index := strings.Index(_num2, ".")
+  decO2Index := len(_num2) - strings.Index(_num2, ".") - 1
   combinedIndex := decO1Index + decO2Index
 
   _num1 = strings.Replace(_num1, ".", "", 1)
@@ -54,10 +56,13 @@ func Division(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
     _num1+=strings.Repeat("0", 20)
   }
 
+  _num1+=strings.Repeat("0", PREC)
+
   curVal := ""
   final := ""
 
   for i := 0; i < len(_num1); i++ {
+
     curVal+=string([]rune(_num1)[i])
 
     if isLess(curVal, _num2) {
@@ -74,14 +79,17 @@ func Division(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
     }
 
     curVal = C.GoString(Subtract(C.CString(curVal), C.CString(curDivisor), calc_paramsP, line_))
+
     final+=curQ
   }
 
-  for len(final) < combinedIndex {
-    final = "0" + final;
-  }
+  for ;len(final) < combinedIndex; final = "0" + final {}
 
   final = final[:combinedIndex] + "." + final[combinedIndex:]
+
+  if neg {
+    final = "-" + final
+  }
 
   return C.CString(returnInit(final))
 }
