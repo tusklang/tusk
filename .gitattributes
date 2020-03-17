@@ -1,1 +1,2 @@
 json.hpp linguist-vendored
+*.json linguist-language=javascript
