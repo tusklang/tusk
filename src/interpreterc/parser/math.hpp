@@ -1,6 +1,7 @@
 #ifndef MATH_HPP_
 #define MATH_HPP_
 
+#include <iostream>
 #include <deque>
 #include <vector>
 #include <string.h>
@@ -12,11 +13,37 @@ using json = nlohmann::json;
 
 Returner parser(const json actions, const json calc_params, json vars, const string dir, bool groupReturn, int line);
 
+bool expContain(json exp, string check, vector<int> checked_gens) {
+
+  for (int i = 0; i < exp.size(); i++) for (int o = 0; o < exp[i].size(); o++) if (exp[i][o] == check) {
+    for (int j : checked_gens)
+      if (i == j) goto outer;
+    return true;
+
+    outer:;
+  }
+
+  return false;
+}
+
 bool expContain(json exp, string check) {
 
   for (int i = 0; i < exp.size(); i++) for (int o = 0; o < exp[i].size(); o++) if (exp[i][o] == check) return true;
 
   return false;
+}
+
+tuple<int, int> expIndex(json exp, string check, vector<int> checked_gens) {
+
+  for (int i = 0; i < exp.size(); i++) for (int o = 0; o < exp[i].size(); o++) if (exp[i][o] == check) {
+    for (int j : checked_gens)
+      if (i == j) goto outer;
+    return { i, o };
+
+    outer:;
+  }
+
+  return { -1, -1 };
 }
 
 tuple<int, int> expIndex(json exp, string check) {
@@ -111,11 +138,18 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
 
     //TODO: for each operation, maybe re-program into c++ or even better, fortran
 
-    while (expContain(exp, "^")) {
+    vector<int> checked_gens_exponent;
+
+    while (expContain(exp, "^", checked_gens_exponent)) {
 
       int gen, spec;
 
-      tie(gen, spec) = expIndex(exp, "^");
+      tie(gen, spec) = expIndex(exp, "^", checked_gens_exponent);
+
+      if (exp[gen].size() < 3) {
+        checked_gens_exponent.push_back(gen);
+        continue;
+      }
 
       string num1 = exp[gen][spec - 1]
       , num2 = exp[gen][spec + 1];
@@ -129,7 +163,9 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
       exp[gen].insert(exp[gen].begin() + spec - 1, val);
     }
 
-    while (expContain(exp, "*") || expContain(exp, "/")) {
+    vector<int> checked_gens_multiply, checked_gens_divide;
+
+    while (expContain(exp, "*", checked_gens_multiply) || expContain(exp, "/", checked_gens_divide)) {
 
       int multg, mults, divg, divs;
 
@@ -139,7 +175,12 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
       if (multg > divg || mults > divs || divs == -1) {
         int gen, spec;
 
-        tie(gen, spec) = expIndex(exp, "*");
+        tie(gen, spec) = expIndex(exp, "*", checked_gens_multiply);
+
+        if (exp[gen].size() < 3) {
+          checked_gens_multiply.push_back(gen);
+          continue;
+        }
 
         string num1 = exp[gen][spec - 1]
         , num2 = exp[gen][spec + 1];
@@ -154,7 +195,12 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
       } else {
         int gen, spec;
 
-        tie(gen, spec) = expIndex(exp, "/");
+        tie(gen, spec) = expIndex(exp, "/", checked_gens_divide);
+
+        if (exp[gen].size() < 3) {
+          checked_gens_divide.push_back(gen);
+          continue;
+        }
 
         string num1 = exp[gen][spec - 1]
         , num2 = exp[gen][spec + 1];
@@ -169,11 +215,18 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
       }
     }
 
-    while (expContain(exp, "%")) {
+    vector<int> checked_gens_modulo;
+
+    while (expContain(exp, "%", checked_gens_modulo)) {
 
       int gen, spec;
 
-      tie(gen, spec) = expIndex(exp, "%");
+      tie(gen, spec) = expIndex(exp, "%", checked_gens_modulo);
+
+      if (exp[gen].size() < 3) {
+        checked_gens_modulo.push_back(gen);
+        continue;
+      }
 
       string num1 = exp[gen][spec - 1]
       , num2 = exp[gen][spec + 1];
@@ -187,17 +240,24 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
       exp[gen].insert(exp[gen].begin() + spec - 1, val);
     }
 
-    while (expContain(exp, "+") || expContain(exp, "-")) {
+    vector<int> checked_gens_add, checked_gens_subtract;
+
+    while (expContain(exp, "+", checked_gens_add) || expContain(exp, "-", checked_gens_subtract)) {
 
       int addg, adds, subg, subs;
 
-      tie(addg, adds) = expIndex(exp, "+");
-      tie(subg, subs) = expIndex(exp, "-");
+      tie(addg, adds) = expIndex(exp, "+", checked_gens_add);
+      tie(subg, subs) = expIndex(exp, "-", checked_gens_subtract);
 
       if (addg > subg || adds > subs || subs == -1) {
         int gen, spec;
 
         tie(gen, spec) = expIndex(exp, "+");
+
+        if (exp[gen].size() < 3) {
+          checked_gens_add.push_back(gen);
+          continue;
+        }
 
         string num1 = exp[gen][spec - 1]
         , num2 = exp[gen][spec + 1];
@@ -213,6 +273,11 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
         int gen, spec;
 
         tie(gen, spec) = expIndex(exp, "-");
+
+        if (exp[gen].size() < 3) {
+          checked_gens_subtract.push_back(gen);
+          continue;
+        }
 
         string num1 = exp[gen][spec - 1]
         , num2 = exp[gen][spec + 1];

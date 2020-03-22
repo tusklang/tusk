@@ -1,1 +1,9 @@
-log ~ 135492.242424242428 * 82.124242424242424;
+proc ~ test(i) {
+  if (i <= 1) {
+    return ~ 1;
+  }
+
+  return ~ i * #test(i - 1);
+}
+
+log ~ #test(30);

@@ -389,8 +389,12 @@ func actionizer(lex []string) []Action {
         }
         i+=len(exp)
 
+        exp = exp[1:len(exp) - 1]
+
+        var actionized = actionizer(exp)
+
         if i >= len_lex {
-          actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 7 })
+          actions = append(actions, Action{ "expression_p", "", exp, actionized, []string{}, []Action{}, []Condition{}, [][]string{}, 29 })
           break actionReader
         }
 
@@ -451,9 +455,9 @@ func actionizer(lex []string) []Action {
 
           i+=3
 
-          actions = append(actions, Action{ "expressionIndex", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, indexes, 8 })
+          actions = append(actions, Action{ "expressionIndex_p", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, indexes, 30 })
         } else {
-          actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 7 })
+          actions = append(actions, Action{ "expression_p", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, [][]string{}, 29 })
         }
       case "{":
         exp_ := []string{}
@@ -555,7 +559,7 @@ func actionizer(lex []string) []Action {
             }
           }
 
-          i+=len(logic_) + 1
+          i+=len(logic_) - 1
 
           logic := actionizer(logic_)
 
@@ -592,13 +596,12 @@ func actionizer(lex []string) []Action {
             }
           }
 
-          i+=len(logic_) + 1
+          i+=len(logic_) - 1
 
           logic := actionizer(logic_)
 
           actions = append(actions, Action{ "process", "", []string{}, logic, params, []Action{}, []Condition{}, [][]string{}, 10 })
         }
-        i--
       case "#":
 
         cbCnt := 0
@@ -1617,8 +1620,11 @@ func actionizer(lex []string) []Action {
 
                 numMatch, _ := regexp.MatchString("(\\d|\\.)+", lex[o])
 
-                if !arrayContain(operators_, lex[o]) && !numMatch && !strings.HasPrefix(lex[o], "$") && strings.HasPrefix(lex[o], "'") && strings.HasPrefix(lex[o], "\"") && strings.HasPrefix(lex[o], "`") && lex[o] != "true" && lex[o] != "false" && pCnt == 0 {
-                  exp = exp[:len(exp) - 1]
+                if !arrayContain(operators_, lex[o]) && !numMatch && !strings.HasPrefix(lex[o], "$") && !strings.HasPrefix(lex[o], "'") && !strings.HasPrefix(lex[o], "\"") && !strings.HasPrefix(lex[o], "`") && lex[o] != "true" && lex[o] != "false" && pCnt == 0 {
+
+                  if lex[o] == "#" {
+                    i--
+                  }
                   break
                 }
 
@@ -1730,8 +1736,11 @@ func actionizer(lex []string) []Action {
 
               numMatch, _ := regexp.MatchString("(\\d|\\.)+", lex[o])
 
-              if !arrayContain(operators_, lex[o]) && !numMatch && !strings.HasPrefix(lex[o], "$") && strings.HasPrefix(lex[o], "'") && strings.HasPrefix(lex[o], "\"") && strings.HasPrefix(lex[o], "`") && lex[o] != "true" && lex[o] != "false" && pCnt == 0 {
-                exp = exp[:len(exp) - 1]
+              if !arrayContain(operators_, lex[o]) && !numMatch && !strings.HasPrefix(lex[o], "$") && !strings.HasPrefix(lex[o], "'") && !strings.HasPrefix(lex[o], "\"") && !strings.HasPrefix(lex[o], "`") && lex[o] != "true" && lex[o] != "false" && pCnt == 0 {
+
+                if lex[o] == "#" {
+                  i--
+                }
                 break
               }
 

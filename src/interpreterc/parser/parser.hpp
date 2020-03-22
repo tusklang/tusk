@@ -14,7 +14,7 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
 Returner parser(const json actions, const json calc_params, json vars, const string dir, const bool groupReturn, int line) {
 
   //empty expStr
-  json expStr = "[]"_json;
+  json expStr = "[[]]"_json;
 
   //loop through every action
   for (int i = 0; i < actions.size(); i++) {
@@ -151,7 +151,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json calculated = math(nExp, calc_params, vars, dir, line);
 
-            expStr.push_back(calculated[0]);
+            if (expStr[expStr.size() - 1].size() == 0) expStr[expStr.size() - 1] = calculated[0];
+            else expStr[expStr.size() - 1].push_back(calculated[0][0]);
           }
           break;
         case 8: {
@@ -166,7 +167,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, line);
 
-            expStr.push_back(index);
+            expStr[expStr.size() - 1].push_back(index[0]);
           }
           break;
         case 9: {
@@ -216,7 +217,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             json params = var["params"]
             , args = actions[i]["Args"];
 
-            json nParams = "{}"_json;
+            json sendVars = vars;
 
             for (int o = 0; o < params.size() || o < args.size(); o++) {
 
@@ -227,13 +228,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                 {"valueActs", json::parse("[]")}
               };
 
-              nParams[(string) params[o]] = cur;
+              sendVars[(string) params[o]] = cur;
             }
-
-            json sendVars = vars;
-
-            for (json::iterator it = nParams.begin(); it != nParams.end(); it++)
-              sendVars[it.key()] = it.value();
 
             Returner parsed = parser(var["valueActs"], calc_params, sendVars, dir, true, line);
 
@@ -241,10 +237,10 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //filter the variables that are not global
             for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-              if (!(o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end()))
+              if (!(o.value()["type"] != "global" && o.value()["type"] != "process"))
                 vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
 
-            expStr.push_back((json) parsed.value);
+            expStr[expStr.size() - 1].push_back(parsed.value[0]);
           }
           break;
         case 12:
@@ -319,7 +315,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             cin >> in;
 
-            expStr.push_back(json::parse("[\"\'" + in + "\'\"]"));
+            expStr[expStr.size() - 1].push_back(json::parse("[\"\'" + in + "\'\"]")[0]);
           }
           break;
         case 16: {
@@ -373,7 +369,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             Returner parsed = parser(acts, calc_params, vars, dir, false, line);
 
-            expStr.push_back(json::parse("[\"" + parsed.value[0] + "\"]"));
+            expStr[expStr.size() - 1].push_back(json::parse("[\"" + parsed.value[0] + "\"]")[0]);
           }
           break;
         case 19: {
@@ -388,7 +384,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             string type(_type);
 
-            expStr.push_back(json::parse("[\"" + type + "\"]"));
+            expStr[expStr.size() - 1].push_back(json::parse("[\"" + type + "\"]")[0]);
           }
           break;
         case 20: {
@@ -441,7 +437,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json expStr_ = json::parse(actions[i]["ExpStr"].dump());
 
-            expStr.push_back(expStr_);
+            expStr[expStr.size() - 1].push_back(expStr_[0]);
           }
           break;
         case 23: {
@@ -456,7 +452,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, line);
 
-            expStr.push_back(index);
+            expStr[expStr.size() - 1].push_back(index[0]);
           }
           break;
         case 24: {
@@ -465,7 +461,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json expStr_ = json::parse(actions[i]["ExpStr"].dump());
 
-            expStr.push_back(expStr_);
+            expStr[expStr.size() - 1].push_back(expStr_[0]);
           }
           break;
         case 25: {
@@ -480,7 +476,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, line);
 
-            expStr.push_back(index);
+            expStr[expStr.size() - 1].push_back(index[0]);
           }
           break;
         case 26: {
@@ -493,7 +489,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             char first = parsed[0];
 
-            expStr.push_back(json::parse("[\"" + to_string((int) first) + "\"]"));
+            expStr[expStr.size() - 1].push_back(json::parse("[\"" + to_string((int) first) + "\"]")[0]);
           }
           break;
         case 27: {
@@ -510,8 +506,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             }
 
             if (strcmp(GetType(&parsed[0]), "string") == 0)
-              expStr.push_back(json::parse("[\"" + parsed.substr(1, parsed.length() - 2) + "\"]"));
-            else expStr.push_back(json::parse("[\"" + parsed + "\"]"));
+              expStr[expStr.size() - 1].push_back(json::parse("[\"" + parsed.substr(1, parsed.length() - 2) + "\"]")[0]);
+            else expStr[expStr.size() - 1].push_back(json::parse("[\"" + parsed + "\"]")[0]);
           }
           break;
         case 28: {
@@ -547,6 +543,24 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               };
 
             vars[name] = nVar;
+          }
+          break;
+        case 29: {
+            //expression_p
+
+            json calculated = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0];
+
+            if (expStr[expStr.size() - 1].size() == 0) expStr[expStr.size() - 1] = calculated;
+            else expStr[expStr.size() - 1].push_back(calculated[0][0]);
+          }
+          break;
+        case 30: {
+            //expressionIndex_p
+
+            json calculated = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0]
+            , index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, line);
+
+            expStr[expStr.size() - 1].push_back(index[0]);
           }
           break;
         case 4343: {

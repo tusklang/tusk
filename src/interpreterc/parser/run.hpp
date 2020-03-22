@@ -9,6 +9,7 @@ using json = nlohmann::json;
 void run(char *acts, char *calc_params, char *dir) {
 
   try {
+
     json actions = json::parse(acts)
     , cp = json::parse(calc_params)
     , vars = json::parse("{}");

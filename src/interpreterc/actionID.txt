@@ -29,6 +29,8 @@ arrayIndex: 25
 ascii: 26
 parse: 27
 let: 28
+expression_p: 29
+extressionIndex_p: 30
 ++: 4343
 --: 4545
 +=: 4361
