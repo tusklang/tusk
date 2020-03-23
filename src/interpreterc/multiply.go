@@ -6,14 +6,14 @@ import "encoding/json"
 // #cgo CFLAGS: -std=c99
 import "C"
 
-//any number > 1
+//variable value should be any number > 1
 const MULT_THRESH_LEN = 6;
 
 //export Multiply
 func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.char {
 
-  _num1 := C.GoString(_num1P)
-  _num2 := C.GoString(_num2P)
+  _num1 := returnInit(C.GoString(_num1P))
+  _num2 := returnInit(C.GoString(_num2P))
   calc_params_str := C.GoString(calc_paramsP)
 
   line := int(line_)
@@ -31,13 +31,11 @@ func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
   decIndex := 0
 
   if strings.Contains(_num1, ".") {
-    decIndex+=len(_num1) - strings.Index(_num1, ".")
+    decIndex+=len(strings.Replace(_num1, ".", "", 1)) - strings.Index(_num1, ".")
   }
   if strings.Contains(_num2, ".") {
-    decIndex+=len(_num1) - strings.Index(_num2, ".")
+    decIndex+=len(strings.Replace(_num2, ".", "", 1)) - strings.Index(_num2, ".")
   }
-
-  decIndex--
 
   _num1 = strings.Replace(_num1, ".", "", 1)
   _num2 = strings.Replace(_num2, ".", "", 1)
@@ -83,7 +81,7 @@ func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
     }
   }
 
-  if decIndex > -1 {
+  if decIndex > 0 {
 
     nNum = Reverse(nNum)
 
