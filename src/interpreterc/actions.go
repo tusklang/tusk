@@ -1486,6 +1486,32 @@ func actionizer(lex []string) []Action {
         actionizedPhrase := actionizer(phrase)
         actions = append(actions, Action{ "parse", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{}, 27 })
         i+=(2 + len(phrase))
+      case "len":
+
+        var exp []string
+        pCnt := 0
+
+        for o := i + 1; o < len_lex; o++ {
+          if lex[o] == "(" {
+            pCnt++
+            continue
+          }
+          if lex[o] == ")" {
+            pCnt--
+            continue
+          }
+
+          if pCnt == 0 {
+            break
+          }
+
+          exp = append(exp, lex[o])
+        }
+
+        actionized := actionizer(exp)
+
+        actions = append(actions, Action{ "len", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, [][]string{}, 31 })
+        i+=3 + len(exp)
       default:
 
         if i < len_lex {

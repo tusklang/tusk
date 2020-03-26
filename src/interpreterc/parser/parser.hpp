@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
 #include "json.hpp"
 #include "bind.h"
 #include "indexes.hpp"
@@ -437,7 +438,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json expStr_ = json::parse(actions[i]["ExpStr"].dump());
 
-            expStr[expStr.size() - 1].push_back(expStr_[0]);
+            if (expStr[expStr.size() - 1].size() == 0) expStr[expStr.size() - 1] = expStr_;
+            else expStr.push_back(expStr_);
           }
           break;
         case 23: {
@@ -461,7 +463,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json expStr_ = json::parse(actions[i]["ExpStr"].dump());
 
-            expStr[expStr.size() - 1].push_back(expStr_[0]);
+            if (expStr[expStr.size() - 1].size() == 0) expStr[expStr.size() - 1] = expStr_;
+            else expStr.push_back(expStr_);
           }
           break;
         case 25: {
@@ -546,6 +549,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           }
           break;
         case 29: {
+
             //expression_p
 
             json calculated = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0];
@@ -555,6 +559,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           }
           break;
         case 30: {
+
             //expressionIndex_p
 
             json calculated = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0]
@@ -563,6 +568,68 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             expStr[expStr.size() - 1].push_back(index[0]);
           }
           break;
+        case 31: {
+
+            //len
+
+            json calculated = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0];
+
+            json noNewline;
+
+            copy_if(calculated.begin(), calculated.end(), back_inserter(noNewline), [](json i){
+              return i != "newlineN";
+            });
+
+            string datatype_get = "";
+
+            for (string o : noNewline) datatype_get+=o;
+
+            string type(GetType(&datatype_get[0]));
+
+            //TODO: maybe switch to a switch statement later
+
+            if (type == "string") expStr[expStr.size() - 1].push_back( to_string(((string) datatype_get).length() - 2) );
+            else if (type == "hash") {
+              int commas = 0;
+
+              int bCnt = 0;
+
+              for (int o = 0; o < noNewline.size(); o++) {
+
+                json it = noNewline[o];
+
+                if (it == "[:" || it == "[") bCnt++;
+                if (it == ":]" || it == "]") bCnt--;
+
+                if (bCnt == 1 && it == ",") commas++;
+              }
+
+              expStr[expStr.size() - 1].push_back( to_string(commas + 1) );
+            } else if (type == "array") {
+              int commas = 0;
+
+              int bCnt = 0;
+
+              for (int o = 0; o < noNewline.size(); o++) {
+
+                json it = noNewline[o];
+
+                if (it == "[:" || it == "[") bCnt++;
+                if (it == ":]" || it == "]") bCnt--;
+
+                if (bCnt == 1 && it == ",") commas++;
+              }
+
+              expStr[expStr.size() - 1].push_back( to_string(commas + 1) );
+            } else if (type == "boolean") expStr[expStr.size() - 1].push_back(datatype_get == "true" ? "1" : "0");
+            else if (type == "falsey") expStr[expStr.size() - 1].push_back("0");
+            else if (type == "number") expStr[expStr.size() - 1].push_back(datatype_get);
+            else expStr[expStr.size() - 1].push_back("0");
+
+          }
+          break;
+
+        //assignment operators
         case 4343: {
 
             //++
