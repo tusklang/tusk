@@ -86,7 +86,7 @@ func index(fileName, dir string, calcParams paramCalcOpts) {
 
   var actions = actionizer(lex)
 
-   var acts, _ = json.Marshal(actions)
+  var acts, _ = json.Marshal(actions)
 
   cp, _ := json.Marshal(calcParams)
 

@@ -1,8 +1,9 @@
 package main
 
 import "strings"
-import "regexp"
 import "strconv"
+import "reflect"
+import "fmt"
 
 type Condition struct {
   Type            string
@@ -18,20 +19,568 @@ type Action struct {
   Params        []string
   Args          []Action
   Condition     []Condition
-  Indexes     [][]string
   ID              int
+
+  //stuff for operations
+
+  First         []Action
+  Second        []Action
+  Degree        []Action
+
+  //stuff for indexes
+
+  Value       [][]Action
+  Indexes     [][]Action
+  Index_Type      string
 }
 
 func actionizer(lex []string) []Action {
   var actions = []Action{}
   var len_lex = len(lex)
 
-  actionReader:
+  var operations = []string{ "+", "-", "*", "/", "^", "%", "&", "|", "=", ">", "<", ">=", "<=", ")", "(", "~~", "~~~", "!" }
+
   for i := 0; i < len_lex; i++ {
 
-    switch (lex[i]) {
+    if i + 1 < len_lex {
+      if arrayContain([]string{ "+", "-", "*", "/", "^", "%", "=", ">", "<", ">=", "<=", "&", "|", "~~", "~~~" }, lex[i + 1]) || arrayContain([]string{ "!", "(" }, lex[i]) {
+
+        var exp []interface{}
+
+        cbCnt := 0
+        glCnt := 0
+        bCnt := 0
+        pCnt := 0
+
+        for o := i; o < len_lex; o++ {
+          if lex[o] == "{" {
+            cbCnt++;
+          }
+          if lex[o] == "}" {
+            cbCnt--;
+          }
+
+          if lex[o] == "[:" {
+            glCnt++;
+          }
+          if lex[o] == ":]" {
+            glCnt--;
+          }
+
+          if lex[o] == "[" {
+            bCnt++;
+          }
+          if lex[o] == "]" {
+            bCnt--;
+          }
+
+          if lex[o] == "(" {
+            pCnt++;
+          }
+          if lex[o] == ")" {
+            pCnt--;
+          }
+
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
+            break
+          }
+
+          exp = append(exp, lex[o])
+        }
+
+        var proc_indexes []int
+
+        for ;interfaceContainWithProcIndex(exp, "(", proc_indexes); {
+
+          index := interfaceIndexOfWithProcIndex("(", exp, proc_indexes)
+
+          if index - 1 != -1 && (strings.HasPrefix(exp[index - 1].(string), "$") || exp[index - 1].(string) == "len")  {
+            proc_indexes = append(proc_indexes, index)
+            continue
+          }
+
+          var pExp []string
+
+          pCnt := 0
+
+          for o := index; o < len(exp); o++ {
+            if exp[o] == "(" {
+              pCnt++;
+            }
+            if exp[o] == ")" {
+              pCnt--;
+            }
+
+            pExp = append(pExp, exp[o].(string))
+
+            if pCnt == 0 {
+              break
+            }
+          }
+
+          pExp = pExp[1:len(pExp) - 1]
+
+          pExpAct := actionizer(pExp)
+
+          exp_ := append(exp[:index], pExpAct[0])
+          exp_ = append(exp_, exp[index + len(pExp):]...)
+          exp = exp_
+        }
+
+        for ;interfaceContain(exp, "^"); {
+          index := interfaceIndexOf("^", exp)
+
+          var _num1 = []interface{}{}
+          var _num2 = []interface{}{}
+
+          //_num1 loop
+          for o := index - 1; o >= 0; o-- {
+
+            if arrayContainInterface(operations, exp[o]) {
+              break
+            }
+
+            _num1 = append(_num1, exp[o])
+          }
+
+          //_num2 loop
+          for o := index + 1; o < len(exp); o++ {
+
+            if arrayContainInterface(operations, exp[o]) {
+              break
+            }
+
+            _num2 = append(_num2, exp[o])
+          }
+
+          var num1 []Action
+          var num2 []Action
+
+          if reflect.TypeOf(_num1[0]).String() == "string" {
+
+            var num []string
+
+            for _, v := range _num1 {
+              num = append(num, v.(string))
+            }
+
+            num1 = actionizer(num)
+
+          } else {
+
+            for _, v := range _num1 {
+              num1 = append(num1, v.(Action))
+            }
+
+          }
+
+          if reflect.TypeOf(_num2[0]).String() == "string" {
+
+            var num []string
+
+            for _, v := range _num2 {
+              num = append(num, v.(string))
+            }
+
+            num2 = actionizer(num)
+
+          } else {
+
+            for _, v := range _num2 {
+              num2 = append(num2, v.(Action))
+            }
+
+          }
+
+          var act_exp = Action{ "exponentiate", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 36, num1, num2, []Action{}, [][]Action{}, [][]Action{}, "" }
+
+          exp_ := append(exp[:index - 1], act_exp)
+          exp_ = append(exp_, exp[index + 1:])
+
+          exp = exp_
+        }
+
+        for ;interfaceContain(exp, "*") || interfaceContain(exp, "/"); {
+
+          if interfaceIndexOf("*", exp) > interfaceIndexOf("/", exp) || interfaceIndexOf("/", exp) == -1 {
+            index := interfaceIndexOf("*", exp)
+
+            var _num1 = []interface{}{}
+            var _num2 = []interface{}{}
+
+            //_num1 loop
+            for o := index - 1; o >= 0; o-- {
+
+              if arrayContainInterface(operations, exp[o]) {
+                break
+              }
+
+              _num1 = append(_num1, exp[o])
+            }
+
+            //_num2 loop
+            for o := index + 1; o < len(exp); o++ {
+
+              if arrayContainInterface(operations, exp[o]) {
+                break
+              }
+
+              _num2 = append(_num2, exp[o])
+            }
+
+            var num1 []Action
+            var num2 []Action
+
+            if reflect.TypeOf(_num1[0]).String() == "string" {
+
+              var num []string
+
+              for _, v := range _num1 {
+                num = append(num, v.(string))
+              }
+
+              num1 = actionizer(num)
+
+            } else {
+
+              for _, v := range _num1 {
+                num1 = append(num1, v.(Action))
+              }
+
+            }
+
+            if reflect.TypeOf(_num2[0]).String() == "string" {
+
+              var num []string
+
+              for _, v := range _num2 {
+                num = append(num, v.(string))
+              }
+
+              num2 = actionizer(num)
+
+            } else {
+
+              for _, v := range _num2 {
+                num2 = append(num2, v.(Action))
+              }
+
+            }
+
+            var act_exp = Action{ "multiply", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 34, num1, num2, []Action{}, [][]Action{}, [][]Action{}, "" }
+
+            exp_ := append(exp[:index - 1], act_exp)
+            exp_ = append(exp_, exp[index + 1:])
+
+            exp = exp_
+          } else {
+            index := interfaceIndexOf("/", exp)
+
+            var _num1 = []interface{}{}
+            var _num2 = []interface{}{}
+
+            //_num1 loop
+            for o := index - 1; o >= 0; o-- {
+
+              if arrayContainInterface(operations, exp[o]) {
+                break
+              }
+
+              _num1 = append(_num1, exp[o])
+            }
+
+            //_num2 loop
+            for o := index + 1; o < len(exp); o++ {
+
+              if arrayContainInterface(operations, exp[o]) {
+                break
+              }
+
+              _num2 = append(_num2, exp[o])
+            }
+
+            var num1 []Action
+            var num2 []Action
+
+            if reflect.TypeOf(_num1[0]).String() == "string" {
+
+              var num []string
+
+              for _, v := range _num1 {
+                num = append(num, v.(string))
+              }
+
+              num1 = actionizer(num)
+
+            } else {
+
+              for _, v := range _num1 {
+                num1 = append(num1, v.(Action))
+              }
+
+            }
+
+            if reflect.TypeOf(_num2[0]).String() == "string" {
+
+              var num []string
+
+              for _, v := range _num2 {
+                num = append(num, v.(string))
+              }
+
+              num2 = actionizer(num)
+
+            } else {
+
+              for _, v := range _num2 {
+                num2 = append(num2, v.(Action))
+              }
+
+            }
+
+            var act_exp = Action{ "divide", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 35, num1, num2, []Action{}, [][]Action{}, [][]Action{}, "" }
+
+            exp_ := append(exp[:index - 1], act_exp)
+            exp_ = append(exp_, exp[index + 1:])
+
+            exp = exp_
+          }
+
+        }
+
+        for ;interfaceContain(exp, "%"); {
+          index := interfaceIndexOf("%", exp)
+
+          var _num1 = []interface{}{}
+          var _num2 = []interface{}{}
+
+          //_num1 loop
+          for o := index - 1; o >= 0; o-- {
+
+            if arrayContainInterface(operations, exp[o]) {
+              break
+            }
+
+            _num1 = append(_num1, exp[o])
+          }
+
+          //_num2 loop
+          for o := index + 1; o < len(exp); o++ {
+
+            if arrayContainInterface(operations, exp[o]) {
+              break
+            }
+
+            _num2 = append(_num2, exp[o])
+          }
+
+          var num1 []Action
+          var num2 []Action
+
+          if reflect.TypeOf(_num1[0]).String() == "string" {
+
+            var num []string
+
+            for _, v := range _num1 {
+              num = append(num, v.(string))
+            }
+
+            num1 = actionizer(num)
+
+          } else {
+
+            for _, v := range _num1 {
+              num1 = append(num1, v.(Action))
+            }
+
+          }
+
+          if reflect.TypeOf(_num2[0]).String() == "string" {
+
+            var num []string
+
+            for _, v := range _num2 {
+              num = append(num, v.(string))
+            }
+
+            num2 = actionizer(num)
+
+          } else {
+
+            for _, v := range _num2 {
+              num2 = append(num2, v.(Action))
+            }
+
+          }
+
+          var act_exp = Action{ "modulo", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 37, num1, num2, []Action{}, [][]Action{}, [][]Action{}, "" }
+
+          exp_ := append(exp[:index - 1], act_exp)
+          exp_ = append(exp_, exp[index + 1:])
+
+          exp = exp_
+        }
+
+        for ;interfaceContain(exp, "+") || interfaceContain(exp, "-"); {
+
+          if interfaceIndexOf("+", exp) > interfaceIndexOf("-", exp) || interfaceIndexOf("-", exp) == -1 {
+            index := interfaceIndexOf("+", exp)
+
+            var _num1 []interface{}
+            var _num2 []interface{}
+
+            //_num1 loop
+            for o := index - 1; o >= 0; o-- {
+
+              if arrayContainInterface(operations, exp[o]) {
+                break
+              }
+
+              _num1 = append(_num1, exp[o])
+            }
+
+            //_num2 loop
+            for o := index + 1; o < len(exp); o++ {
+
+              if arrayContainInterface(operations, exp[o]) {
+                break
+              }
+
+              _num2 = append(_num2, exp[o])
+            }
+
+            var num1 []Action
+            var num2 []Action
+
+            if reflect.TypeOf(_num1[0]).String() == "string" {
+
+              var num []string
+
+              for _, v := range _num1 {
+                num = append(num, v.(string))
+              }
+
+              num1 = actionizer(num)
+
+            } else {
+
+              for _, v := range _num1 {
+                num1 = append(num1, v.(Action))
+              }
+
+            }
+
+            if reflect.TypeOf(_num2[0]).String() == "string" {
+
+              var num []string
+
+              for _, v := range _num2 {
+                num = append(num, v.(string))
+              }
+
+              num2 = actionizer(num)
+
+            } else {
+
+              for _, v := range _num2 {
+                num2 = append(num2, v.(Action))
+              }
+
+            }
+
+            var act_exp = Action{ "add", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 32, num1, num2, []Action{}, [][]Action{}, [][]Action{}, "" }
+
+            exp_ := append(exp[:index - 1], act_exp)
+            exp_ = append(exp_, exp[index + 1:])
+
+            exp = exp_
+          } else {
+            index := interfaceIndexOf("-", exp)
+
+            var _num1 []interface{}
+            var _num2 []interface{}
+
+            //_num1 loop
+            for o := index - 1; o >= 0; o-- {
+
+              if arrayContainInterface(operations, exp[o]) {
+                break
+              }
+
+              _num1 = append(_num1, exp[o])
+            }
+
+            //_num2 loop
+            for o := index + 1; o < len(exp); o++ {
+
+              if arrayContainInterface(operations, exp[o]) {
+                break
+              }
+
+              _num2 = append(_num2, exp[o])
+            }
+
+            var num1 []Action
+            var num2 []Action
+
+            if reflect.TypeOf(_num1[0]).String() == "string" {
+
+              var num []string
+
+              for _, v := range _num1 {
+                num = append(num, v.(string))
+              }
+
+              num1 = actionizer(num)
+
+            } else {
+
+              for _, v := range _num1 {
+                num1 = append(num1, v.(Action))
+              }
+
+            }
+
+            if reflect.TypeOf(_num2[0]).String() == "string" {
+
+              var num []string
+
+              for _, v := range _num2 {
+                num = append(num, v.(string))
+              }
+
+              num2 = actionizer(num)
+
+            } else {
+
+              for _, v := range _num2 {
+                num2 = append(num2, v.(Action))
+              }
+
+            }
+
+            var act_exp = Action{ "subtract", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 33, num1, num2, []Action{}, [][]Action{}, [][]Action{}, "" }
+
+            exp_ := append(exp[:index - 1], act_exp)
+            exp_ = append(exp_, exp[index + 1:])
+
+            exp = exp_
+          }
+
+        }
+
+        actions = append(actions, exp[0].(Action))
+
+      }
+    }
+
+    if i >= len_lex {
+      break
+    }
+
+    switch lex[i] {
       case "newlineN":
-        actions = append(actions, Action{ "newline", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 0 })
+        actions = append(actions, Action{ "newline", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 0, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
       case "local":
         exp_ := []string{}
 
@@ -85,7 +634,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "local", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 1 })
+        actions = append(actions, Action{ "local", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, 1, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(4 + len(exp_))
       case "dynamic":
         exp_ := []string{}
@@ -140,11 +689,11 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "dynamic", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 2 })
+        actions = append(actions, Action{ "dynamic", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, 2, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(4 + len(exp_))
       case "alt":
 
-        var alter = Action{ "alt", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 3 }
+        var alter = Action{ "alt", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 3, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" }
 
         pCnt := 0
 
@@ -255,7 +804,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "global", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 4 })
+        actions = append(actions, Action{ "global", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, 4, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(4 + len(exp_))
       case "log":
         exp_ := []string{}
@@ -310,7 +859,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "log", "", exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 5 })
+        actions = append(actions, Action{ "log", "", exp_, exp, []string{}, []Action{}, []Condition{}, 5, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(2 + len(exp_))
       case "print":
         exp_ := []string{}
@@ -365,100 +914,8 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "print", "", exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 6 })
+        actions = append(actions, Action{ "print", "", exp_, exp, []string{}, []Action{}, []Condition{}, 6, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(2 + len(exp_))
-      case "(":
-        var exp = []string{}
-
-        pCnt := 0
-
-        for o := i; o < len_lex; o++ {
-
-          if lex[o] == "(" {
-            pCnt++
-          }
-          if lex[o] == ")" {
-            pCnt--
-          }
-
-          if pCnt == 0 && lex[o] == "newlineS" {
-            break
-          }
-
-          exp = append(exp, lex[o])
-        }
-        i+=len(exp)
-
-        exp = exp[1:len(exp) - 1]
-
-        var actionized = actionizer(exp)
-
-        if i >= len_lex {
-          actions = append(actions, Action{ "expression_p", "", exp, actionized, []string{}, []Action{}, []Condition{}, [][]string{}, 29 })
-          break actionReader
-        }
-
-        if lex[i] == "." {
-          indexes := [][]string{[]string{}}
-
-          cbCnt := 0
-          glCnt := 0
-          bCnt := 0
-          pCnt := 0
-
-          for o := i + 1; o < len_lex; o++ {
-            if lex[o] == "{" {
-              cbCnt++
-            }
-            if lex[o] == "[:" {
-              glCnt++
-            }
-            if lex[o] == "[" {
-              bCnt++
-            }
-            if lex[o] == "(" {
-              pCnt++
-            }
-
-            if lex[o] == "}" {
-              cbCnt--
-            }
-            if lex[o] == ":]" {
-              glCnt--
-            }
-            if lex[o] == "]" {
-              bCnt--
-            }
-            if lex[o] == ")" {
-              pCnt--
-            }
-
-            if lex[o] == "." {
-              indexes = append(indexes, []string{})
-            } else {
-
-              i++
-
-              indexes[len(indexes) - 1] = append(indexes[len(indexes) - 1], lex[o])
-
-              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
-
-                if o < len_lex - 1 && lex[o + 1] == "." {
-                  continue
-                } else {
-                  break
-                }
-
-              }
-            }
-          }
-
-          i+=3
-
-          actions = append(actions, Action{ "expressionIndex_p", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, indexes, 30 })
-        } else {
-          actions = append(actions, Action{ "expression_p", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, [][]string{}, 29 })
-        }
       case "{":
         exp_ := []string{}
 
@@ -519,7 +976,7 @@ func actionizer(lex []string) []Action {
 
         exp := actionizer(exp_)
 
-        actions = append(actions, Action{ "group", "", []string{}, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 9 })
+        actions = append(actions, Action{ "group", "", []string{}, exp, []string{}, []Action{}, []Condition{}, 9, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(len(exp_) + 1)
       case "process":
         if lex[i + 1] == "~" {
@@ -563,7 +1020,7 @@ func actionizer(lex []string) []Action {
 
           logic := actionizer(logic_)
 
-          actions = append(actions, Action{ "process", procName, []string{}, logic, params, []Action{}, []Condition{}, [][]string{}, 10 })
+          actions = append(actions, Action{ "process", procName, []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         } else {
           params := []string{}
 
@@ -600,7 +1057,7 @@ func actionizer(lex []string) []Action {
 
           logic := actionizer(logic_)
 
-          actions = append(actions, Action{ "process", "", []string{}, logic, params, []Action{}, []Condition{}, [][]string{}, 10 })
+          actions = append(actions, Action{ "process", "", []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         }
       case "#":
 
@@ -687,7 +1144,7 @@ func actionizer(lex []string) []Action {
           }
         }
 
-        actions = append(actions, Action{ "#", name, []string{}, []Action{}, []string{}, params_, []Condition{}, [][]string{}, 11 })
+        actions = append(actions, Action{ "#", name, []string{}, []Action{}, []string{}, params_, []Condition{}, 11, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=skip_nums
       case "return":
 
@@ -736,7 +1193,7 @@ func actionizer(lex []string) []Action {
 
         returner := actionizer(returner_)
 
-        actions = append(actions, Action{ "return", "", []string{}, returner, []string{}, []Action{}, []Condition{}, [][]string{}, 12 })
+        actions = append(actions, Action{ "return", "", []string{}, returner, []string{}, []Action{}, []Condition{}, 12, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=len(returner) + 2
       case "if":
 
@@ -882,7 +1339,7 @@ func actionizer(lex []string) []Action {
           }
         }
 
-        actions = append(actions, Action{ "conditional", "", []string{}, []Action{}, []string{}, []Action{}, conditions, [][]string{}, 13 })
+        actions = append(actions, Action{ "conditional", "", []string{}, []Action{}, []string{}, []Action{}, conditions, 13, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
       case "import":
 
         var file = []string{}
@@ -929,7 +1386,7 @@ func actionizer(lex []string) []Action {
         }
 
         actionizedFile := actionizer(file)
-        actions = append(actions, Action{ "import", "", []string{}, actionizedFile, []string{}, []Action{}, []Condition{}, [][]string{}, 14 })
+        actions = append(actions, Action{ "import", "", []string{}, actionizedFile, []string{}, []Action{}, []Condition{}, 14, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(2 + len(file))
       case "read":
         var phrase = []string{}
@@ -976,12 +1433,12 @@ func actionizer(lex []string) []Action {
         }
 
         actionizedPhrase := actionizer(phrase)
-        actions = append(actions, Action{ "read", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{}, 15 })
+        actions = append(actions, Action{ "read", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 15, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(2 + len(phrase))
       case "break":
-        actions = append(actions, Action{ "break", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 16 })
+        actions = append(actions, Action{ "break", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 16, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
       case "skip":
-        actions = append(actions, Action{ "skip", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 17 })
+        actions = append(actions, Action{ "skip", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 17, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
       case "eval":
         var phrase = []string{}
 
@@ -1027,7 +1484,7 @@ func actionizer(lex []string) []Action {
         }
 
         actionized := actionizer(phrase)
-        actions = append(actions, Action{ "eval", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, [][]string{}, 18 })
+        actions = append(actions, Action{ "eval", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 18, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(2 + len(phrase))
       case "typeof":
         var phrase = []string{}
@@ -1074,7 +1531,7 @@ func actionizer(lex []string) []Action {
         }
 
         actionizedPhrase := actionizer(phrase)
-        actions = append(actions, Action{ "typeof", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{}, 19 })
+        actions = append(actions, Action{ "typeof", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 19, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(2 + len(phrase))
       case "err":
         var phrase = []string{}
@@ -1121,7 +1578,7 @@ func actionizer(lex []string) []Action {
         }
 
         actionizedPhrase := actionizer(phrase)
-        actions = append(actions, Action{ "err", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{}, 20 })
+        actions = append(actions, Action{ "err", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 20, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(2 + len(phrase))
       case "loop":
 
@@ -1166,7 +1623,7 @@ func actionizer(lex []string) []Action {
 
         action := actionizer(action_)
 
-        actions = append(actions, Action{ "loop", "", []string{}, action, []string{}, []Action{}, []Condition{ { "loop", condition, action } }, [][]string{}, 21 })
+        actions = append(actions, Action{ "loop", "", []string{}, action, []string{}, []Action{}, []Condition{ { "loop", condition, action } }, 21, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(1 + len(condition_) + len(action_))
       case "[:":
         var phrase = []string{}
@@ -1215,7 +1672,7 @@ func actionizer(lex []string) []Action {
         i+=len(phrase)
 
         if i >= len_lex {
-          actions = append(actions, Action{ "hash", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 22 })
+          actions = append(actions, Action{ "hash", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
           break
         }
 
@@ -1276,9 +1733,9 @@ func actionizer(lex []string) []Action {
 
           i+=3
 
-          actions = append(actions, Action{ "hashIndex", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, indexes, 23 })
+          actions = append(actions, Action{ "hashIndex", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 23, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         } else {
-          actions = append(actions, Action{ "hash", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 22 })
+          actions = append(actions, Action{ "hash", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         }
       case "[":
         var phrase = []string{}
@@ -1326,8 +1783,62 @@ func actionizer(lex []string) []Action {
 
         i+=len(phrase)
 
+        phrase = phrase[1:len(phrase) - 1]
+
+        var arr [][]Action
+
+        for o := 0; o < len(phrase); o++ {
+
+          var sub []string
+
+          cbCnt := 0
+          glCnt := 0
+          bCnt := 0
+          pCnt := 0
+
+          for j := o; j < len(phrase); j++ {
+
+            if phrase[j] == "{" {
+              cbCnt++
+            }
+            if phrase[j] == "}" {
+              cbCnt--
+            }
+
+            if phrase[j] == "[:" {
+              glCnt++
+            }
+            if phrase[j] == ":]" {
+              glCnt--
+            }
+
+            if phrase[j] == "[" {
+              bCnt++
+            }
+            if phrase[j] == "]" {
+              bCnt--
+            }
+
+            if phrase[j] == "(" {
+              pCnt++
+            }
+            if phrase[j] == ")" {
+              pCnt--
+            }
+
+            if phrase[j] == "," && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+              break
+            }
+            sub = append(sub, phrase[j])
+          }
+
+          o+=len(sub)
+
+          arr = append(arr, actionizer(sub))
+        }
+
         if i >= len_lex {
-          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 24 })
+          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, "array" })
           break
         }
 
@@ -1386,11 +1897,13 @@ func actionizer(lex []string) []Action {
             }
           }
 
+          fmt.Println(indexes)
+
           i+=3
 
-          actions = append(actions, Action{ "arrayIndex", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, indexes, 25 })
+          actions = append(actions, Action{ "arrayIndex", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 25, []Action{}, []Action{}, []Action{}, [][]Action{}, arr, "array" })
         } else {
-          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 24 })
+          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, [][]Action{}, arr, "array" })
         }
       case "ascii":
         var phrase = []string{}
@@ -1437,7 +1950,7 @@ func actionizer(lex []string) []Action {
         }
 
         actionizedPhrase := actionizer(phrase)
-        actions = append(actions, Action{ "ascii", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{}, 26 })
+        actions = append(actions, Action{ "ascii", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 26, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(2 + len(phrase))
       case "parse":
         var phrase = []string{}
@@ -1484,7 +1997,7 @@ func actionizer(lex []string) []Action {
         }
 
         actionizedPhrase := actionizer(phrase)
-        actions = append(actions, Action{ "parse", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, [][]string{}, 27 })
+        actions = append(actions, Action{ "parse", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 27, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=(2 + len(phrase))
       case "len":
 
@@ -1510,247 +2023,58 @@ func actionizer(lex []string) []Action {
 
         actionized := actionizer(exp)
 
-        actions = append(actions, Action{ "len", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, [][]string{}, 31 })
+        actions = append(actions, Action{ "len", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 31, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         i+=3 + len(exp)
       default:
+        if i + 1 < len_lex {
 
-        if i < len_lex {
+          if (lex[i + 1] == "++" || lex[i + 1] == "--") && strings.HasPrefix(lex[i], "$") {
 
-          if i + 1 < len_lex {
+            id_ := []byte(lex[i + 1])
 
-            if (lex[i + 1] == "++" || lex[i + 1] == "--") && strings.HasPrefix(lex[i], "$") {
+            id := ""
 
-              id_ := []byte(lex[i + 1])
-
-              id := ""
-
-              for o := 0; o < len(id_); o++ {
-                _id := strconv.Itoa(int(id_[o]))
-                id+=_id
-              }
-
-              intID, _ := strconv.Atoi(id)
-
-              actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, intID })
-              i++
-              continue;
+            for o := 0; o < len(id_); o++ {
+              _id := strconv.Itoa(int(id_[o]))
+              id+=_id
             }
 
-            if (lex[i + 1] == "+=" || lex[i + 1] == "-=" || lex[i + 1] == "*=" || lex[i + 1] == "/=" || lex[i + 1] == "%=" || lex[i + 1] == "^=") && strings.HasPrefix(lex[i], "$") {
+            intID, _ := strconv.Atoi(id)
 
-              var by_ []string
+            actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, []Action{}, []string{}, []Action{}, []Condition{}, intID, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
+            i++
+            continue;
+          }
 
-              cbCnt := 0
-              glCnt := 0
-              bCnt := 0
-              pCnt := 0
+          if (lex[i + 1] == "+=" || lex[i + 1] == "-=" || lex[i + 1] == "*=" || lex[i + 1] == "/=" || lex[i + 1] == "%=" || lex[i + 1] == "^=") && strings.HasPrefix(lex[i], "$") {
 
-              for o := i + 2; o < len_lex; o++ {
-                if lex[o] == "{" {
-                  cbCnt++
-                }
-                if lex[o] == "}" {
-                  cbCnt--
-                }
+            var by_ []string
 
-                if lex[o] == "[:" {
-                  glCnt++
-                }
-                if lex[o] == ":]" {
-                  glCnt--
-                }
-
-                if lex[o] == "[" {
-                  bCnt++
-                }
-                if lex[o] == "]" {
-                  bCnt--
-                }
-
-                if lex[o] == "(" {
-                  pCnt++
-                }
-                if lex[o] == ")" {
-                  pCnt--
-                }
-
-                if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
-                  break
-                }
-
-                by_ = append(by_, lex[o])
-              }
-
-              by := actionizer(by_)
-
-              id_ := []byte(lex[i + 1])
-
-              id := ""
-
-              for o := 0; o < len(id_); o++ {
-                _id := strconv.Itoa(int(id_[o]))
-                id+=_id
-              }
-
-              intID, _ := strconv.Atoi(id)
-
-              actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, by, []string{}, []Action{}, []Condition{}, [][]string{}, intID })
-              continue;
-            }
-
-            if lex[i + 1] == ":" && strings.HasPrefix(lex[i], "$") {
-              exp_ := []string{}
-
-              for o := i + 2; o < len_lex; o++ {
-
-                if lex[o] == "newlineS" {
-                  break;
-                }
-
-                exp_ = append(exp_, lex[o]);
-              }
-
-              exp := actionizer(exp_)
-
-              actions = append(actions, Action{ "let", lex[i], exp_, exp, []string{}, []Action{}, []Condition{}, [][]string{}, 28 })
-              i+=(len(exp))
-            } else {
-
-              var operators_ = []string{"^", "*", "/", "%", "+", "-", "&", "|", "!", ">", "<", ">=", "<=", "="}
-
-              numMatch_, _ := regexp.MatchString("(\\d|\\.)+", lex[i])
-
-              if !arrayContain(operators_, lex[i]) && !numMatch_ && !strings.HasPrefix(lex[i], "$") && strings.HasPrefix(lex[i], "'") && strings.HasPrefix(lex[i], "\"") && strings.HasPrefix(lex[i], "`") && lex[i] != "true" && lex[i] != "false" {
-                break actionReader
-              }
-
-              var exp = []string{}
-
-              pCnt := 0
-
-              for o := i; o < len_lex; o++ {
-
-                if !(o + 1 >= len_lex) {
-
-                  if lex[o + 1] == "[" || lex[o + 1] == "]" {
-                    break
-                  }
-                }
-
-                if lex[o] == "(" {
-                  pCnt++
-                }
-                if lex[o] == ")" {
-                  pCnt--
-                }
-
-                numMatch, _ := regexp.MatchString("(\\d|\\.)+", lex[o])
-
-                if !arrayContain(operators_, lex[o]) && !numMatch && !strings.HasPrefix(lex[o], "$") && !strings.HasPrefix(lex[o], "'") && !strings.HasPrefix(lex[o], "\"") && !strings.HasPrefix(lex[o], "`") && lex[o] != "true" && lex[o] != "false" && pCnt == 0 {
-
-                  if lex[o] == "#" {
-                    i--
-                  }
-                  break
-                }
-
-                if pCnt == 0 && lex[o] == "newlineS" {
-                  break
-                }
-
-                exp = append(exp, lex[o])
-              }
-              i+=len(exp)
-
-              if i >= len_lex {
-                actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 7 })
-                break actionReader
-              }
-
-              if lex[i] == "." {
-
-                indexes := [][]string{[]string{}}
-
-                cbCnt := 0
-                glCnt := 0
-                bCnt := 0
-                pCnt := 0
-
-                for o := i + 1; o < len_lex; o++ {
-                  if lex[o] == "{" {
-                    cbCnt++
-                  }
-                  if lex[o] == "[:" {
-                    glCnt++
-                  }
-                  if lex[o] == "[" {
-                    bCnt++
-                  }
-                  if lex[o] == "(" {
-                    pCnt++
-                  }
-
-                  if lex[o] == "}" {
-                    cbCnt--
-                  }
-                  if lex[o] == ":]" {
-                    glCnt--
-                  }
-                  if lex[o] == "]" {
-                    bCnt--
-                  }
-                  if lex[o] == ")" {
-                    pCnt--
-                  }
-
-                  if lex[o] == "." {
-                    indexes = append(indexes, []string{})
-                  } else {
-
-                    i++
-
-                    indexes[len(indexes) - 1] = append(indexes[len(indexes) - 1], lex[o])
-
-                    if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
-
-                      if o < len_lex - 1 && lex[o + 1] == "." {
-                        continue
-                      } else {
-                        break
-                      }
-
-                    }
-                  }
-                }
-
-                i+=3
-
-                actions = append(actions, Action{ "expressionIndex", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, indexes, 8 })
-              } else {
-                actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 7 })
-              }
-            }
-          } else {
-
-            var operators_ = []string{"^", "*", "/", "%", "+", "-", "&", "|", "!", ">", "<", ">=", "<=", "="}
-
-            numMatch_, _ := regexp.MatchString("(\\d|\\.)+", lex[i])
-
-            if !arrayContain(operators_, lex[i]) && !numMatch_ && !strings.HasPrefix(lex[i], "$") && strings.HasPrefix(lex[i], "'") && strings.HasPrefix(lex[i], "\"") && strings.HasPrefix(lex[i], "`") && lex[i] != "true" && lex[i] != "false" {
-              continue
-            }
-
-            var exp = []string{}
-
+            cbCnt := 0
+            glCnt := 0
+            bCnt := 0
             pCnt := 0
 
-            for o := i; o < len_lex; o++ {
+            for o := i + 2; o < len_lex; o++ {
+              if lex[o] == "{" {
+                cbCnt++
+              }
+              if lex[o] == "}" {
+                cbCnt--
+              }
 
-              if !(o + 1 >= len_lex) {
+              if lex[o] == "[:" {
+                glCnt++
+              }
+              if lex[o] == ":]" {
+                glCnt--
+              }
 
-                if lex[o + 1] == "[" || lex[o + 1] == "]" {
-                  break
-                }
+              if lex[o] == "[" {
+                bCnt++
+              }
+              if lex[o] == "]" {
+                bCnt--
               }
 
               if lex[o] == "(" {
@@ -1760,94 +2084,51 @@ func actionizer(lex []string) []Action {
                 pCnt--
               }
 
-              numMatch, _ := regexp.MatchString("(\\d|\\.)+", lex[o])
-
-              if !arrayContain(operators_, lex[o]) && !numMatch && !strings.HasPrefix(lex[o], "$") && !strings.HasPrefix(lex[o], "'") && !strings.HasPrefix(lex[o], "\"") && !strings.HasPrefix(lex[o], "`") && lex[o] != "true" && lex[o] != "false" && pCnt == 0 {
-
-                if lex[o] == "#" {
-                  i--
-                }
+              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
                 break
               }
 
-              if pCnt == 0 && lex[o] == "newlineS" {
-                break
-              }
-
-              exp = append(exp, lex[o])
-            }
-            i+=len(exp)
-
-            if i >= len_lex {
-              actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 7 })
-              break actionReader
+              by_ = append(by_, lex[o])
             }
 
-            if lex[i] == "." {
+            by := actionizer(by_)
 
-              indexes := [][]string{[]string{}}
+            id_ := []byte(lex[i + 1])
 
-              cbCnt := 0
-              glCnt := 0
-              bCnt := 0
-              pCnt := 0
+            id := ""
 
-              for o := i + 1; o < len_lex; o++ {
-                if lex[o] == "{" {
-                  cbCnt++
-                }
-                if lex[o] == "[:" {
-                  glCnt++
-                }
-                if lex[o] == "[" {
-                  bCnt++
-                }
-                if lex[o] == "(" {
-                  pCnt++
-                }
-
-                if lex[o] == "}" {
-                  cbCnt--
-                }
-                if lex[o] == ":]" {
-                  glCnt--
-                }
-                if lex[o] == "]" {
-                  bCnt--
-                }
-                if lex[o] == ")" {
-                  pCnt--
-                }
-
-                if lex[o] == "." {
-                  indexes = append(indexes, []string{})
-                } else {
-
-                  i++
-
-                  indexes[len(indexes) - 1] = append(indexes[len(indexes) - 1], lex[o])
-
-                  if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
-
-                    if o < len_lex - 1 && lex[o + 1] == "." {
-                      continue
-                    } else {
-                      break
-                    }
-
-                  }
-                }
-              }
-
-              i+=3
-
-              actions = append(actions, Action{ "expressionIndex", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, indexes, 8 })
-            } else {
-              actions = append(actions, Action{ "expression", "", exp, []Action{}, []string{}, []Action{}, []Condition{}, [][]string{}, 7 })
+            for o := 0; o < len(id_); o++ {
+              _id := strconv.Itoa(int(id_[o]))
+              id+=_id
             }
+
+            intID, _ := strconv.Atoi(id)
+
+            actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, by, []string{}, []Action{}, []Condition{}, intID, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
+            continue;
           }
+
+          if lex[i + 1] == ":" && strings.HasPrefix(lex[i], "$") {
+            exp_ := []string{}
+
+            for o := i + 2; o < len_lex; o++ {
+
+              if lex[o] == "newlineS" {
+                break;
+              }
+
+              exp_ = append(exp_, lex[o]);
+            }
+
+            exp := actionizer(exp_)
+
+            actions = append(actions, Action{ "let", lex[i], exp_, exp, []string{}, []Action{}, []Condition{}, 28, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
+            i+=(len(exp))
+          }
+        } else {
+          actions = append(actions, Action{ "value", lex[i], []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "" })
         }
-    }
+      }
   }
 
   return actions

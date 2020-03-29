@@ -4,9 +4,9 @@
 #include <algorithm>
 #include "json.hpp"
 #include "bind.h"
-#include "indexes.hpp"
 #include "math.hpp"
 #include "structs.h"
+#include "indexes.hpp"
 using namespace std;
 using json = nlohmann::json;
 
@@ -166,7 +166,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json calculated = math(nExp, calc_params, vars, dir, line);
 
-            json index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, line);
+            json index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, line, "");
 
             expStr[expStr.size() - 1].push_back(index[0]);
           }
@@ -452,7 +452,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json calculated = math(nExp, calc_params, vars, dir, line);
 
-            json index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, line);
+            json index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, line, "");
 
             expStr[expStr.size() - 1].push_back(index[0]);
           }
@@ -471,15 +471,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //arrayIndex
 
-            string expStr_ = actions[i]["ExpStr"].dump();
-
-            json nExp = json::parse("[" + expStr_ + "]");
-
-            json calculated = math(nExp, calc_params, vars, dir, line);
-
-            json index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, line);
-
-            expStr[expStr.size() - 1].push_back(index[0]);
+            json acts = actions[i]["Value"]
+            , index = indexesCalc(acts, actions[i]["Indexes"], calc_params, line, actions[i]["Index_Type"]);
           }
           break;
         case 26: {
@@ -548,26 +541,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             vars[name] = nVar;
           }
           break;
-        case 29: {
-
-            //expression_p
-
-            json calculated = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0];
-
-            if (expStr[expStr.size() - 1].size() == 0) expStr[expStr.size() - 1] = calculated;
-            else expStr[expStr.size() - 1].push_back(calculated[0][0]);
-          }
-          break;
-        case 30: {
-
-            //expressionIndex_p
-
-            json calculated = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line).exp[0]
-            , index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, line);
-
-            expStr[expStr.size() - 1].push_back(index[0]);
-          }
-          break;
         case 31: {
 
             //len
@@ -626,6 +599,115 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             else if (type == "number") expStr[expStr.size() - 1].push_back(datatype_get);
             else expStr[expStr.size() - 1].push_back("0");
 
+          }
+          break;
+        case 32: {
+
+            //add
+
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line).exp[0][0]
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line).exp[0][0];
+
+            expStr[expStr.size() - 1].push_back(
+              Add(
+                &first[0],
+                &second[0],
+                &calc_params.dump()[0],
+                line
+              )
+            );
+          }
+          break;
+        case 33: {
+
+            //subtract
+
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line).exp[0][0]
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line).exp[0][0];
+
+            expStr[expStr.size() - 1].push_back(
+              Subtract(
+                &first[0],
+                &second[0],
+                &calc_params.dump()[0],
+                line
+              )
+            );
+          }
+          break;
+        case 34: {
+
+            //multiply
+
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line).exp[0][0]
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line).exp[0][0];
+
+            expStr[expStr.size() - 1].push_back(
+              Multiply(
+                &first[0],
+                &second[0],
+                &calc_params.dump()[0],
+                line
+              )
+            );
+          }
+          break;
+        case 35: {
+
+            //divide
+
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line).exp[0][0]
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line).exp[0][0];
+
+            expStr[expStr.size() - 1].push_back(
+              Division(
+                &first[0],
+                &second[0],
+                &calc_params.dump()[0],
+                line
+              )
+            );
+          }
+          break;
+        case 36: {
+
+            //exponentiate
+
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line).exp[0][0]
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line).exp[0][0];
+
+            expStr[expStr.size() - 1].push_back(
+              Exponentiate(
+                &first[0],
+                &second[0],
+                &calc_params.dump()[0],
+                line
+              )
+            );
+          }
+          break;
+        case 37: {
+
+            //modulo
+
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line).exp[0][0]
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line).exp[0][0];
+
+            expStr[expStr.size() - 1].push_back(
+              Modulo(
+                &first[0],
+                &second[0],
+                &calc_params.dump()[0],
+                line
+              )
+            );
+          }
+          break;
+        case 38: {
+
+            //value
+
+            expStr[expStr.size() - 1].push_back(actions[i]["Name"]);
           }
           break;
 
