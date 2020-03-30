@@ -11,7 +11,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-Returner parser(const json actions, const json calc_params, json vars, const string dir, bool groupReturn, int line);
+Returner parser(const json actions, const json calc_params, json vars, const string dir, const bool groupReturn, int line, const bool expReturn);
 
 bool expContain(json exp, string check, vector<int> checked_gens) {
 
@@ -98,7 +98,7 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
 
       json actions = json::parse(actions_);
 
-      Returner parsed = parser(actions, calc_params, vars, dir, false, line);
+      Returner parsed = parser(actions, calc_params, vars, dir, false, line, true);
 
       json evaled = parsed.exp[0];
 
@@ -129,8 +129,8 @@ json math(json exp, const json calc_params, json vars, const string dir, int lin
           } else {
             exp[i].erase(exp[i].begin() + o, exp[i].begin() + o + 1);
 
-            for (int j = 0; j < parser(var["valueActs"], calc_params, vars, dir, false, line).exp[0].size(); j++)
-              exp[i].insert(exp[i].begin() + j + o, parser(var["valueActs"], calc_params, vars, dir, false, line).exp[0][j]);
+            for (int j = 0; j < parser(var["valueActs"], calc_params, vars, dir, false, line, true).exp[0].size(); j++)
+              exp[i].insert(exp[i].begin() + j + o, parser(var["valueActs"], calc_params, vars, dir, false, line, true).exp[0][j]);
           }
         }
       }
