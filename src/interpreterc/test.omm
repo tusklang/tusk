@@ -1,5 +1,1 @@
-let ~ test: [:
-  "ss": 's'
-:];
-
-log ~ test;
+log ~ typeof ~ "test";

@@ -122,12 +122,16 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //log
 
-            string val = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp[0][0].dump();
+            json _val = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
 
-            val = val.substr(1);
-            val.pop_back();
+            if (_val["Type"].dump() == "\"hash\"" || _val["Type"].dump() == "\"array\"") {
 
-            cout << val << endl;
+            } else {
+
+              string val = _val["ExpStr"][0];
+
+              cout << val << endl;
+            }
           }
           break;
         case 6: {
@@ -377,22 +381,28 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //typeof
 
-            Returner parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, false);
+            Returner parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true);
 
-            string exp = parsed.exp[0][0].dump().substr(1, parsed.exp[0][0].dump().length() - 2);
+            json exp = parsed.exp;
 
-            char* _type = GetType(&exp[0]);
+            json type = exp["ValueType"];
 
-            string type(_type);
+            if (type.size() == 0) type = json::parse(
+              R"(
+                [{"Args":[],"Condition":[],"Degree":[],"ExpAct":[],"ExpStr":["type"],"First":[],"Hash_Values":{},"ID":44,"Index_Type":"","Indexes":[],"Name":"","Params":[],"Second":[],"Type":"type","Value":[],"ValueType":[]}]
+              )"
+            );
 
-            expStr[expStr.size() - 1].push_back(json::parse("[\"" + type + "\"]")[0]);
+            vector<string> noRet;
+
+            if (expReturn) return Returner{ noRet, vars, type[0], "expression" };
           }
           break;
         case 20: {
 
             //err
 
-            Returner parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, false);
+            Returner parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true);
 
             string exp = parsed.exp[0][0].dump().substr(1, parsed.exp[0][0].dump().length() - 2);
 
@@ -607,14 +617,25 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp[0][0]
             , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp[0][0];
 
-            expStr[expStr.size() - 1].push_back(
-              Add(
-                &first[0],
-                &second[0],
-                &calc_params.dump()[0],
-                line
-              )
-            );
+            string val(Add(
+              &first[0],
+              &second[0],
+              &calc_params.dump()[0],
+              line
+            ));
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = json::parse("[[" + val + "]]");
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
         case 33: {
@@ -704,9 +725,67 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           break;
         case 38: {
 
-            //value
+            //string
 
-            expStr[expStr.size() - 1].push_back(actions[i]["Name"]);
+            vector<string> noRet;
+
+            if (expReturn) return Returner{ noRet, vars,  actions[i], "expression" };
+          }
+          break;
+        case 39: {
+
+            //number
+
+            vector<string> noRet;
+
+            if (expReturn) return Returner{ noRet, vars,  actions[i], "expression" };
+          }
+          break;
+        case 40: {
+
+            //boolean
+
+            vector<string> noRet;
+
+            if (expReturn) return Returner{ noRet, vars,  actions[i], "expression" };
+          }
+          break;
+        case 41: {
+
+            //falsey
+
+            vector<string> noRet;
+
+            if (expReturn) return Returner{ noRet, vars,  actions[i], "expression" };
+          }
+          break;
+        case 42: {
+
+            //none
+
+            vector<string> noRet;
+
+            if (expReturn) return Returner{ noRet, vars,  actions[i], "expression" };
+          }
+          break;
+        case 43: {
+
+            //variable
+
+            if (expReturn) return parser(actions[i], calc_params, vars, dir, false, line, true);
+          }
+          break;
+        case 44: {
+
+            //type
+
+            vector<string> noRet;
+
+            if (expReturn) return Returner{ noRet, vars, json::parse(
+              R"(
+                {"Args":[],"Condition":[],"Degree":[],"ExpAct":[],"ExpStr":["type"],"First":[],"Hash_Values":{},"ID":44,"Index_Type":"","Indexes":[],"Name":"","Params":[],"Second":[],"Type":"type","Value":[],"ValueType":[]}
+              )"
+            ), "expression" };
           }
           break;
 

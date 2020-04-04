@@ -36,7 +36,14 @@ multiply: 34
 divide: 35
 exponentiate: 36
 modulo: 37
-value: 38
+string: 38
+number: 39
+boolean: 40
+falsey: 41
+none: 42
+variable: 43
+type: 44
+
 ++: 4343
 --: 4545
 +=: 4361

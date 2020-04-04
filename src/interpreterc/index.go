@@ -68,6 +68,11 @@ func CLex(_file *C.char) *C.char {
   return C.CString(lex_)
 }
 
+type TypeOperations struct {
+  first    Action
+  second   Action
+}
+
 func index(fileName, dir string, calcParams paramCalcOpts) {
 
   file := read("./pre.omm", "", true) + read(dir + fileName, "File Not Found: " + dir + fileName, true)
