@@ -23,6 +23,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
     //get current action id
     int cur = actions[i]["ID"];
 
+    cout << cur << endl;
+
     try {
       switch (cur) {
         case 0:
@@ -144,20 +146,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             val.pop_back();
 
             cout << val;
-          }
-          break;
-        case 7: {
-
-            //expression
-
-            string expStr_ = actions[i]["ExpStr"].dump();
-
-            json nExp = json::parse("[" + expStr_ + "]");
-
-            json calculated = math(nExp, calc_params, vars, dir, line);
-
-            if (expStr[expStr.size() - 1].size() == 0) expStr[expStr.size() - 1] = calculated[0];
-            else expStr[expStr.size() - 1].push_back(calculated[0][0]);
           }
           break;
         case 8: {
@@ -614,15 +602,17 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //add
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp[0][0]
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp[0][0];
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump()
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump();
 
-            string val(Add(
+            string _val(Add(
               &first[0],
               &second[0],
               &calc_params.dump()[0],
               line
             ));
+
+            json val = json::parse(_val);
 
             if (expReturn) {
               Returner ret;
@@ -631,7 +621,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               ret.value = retNo;
               ret.variables = vars;
-              ret.exp = json::parse("[[" + val + "]]");
+              ret.exp = val;
               ret.type = "expression";
 
               return ret;
@@ -659,8 +649,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //multiply
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp[0][0]
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp[0][0];
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp[0]
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp[0];
 
             expStr[expStr.size() - 1].push_back(
               Multiply(

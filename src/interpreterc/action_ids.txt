@@ -7,7 +7,6 @@ alt: 3
 global: 4
 log: 5
 print: 6
-expression: 7
 expressionIndex: 8
 group: 9
 process: 10

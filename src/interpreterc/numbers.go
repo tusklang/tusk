@@ -3,7 +3,18 @@ package main
 import "strings"
 import "strconv"
 
+// #cgo CFLAGS: -std=c99
 import "C"
+
+type TypeOperations struct {
+  First    string
+  Second   string
+}
+
+type BoolSwitch struct {
+  First    string
+  Second   string
+}
 
 //export ReturnInitC
 func ReturnInitC(str *C.char) *C.char {

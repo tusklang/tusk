@@ -1,4 +1,5 @@
 #include "parser/run.hpp"
+#include "bind.h"
 #include <iostream>
 using namespace std;
 

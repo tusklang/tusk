@@ -1,1 +1,5 @@
-log ~ typeof ~ "test";
+log ~ [:
+  "ss": "sss"
+:] + [:
+  "sss": "s"
+:];
