@@ -8,7 +8,7 @@ json indexesCalc(json val, json indexes, json calc_params, json vars, int line, 
 
 json arrayCalc(json val, json indexes, json calc_params, json vars, int line, string dir) {
 
-  json _index = parser(indexes[0], calc_params, vars, dir, false, line, true).exp[0][0];
+  json _index = parser(indexes[0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0];
   string index = _index.dump().substr(1, _index.dump().length() - 2);
 
   //OPTIMIZE:
@@ -20,9 +20,9 @@ json arrayCalc(json val, json indexes, json calc_params, json vars, int line, st
 
   indexes.erase(indexes.begin());
 
-  if (indexes.size() == 0) return parser(val[0], calc_params, vars, dir, false, line, true).exp[0][0];
+  if (indexes.size() == 0) return val[0][0];
 
-  return indexesCalc(val[0][0]["Index_Type"] == "hash" ? val[0][0]["Hash_Values"] : val[0][0]["Value"], indexes, calc_params, vars, line, dir, val[0][0]["Index_Type"]);
+  return indexesCalc(val[0][0]["Index_Type"] == "hash" ? val[0][0]["Hash_Values"] : (val[0][0]["Index_Type"] == "array" ? val[0][0]["Value"] : val[0][0]), indexes, calc_params, vars, line, dir, val[0][0]["Index_Type"]);
 }
 
 #endif

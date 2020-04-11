@@ -4,7 +4,6 @@ import "strings"
 import "strconv"
 import "math"
 import "encoding/json"
-import "fmt"
 
 // #cgo CFLAGS: -std=c99
 import "C"
@@ -271,8 +270,7 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
 
   nums := TypeOperations{ _num1P_.Type, _num2P_.Type }
 
-  /*!
-    TABLE OF TYPES:
+  /* TABLE OF TYPES:
 
     string + (* - array - none - hash) = string
     array + (* - none) = array
@@ -288,15 +286,13 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
   var finalRet Action
 
   switch nums {
-    case TypeOperations{ "number", "number" }: //detect case "num" + "num"
+    case TypeOperations{ "number", "number" }: { //detect case "num" + "num"
 
       numRet := add(_num1P_.ExpStr[0], _num2P_.ExpStr[0], calc_params, line)
 
       finalRet = Action{ "number", "", []string{ numRet }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), []Action{ Action{"number", "", []string{ numRet }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), []Action{}} } }
-
-    case TypeOperations{ "hash", "hash" }: //detect case "hash" + "hash"
-      fmt.Println(_num1P_)
-    case TypeOperations{ "boolean", "boolean" }: //detect case "boolean" + "boolean"
+    }
+    case TypeOperations{ "boolean", "boolean" }: { //detect case "boolean" + "boolean"
 
       val1 := _num1P_.ExpStr[0]
       val2 := _num2P_.ExpStr[0]
@@ -317,7 +313,8 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
       }
 
       finalRet = Action{ "boolean", "", []string{ final_ }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), []Action{ Action{"boolean", "", []string{ final_ }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), []Action{}} } }
-    case TypeOperations{ "number", "boolean" }: //detect case "num" + "boolean"
+    }
+    case TypeOperations{ "number", "boolean" }: { //detect case "num" + "boolean"
 
       val1 := _num1P_.ExpStr[0]
       val2 := _num2P_.ExpStr[0]
@@ -333,7 +330,8 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
       final_ = returnInit(final_)
 
       finalRet = Action{ "number", "", []string{ final_ }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), []Action{ Action{"number", "", []string{ final_ }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), []Action{}} } }
-    case TypeOperations{ "boolean", "number" }: //detect case "num" + "boolean"
+    }
+    case TypeOperations{ "boolean", "number" }: { //detect case "num" + "boolean"
 
       val1 := _num1P_.ExpStr[0]
       val2 := _num2P_.ExpStr[0]
@@ -349,6 +347,7 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
       final_ = returnInit(final_)
 
       finalRet = Action{ "number", "", []string{ final_ }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), []Action{ Action{"number", "", []string{ final_ }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), []Action{}} } }
+    }
     default:
 
       if (nums.First == "string" && nums.Second != "array" && nums.Second != "none" && nums.Second != "hash") || (nums.First != "array" && nums.First != "none" && nums.First != "hash" && nums.Second == "string") { //detect case "string" + (* - "array" - "none" - "hash") = "string"
@@ -370,7 +369,20 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
       } else if nums.First == "none" || nums.Second == "none" { //detect case "none" + * = "none"
 
       } else if (nums.First == "hash" && nums.Second != "none") || (nums.First != "none" && nums.Second == "hash") { //detect case "hash" + (* - "hash") = "none"
+        val1 := _num1P_.Hash_Values
+        val2 := _num2P_.Hash_Values
 
+        var final = make(map[string][]Action)
+
+        for k, v := range val1 {
+          final[k] = v
+        }
+
+        for k, v := range val2 {
+          final[k] = v
+        }
+
+        finalRet = Action{ "hash", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", final, []Action{ Action{"hash", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", final, []Action{}} } }
       } else if (nums.First == "type" && nums.Second != "hash" && nums.Second != "none") || (nums.First != "hash" && nums.First != "none" && nums.Second == "type") { //detect case "type" + (* - "hash" - "none") = "type"
 
       } else {

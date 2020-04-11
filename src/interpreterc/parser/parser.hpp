@@ -1,3 +1,6 @@
+#ifndef PARSER_HPP_
+#define PARSER_HPP_
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -7,6 +10,7 @@
 #include "math.hpp"
 #include "structs.h"
 #include "indexes.hpp"
+#include "log_format.hpp"
 using namespace std;
 using json = nlohmann::json;
 
@@ -22,8 +26,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
     //get current action id
     int cur = actions[i]["ID"];
-
-    cout << cur << endl;
 
     try {
       switch (cur) {
@@ -125,42 +127,28 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             //log
 
             json _val = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
-
-            if (_val["Type"].dump() == "\"hash\"" || _val["Type"].dump() == "\"array\"") {
-
-            } else {
-
-              string val = _val["ExpStr"][0];
-
-              cout << val << endl;
-            }
+            log_format(_val, calc_params, vars, dir, line, 2, "log");
           }
           break;
         case 6: {
 
             //print
 
-            string val = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp[0][0].dump();
-
-            val = val.substr(1);
-            val.pop_back();
-
-            cout << val;
+            json _val = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
+            log_format(_val, calc_params, vars, dir, line, 2, "print");
           }
           break;
         case 8: {
 
             //expressionIndex
 
-            string expStr_ = actions[i]["ExpStr"].dump();
+            json index = indexesCalc(actions[i], actions[i]["Indexes"], calc_params, vars, line,  dir, actions[i]["IndexType"]);
 
-            json nExp = json::parse("[" + expStr_ + "]");
+            if (expReturn) {
+              vector<string> returnNone;
 
-            json calculated = math(nExp, calc_params, vars, dir, line);
-
-            json index = indexesCalc(calculated, actions[i]["Indexes"], calc_params, vars, line,  dir, "");
-
-            expStr[expStr.size() - 1].push_back(index[0]);
+              return Returner{returnNone, vars, index, "expression"};
+            }
           }
           break;
         case 9: {
@@ -438,7 +426,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               vector<string> returnNone;
 
-              return Returner{ returnNone, vars, actions[i]["Hash_Values"], "expression" };
+              return Returner{ returnNone, vars, actions[i], "expression" };
             }
           }
           break;
@@ -446,20 +434,26 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //hashIndex
 
-            json val = actions[i]["Hash_Values"]
-            , index = indexesCalc(val, actions[i]["Indexes"], calc_params, vars, line, dir, actions[i]["Index_Type"]);
+            json val = actions[i]["Hash_Values"];
 
-            expStr[expStr.size() - 1].push_back(index);
+            json index = indexesCalc(val, actions[i]["Indexes"], calc_params, vars, line, dir, actions[i]["Index_Type"]);
+
+            if (expReturn) {
+              vector<string> returnNone;
+
+              return Returner{ returnNone, vars, index, "expression" };
+            }
           }
           break;
         case 24: {
 
             //array
 
-            json expStr_ = json::parse(actions[i]["ExpStr"].dump());
+            if (expReturn) {
+              vector<string> returnNone;
 
-            if (expStr[expStr.size() - 1].size() == 0) expStr[expStr.size() - 1] = expStr_;
-            else expStr.push_back(expStr_);
+              return Returner{ returnNone, vars, actions[i], "expression"};
+            }
           }
           break;
         case 25: {
@@ -469,7 +463,11 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             json val = actions[i]["Value"]
             , index = indexesCalc(val, actions[i]["Indexes"], calc_params, vars, line, dir, actions[i]["Index_Type"]);
 
-            expStr[expStr.size() - 1].push_back(index);
+            if (expReturn) {
+              vector<string> returnNone;
+
+              return Returner{ returnNone, vars, index, "expression" };
+            }
           }
           break;
         case 26: {
@@ -1110,3 +1108,5 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
   return ret;
 }
+
+#endif

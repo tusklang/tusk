@@ -22,7 +22,7 @@ func Cactions(file *C.char) *C.char {
 
   json.Unmarshal([]byte(C.GoString(file)), &lex)
 
-  acts, _ := json.Marshal(actionizer(lex))
+  acts, _ := json.Marshal(actionizer(lex, false))
 
   return C.CString(string(acts))
 }
@@ -84,7 +84,7 @@ func index(fileName, dir string, calcParams paramCalcOpts) {
 
   json.Unmarshal([]byte(lex_), &lex)
 
-  var actions = actionizer(lex)
+  var actions = actionizer(lex, false)
 
   var acts, _ = json.Marshal(actions)
 
