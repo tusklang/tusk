@@ -94,6 +94,17 @@ func actionizer(lex []string, doExpress bool) []Action {
         i++
       }
 
+      if !(interfaceContainForExp(exp, "(") || interfaceContainForExp(exp, "^") || interfaceContainForExp(exp, "*") || interfaceContainForExp(exp, "/") || interfaceContainForExp(exp, "%") || interfaceContainForExp(exp, "+") || interfaceContainForExp(exp, "-") || interfaceContainForExp(exp, "^")) {
+
+        var act_exp []string
+
+        for _, v := range exp {
+          act_exp = append(act_exp, v.(string))
+        }
+
+        return actionizer(act_exp, false);
+      }
+
       var proc_indexes []int
 
       for ;interfaceContainWithProcIndex(exp, "(", proc_indexes); {
@@ -131,17 +142,6 @@ func actionizer(lex []string, doExpress bool) []Action {
         exp_ := append(exp[:index], pExpAct[0])
         exp_ = append(exp_, exp[index + len(pExp):]...)
         exp = exp_
-      }
-
-      if !(interfaceContain(exp, "^") || interfaceContain(exp, "*") || interfaceContain(exp, "/") || interfaceContain(exp, "%") || interfaceContain(exp, "+") || interfaceContain(exp, "-") || interfaceContain(exp, "^")) {
-
-        var act_exp []string
-
-        for _, v := range exp {
-          act_exp = append(act_exp, v.(string))
-        }
-
-        return actionizer(act_exp, false);
       }
 
       for ;interfaceContain(exp, "^"); {
@@ -2191,6 +2191,7 @@ func actionizer(lex []string, doExpress bool) []Action {
         actions = append(actions, Action{ "len", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 31, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�statement" }, false) })
         i+=3 + len(exp)
       default:
+
         if i + 1 < len_lex {
 
           if (lex[i + 1] == "++" || lex[i + 1] == "--") && strings.HasPrefix(lex[i], "$") {
@@ -2290,66 +2291,109 @@ func actionizer(lex []string, doExpress bool) []Action {
             actions = append(actions, Action{ "let", lex[i], exp_, exp, []string{}, []Action{}, []Condition{}, 28, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�statement" }, false) })
             i+=(len(exp))
           }
-        } else {
 
-          if i + 1 < len_lex && lex[i + 1] == "." {
-            valAct := actionizer([]string{ lex[i] }, true)
+          if lex[i + 1] == "." {
 
-            var _indexes [][]string
+            val := lex[i]
 
+            cbCnt := 0
+            glCnt := 0
             bCnt := 0
+            pCnt := 0
 
-            for o := i + 1; o < len_lex; o++ {
+            indexes := [][]string{[]string{}}
 
+            cbCnt = 0
+            glCnt = 0
+            bCnt = 0
+            pCnt = 0
+
+            for o := i + 2; o < len_lex; o++ {
+              if lex[o] == "{" {
+                cbCnt++
+              }
+              if lex[o] == "[:" {
+                glCnt++
+              }
               if lex[o] == "[" {
                 bCnt++
+              }
+              if lex[o] == "(" {
+                pCnt++
+              }
+
+              if lex[o] == "}" {
+                cbCnt--
+              }
+              if lex[o] == ":]" {
+                glCnt--
               }
               if lex[o] == "]" {
                 bCnt--
               }
-
-              if bCnt != 0 {
-                _indexes[len(_indexes) - 1] = append(_indexes[len(_indexes) - 1], lex[o])
+              if lex[o] == ")" {
+                pCnt--
               }
 
               if lex[o] == "." {
+                indexes = append(indexes, []string{})
+              } else {
 
-                _indexes = append(_indexes, []string{})
+                i++
 
-                continue
-              }
+                indexes[len(indexes) - 1] = append(indexes[len(indexes) - 1], lex[o])
 
-              break
-            }
+                if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
 
-            _ = valAct
-          } else {
-            //KEEP IN MIND: type key starts with ascii of 233
+                  if o < len_lex - 1 && lex[o + 1] == "." {
+                    continue
+                  } else {
+                    break
+                  }
 
-            switch C.GoString(GetType(C.CString(lex[i]))) {
-              case "string":
-                actions = append(actions, Action{ "string", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
-              case "number":
-                actions = append(actions, Action{ "number", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
-              case "boolean":
-                actions = append(actions, Action{ "boolean", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
-              case "falsey":
-                actions = append(actions, Action{ "falsey", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
-              case "none":
-
-                if strings.HasPrefix(lex[i], "$") {
-
-                  actions = append(actions, Action{ "variable", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 43, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�variable" }, false) })
-                } else if strings.HasPrefix(lex[i], "�") {
-
-                  actions = append(actions, Action{ strings.TrimPrefix(lex[i], "�"), "", []string{ strings.TrimPrefix(lex[i], "�") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(lex[i], "�")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), []Action{} })
-                } else {
-
-                  //get it? 42?
-                  actions = append(actions, Action{ "none", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 42, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
                 }
+              }
             }
+
+            var putIndexes [][]Action
+
+            for _, v := range indexes {
+
+              v = v[1:len(v) - 1]
+              putIndexes = append(putIndexes, actionizer(v, true))
+            }
+
+            i+=3
+
+            actions = append(actions, Action{ "expressionIndex", "", []string{}, actionizer([]string{ val }, true), []string{}, []Action{}, []Condition{}, 8, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false) })
+
           }
+        } else {
+          //KEEP IN MIND: type key starts with ascii of 233
+
+          switch C.GoString(GetType(C.CString(lex[i]))) {
+            case "string":
+              actions = append(actions, Action{ "string", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
+            case "number":
+              actions = append(actions, Action{ "number", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
+            case "boolean":
+              actions = append(actions, Action{ "boolean", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
+            case "falsey":
+              actions = append(actions, Action{ "falsey", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
+            case "none":
+
+              if strings.HasPrefix(lex[i], "$") {
+
+                actions = append(actions, Action{ "variable", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 43, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�variable" }, false) })
+              } else if strings.HasPrefix(lex[i], "�") {
+
+                actions = append(actions, Action{ strings.TrimPrefix(lex[i], "�"), "", []string{ strings.TrimPrefix(lex[i], "�") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(lex[i], "�")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), []Action{} })
+              } else {
+
+                //get it? 42?
+                actions = append(actions, Action{ "none", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 42, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
+              }
+            }
         }
       }
   }

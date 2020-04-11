@@ -127,6 +127,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             //log
 
             json _val = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
+
             log_format(_val, calc_params, vars, dir, line, 2, "log");
           }
           break;
@@ -142,12 +143,12 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //expressionIndex
 
-            json index = indexesCalc(actions[i], actions[i]["Indexes"], calc_params, vars, line,  dir, actions[i]["IndexType"]);
+            json index = indexesCalc(actions[i], actions[i]["Indexes"], calc_params, vars, line, dir, actions[i]["Index_Type"]);
 
             if (expReturn) {
               vector<string> returnNone;
 
-              return Returner{returnNone, vars, index, "expression"};
+              return Returner{ returnNone, vars, index, "expression" };
             }
           }
           break;
