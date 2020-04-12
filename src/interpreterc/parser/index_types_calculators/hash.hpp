@@ -1,9 +1,13 @@
 #ifndef HASH_HPP_
 #define HASH_HPP_
 
+#include "../parser.hpp"
 #include "../json.hpp"
+#include "../structs.h"
+#include "../indexes.hpp"
 using namespace std;
 
+Returner parser(const json actions, const json calc_params, json vars, const string dir, const bool groupReturn, int line, const bool expReturn);
 json indexesCalc(json val, json indexes, json calc_params, json vars, int line, string dir, string type);
 
 json hashCalc(json val, json indexes, json calc_params, json vars, int line, string dir) {

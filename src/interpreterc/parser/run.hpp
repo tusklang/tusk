@@ -14,7 +14,7 @@ void run(char *acts, char *calc_params, char *dir) {
     , cp = json::parse(calc_params)
     , vars = json::parse("{}");
 
-    parser(actions, cp, vars, dir, /*group return*/ false, /*line*/ 1, false);
+    parser(actions, cp, vars, dir, /*group return*/ false, /*line*/ 1, /* expression return */ false);
   } catch (int e) {
     cout << "There Was An Unidentified Error" << endl;
     Kill();

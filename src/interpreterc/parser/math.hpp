@@ -5,6 +5,7 @@
 #include <deque>
 #include <vector>
 #include <string.h>
+#include "parser.hpp"
 #include "json.hpp"
 #include "bind.h"
 #include "structs.h"

@@ -1,1 +1,5 @@
-log ~ 11.[0];
+proc ~ test() {
+  return ~ 138343 + 3;
+}
+
+log ~ #test();

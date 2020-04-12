@@ -1,5 +1,7 @@
 package main
 
+import "strings"
+
 func arrayContain(arr []string, sub string) bool {
 
   for i := 0; i < len(arr); i++ {
@@ -133,7 +135,54 @@ func interfaceContainForExp(inter []interface{}, _sub []string) bool {
   bCnt := 0
   pCnt := 0
 
-  for _, v := range inter {
+  for o := 0; o < len(inter); o++ {
+
+    v := inter[o]
+
+    if o > 0 && strings.HasPrefix(inter[o - 1].(string), "$") && v == "(" {
+
+      scbCnt := 0
+      sglCnt := 0
+      sbCnt := 0
+      spCnt := 0
+
+      for i := o; i < len(inter); i, o = i + 1, o + 1 {
+        if inter[i] == "{" {
+          scbCnt++;
+        }
+        if inter[i] == "}" {
+          scbCnt--;
+        }
+
+        if inter[i] == "[:" {
+          sglCnt++;
+        }
+        if inter[i] == ":]" {
+          sglCnt--;
+        }
+
+        if inter[i] == "[" {
+          sbCnt++;
+        }
+        if inter[i] == "]" {
+          sbCnt--;
+        }
+
+        if inter[i] == "(" {
+          spCnt++;
+        }
+        if inter[i] == ")" {
+          spCnt--;
+        }
+
+        if scbCnt == 0 && sglCnt == 0 && sbCnt == 0 && spCnt == 0 {
+          break
+        }
+      }
+
+      continue
+    }
+
     if v == "{" {
       cbCnt++;
     }

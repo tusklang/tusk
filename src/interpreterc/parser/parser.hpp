@@ -7,14 +7,11 @@
 #include <algorithm>
 #include "json.hpp"
 #include "bind.h"
-#include "math.hpp"
 #include "structs.h"
 #include "indexes.hpp"
 #include "log_format.hpp"
 using namespace std;
 using json = nlohmann::json;
-
-json math(json exp, const json calc_params, json vars, const string dir, int line);
 
 Returner parser(const json actions, const json calc_params, json vars, const string dir, const bool groupReturn, int line, const bool expReturn) {
 
@@ -193,43 +190,61 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             //# (call process)
 
             string name = actions[i]["Name"];
+            Returner parsed;
 
-            json var = vars[name];
+            if (vars.find(name) != vars.end()) {
+              json var = vars[name];
 
-            json params = var["params"]
-            , args = actions[i]["Args"];
+              json params = var["params"]
+              , args = actions[i]["Args"];
 
-            json sendVars = vars;
+              json sendVars = vars;
 
-            for (int o = 0; o < params.size() || o < args.size(); o++) {
+              for (int o = 0; o < params.size() || o < args.size(); o++) {
 
-              json cur = {
-                {"type", "local"},
-                {"name", (string) params[o]},
-                {"value", parser(json::parse("[" + args[o].dump() + "]"), calc_params, vars, dir, false, line, true).exp},
-                {"valueActs", json::parse("[]")}
-              };
+                json cur = {
+                  {"type", "local"},
+                  {"name", (string) params[o]},
+                  {"value", parser(json::parse("[" + args[o].dump() + "]"), calc_params, vars, dir, false, line, true).exp},
+                  {"valueActs", json::parse("[]")}
+                };
 
-              sendVars[(string) params[o]] = cur;
+                sendVars[(string) params[o]] = cur;
+              }
+
+              parsed = parser(var["valueActs"], calc_params, sendVars, dir, true, line, false);
+
+              json pVars = parsed.variables;
+
+              //filter the variables that are not global
+              for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
+                if (!(o.value()["type"] != "global" && o.value()["type"] != "process"))
+                  vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
+            } else {
+
+              vector<string> undef = {"undefined"};
+
+              parsed = Returner{ undef, vars, "{}"_json, "none" };
             }
 
-            Returner parsed = parser(var["valueActs"], calc_params, sendVars, dir, true, line, false);
+            if (expReturn) {
 
-            json pVars = parsed.variables;
+              json val = parsed.exp;
 
-            //filter the variables that are not global
-            for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-              if (!(o.value()["type"] != "global" && o.value()["type"] != "process"))
-                vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
+              vector<string> noRet;
 
-            expStr[expStr.size() - 1].push_back(parsed.value[0]);
+              return Returner{ noRet, vars, val, "expression" };
+            }
           }
           break;
-        case 12:
+        case 12: {
 
-          //return
+            //return
 
-          return Returner{ parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp[0], vars, expStr, "return" };
+            vector<string> noRet;
+
+            return Returner{ noRet, vars, parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp, "return" };
+          }
           break;
         case 13: {
 
@@ -293,11 +308,52 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             string in;
 
-            cout << ((string) parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp[0][0]) << " ";
+            cout << ((string) parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp["ExpStr"][0]) << " ";
 
             cin >> in;
 
-            expStr[expStr.size() - 1].push_back(json::parse("[\"\'" + in + "\'\"]")[0]);
+            if (expReturn) {
+              vector<string> retNo;
+
+              json type = {
+                {"Type", "string"},
+                {"Name", ""},
+                {"ExpStr", json::parse("[\"\'" + in + "\'\"]")},
+                {"ExpAct", "[]"_json},
+                {"Params", "[]"_json},
+                {"Args", "[]"_json},
+                {"Condition", "[]"_json},
+                {"ID", 38},
+                {"First", "[]"_json},
+                {"Second", "[]"_json},
+                {"Degree", "[]"_json},
+                {"Value", "[[]]"_json},
+                {"Indexes", "[[]]"_json},
+                {"Index_Type", ""},
+                {"Hash_Values", "{}"_json},
+                {"ValueType", "[]"_json}
+              }
+              , expRet = {
+                {"Type", "string"},
+                {"Name", ""},
+                {"ExpStr", json::parse("[\"\'" + in + "\'\"]")},
+                {"ExpAct", "[]"_json},
+                {"Params", "[]"_json},
+                {"Args", "[]"_json},
+                {"Condition", "[]"_json},
+                {"ID", 38},
+                {"First", "[]"_json},
+                {"Second", "[]"_json},
+                {"Degree", "[]"_json},
+                {"Value", "[[]]"_json},
+                {"Indexes", "[[]]"_json},
+                {"Index_Type", ""},
+                {"Hash_Values", "{}"_json},
+                {"ValueType", json::parse("[" + type.dump() + "]")}
+              };
+
+              return Returner{ retNo, vars, expRet, "expression" };
+            }
           }
           break;
         case 16: {
@@ -310,7 +366,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             ret.value = returnNone;
             ret.variables = vars;
-            ret.exp = math(expStr, calc_params, vars, dir, line);
+            ret.exp = "{}"_json;
             ret.type = "break";
 
             return ret;
@@ -326,7 +382,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             ret.value = returnNone;
             ret.variables = vars;
-            ret.exp = math(expStr, calc_params, vars, dir, line);
+            ret.exp = "{}"_json;
             ret.type = "skip";
 
             return ret;
@@ -1104,7 +1160,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
   ret.value = returnNone;
   ret.variables = vars;
-  ret.exp = math(expStr, calc_params, vars, dir, line);
+  ret.exp = "{}"_json;
   ret.type = "none";
 
   return ret;
