@@ -461,7 +461,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //arrayIndex
 
-            json val = actions[i]["Value"]
+            json val = actions[i]["Hash_Values"]
             , index = indexesCalc(val, actions[i]["Indexes"], calc_params, vars, line, dir, actions[i]["Index_Type"]);
 
             if (expReturn) {
@@ -718,7 +718,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             vector<string> noRet;
 
-            if (expReturn) return Returner{ noRet, vars,  actions[i], "expression" };
+            if (expReturn) return Returner{ noRet, vars, actions[i], "expression" };
           }
           break;
         case 39: {
@@ -727,7 +727,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             vector<string> noRet;
 
-            if (expReturn) return Returner{ noRet, vars,  actions[i], "expression" };
+            if (expReturn) return Returner{ noRet, vars, actions[i], "expression" };
           }
           break;
         case 40: {
@@ -736,7 +736,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             vector<string> noRet;
 
-            if (expReturn) return Returner{ noRet, vars,  actions[i], "expression" };
+            if (expReturn) return Returner{ noRet, vars, actions[i], "expression" };
           }
           break;
         case 41: {
@@ -745,7 +745,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             vector<string> noRet;
 
-            if (expReturn) return Returner{ noRet, vars,  actions[i], "expression" };
+            if (expReturn) return Returner{ noRet, vars, actions[i], "expression" };
           }
           break;
         case 42: {
@@ -754,7 +754,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             vector<string> noRet;
 
-            if (expReturn) return Returner{ noRet, vars,  actions[i], "expression" };
+            if (expReturn) return Returner{ noRet, vars, actions[i], "expression" };
           }
           break;
         case 43: {

@@ -1996,8 +1996,17 @@ func actionizer(lex []string, doExpress bool) []Action {
           arr = append(arr, actionizer(sub, true))
         }
 
+        hashedArr := make(map[string][]Action)
+
+        cur := "0"
+
+        for _, v := range arr {
+          hashedArr[cur] = v
+          cur = add(cur, "1", paramCalcOpts{}, -1)
+        }
+
         if i >= len_lex {
-          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, "array", make(map[string][]Action), actionizer([]string{ "�array" }, false) })
+          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, "array", hashedArr, actionizer([]string{ "�array" }, false) })
           break
         }
 
@@ -2066,9 +2075,9 @@ func actionizer(lex []string, doExpress bool) []Action {
 
           i+=3
 
-          actions = append(actions, Action{ "arrayIndex", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 25, []Action{}, []Action{}, []Action{}, arr, putIndexes, "array", make(map[string][]Action), actionizer([]string{ "�array" }, false) })
+          actions = append(actions, Action{ "arrayIndex", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 25, []Action{}, []Action{}, []Action{}, arr, putIndexes, "array", hashedArr, actionizer([]string{ "�array" }, false) })
         } else {
-          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, "array", make(map[string][]Action), actionizer([]string{ "�array" }, false) })
+          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, "array", hashedArr, actionizer([]string{ "�array" }, false) })
         }
       case "ascii":
         var phrase = []string{}
@@ -2370,24 +2379,45 @@ func actionizer(lex []string, doExpress bool) []Action {
           }
         } else {
           //KEEP IN MIND: type key starts with ascii of 233
+          //KEP IN MIND: index key starts with ascii of 8
 
           switch C.GoString(GetType(C.CString(lex[i]))) {
-            case "string":
-              actions = append(actions, Action{ "string", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
+            case "string": {
+
+              noQ := []rune(lex[i])[1:len(lex[i]) - 1]
+              hashedString := make(map[string][]Action)
+
+              hashedString["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("falsey"))) }, false) } }
+
+              cur := "0"
+
+              for _, v := range noQ {
+                hashedString[cur] = actionizer([]string{ "" + string(v) }, true)
+                cur = add(cur, "1", paramCalcOpts{}, -1)
+              }
+
+              actions = append(actions, Action{ "string", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", hashedString, actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
+            }
             case "number":
-              actions = append(actions, Action{ "number", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
+              actions = append(actions, Action{ "number", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
             case "boolean":
-              actions = append(actions, Action{ "boolean", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
+              actions = append(actions, Action{ "boolean", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
             case "falsey":
-              actions = append(actions, Action{ "falsey", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
+              actions = append(actions, Action{ "falsey", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
             case "none":
 
               if strings.HasPrefix(lex[i], "$") {
 
-                actions = append(actions, Action{ "variable", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 43, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�variable" }, false) })
+                actions = append(actions, Action{ "variable", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 43, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�variable" }, false) })
               } else if strings.HasPrefix(lex[i], "�") {
 
-                actions = append(actions, Action{ strings.TrimPrefix(lex[i], "�"), "", []string{ strings.TrimPrefix(lex[i], "�") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(lex[i], "�")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), []Action{} })
+                actions = append(actions, Action{ "type", "", []string{ strings.TrimPrefix(lex[i], "�") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(lex[i], "�")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), []Action{} })
+              } else if strings.HasPrefix(lex[i], "") {
+
+                hashed := make(map[string][]Action)
+                hashed["falsey"] = []Action{ Action{ "falsey", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) } }
+
+                actions = append(actions, Action{ "index_key", "", []string{ strings.TrimPrefix(lex[i], "") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(lex[i], "")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", hashed, []Action{} })
               } else {
 
                 //get it? 42?

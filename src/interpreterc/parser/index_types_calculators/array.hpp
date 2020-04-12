@@ -11,18 +11,11 @@ json arrayCalc(json val, json indexes, json calc_params, json vars, int line, st
   json _index = parser(indexes[0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0];
   string index = _index.dump().substr(1, _index.dump().length() - 2);
 
-  //OPTIMIZE:
-
-  while (IsLessC("0", &index[0])) {
-    val.erase(val.begin());
-    index = Subtract(&index[0], "1", &calc_params.dump()[0], line);
-  }
-
   indexes.erase(indexes.begin());
 
-  if (indexes.size() == 0) return val[0][0];
+  if (indexes.size() == 0) return val[index][0];
 
-  return indexesCalc(val[0][0]["Index_Type"] == "hash" ? val[0][0]["Hash_Values"] : (val[0][0]["Index_Type"] == "array" ? val[0][0]["Value"] : val[0][0]), indexes, calc_params, vars, line, dir, val[0][0]["Index_Type"]);
+  return indexesCalc(val[index][0]["Hash_Values"], indexes, calc_params, vars, line, dir, val[index][0]["Index_Type"]);
 }
 
 #endif
