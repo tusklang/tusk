@@ -84,11 +84,15 @@ for (let i = 0; i < keywords.length; i++) {
         file = file.substr(1);
       }
 
-      if (num == "-" || num == "+") num+="1";
+      if (num == '-' || num == '+') num+='1';
 
-      lex.push(num);
+      if (num.endsWith('.') && file.startsWith('[')) {
+        num = num.slice(0, -1);
+        lex.push(num);
+        lex.push('.');
+      } else lex.push(num);
 
-      if (file.startsWith("(")) lex.push("*");
+      if (file.startsWith('(')) lex.push('*');
 
       i = -1;
       continue;

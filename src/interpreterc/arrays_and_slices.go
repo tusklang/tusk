@@ -120,7 +120,13 @@ func interfaceIndexOfWithProcIndex(sub interface{}, inter []interface{}, indexes
   return -1
 }
 
-func interfaceContainForExp(inter []interface{}, sub interface{}) bool {
+func interfaceContainForExp(inter []interface{}, _sub []string) bool {
+
+  var sub []interface{}
+
+  for _, v := range _sub {
+    sub = append(sub, v)
+  }
 
   cbCnt := 0
   glCnt := 0
@@ -156,8 +162,14 @@ func interfaceContainForExp(inter []interface{}, sub interface{}) bool {
       pCnt--;
     }
 
-    if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && v == sub {
-      return true
+    if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+
+      for _, i := range sub {
+        if i == v {
+          return true
+        }
+      }
+
     }
   }
 

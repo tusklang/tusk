@@ -94,7 +94,7 @@ func actionizer(lex []string, doExpress bool) []Action {
         i++
       }
 
-      if !(interfaceContainForExp(exp, "(") || interfaceContainForExp(exp, "^") || interfaceContainForExp(exp, "*") || interfaceContainForExp(exp, "/") || interfaceContainForExp(exp, "%") || interfaceContainForExp(exp, "+") || interfaceContainForExp(exp, "-") || interfaceContainForExp(exp, "^")) {
+      if !interfaceContainForExp(exp, operations) {
 
         var act_exp []string
 
@@ -2387,7 +2387,8 @@ func actionizer(lex []string, doExpress bool) []Action {
               noQ := []rune(lex[i])[1:len(lex[i]) - 1]
               hashedString := make(map[string][]Action)
 
-              hashedString["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("falsey"))) }, false) } }
+              //specify the value for the "falsey" case
+              hashedString["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false) } }
 
               cur := "0"
 
@@ -2399,11 +2400,29 @@ func actionizer(lex []string, doExpress bool) []Action {
               actions = append(actions, Action{ "string", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", hashedString, actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
             }
             case "number":
-              actions = append(actions, Action{ "number", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
+
+              hashed := make(map[string][]Action)
+
+              //specify the value for the "falsey" case
+              hashed["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false) } }
+
+              actions = append(actions, Action{ "number", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", hashed, actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
             case "boolean":
-              actions = append(actions, Action{ "boolean", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
+
+              hashed := make(map[string][]Action)
+
+              //specify the value for the "falsey" case
+              hashed["falsey"] = []Action{ Action{ "boolean", "", []string{ strconv.FormatBool(lex[i] != "true") }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("boolean"))) }, false) } }
+
+              actions = append(actions, Action{ "boolean", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", hashed, actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
             case "falsey":
-              actions = append(actions, Action{ "falsey", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
+
+              hashed := make(map[string][]Action)
+
+              //specify the value for the "falsey" case
+              hashed["falsey"] = []Action{ Action{ "falsey", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false) } }
+
+              actions = append(actions, Action{ "falsey", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", hashed, actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
             case "none":
 
               if strings.HasPrefix(lex[i], "$") {
@@ -2415,10 +2434,15 @@ func actionizer(lex []string, doExpress bool) []Action {
               } else if strings.HasPrefix(lex[i], "") {
 
                 hashed := make(map[string][]Action)
-                hashed["falsey"] = []Action{ Action{ "falsey", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) } }
+                hashed["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false) } }
 
                 actions = append(actions, Action{ "index_key", "", []string{ strings.TrimPrefix(lex[i], "") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(lex[i], "")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", hashed, []Action{} })
               } else {
+
+                hashedString := make(map[string][]Action)
+
+                //specify the value for the "falsey" case
+                hashedString["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false) } }
 
                 //get it? 42?
                 actions = append(actions, Action{ "none", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 42, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(lex[i]))) }, false) })
