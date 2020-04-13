@@ -1,5 +1,5 @@
-proc ~ test() {
-  return ~ 138343 + 3;
-}
+i: [:
+  "ss": 'true'.[0]
+:];
 
-log ~ #test();
+log ~ i.["ss"];

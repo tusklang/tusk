@@ -23,6 +23,8 @@ func GetActNum(val string) int {
       return 41
     case "none":
       return 42
+    case "process":
+      return 10
     case "type":
       return 44
   }

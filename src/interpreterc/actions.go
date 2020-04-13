@@ -1102,7 +1102,7 @@ func actionizer(lex []string, doExpress bool) []Action {
 
           logic := actionizer(logic_, false)
 
-          actions = append(actions, Action{ "process", procName, []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�statement" }, false) })
+          actions = append(actions, Action{ "process", procName, []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�process" }, false) })
         } else {
           params := []string{}
 
@@ -1139,7 +1139,7 @@ func actionizer(lex []string, doExpress bool) []Action {
 
           logic := actionizer(logic_, false)
 
-          actions = append(actions, Action{ "process", "", []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�statement" }, false) })
+          actions = append(actions, Action{ "process", "", []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�process" }, false) })
         }
       case "#":
 
@@ -1149,6 +1149,72 @@ func actionizer(lex []string, doExpress bool) []Action {
         pCnt := 1
 
         var name = lex[i + 2]
+
+        indexes := [][]string{[]string{}}
+        var putIndexes [][]Action
+
+        if lex[i + 3] == "." {
+
+          cbCnt = 0
+          glCnt = 0
+          bCnt = 0
+          pCnt = 0
+
+          for o := i + 4; o < len_lex; o++ {
+            if lex[o] == "{" {
+              cbCnt++
+            }
+            if lex[o] == "[:" {
+              glCnt++
+            }
+            if lex[o] == "[" {
+              bCnt++
+            }
+            if lex[o] == "(" {
+              pCnt++
+            }
+
+            if lex[o] == "}" {
+              cbCnt--
+            }
+            if lex[o] == ":]" {
+              glCnt--
+            }
+            if lex[o] == "]" {
+              bCnt--
+            }
+            if lex[o] == ")" {
+              pCnt--
+            }
+
+            if lex[o] == "." {
+              indexes = append(indexes, []string{})
+            } else {
+
+              i++
+
+              indexes[len(indexes) - 1] = append(indexes[len(indexes) - 1], lex[o])
+
+              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+
+                if o < len_lex - 1 && lex[o + 1] == "." {
+                  continue
+                } else {
+                  break
+                }
+
+              }
+            }
+          }
+
+          for _, v := range indexes {
+
+            v = v[1:len(v) - 1]
+            putIndexes = append(putIndexes, actionizer(v, true))
+          }
+
+          i+=3
+        }
 
         params := [][]string{{}}
 
@@ -1226,7 +1292,7 @@ func actionizer(lex []string, doExpress bool) []Action {
           }
         }
 
-        actions = append(actions, Action{ "#", name, []string{}, []Action{}, []string{}, params_, []Condition{}, 11, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�statement" }, false) })
+        actions = append(actions, Action{ "#", name, []string{}, []Action{}, []string{}, params_, []Condition{}, 11, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, "", make(map[string][]Action), actionizer([]string{ "�statement" }, false) })
         i+=skip_nums
       case "return":
 
@@ -1276,7 +1342,7 @@ func actionizer(lex []string, doExpress bool) []Action {
         returner := actionizer(returner_, true)
 
         actions = append(actions, Action{ "return", "", []string{}, returner, []string{}, []Action{}, []Condition{}, 12, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "", make(map[string][]Action), actionizer([]string{ "�statement" }, false) })
-        i+=len(returner) + 2
+        i+=len(returner_) + 2
       case "if":
 
         conditions := []Condition{}
@@ -2286,10 +2352,43 @@ func actionizer(lex []string, doExpress bool) []Action {
           if lex[i + 1] == ":" && strings.HasPrefix(lex[i], "$") {
             exp_ := []string{}
 
+            cbCnt := 0
+            glCnt := 0
+            bCnt := 0
+            pCnt := 0
+
             for o := i + 2; o < len_lex; o++ {
 
-              if lex[o] == "newlineS" {
-                break;
+              if lex[o] == "{" {
+                cbCnt++
+              }
+              if lex[o] == "}" {
+                cbCnt--
+              }
+
+              if lex[o] == "[:" {
+                glCnt++
+              }
+              if lex[o] == ":]" {
+                glCnt--
+              }
+
+              if lex[o] == "[" {
+                bCnt++
+              }
+              if lex[o] == "]" {
+                bCnt--
+              }
+
+              if lex[o] == "(" {
+                pCnt++
+              }
+              if lex[o] == ")" {
+                pCnt--
+              }
+
+              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
+                break
               }
 
               exp_ = append(exp_, lex[o]);
@@ -2427,7 +2526,7 @@ func actionizer(lex []string, doExpress bool) []Action {
 
               if strings.HasPrefix(lex[i], "$") {
 
-                actions = append(actions, Action{ "variable", "", []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 43, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�variable" }, false) })
+                actions = append(actions, Action{ "variable", lex[i], []string{ lex[i] }, []Action{}, []string{}, []Action{}, []Condition{}, 43, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), actionizer([]string{ "�variable" }, false) })
               } else if strings.HasPrefix(lex[i], "�") {
 
                 actions = append(actions, Action{ "type", "", []string{ strings.TrimPrefix(lex[i], "�") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(lex[i], "�")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, "expression", make(map[string][]Action), []Action{} })

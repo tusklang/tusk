@@ -139,7 +139,7 @@ func interfaceContainForExp(inter []interface{}, _sub []string) bool {
 
     v := inter[o]
 
-    if o > 0 && strings.HasPrefix(inter[o - 1].(string), "$") && v == "(" {
+    if o > 0 && (strings.HasPrefix(inter[o - 1].(string), "$") || inter[o - 1].(string) == "]") && v == "(" {
 
       scbCnt := 0
       sglCnt := 0

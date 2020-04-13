@@ -44,7 +44,8 @@ void log_format(json in, const json calc_params, json vars, const string dir, in
     }
 
     cout << "]" << (doPrint == "print" ? "" : "\n");
-  } else {
+  } else if (in["Type"].dump() == "\"process\"" || in["Type"].dump() == "\"group\"") cout << "{PROCESS~ | GROUP~}" << (doPrint == "print" ? "" : "\n");
+  else {
 
     string val = in["ExpStr"][0];
 

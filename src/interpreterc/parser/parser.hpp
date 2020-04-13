@@ -178,11 +178,16 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             json nVar = {
               {"type", "process"},
               {"name", name},
-              {"value", json::parse("[]")},
-              {"valueActs", acts},
-              {"params", actions[i]["Params"]}
+              {"value", actions[i]},
+              {"valueActs", json::parse("[]")}
             };
             vars[name] = nVar;
+
+            if (expReturn) {
+              vector<string> noRet;
+
+              return Returner{ noRet, vars, actions[i], "expression" };
+            }
           }
           break;
         case 11: {
@@ -190,12 +195,73 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             //# (call process)
 
             string name = actions[i]["Name"];
+
             Returner parsed;
 
-            if (vars.find(name) != vars.end()) {
-              json var = vars[name];
+            vector<string> noRet;
+            json type = {
+              {"Type", "falsey"},
+              {"Name", ""},
+              {"ExpStr", json::parse("[\"undefined\"]")},
+              {"ExpAct", "[]"_json},
+              {"Params", "[]"_json},
+              {"Args", "[]"_json},
+              {"Condition", "[]"_json},
+              {"ID", 41},
+              {"First", "[]"_json},
+              {"Second", "[]"_json},
+              {"Degree", "[]"_json},
+              {"Value", "[[]]"_json},
+              {"Indexes", "[[]]"_json},
+              {"Index_Type", ""},
+              {"Hash_Values", "{}"_json},
+              {"ValueType", "[]"_json}
+            }
+            , fRet = {
+              {"Type", "falsey"},
+              {"Name", ""},
+              {"ExpStr", json::parse("[\"undefined\"]")},
+              {"ExpAct", "[]"_json},
+              {"Params", "[]"_json},
+              {"Args", "[]"_json},
+              {"Condition", "[]"_json},
+              {"ID", 41},
+              {"First", "[]"_json},
+              {"Second", "[]"_json},
+              {"Degree", "[]"_json},
+              {"Value", "[[]]"_json},
+              {"Indexes", "[[]]"_json},
+              {"Index_Type", ""},
+              {"Hash_Values", "{}"_json},
+              {"ValueType", json::parse("[" + type.dump() + "]")}
+            };
 
-              json params = var["params"]
+            Returner fparsed = Returner{ noRet, vars, fRet, "none" };
+
+            if (vars.find(name) == vars.end()) parsed = fparsed;
+            else {
+
+              json var = vars[name]["value"];
+
+              for (json it : actions[i]["Indexes"]) {
+
+                json _index = parser(it, calc_params, vars, dir, false, line, true).exp["ExpStr"][0];
+                string index = _index.dump().substr(1, _index.dump().length() - 2);
+
+                if (var["Hash_Values"].find(index) == var["Hash_Values"].end()) {
+                  parsed = fparsed;
+                  goto stopIndexing;
+                }
+
+                var = parser(var["Hash_Values"][index], calc_params, vars, dir, false, line, true).exp;
+              }
+
+              if (var["Type"] != "process") {
+                parsed = fparsed;
+                goto stopIndexing;
+              }
+
+              json params = var["Params"]
               , args = actions[i]["Args"];
 
               json sendVars = vars;
@@ -212,7 +278,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                 sendVars[(string) params[o]] = cur;
               }
 
-              parsed = parser(var["valueActs"], calc_params, sendVars, dir, true, line, false);
+              parsed = parser(var["ExpAct"], calc_params, sendVars, dir, true, line, false);
 
               json pVars = parsed.variables;
 
@@ -220,13 +286,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
                 if (!(o.value()["type"] != "global" && o.value()["type"] != "process"))
                   vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
-            } else {
-
-              vector<string> undef = {"undefined"};
-
-              parsed = Returner{ undef, vars, "{}"_json, "none" };
             }
 
+            stopIndexing:
             if (expReturn) {
 
               json val = parsed.exp;
@@ -657,8 +719,10 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //add
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump()
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump();
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump(2)
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump(2);
+
+            cout << first << endl << endl << second << endl;
 
             string _val(Add(
               &first[0],
@@ -817,7 +881,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //variable
 
-            if (expReturn) return parser(actions[i], calc_params, vars, dir, false, line, true);
+            vector<string> noRet;
+
+            if (expReturn) return Returner{ noRet, vars, vars[actions[i]["Name"].get<string>()]["value"], "expression" };
           }
           break;
         case 44: {
