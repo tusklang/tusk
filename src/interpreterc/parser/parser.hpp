@@ -175,15 +175,17 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             string name = actions[i]["Name"];
 
-            json acts = actions[i]["ExpAct"];
+            if (name != "") {
+              json acts = actions[i]["ExpAct"];
 
-            json nVar = {
-              {"type", "process"},
-              {"name", name},
-              {"value", actions[i]},
-              {"valueActs", json::parse("[]")}
-            };
-            vars[name] = nVar;
+              json nVar = {
+                {"type", "process"},
+                {"name", name},
+                {"value", actions[i]},
+                {"valueActs", json::parse("[]")}
+              };
+              vars[name] = nVar;
+            }
 
             if (expReturn) {
               vector<string> noRet;
@@ -723,8 +725,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump(2)
             , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump(2);
-
-            cout << first << endl << endl << second << endl;
 
             string _val(Add(
               &first[0],

@@ -139,7 +139,8 @@ func interfaceContainForExp(inter []interface{}, _sub []string) bool {
 
     v := inter[o]
 
-    if o > 0 && (strings.HasPrefix(inter[o - 1].(string), "$") || inter[o - 1].(string) == "]") && v == "(" {
+    //prevent parenthesis after process declarations from being counted as expression parenthesis
+    if o > 0 && (strings.HasPrefix(inter[o - 1].(string), "$") || inter[o - 1].(string) == "]" || inter[o - 1] == "process") && v == "(" {
 
       scbCnt := 0
       sglCnt := 0

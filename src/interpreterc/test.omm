@@ -1,5 +1,3 @@
-i: [:
-  "ss": 'true'
-:];
+i: [proc () { return ~ 1; }];
 
-log ~ i.["ss"].[0];
+log ~ #i.[0]();
