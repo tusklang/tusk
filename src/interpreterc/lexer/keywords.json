@@ -190,6 +190,18 @@
     "type": "operation"
   },
   {
+    "name": ":::",
+    "remove": ":::",
+    "pattern": ":::",
+    "type": "operation"
+  },
+  {
+    "name": ":::",
+    "remove": "_mut",
+    "pattern": "_mut",
+    "type": "operation"
+  },
+  {
     "name": ":",
     "remove": ":=",
     "pattern": "(\\:\\=)",

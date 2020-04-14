@@ -42,6 +42,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json parsed = parser(acts, calc_params, vars, dir, false, line, true).exp;
 
+            cout << parsed.dump(2) << endl;
+
             if (parsed.size() == 0) {
               cout << "There Was An Unidentified Error On Line " << line << endl;
               Kill();
@@ -549,7 +551,22 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               vector<string> returnNone;
 
-              return Returner{ returnNone, vars, actions[i], "expression" };
+              bool isMutable = actions[i]["IsMutable"].get<bool>();
+
+              json val = actions[i];
+
+              if (!isMutable) {
+
+                char* index = "0";
+
+                for (json o : actions[i]["Hash_Values"]) {
+
+                  val["Hash_Values"][index] = json::parse("[" + parser(actions[i]["Hash_Values"][index], calc_params, vars, dir, false, line, true).exp.dump() + "]");
+                  index = AddC(index, "1");
+                }
+              }
+
+              return Returner{ returnNone, vars, val, "expression" };
             }
           }
           break;
@@ -575,7 +592,22 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             if (expReturn) {
               vector<string> returnNone;
 
-              return Returner{ returnNone, vars, actions[i], "expression"};
+              bool isMutable = actions[i]["IsMutable"].get<bool>();
+
+              json val = actions[i];
+
+              if (!isMutable) {
+
+                char* index = "0";
+
+                for (json o : actions[i]["Hash_Values"]) {
+
+                  val["Hash_Values"][index] = json::parse("[" + parser(actions[i]["Hash_Values"][index], calc_params, vars, dir, false, line, true).exp.dump() + "]");
+                  index = AddC(index, "1");
+                }
+              }
+
+              return Returner{ returnNone, vars, val, "expression"};
             }
           }
           break;
@@ -585,6 +617,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json val = actions[i]["Hash_Values"]
             , index = indexesCalc(val, actions[i]["Indexes"], calc_params, vars, line, dir);
+
+            cout << index.dump(2) << endl;
 
             if (expReturn) {
               vector<string> returnNone;
@@ -883,9 +917,19 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //variable
 
+            json var = vars[actions[i]["Name"].get<string>()]["value"];
+
+            bool varIsMutable = var["IsMutable"].get<bool>()
+            , actIsMutable = actions[i]["IsMutable"].get<bool>()
+            , isMutable = varIsMutable ^ actIsMutable;
+
+            var["IsMutable"] = isMutable;
+
+            json val = parser(json::parse("[" + var.dump() + "]"), calc_params, vars, dir, false, line, true).exp;
+
             vector<string> noRet;
 
-            if (expReturn) return Returner{ noRet, vars, vars[actions[i]["Name"].get<string>()]["value"], "expression" };
+            if (expReturn) return Returner{ noRet, vars, var, "expression" };
           }
           break;
         case 44: {

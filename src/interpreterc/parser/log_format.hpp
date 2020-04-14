@@ -31,9 +31,10 @@ void log_format(json in, const json calc_params, json vars, const string dir, in
   } else if (in["Type"].dump() == "\"array\"") {
     cout << "[";
 
-    for (int i = 0; i < in["Value"].size(); i++) {
+    for (unsigned long long i = 0; i < in["Value"].size(); i++) {
+
       log_format(
-        parser(in["Value"][i], calc_params, vars, dir, false, line, true).exp,
+        in["Hash_Values"][to_string(i)][0],
         calc_params,
         vars,
         dir,
@@ -42,12 +43,14 @@ void log_format(json in, const json calc_params, json vars, const string dir, in
         "print"
       );
 
-      if (in["Value"].size() != i + 1) cout << ", ";
+      if (in["Hash_Values"].size() != i + 1) cout << ", ";
     }
 
     cout << "]" << (doPrint == "print" ? "" : "\n");
   } else if (in["Type"].dump() == "\"process\"" || in["Type"].dump() == "\"group\"") cout << "{PROCESS~ | GROUP~}" << (doPrint == "print" ? "" : "\n");
-  else {
+  else if (in["Name"].dump() == "\"operation\"") {
+    
+  } else {
 
     string val = in["ExpStr"][0];
 

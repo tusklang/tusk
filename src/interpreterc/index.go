@@ -4,7 +4,7 @@ import "os"
 import "os/exec"
 import "strings"
 import "encoding/json"
-import "regexp"
+import "unicode"
 
 // #cgo CFLAGS: -std=c99
 // #include "bind.h"
@@ -32,7 +32,15 @@ func GetType(cVal *C.char) *C.char {
 
   val := C.GoString(cVal)
 
-  var numMatch, _ = regexp.MatchString("(\\d|\\.)+", val)
+  var numMatch = func(num string) bool {
+    for _, v := range num {
+      if !unicode.IsDigit(v) {
+        return false
+      }
+    }
+
+    return true
+  }
 
   if strings.HasPrefix(val, "\"") || strings.HasPrefix(val, "'") || strings.HasPrefix(val, "`") {
     return C.CString("string")
@@ -44,7 +52,7 @@ func GetType(cVal *C.char) *C.char {
     return C.CString("boolean")
   } else if val == "undefined" || val == "null" {
     return C.CString("falsey")
-  } else if numMatch {
+  } else if numMatch(val) {
     return C.CString("number")
   }
 
