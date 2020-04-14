@@ -1,5 +1,5 @@
 i: [:
-  "ss": 'true'.[0]
+  "ss": 'true'
 :];
 
-log ~ i.["ss"];
+log ~ i.["ss"].[0];

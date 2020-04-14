@@ -43,6 +43,7 @@ none: 42
 variable: 43
 type: 44
 index_key: 45
+variableIndex: 46
 
 ++: 4343
 --: 4545

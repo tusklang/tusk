@@ -140,7 +140,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //expressionIndex
 
-            json index = indexesCalc(actions[i], actions[i]["Indexes"], calc_params, vars, line, dir, actions[i]["Index_Type"]);
+            Returner parsedVal = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true);
+
+            json index = indexesCalc(parsedVal.exp["Hash_Values"], actions[i]["Indexes"], calc_params, vars, line, dir);
 
             if (expReturn) {
               vector<string> returnNone;
@@ -555,7 +557,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json val = actions[i]["Hash_Values"];
 
-            json index = indexesCalc(val, actions[i]["Indexes"], calc_params, vars, line, dir, actions[i]["Index_Type"]);
+            json index = indexesCalc(val, actions[i]["Indexes"], calc_params, vars, line, dir);
 
             if (expReturn) {
               vector<string> returnNone;
@@ -580,7 +582,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             //arrayIndex
 
             json val = actions[i]["Hash_Values"]
-            , index = indexesCalc(val, actions[i]["Indexes"], calc_params, vars, line, dir, actions[i]["Index_Type"]);
+            , index = indexesCalc(val, actions[i]["Indexes"], calc_params, vars, line, dir);
 
             if (expReturn) {
               vector<string> returnNone;
@@ -897,6 +899,21 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                 {"Args":[],"Condition":[],"Degree":[],"ExpAct":[],"ExpStr":["type"],"First":[],"Hash_Values":{},"ID":44,"Index_Type":"","Indexes":[],"Name":"","Params":[],"Second":[],"Type":"type","Value":[],"ValueType":[]}
               )"
             ), "expression" };
+          }
+          break;
+        case 46: {
+
+            //variableIndex
+
+            Returner parsedVal = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true);
+
+            json index = indexesCalc(parsedVal.exp["Hash_Values"], actions[i]["Indexes"], calc_params, vars, line, dir);
+
+            if (expReturn) {
+              vector<string> returnNone;
+
+              return Returner{ returnNone, vars, index, "expression" };
+            }
           }
           break;
 

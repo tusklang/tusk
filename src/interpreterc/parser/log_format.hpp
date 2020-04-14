@@ -6,6 +6,8 @@
 #include "parser.hpp"
 using namespace std;
 
+Returner parser(const json actions, const json calc_params, json vars, const string dir, const bool groupReturn, int line, const bool expReturn);
+
 void log_format(json in, const json calc_params, json vars, const string dir, int line, int hash_spacing, string doPrint) {
 
   if (in["Type"].dump() == "\"hash\"") {
