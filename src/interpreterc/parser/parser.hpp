@@ -929,7 +929,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             vector<string> noRet;
 
-            if (expReturn) return Returner{ noRet, vars, var, "expression" };
+            if (expReturn) return Returner{ noRet, vars, val, "expression" };
           }
           break;
         case 44: {

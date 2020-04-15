@@ -1,1 +1,5 @@
-log ~ [1 + 1 + 1 + true]:::
+test1: 9;
+test2: [test1]:::;
+test3: test2:::;
+test1: 0;
+log ~ test3;
