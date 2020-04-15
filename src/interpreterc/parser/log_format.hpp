@@ -49,7 +49,12 @@ void log_format(json in, const json calc_params, json vars, const string dir, in
     cout << "]" << (doPrint == "print" ? "" : "\n");
   } else if (in["Type"].dump() == "\"process\"" || in["Type"].dump() == "\"group\"") cout << "{PROCESS~ | GROUP~}" << (doPrint == "print" ? "" : "\n");
   else if (in["Name"].dump() == "\"operation\"") {
-    
+    log_format(in["First"][0], calc_params, vars, dir, line, hash_spacing, "print");
+
+    string op = in["Type"].get<string>();
+
+    cout << " " << GetOp(&op[0]) << " ";
+    log_format(in["Second"][0], calc_params, vars, dir, line, hash_spacing, "print");
   } else {
 
     string val = in["ExpStr"][0];

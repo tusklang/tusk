@@ -17,6 +17,7 @@ extern "C" {
   extern char* NQReplaceC(char*);
   extern int GetActNumC(char*);
   extern char* AddC(char*, char*);
+  extern char* GetOp(char*);
   void bind(char *actions, char *calc_params, char *dir);
 #ifdef __cplusplus
 }

@@ -558,7 +558,7 @@ func actionizer(lex []string, doExpress bool) []Action {
               num = append(num, v.(string))
             }
 
-            num2 = actionizer(num, false)
+            num2 = actionizer(num, true)
 
           } else {
 
