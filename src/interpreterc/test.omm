@@ -1,6 +1,6 @@
 test1: 9;
 test2: [:
-  "s": test1
+  true: test1
 :]:::;
 test1: 1;
-log ~ test2;
+log ~ test2.[true];

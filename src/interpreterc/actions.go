@@ -2293,6 +2293,10 @@ func actionizer(lex []string, doExpress bool) []Action {
 
         valPuts := func(lex []string, i int) int {
 
+          if i >= len_lex {
+            return 1
+          }
+
           isMutable := false
           val := lex[i]
 
