@@ -1895,8 +1895,14 @@ func actionizer(lex []string, doExpress bool) []Action {
 
         isMutable := false
 
-        for ;lex[i + 1] == ":::"; i++ {
+        //checks for a runtime hash
+        for ;i < len_lex && lex[i] == ":::"; i++ {
           isMutable = !isMutable
+        }
+
+        if i >= len_lex {
+          actions = append(actions, Action{ "hash", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false), isMutable })
+          break
         }
 
         if lex[i] == "." {

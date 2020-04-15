@@ -19,11 +19,10 @@ void log_format(json in, const json calc_params, json vars, const string dir, in
 
       for (json::iterator it = hashvals.begin(); it != hashvals.end(); it++) {
         json key = it.key()
-        , _value = it.value()
-        , value = parser(_value, calc_params, vars, dir, false, line, true).exp;
+        , _value = it.value();
 
         cout << string(hash_spacing, ' ') << key.dump().substr(1, key.dump().length() - 2) << ": ";
-        log_format(value, calc_params, vars, dir, line, hash_spacing + 2, "log");
+        log_format(_value[0], calc_params, vars, dir, line, hash_spacing + 2, "log");
       }
 
       cout << string(hash_spacing - 2, ' ') << ":]" << (doPrint == "print" ? "" : "\n");

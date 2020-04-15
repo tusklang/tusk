@@ -557,13 +557,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               if (!isMutable) {
 
-                char* index = "0";
-
-                for (json o : actions[i]["Hash_Values"]) {
-
-                  val["Hash_Values"][index] = json::parse("[" + parser(actions[i]["Hash_Values"][index], calc_params, vars, dir, false, line, true).exp.dump() + "]");
-                  index = AddC(index, "1");
-                }
+                for (auto& it : actions[i]["Hash_Values"].items())
+                  val["Hash_Values"][it.key()] = json::parse("[" + parser(it.value(), calc_params, vars, dir, false, line, true).exp.dump() + "]");
               }
 
               return Returner{ returnNone, vars, val, "expression" };
