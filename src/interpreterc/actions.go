@@ -94,7 +94,7 @@ func actionizer(lex []string, doExpress bool) []Action {
         i++
       }
 
-      if !interfaceContainForExp(exp, operations) {
+      if !interfaceContainForExp(exp, []string{ "+", "-", "*", "/", "^", "%", "&", "|", "=", ">", "<", ">=", "<=", "~~", "~~~", "!" }) {
 
         var act_exp []string
 
@@ -111,7 +111,7 @@ func actionizer(lex []string, doExpress bool) []Action {
 
         index := interfaceIndexOfWithProcIndex("(", exp, proc_indexes)
 
-        if index - 1 != -1 && (strings.HasPrefix(exp[index - 1].(string), "$") || exp[index - 1].(string) == "len")  {
+        if index - 1 != -1 && (strings.HasPrefix(exp[index - 1].(string), "$") || exp[index - 1].(string) == "len" || exp[index - 1].(string) == "]")  {
           proc_indexes = append(proc_indexes, index)
           continue
         }
@@ -142,6 +142,17 @@ func actionizer(lex []string, doExpress bool) []Action {
         exp_ := append(exp[:index], pExpAct[0])
         exp_ = append(exp_, exp[index + len(pExp):]...)
         exp = exp_
+      }
+
+      if !interfaceContainForExp(exp, operations) {
+
+        var act_exp []string
+
+        for _, v := range exp {
+          act_exp = append(act_exp, v.(string))
+        }
+
+        return actionizer(act_exp, false);
       }
 
       for ;interfaceContain(exp, "^"); {

@@ -1,1 +1,1 @@
-log ~ parse ~ 1;
+log ~ len();

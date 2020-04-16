@@ -467,9 +467,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             char* codeNQ = NQReplaceC(&code[0]);
 
-            char* lex = CLex(codeNQ);
+            char* len = CLex(codeNQ);
 
-            char* __acts = Cactions(lex);
+            char* __acts = Cactions(len);
 
             string _acts(__acts);
 
@@ -816,60 +816,113 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //len
 
-            json calculated = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp[0];
+            json calculated = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
 
-            json noNewline;
+            json lenPlaceholder = {
+              {"Type", "number"},
+              {"Name", ""},
+              {"ExpStr", json::parse("[\"0\"]")},
+              {"ExpAct", "[]"_json},
+              {"Params", "[]"_json},
+              {"Args", "[]"_json},
+              {"Condition", "[]"_json},
+              {"ID", 39},
+              {"First", "[]"_json},
+              {"Second", "[]"_json},
+              {"Degree", "[]"_json},
+              {"Value", "[[]]"_json},
+              {"Indexes", "[[]]"_json},
+              {"Index_Type", ""},
+              {"Hash_Values", "{}"_json},
+              {"ValueType", {
+                {
+                  {"Type", "number"},
+                  {"Name", ""},
+                  {"ExpStr", json::parse("[\"0\"]")},
+                  {"ExpAct", "[]"_json},
+                  {"Params", "[]"_json},
+                  {"Args", "[]"_json},
+                  {"Condition", "[]"_json},
+                  {"ID", 39},
+                  {"First", "[]"_json},
+                  {"Second", "[]"_json},
+                  {"Degree", "[]"_json},
+                  {"Value", "[[]]"_json},
+                  {"Indexes", "[[]]"_json},
+                  {"Index_Type", ""},
+                  {"Hash_Values", "{}"_json},
+                  {"ValueType", "[]"_json}
+                }
+              }}
+            };
 
-            copy_if(calculated.begin(), calculated.end(), back_inserter(noNewline), [](json i){
-              return i != "newlineN";
-            });
+            if (expReturn) {
 
-            string datatype_get = "";
+              vector<string> returnNone;
 
-            for (string o : noNewline) datatype_get+=o;
+              switch (GetActNumC(&(calculated["Type"].get<string>())[0])) {
+                case 38: {
 
-            string type(GetType(&datatype_get[0]));
+                    json nExpStr = json::parse("[\"" + to_string(calculated["ExpStr"][0].get<string>().length() - 2) + "\"]");
 
-            //TODO: maybe switch to a switch statement later
+                    lenPlaceholder["ExpStr"] = nExpStr;
+                    lenPlaceholder["ValueType"][0]["ExpStr"] = nExpStr;
+                  }
+                  break;
+                case 39: {
 
-            if (type == "string") expStr[expStr.size() - 1].push_back( to_string(((string) datatype_get).length() - 2) );
-            else if (type == "hash") {
-              int commas = 0;
+                    json nExpStr = calculated["ExpStr"];
 
-              int bCnt = 0;
+                    lenPlaceholder["ExpStr"] = nExpStr;
+                    lenPlaceholder["ValueType"][0]["ExpStr"] = nExpStr;
+                  }
+                  break;
+                case 40:
+                  return Returner{ returnNone, vars, lenPlaceholder, "expression" };
+                  break;
+                case 41:
+                  return Returner{ returnNone, vars, lenPlaceholder, "expression" };
+                  break;
+                case 42:
+                  return Returner{ returnNone, vars, lenPlaceholder, "expression" };
+                  break;
+                case 44: {
 
-              for (int o = 0; o < noNewline.size(); o++) {
+                    json nExpStr = json::parse("[\"" + to_string(calculated["ExpStr"][0].get<string>().length() - 2) + "\"]");
 
-                json it = noNewline[o];
+                    lenPlaceholder["ExpStr"] = nExpStr;
+                    lenPlaceholder["ValueType"][0]["ExpStr"] = nExpStr;
+                  }
+                case 45:
+                  return Returner{ returnNone, vars, lenPlaceholder, "expression" };
+                  break;
+                case 46:
+                  return Returner{ returnNone, vars, lenPlaceholder, "expression" };
+                  break;
+                case 10:
+                  return Returner{ returnNone, vars, lenPlaceholder, "expression" };
+                  break;
+                case 22: {
 
-                if (it == "[:" || it == "[") bCnt++;
-                if (it == ":]" || it == "]") bCnt--;
+                    json nExpStr = json::parse("[\"" + to_string(calculated["Hash_Values"].size()) + "\"]");
 
-                if (bCnt == 1 && it == ",") commas++;
+                    lenPlaceholder["ExpStr"] = nExpStr;
+                    lenPlaceholder["ValueType"][0]["ExpStr"] = nExpStr;
+                  }
+                  break;
+                case 24: {
+
+                    json nExpStr = json::parse("[\"" + to_string(calculated["Hash_Values"].size()) + "\"]");
+
+                    lenPlaceholder["ExpStr"] = nExpStr;
+                    lenPlaceholder["ValueType"][0]["ExpStr"] = nExpStr;
+                  }
+                  break;
+                default: return Returner{ returnNone, vars, lenPlaceholder, "expression" };
               }
 
-              expStr[expStr.size() - 1].push_back( to_string(commas + 1) );
-            } else if (type == "array") {
-              int commas = 0;
-
-              int bCnt = 0;
-
-              for (int o = 0; o < noNewline.size(); o++) {
-
-                json it = noNewline[o];
-
-                if (it == "[:" || it == "[") bCnt++;
-                if (it == ":]" || it == "]") bCnt--;
-
-                if (bCnt == 1 && it == ",") commas++;
-              }
-
-              expStr[expStr.size() - 1].push_back( to_string(commas + 1) );
-            } else if (type == "boolean") expStr[expStr.size() - 1].push_back(datatype_get == "true" ? "1" : "0");
-            else if (type == "falsey") expStr[expStr.size() - 1].push_back("0");
-            else if (type == "number") expStr[expStr.size() - 1].push_back(datatype_get);
-            else expStr[expStr.size() - 1].push_back("0");
-
+              return Returner{ returnNone, vars, lenPlaceholder, "expression" };
+            }
           }
           break;
         case 32: {
