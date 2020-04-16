@@ -2293,6 +2293,9 @@ func actionizer(lex []string, doExpress bool) []Action {
 
         valPuts := func(lex []string, i int) int {
 
+          //KEEP IN MIND: type key starts with ascii of 233
+          //KEEP IN MIND: index key starts with ascii of 8
+
           if i >= len_lex {
             return 1
           }
@@ -2461,7 +2464,113 @@ func actionizer(lex []string, doExpress bool) []Action {
             continue;
           }
 
-          if lex[i + 1] == ":" && strings.HasPrefix(lex[i], "$") {
+          doPutIndex := false
+
+          icbCnt := 0
+          iglCnt := 0
+          ibCnt := 0
+          ipCnt := 0
+
+          for o := i; o < len_lex; o++ {
+            if lex[o] == "{" {
+              icbCnt++
+            }
+            if lex[o] == "}" {
+              icbCnt--
+            }
+
+            if lex[o] == "[:" {
+              iglCnt++
+            }
+            if lex[o] == ":]" {
+              iglCnt--
+            }
+
+            if lex[o] == "[" {
+              ibCnt++
+            }
+            if lex[o] == "]" {
+              ibCnt--
+            }
+
+            if lex[o] == "(" {
+              ipCnt++
+            }
+            if lex[o] == ")" {
+              ipCnt--
+            }
+
+            if icbCnt == 0 && iglCnt == 0 && ibCnt == 0 && ipCnt == 0 && lex[o] == "newlineS" {
+              break
+            }
+
+            if icbCnt == 0 && iglCnt == 0 && ibCnt == 0 && ipCnt == 0 && lex[o] == ":" {
+              doPutIndex = true
+              break
+            }
+          }
+
+          var indexes [][]Action
+          name := lex[i]
+
+          if lex[i + 1] == "." && lex[i + 2] == "[" && doPutIndex {
+
+            _indexes := [][]string{}
+
+            cbCnt := 0
+            glCnt := 0
+            bCnt := 0
+            pCnt := 0
+
+            for o := i + 1; o < len_lex; i, o = i + 1, o + 1 {
+              if lex[o] == "{" {
+                cbCnt++
+              }
+              if lex[o] == "}" {
+                cbCnt--
+              }
+
+              if lex[o] == "[:" {
+                glCnt++
+              }
+              if lex[o] == ":]" {
+                glCnt--
+              }
+
+              if lex[o] == "[" {
+                bCnt++
+              }
+              if lex[o] == "]" {
+                bCnt--
+              }
+
+              if lex[o] == "(" {
+                pCnt++
+              }
+              if lex[o] == ")" {
+                pCnt--
+              }
+
+              if lex[o] == "." {
+                _indexes = append(_indexes, []string{})
+                continue
+              }
+
+              _indexes[len(_indexes) - 1] = append(_indexes[len(_indexes) - 1], lex[o])
+
+              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o + 1] == ":" {
+                break
+              }
+            }
+
+            for _, v := range _indexes {
+              indexes = append(indexes, actionizer(v[1:len(v) - 1], true))
+            }
+
+            i++
+          }
+
+          if lex[i + 1] == ":" && (strings.HasPrefix(lex[i], "$") || lex[i] == "]") {
             exp_ := []string{}
 
             cbCnt := 0
@@ -2508,8 +2617,9 @@ func actionizer(lex []string, doExpress bool) []Action {
 
             exp := actionizer(exp_, false)
 
-            actions = append(actions, Action{ "let", lex[i], exp_, exp, []string{}, []Action{}, []Condition{}, 28, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
+            actions = append(actions, Action{ "let", name, exp_, exp, []string{}, []Action{}, []Condition{}, 28, []Action{}, []Action{}, []Action{}, [][]Action{}, indexes, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
             i+=(len(exp))
+            continue
           }
 
           if lex[i + 1] == "." {
@@ -2600,8 +2710,6 @@ func actionizer(lex []string, doExpress bool) []Action {
           valPuts(lex, i)
 
         } else {
-          //KEEP IN MIND: type key starts with ascii of 233
-          //KEP IN MIND: index key starts with ascii of 8
 
           valPuts(lex, i)
         }

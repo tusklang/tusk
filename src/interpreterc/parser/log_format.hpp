@@ -28,24 +28,24 @@ void log_format(json in, const json calc_params, json vars, const string dir, in
       cout << string(hash_spacing - 2, ' ') << ":]" << (doPrint == "print" ? "" : "\n");
     }
   } else if (in["Type"].dump() == "\"array\"") {
-    cout << "[";
+    json hashvals = in["Hash_Values"];
 
-    for (unsigned long long i = 0; i < in["Value"].size(); i++) {
+    if (hashvals.size() == 0) cout << "[::]" << (doPrint == "print" ? "" : "\n");
+    else {
 
-      log_format(
-        in["Hash_Values"][to_string(i)][0],
-        calc_params,
-        vars,
-        dir,
-        line,
-        hash_spacing,
-        "print"
-      );
+      cout << "[" << endl;
 
-      if (in["Hash_Values"].size() != i + 1) cout << ", ";
+      for (json::iterator it = hashvals.begin(); it != hashvals.end(); it++) {
+        json key = it.key()
+        , _value = it.value();
+
+        cout << string(hash_spacing, ' ') << key.dump().substr(1, key.dump().length() - 2) << ": ";
+
+        log_format(_value[0], calc_params, vars, dir, line, hash_spacing + 2, "log");
+      }
+
+      cout << "]" << (doPrint == "print" ? "" : "\n");
     }
-
-    cout << "]" << (doPrint == "print" ? "" : "\n");
   } else if (in["Type"].dump() == "\"process\"" || in["Type"].dump() == "\"group\"") cout << "{PROCESS~ | GROUP~}" << (doPrint == "print" ? "" : "\n");
   else if (in["Name"].dump() == "\"operation\"") {
     log_format(in["First"][0], calc_params, vars, dir, line, hash_spacing, "print");

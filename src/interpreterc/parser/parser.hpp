@@ -13,6 +13,43 @@
 using namespace std;
 using json = nlohmann::json;
 
+const json falseyType = {
+  {"Type", "falsey"},
+  {"Name", ""},
+  {"ExpStr", json::parse("[\"undefined\"]")},
+  {"ExpAct", "[]"_json},
+  {"Params", "[]"_json},
+  {"Args", "[]"_json},
+  {"Condition", "[]"_json},
+  {"ID", 41},
+  {"First", "[]"_json},
+  {"Second", "[]"_json},
+  {"Degree", "[]"_json},
+  {"Value", "[[]]"_json},
+  {"Indexes", "[[]]"_json},
+  {"Index_Type", ""},
+  {"Hash_Values", "{}"_json},
+  {"ValueType", "[]"_json}
+}
+, falseyVal = {
+  {"Type", "falsey"},
+  {"Name", ""},
+  {"ExpStr", json::parse("[\"undefined\"]")},
+  {"ExpAct", "[]"_json},
+  {"Params", "[]"_json},
+  {"Args", "[]"_json},
+  {"Condition", "[]"_json},
+  {"ID", 41},
+  {"First", "[]"_json},
+  {"Second", "[]"_json},
+  {"Degree", "[]"_json},
+  {"Value", "[[]]"_json},
+  {"Indexes", "[[]]"_json},
+  {"Index_Type", ""},
+  {"Hash_Values", "{}"_json},
+  {"ValueType", json::parse("[" + falseyType.dump() + "]")}
+};
+
 Returner parser(const json actions, const json calc_params, json vars, const string dir, const bool groupReturn, int line, const bool expReturn) {
 
   //empty expStr
@@ -597,6 +634,11 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 for (json o : actions[i]["Hash_Values"]) {
 
+                  if (val["Hash_Values"].find(index) == val["Hash_Values"].end()) {
+                    index = AddC(index, "1");
+                    continue;
+                  }
+
                   val["Hash_Values"][index] = json::parse("[" + parser(actions[i]["Hash_Values"][index], calc_params, vars, dir, false, line, true).exp.dump() + "]");
                   index = AddC(index, "1");
                 }
@@ -670,7 +712,33 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json nVar;
 
-            if (vars[name].find("type") != vars[name].end())
+            json var = vars[name];
+            vector<string> indexes;
+
+            for (json it : actions[i]["Indexes"]) {
+              json varP = parser(it, calc_params, vars, dir, false, line, true).exp["ExpStr"][0];
+
+              if (var["value"]["Hash_Values"].find(varP.get<string>()) == var["value"]["Hash_Values"].end()) var = {
+                  {"type", "local"},
+                  {"name", var["name"].get<string>() + varP.get<string>()},
+                  {"value", {
+                    {varP.get<string>(), {
+                      {"falsey", falseyVal}
+                    }}
+                  }},
+                  {"valueActs", json::parse("[]")}
+                };
+              else var = {
+                {"type", "local"},
+                {"name", var["name"].get<string>() + varP.get<string>()},
+                {"value", var["value"]["Hash_Values"][varP.get<string>()]},
+                {"valueActs", json::parse("[]")}
+              };
+
+              indexes.push_back(varP.get<string>());
+            }
+
+            if (var.find("type") != var.end())
               nVar = {
                 {"type", vars[name]["type"]},
                 {"name", name},
@@ -685,7 +753,15 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                 {"valueActs", json::parse("[]")}
               };
 
-            vars[name] = nVar;
+            if (actions[i]["Indexes"].size() == 0) vars[name] = nVar;
+            else {
+               json myObj;
+               auto ref = std::ref(vars[name]["value"]["Hash_Values"]);
+
+               for (string i : indexes) ref = ref.get()[i];
+
+               ref.get() = json::parse("[" + nVar["value"].dump() + "]");
+            }
           }
           break;
         case 31: {
