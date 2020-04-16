@@ -1,4 +1,1 @@
-test1: 88;
-test: [test1]:::;
-test.[0]: test1;
-log ~ test;
+log ~ parse ~ 1;

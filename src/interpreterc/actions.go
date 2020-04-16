@@ -1061,6 +1061,10 @@ func actionizer(lex []string, doExpress bool) []Action {
         actions = append(actions, Action{ "group", "", []string{}, exp, []string{}, []Action{}, []Condition{}, 9, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
         i+=(len(exp_) + 1)
       case "process":
+
+        putFalsey := make(map[string][]Action)
+        putFalsey["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), false } }
+
         if lex[i + 1] == "~" {
           var procName = lex[i + 2]
           params := []string{}
@@ -1102,7 +1106,7 @@ func actionizer(lex []string, doExpress bool) []Action {
 
           logic := actionizer(logic_, false)
 
-          actions = append(actions, Action{ "process", procName, []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�process" }, false), false })
+          actions = append(actions, Action{ "process", procName, []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, actionizer([]string{ "�process" }, false), false })
         } else {
           params := []string{}
 
@@ -1139,7 +1143,7 @@ func actionizer(lex []string, doExpress bool) []Action {
 
           logic := actionizer(logic_, false)
 
-          actions = append(actions, Action{ "process", "", []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�process" }, false), false })
+          actions = append(actions, Action{ "process", "", []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, actionizer([]string{ "�process" }, false), false })
         }
       case "#":
 

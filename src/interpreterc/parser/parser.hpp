@@ -5,50 +5,15 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <thread>
 #include "json.hpp"
 #include "bind.h"
 #include "structs.h"
 #include "indexes.hpp"
 #include "log_format.hpp"
+#include "falsey_val.hpp"
 using namespace std;
 using json = nlohmann::json;
-
-const json falseyType = {
-  {"Type", "falsey"},
-  {"Name", ""},
-  {"ExpStr", json::parse("[\"undefined\"]")},
-  {"ExpAct", "[]"_json},
-  {"Params", "[]"_json},
-  {"Args", "[]"_json},
-  {"Condition", "[]"_json},
-  {"ID", 41},
-  {"First", "[]"_json},
-  {"Second", "[]"_json},
-  {"Degree", "[]"_json},
-  {"Value", "[[]]"_json},
-  {"Indexes", "[[]]"_json},
-  {"Index_Type", ""},
-  {"Hash_Values", "{}"_json},
-  {"ValueType", "[]"_json}
-}
-, falseyVal = {
-  {"Type", "falsey"},
-  {"Name", ""},
-  {"ExpStr", json::parse("[\"undefined\"]")},
-  {"ExpAct", "[]"_json},
-  {"Params", "[]"_json},
-  {"Args", "[]"_json},
-  {"Condition", "[]"_json},
-  {"ID", 41},
-  {"First", "[]"_json},
-  {"Second", "[]"_json},
-  {"Degree", "[]"_json},
-  {"Value", "[[]]"_json},
-  {"Indexes", "[[]]"_json},
-  {"Index_Type", ""},
-  {"Hash_Values", "{}"_json},
-  {"ValueType", json::parse("[" + falseyType.dump() + "]")}
-};
 
 Returner parser(const json actions, const json calc_params, json vars, const string dir, const bool groupReturn, int line, const bool expReturn) {
 
@@ -668,31 +633,114 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //ascii
 
-            string parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp[0][0].dump();
+            json parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
 
-            parsed = parsed.substr(1, parsed.length() - 2);
+            vector<string> returnNone;
 
-            char first = parsed[0];
+            if (parsed["Type"] != "string" && expReturn) return Returner{ returnNone, vars, falseyVal, "expression" };
+            else {
+              string val = parsed["ExpStr"][0].get<string>().substr(1, parsed["ExpStr"][0].get<string>().length() - 2);
+              int first = (int) val[0];
 
-            expStr[expStr.size() - 1].push_back(json::parse("[\"" + to_string((int) first) + "\"]")[0]);
+              if (expReturn) {
+
+                json ascValType = {
+                  {"Type", "number"},
+                  {"Name", ""},
+                  {"ExpStr", json::parse("[\"" + to_string(first) + "\"]")},
+                  {"ExpAct", "[]"_json},
+                  {"Params", "[]"_json},
+                  {"Args", "[]"_json},
+                  {"Condition", "[]"_json},
+                  {"ID", 39},
+                  {"First", "[]"_json},
+                  {"Second", "[]"_json},
+                  {"Degree", "[]"_json},
+                  {"Value", "[[]]"_json},
+                  {"Indexes", "[[]]"_json},
+                  {"Index_Type", ""},
+                  {"Hash_Values", "{}"_json},
+                  {"ValueType", "[]"_json}
+                }
+                , ascVal = {
+                  {"Type", "number"},
+                  {"Name", ""},
+                  {"ExpStr", json::parse("[\"" + to_string(first) + "\"]")},
+                  {"ExpAct", "[]"_json},
+                  {"Params", "[]"_json},
+                  {"Args", "[]"_json},
+                  {"Condition", "[]"_json},
+                  {"ID", 39},
+                  {"First", "[]"_json},
+                  {"Second", "[]"_json},
+                  {"Degree", "[]"_json},
+                  {"Value", "[[]]"_json},
+                  {"Indexes", "[[]]"_json},
+                  {"Index_Type", ""},
+                  {"Hash_Values", "{}"_json},
+                  {"ValueType", json::parse("[" + ascValType.dump() + "]")}
+                };
+
+                return Returner{returnNone, vars, ascVal, "expression"};
+              }
+            }
           }
           break;
         case 27: {
 
             //parse
 
-            string parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp[0][0].dump();
+            json parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
 
-            parsed = parsed.substr(1, parsed.length() - 2);
+            vector<string> returnNone;
 
-            if (!(strcmp(GetType(&parsed[0]), "string") == 0 || strcmp(GetType(&parsed[0]), "number") == 0)) {
-              cout << "There Was An Error: `parse~` cannot be used on a non-string or number" << "\n\nparse~" + parsed << "\n^ <-- Error On Line " + line;
-              Kill();
+            if ((parsed["Type"] != "string" && parsed["Type"] != "number") && expReturn) return Returner{ returnNone, vars, falseyVal, "expression" };
+            else {
+
+              string putVal;
+
+              if (parsed["Type"] == "number") putVal = "\"" + parsed["ExpStr"][0].get<string>() + "\"";
+              else if (parsed["Type"] == "string") putVal = "\"" + parsed["ExpStr"][0].get<string>().substr(1, parsed["ExpStr"][0].get<string>().length() - 2) + "\"";
+
+              json typeVal = {
+                {"Type", "number"},
+                {"Name", ""},
+                {"ExpStr", json::parse("[" + putVal + "]")},
+                {"ExpAct", "[]"_json},
+                {"Params", "[]"_json},
+                {"Args", "[]"_json},
+                {"Condition", "[]"_json},
+                {"ID", 39},
+                {"First", "[]"_json},
+                {"Second", "[]"_json},
+                {"Degree", "[]"_json},
+                {"Value", "[[]]"_json},
+                {"Indexes", "[[]]"_json},
+                {"Index_Type", ""},
+                {"Hash_Values", "{}"_json},
+                {"ValueType", "[]"_json}
+              }
+              , retVal = {
+                {"Type", "number"},
+                {"Name", ""},
+                {"ExpStr", json::parse("[" + putVal + "]")},
+                {"ExpAct", "[]"_json},
+                {"Params", "[]"_json},
+                {"Args", "[]"_json},
+                {"Condition", "[]"_json},
+                {"ID", 39},
+                {"First", "[]"_json},
+                {"Second", "[]"_json},
+                {"Degree", "[]"_json},
+                {"Value", "[[]]"_json},
+                {"Indexes", "[[]]"_json},
+                {"Index_Type", ""},
+                {"Hash_Values", "{}"_json},
+                {"ValueType", json::parse("[" + typeVal.dump() + "]")}
+              };
+
+              return Returner{ returnNone, vars, retVal, "expression" };
             }
-
-            if (strcmp(GetType(&parsed[0]), "string") == 0)
-              expStr[expStr.size() - 1].push_back(json::parse("[\"" + parsed.substr(1, parsed.length() - 2) + "\"]")[0]);
-            else expStr[expStr.size() - 1].push_back(json::parse("[\"" + parsed + "\"]")[0]);
           }
           break;
         case 28: {
