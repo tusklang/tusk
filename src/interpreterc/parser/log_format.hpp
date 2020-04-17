@@ -30,7 +30,7 @@ void log_format(json in, const json calc_params, json vars, const string dir, in
   } else if (in["Type"].dump() == "\"array\"") {
     json hashvals = in["Hash_Values"];
 
-    if (hashvals.size() == 0) cout << "[::]" << (doPrint == "print" ? "" : "\n");
+    if (hashvals.size() == 0) cout << "[]" << (doPrint == "print" ? "" : "\n");
     else {
 
       cout << "[" << endl;

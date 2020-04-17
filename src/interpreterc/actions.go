@@ -158,13 +158,46 @@ func actionizer(lex []string, doExpress bool) []Action {
       for ;interfaceContain(exp, "^"); {
         index := interfaceIndexOf("^", exp)
 
-        var _num1 = []interface{}{}
-        var _num2 = []interface{}{}
+        var _num1 []interface{}
+        var _num2 []interface{}
+
+        cbCnt := 0
+        glCnt := 0
+        bCnt := 0
+        pCnt := 0
 
         //_num1 loop
         for o := index - 1; o >= 0; o-- {
 
-          if arrayContainInterface(operations, exp[o]) {
+          if lex[o] == "{" {
+            cbCnt++;
+          }
+          if lex[o] == "}" {
+            cbCnt--;
+          }
+
+          if lex[o] == "[:" {
+            glCnt++;
+          }
+          if lex[o] == ":]" {
+            glCnt--;
+          }
+
+          if lex[o] == "[" {
+            bCnt++;
+          }
+          if lex[o] == "]" {
+            bCnt--;
+          }
+
+          if lex[o] == "(" {
+            pCnt++;
+          }
+          if lex[o] == ")" {
+            pCnt--;
+          }
+
+          if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
             break
           }
 
@@ -174,233 +207,42 @@ func actionizer(lex []string, doExpress bool) []Action {
         //_num2 loop
         for o := index + 1; o < len(exp); o++ {
 
-          if arrayContainInterface(operations, exp[o]) {
+          if lex[o] == "{" {
+            cbCnt++;
+          }
+          if lex[o] == "}" {
+            cbCnt--;
+          }
+
+          if lex[o] == "[:" {
+            glCnt++;
+          }
+          if lex[o] == ":]" {
+            glCnt--;
+          }
+
+          if lex[o] == "[" {
+            bCnt++;
+          }
+          if lex[o] == "]" {
+            bCnt--;
+          }
+
+          if lex[o] == "(" {
+            pCnt++;
+          }
+          if lex[o] == ")" {
+            pCnt--;
+          }
+
+          if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
             break
           }
 
           _num2 = append(_num2, exp[o])
         }
 
-        var num1 []Action
-        var num2 []Action
-
-        if reflect.TypeOf(_num1[0]).String() == "string" {
-
-          var num []string
-
-          for _, v := range _num1 {
-            num = append(num, v.(string))
-          }
-
-          num1 = actionizer(num, true)
-
-        } else {
-
-          for _, v := range _num1 {
-            num1 = append(num1, v.(Action))
-          }
-
-        }
-
-        if reflect.TypeOf(_num2[0]).String() == "string" {
-
-          var num []string
-
-          for _, v := range _num2 {
-            num = append(num, v.(string))
-          }
-
-          num2 = actionizer(num, true)
-
-        } else {
-
-          for _, v := range _num2 {
-            num2 = append(num2, v.(Action))
-          }
-
-        }
-
-        var act_exp = Action{ "exponentiate", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 36, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false), false }
-
-        exp_ := append(exp[:index - 1], act_exp)
-        exp_ = append(exp_, exp[index + 1:])
-
-        exp = exp_
-      }
-
-      for ;interfaceContain(exp, "*") || interfaceContain(exp, "/"); {
-
-        if interfaceIndexOf("*", exp) > interfaceIndexOf("/", exp) || interfaceIndexOf("/", exp) == -1 {
-          index := interfaceIndexOf("*", exp)
-
-          var _num1 = []interface{}{}
-          var _num2 = []interface{}{}
-
-          //_num1 loop
-          for o := index - 1; o >= 0; o-- {
-
-            if arrayContainInterface(operations, exp[o]) {
-              break
-            }
-
-            _num1 = append(_num1, exp[o])
-          }
-
-          //_num2 loop
-          for o := index + 1; o < len(exp); o++ {
-
-            if arrayContainInterface(operations, exp[o]) {
-              break
-            }
-
-            _num2 = append(_num2, exp[o])
-          }
-
-          var num1 []Action
-          var num2 []Action
-
-          if reflect.TypeOf(_num1[0]).String() == "string" {
-
-            var num []string
-
-            for _, v := range _num1 {
-              num = append(num, v.(string))
-            }
-
-            num1 = actionizer(num, false)
-
-          } else {
-
-            for _, v := range _num1 {
-              num1 = append(num1, v.(Action))
-            }
-
-          }
-
-          if reflect.TypeOf(_num2[0]).String() == "string" {
-
-            var num []string
-
-            for _, v := range _num2 {
-              num = append(num, v.(string))
-            }
-
-            num2 = actionizer(num, false)
-
-          } else {
-
-            for _, v := range _num2 {
-              num2 = append(num2, v.(Action))
-            }
-
-          }
-
-          var act_exp = Action{ "multiply", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 34, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false), false }
-
-          exp_ := append(exp[:index - 1], act_exp)
-          exp_ = append(exp_, exp[index + 1:])
-
-          exp = exp_
-        } else {
-          index := interfaceIndexOf("/", exp)
-
-          var _num1 = []interface{}{}
-          var _num2 = []interface{}{}
-
-          //_num1 loop
-          for o := index - 1; o >= 0; o-- {
-
-            if arrayContainInterface(operations, exp[o]) {
-              break
-            }
-
-            _num1 = append(_num1, exp[o])
-          }
-
-          //_num2 loop
-          for o := index + 1; o < len(exp); o++ {
-
-            if arrayContainInterface(operations, exp[o]) {
-              break
-            }
-
-            _num2 = append(_num2, exp[o])
-          }
-
-          var num1 []Action
-          var num2 []Action
-
-          if reflect.TypeOf(_num1[0]).String() == "string" {
-
-            var num []string
-
-            for _, v := range _num1 {
-              num = append(num, v.(string))
-            }
-
-            num1 = actionizer(num, false)
-
-          } else {
-
-            for _, v := range _num1 {
-              num1 = append(num1, v.(Action))
-            }
-
-          }
-
-          if reflect.TypeOf(_num2[0]).String() == "string" {
-
-            var num []string
-
-            for _, v := range _num2 {
-              num = append(num, v.(string))
-            }
-
-            num2 = actionizer(num, false)
-
-          } else {
-
-            for _, v := range _num2 {
-              num2 = append(num2, v.(Action))
-            }
-
-          }
-
-          var act_exp = Action{ "divide", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 35, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false), false }
-
-          exp_ := append(exp[:index - 1], act_exp)
-          exp_ = append(exp_, exp[index + 1:])
-
-          exp = exp_
-        }
-
-      }
-
-      for ;interfaceContain(exp, "%"); {
-        index := interfaceIndexOf("%", exp)
-
-        var _num1 = []interface{}{}
-        var _num2 = []interface{}{}
-
-        //_num1 loop
-        for o := index - 1; o >= 0; o-- {
-
-          if arrayContainInterface(operations, exp[o]) {
-            break
-          }
-
-          _num1 = append(_num1, exp[o])
-        }
-
-        //_num2 loop
-        for o := index + 1; o < len(exp); o++ {
-
-          if arrayContainInterface(operations, exp[o]) {
-            break
-          }
-
-          _num2 = append(_num2, exp[o])
-        }
+        reverseInterface(_num1)
 
         var num1 []Action
         var num2 []Action
@@ -431,7 +273,417 @@ func actionizer(lex []string, doExpress bool) []Action {
             num = append(num, v.(string))
           }
 
-          num2 = actionizer(num, false)
+          num2 = actionizer(num, true)
+
+        } else {
+
+          for _, v := range _num2 {
+            num2 = append(num2, v.(Action))
+          }
+
+        }
+
+        var act_exp = Action{ "exponentiate", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 36, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false), false }
+
+        exp_ := append(exp[:index - len(_num1)], act_exp)
+        exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
+
+        exp = exp_
+      }
+
+      for ;interfaceContain(exp, "*") || interfaceContain(exp, "/"); {
+
+        if interfaceIndexOf("*", exp) > interfaceIndexOf("/", exp) || interfaceIndexOf("/", exp) == -1 {
+          index := interfaceIndexOf("*", exp)
+
+          var _num1 []interface{}
+          var _num2 []interface{}
+
+          cbCnt := 0
+          glCnt := 0
+          bCnt := 0
+          pCnt := 0
+
+          //_num1 loop
+          for o := index - 1; o >= 0; o-- {
+
+            if lex[o] == "{" {
+              cbCnt++;
+            }
+            if lex[o] == "}" {
+              cbCnt--;
+            }
+
+            if lex[o] == "[:" {
+              glCnt++;
+            }
+            if lex[o] == ":]" {
+              glCnt--;
+            }
+
+            if lex[o] == "[" {
+              bCnt++;
+            }
+            if lex[o] == "]" {
+              bCnt--;
+            }
+
+            if lex[o] == "(" {
+              pCnt++;
+            }
+            if lex[o] == ")" {
+              pCnt--;
+            }
+
+            if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+              break
+            }
+
+            _num1 = append(_num1, exp[o])
+          }
+
+          //_num2 loop
+          for o := index + 1; o < len(exp); o++ {
+
+            if lex[o] == "{" {
+              cbCnt++;
+            }
+            if lex[o] == "}" {
+              cbCnt--;
+            }
+
+            if lex[o] == "[:" {
+              glCnt++;
+            }
+            if lex[o] == ":]" {
+              glCnt--;
+            }
+
+            if lex[o] == "[" {
+              bCnt++;
+            }
+            if lex[o] == "]" {
+              bCnt--;
+            }
+
+            if lex[o] == "(" {
+              pCnt++;
+            }
+            if lex[o] == ")" {
+              pCnt--;
+            }
+
+            if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+              break
+            }
+
+            _num2 = append(_num2, exp[o])
+          }
+
+          reverseInterface(_num1)
+
+          var num1 []Action
+          var num2 []Action
+
+          if reflect.TypeOf(_num1[0]).String() == "string" {
+
+            var num []string
+
+            for _, v := range _num1 {
+              num = append(num, v.(string))
+            }
+
+            num1 = actionizer(num, false)
+
+          } else {
+
+            for _, v := range _num1 {
+              num1 = append(num1, v.(Action))
+            }
+
+          }
+
+          if reflect.TypeOf(_num2[0]).String() == "string" {
+
+            var num []string
+
+            for _, v := range _num2 {
+              num = append(num, v.(string))
+            }
+
+            num2 = actionizer(num, true)
+
+          } else {
+
+            for _, v := range _num2 {
+              num2 = append(num2, v.(Action))
+            }
+
+          }
+
+          var act_exp = Action{ "multiply", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 34, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false), false }
+
+          exp_ := append(exp[:index - len(_num1)], act_exp)
+          exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
+
+          exp = exp_
+        } else {
+          index := interfaceIndexOf("/", exp)
+
+          var _num1 []interface{}
+          var _num2 []interface{}
+
+          cbCnt := 0
+          glCnt := 0
+          bCnt := 0
+          pCnt := 0
+
+          //_num1 loop
+          for o := index - 1; o >= 0; o-- {
+
+            if lex[o] == "{" {
+              cbCnt++;
+            }
+            if lex[o] == "}" {
+              cbCnt--;
+            }
+
+            if lex[o] == "[:" {
+              glCnt++;
+            }
+            if lex[o] == ":]" {
+              glCnt--;
+            }
+
+            if lex[o] == "[" {
+              bCnt++;
+            }
+            if lex[o] == "]" {
+              bCnt--;
+            }
+
+            if lex[o] == "(" {
+              pCnt++;
+            }
+            if lex[o] == ")" {
+              pCnt--;
+            }
+
+            if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+              break
+            }
+
+            _num1 = append(_num1, exp[o])
+          }
+
+          //_num2 loop
+          for o := index + 1; o < len(exp); o++ {
+
+            if lex[o] == "{" {
+              cbCnt++;
+            }
+            if lex[o] == "}" {
+              cbCnt--;
+            }
+
+            if lex[o] == "[:" {
+              glCnt++;
+            }
+            if lex[o] == ":]" {
+              glCnt--;
+            }
+
+            if lex[o] == "[" {
+              bCnt++;
+            }
+            if lex[o] == "]" {
+              bCnt--;
+            }
+
+            if lex[o] == "(" {
+              pCnt++;
+            }
+            if lex[o] == ")" {
+              pCnt--;
+            }
+
+            if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+              break
+            }
+
+            _num2 = append(_num2, exp[o])
+          }
+
+          reverseInterface(_num1)
+
+          var num1 []Action
+          var num2 []Action
+
+          if reflect.TypeOf(_num1[0]).String() == "string" {
+
+            var num []string
+
+            for _, v := range _num1 {
+              num = append(num, v.(string))
+            }
+
+            num1 = actionizer(num, false)
+
+          } else {
+
+            for _, v := range _num1 {
+              num1 = append(num1, v.(Action))
+            }
+
+          }
+
+          if reflect.TypeOf(_num2[0]).String() == "string" {
+
+            var num []string
+
+            for _, v := range _num2 {
+              num = append(num, v.(string))
+            }
+
+            num2 = actionizer(num, true)
+
+          } else {
+
+            for _, v := range _num2 {
+              num2 = append(num2, v.(Action))
+            }
+
+          }
+
+          var act_exp = Action{ "divide", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 35, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false), false }
+
+          exp_ := append(exp[:index - len(_num1)], act_exp)
+          exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
+
+          exp = exp_
+        }
+
+      }
+
+      for ;interfaceContain(exp, "%"); {
+        index := interfaceIndexOf("%", exp)
+
+        var _num1 []interface{}
+        var _num2 []interface{}
+
+        cbCnt := 0
+        glCnt := 0
+        bCnt := 0
+        pCnt := 0
+
+        //_num1 loop
+        for o := index - 1; o >= 0; o-- {
+
+          if lex[o] == "{" {
+            cbCnt++;
+          }
+          if lex[o] == "}" {
+            cbCnt--;
+          }
+
+          if lex[o] == "[:" {
+            glCnt++;
+          }
+          if lex[o] == ":]" {
+            glCnt--;
+          }
+
+          if lex[o] == "[" {
+            bCnt++;
+          }
+          if lex[o] == "]" {
+            bCnt--;
+          }
+
+          if lex[o] == "(" {
+            pCnt++;
+          }
+          if lex[o] == ")" {
+            pCnt--;
+          }
+
+          if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+            break
+          }
+
+          _num1 = append(_num1, exp[o])
+        }
+
+        //_num2 loop
+        for o := index + 1; o < len(exp); o++ {
+
+          if lex[o] == "{" {
+            cbCnt++;
+          }
+          if lex[o] == "}" {
+            cbCnt--;
+          }
+
+          if lex[o] == "[:" {
+            glCnt++;
+          }
+          if lex[o] == ":]" {
+            glCnt--;
+          }
+
+          if lex[o] == "[" {
+            bCnt++;
+          }
+          if lex[o] == "]" {
+            bCnt--;
+          }
+
+          if lex[o] == "(" {
+            pCnt++;
+          }
+          if lex[o] == ")" {
+            pCnt--;
+          }
+
+          if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+            break
+          }
+
+          _num2 = append(_num2, exp[o])
+        }
+
+        reverseInterface(_num1)
+
+        var num1 []Action
+        var num2 []Action
+
+        if reflect.TypeOf(_num1[0]).String() == "string" {
+
+          var num []string
+
+          for _, v := range _num1 {
+            num = append(num, v.(string))
+          }
+
+          num1 = actionizer(num, false)
+
+        } else {
+
+          for _, v := range _num1 {
+            num1 = append(num1, v.(Action))
+          }
+
+        }
+
+        if reflect.TypeOf(_num2[0]).String() == "string" {
+
+          var num []string
+
+          for _, v := range _num2 {
+            num = append(num, v.(string))
+          }
+
+          num2 = actionizer(num, true)
 
         } else {
 
@@ -443,8 +695,8 @@ func actionizer(lex []string, doExpress bool) []Action {
 
         var act_exp = Action{ "modulo", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 37, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false), false }
 
-        exp_ := append(exp[:index - 1], act_exp)
-        exp_ = append(exp_, exp[index + 1:])
+        exp_ := append(exp[:index - len(_num1)], act_exp)
+        exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
 
         exp = exp_
       }
@@ -493,7 +745,7 @@ func actionizer(lex []string, doExpress bool) []Action {
               pCnt--;
             }
 
-            if arrayContainInterface(operations, exp[o]) && !(cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0) {
+            if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
               break
             }
 
@@ -531,7 +783,7 @@ func actionizer(lex []string, doExpress bool) []Action {
               pCnt--;
             }
 
-            if arrayContainInterface(operations, exp[o]) && !(cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0) {
+            if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
               break
             }
 
@@ -582,7 +834,7 @@ func actionizer(lex []string, doExpress bool) []Action {
           var act_exp = Action{ "add", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 32, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false), false }
 
           exp_ := append(exp[:index - len(_num1)], act_exp)
-          exp_ = append(exp_, exp[index + len(_num2) + 1:])
+          exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
 
           exp = exp_
         } else {
@@ -591,10 +843,43 @@ func actionizer(lex []string, doExpress bool) []Action {
           var _num1 []interface{}
           var _num2 []interface{}
 
+          cbCnt := 0
+          glCnt := 0
+          bCnt := 0
+          pCnt := 0
+
           //_num1 loop
           for o := index - 1; o >= 0; o-- {
 
-            if arrayContainInterface(operations, exp[o]) {
+            if lex[o] == "{" {
+              cbCnt++;
+            }
+            if lex[o] == "}" {
+              cbCnt--;
+            }
+
+            if lex[o] == "[:" {
+              glCnt++;
+            }
+            if lex[o] == ":]" {
+              glCnt--;
+            }
+
+            if lex[o] == "[" {
+              bCnt++;
+            }
+            if lex[o] == "]" {
+              bCnt--;
+            }
+
+            if lex[o] == "(" {
+              pCnt++;
+            }
+            if lex[o] == ")" {
+              pCnt--;
+            }
+
+            if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
               break
             }
 
@@ -604,12 +889,42 @@ func actionizer(lex []string, doExpress bool) []Action {
           //_num2 loop
           for o := index + 1; o < len(exp); o++ {
 
-            if arrayContainInterface(operations, exp[o]) {
+            if lex[o] == "{" {
+              cbCnt++;
+            }
+            if lex[o] == "}" {
+              cbCnt--;
+            }
+
+            if lex[o] == "[:" {
+              glCnt++;
+            }
+            if lex[o] == ":]" {
+              glCnt--;
+            }
+
+            if lex[o] == "[" {
+              bCnt++;
+            }
+            if lex[o] == "]" {
+              bCnt--;
+            }
+
+            if lex[o] == "(" {
+              pCnt++;
+            }
+            if lex[o] == ")" {
+              pCnt--;
+            }
+
+            if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
               break
             }
 
             _num2 = append(_num2, exp[o])
           }
+
+          reverseInterface(_num1)
 
           var num1 []Action
           var num2 []Action
@@ -640,7 +955,7 @@ func actionizer(lex []string, doExpress bool) []Action {
               num = append(num, v.(string))
             }
 
-            num2 = actionizer(num, false)
+            num2 = actionizer(num, true)
 
           } else {
 
@@ -652,8 +967,8 @@ func actionizer(lex []string, doExpress bool) []Action {
 
           var act_exp = Action{ "subtract", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 33, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false), false }
 
-          exp_ := append(exp[:index - 1], act_exp)
-          exp_ = append(exp_, exp[index + 1:])
+          exp_ := append(exp[:index - len(_num1)], act_exp)
+          exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
 
           exp = exp_
         }
@@ -2630,7 +2945,7 @@ func actionizer(lex []string, doExpress bool) []Action {
               exp_ = append(exp_, lex[o]);
             }
 
-            exp := actionizer(exp_, false)
+            exp := actionizer(exp_, true)
 
             actions = append(actions, Action{ "let", name, exp_, exp, []string{}, []Action{}, []Condition{}, 28, []Action{}, []Action{}, []Action{}, [][]Action{}, indexes, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
             i+=(len(exp))

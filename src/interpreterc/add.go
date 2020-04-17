@@ -279,13 +279,14 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
 
     string + (* - array - none - hash) = string
     array + (* - none) = array
-    none + * = none
+    none + * = falsey
     hash + (* - hash) = none
     type + (* - hash - none) = type
     num + num = num
     hash + hash = hash
     boolean + boolean = boolean
     num + boolean = num
+    default = falsey
   */
 
   var finalRet Action
@@ -293,7 +294,7 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
   switch nums {
     case TypeOperations{ "number", "number" }: { //detect case "num" + "num"
 
-      numRet := add(_num1P_.ExpStr[0], _num2P_.ExpStr[0], calc_params, line)
+      numRet := returnInit(add(_num1P_.ExpStr[0], _num2P_.ExpStr[0], calc_params, line))
 
       finalRet = Action{ "number", "", []string{ numRet }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"number", "", []string{ numRet }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
     }
@@ -371,14 +372,40 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
         finalRet = Action{ "string", "", []string{ final }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"string", "", []string{ final }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
       } else if (nums.First == "array" && nums.Second != "none") || (nums.First != "none" && nums.Second == "array") { //detect case "array" + (* - "none") = "array"
 
-      } else if nums.First == "none" || nums.Second == "none" { //detect case "none" + * = "none"
+        val1 := _num1P_
+        val2 := _num2P_
 
+        if nums.First == "array" {
+          val1.Hash_Values[strconv.Itoa(len(val1.Hash_Values))] = []Action{ val2 }
+        } else {
+          val2, val1 = val1, val2
+
+          nMap := make(map[string][]Action)
+
+          for k, v := range val1.Hash_Values {
+            nMap[add(k, "1", calc_params, line)] = v
+          }
+
+          nMap["0"] = []Action{ val2 }
+
+          val1.Hash_Values = nMap
+        }
+
+        finalRet = val1
+
+      } else if nums.First == "none" || nums.Second == "none" { //detect case "none" + * = "falsey"
+
+        //if it is none + none, just return undefined
+        finalRet = Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
       } else if (nums.First == "hash" && nums.Second != "none") || (nums.First != "none" && nums.Second == "hash") { //detect case "hash" + (* - "hash") = "none"
+
+        //get hash values of both values
         val1 := _num1P_.Hash_Values
         val2 := _num2P_.Hash_Values
 
         var final = make(map[string][]Action)
 
+        //combine both hashes
         for k, v := range val1 {
           final[k] = v
         }
@@ -387,13 +414,32 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
           final[k] = v
         }
 
+        //return the combined hash
         finalRet = Action{ "hash", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, final, []Action{ Action{"hash", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, final, []Action{}, false} }, false }
       } else if (nums.First == "type" && nums.Second != "hash" && nums.Second != "none") || (nums.First != "hash" && nums.First != "none" && nums.Second == "type") { //detect case "type" + (* - "hash" - "none") = "type"
 
+        val1 := _num1P_.ExpStr[0]
+        val2 := _num2P_.ExpStr[0]
+
+        if strings.HasPrefix(val1, "'") || strings.HasPrefix(val1, "\"") || strings.HasPrefix(val1, "`") {
+          val1 = val1[1:len(val1) - 1]
+        }
+        if strings.HasPrefix(val2, "'") || strings.HasPrefix(val2, "\"") || strings.HasPrefix(val2, "`") {
+          val2 = val2[1:len(val2) - 1]
+        }
+
+        final := "'" + val1 + val2 + "'"
+
+        finalRet = Action{ "string", "", []string{ final }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"string", "", []string{ final }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
+
       } else {
+
+        //if nothing was detected just return undefined
         finalRet = Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
       }
   }
+
+  reCalc(&finalRet)
 
   jsonNum, _ := json.Marshal(finalRet)
 

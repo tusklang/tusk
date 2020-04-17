@@ -6,6 +6,25 @@ import "encoding/json"
 // #cgo CFLAGS: -std=c99
 import "C"
 
+func modulo(_num1 string, _num2 string, calc_params paramCalcOpts, line int) string {
+  if _num2 == "0"  {
+    return "undefined"
+  }
+
+  if returnInit(_num1) == "0" {
+    return "0"
+  }
+
+  divved_ := addDec(divide(_num1, _num2, calc_params, line))
+
+  divved := divved_[:strings.Index(divved_, ".")]
+
+  mult := multiply(divved, _num2, calc_params, line)
+  remainder := subtract(_num1, mult, calc_params, line)
+
+  return remainder
+}
+
 //export Modulo
 func Modulo(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.char {
 
@@ -21,20 +40,33 @@ func Modulo(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *
 
   _ = json.Unmarshal([]byte(calc_params_str), &calc_params)
 
-  if _num2 == "0"  {
-    return C.CString("undefined")
+  var _num1P_ Action
+  var _num2P_ Action
+
+  _ = json.Unmarshal([]byte(_num1), &_num1P_)
+  _ = json.Unmarshal([]byte(_num2), &_num2P_)
+
+  /* TABLE OF TYPES:
+
+    num % num = num
+    default = falsey
+  */
+
+  nums := TypeOperations{ _num1P_.Type, _num2P_.Type }
+
+  var finalRet Action
+
+  switch nums {
+    case TypeOperations{ "number", "number" }: //detect case "num" % "num"
+      val := modulo(_num1P_.ExpStr[0], _num2P_.ExpStr[0], calc_params, line)
+
+      finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"number", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
+    default: finalRet = Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
   }
 
-  if returnInit(_num1) == "0" {
-    return C.CString("0")
-  }
+  reCalc(&finalRet)
 
-  divved_ := addDec(C.GoString(Division(C.CString(_num1), C.CString(_num2), calc_paramsP, line_)))
+  jsonNum, _ := json.Marshal(finalRet)
 
-  divved := divved_[:strings.Index(divved_, ".")]
-
-  mult := C.GoString(Multiply(C.CString(divved), C.CString(_num2), calc_paramsP, line_))
-  remainder := C.GoString(Subtract(C.CString(_num1), C.CString(mult), calc_paramsP, line_))
-
-  return C.CString(remainder)
+  return C.CString(string(jsonNum))
 }

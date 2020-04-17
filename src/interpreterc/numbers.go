@@ -82,6 +82,10 @@ func returnInit(str string) string {
     str = "0"
   }
 
+  if strings.HasPrefix(str, ".") {
+    str = "0" + str
+  }
+
   return str
 }
 
@@ -237,4 +241,26 @@ func getDec(num string) int {
   }
 
   return strings.Index(num, ".")
+}
+
+//function to re calculate the hash values (because operations can manipulate expStr but not hash values)
+func reCalc(val *Action) {
+
+  switch ((*val).Type) {
+    case "string":
+      expstr := val.ExpStr[0][1:len(val.ExpStr[0]) - 1]
+
+      for i := 0; i < len(expstr); i++ {
+        val.Hash_Values[strconv.Itoa(i)] = []Action{ Action{ "string", "", []string{ string(expstr[i]) }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"string", "", []string{ string(expstr[i]) }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false } }
+      }
+  }
+}
+
+func getIndex(val, index string) string {
+
+  for i := "1"; isLess(i, index); i = add(i, "1", paramCalcOpts{}, -1) {
+    val = val[1:]
+  }
+
+  return string(val[0])
 }

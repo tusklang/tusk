@@ -860,6 +860,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               vector<string> returnNone;
 
+              if (calculated.size() == 0) return Returner{ returnNone, vars, lenPlaceholder, "expression" };
+
               switch (GetActNumC(&(calculated["Type"].get<string>())[0])) {
                 case 38: {
 
@@ -959,85 +961,150 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //subtract
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp[0][0]
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp[0][0];
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump(2)
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump(2);
 
-            expStr[expStr.size() - 1].push_back(
-              Subtract(
-                &first[0],
-                &second[0],
-                &calc_params.dump()[0],
-                line
-              )
-            );
+            string _val(Subtract(
+              &first[0],
+              &second[0],
+              &calc_params.dump()[0],
+              line
+            ));
+
+            json val = json::parse(_val);
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = val;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
         case 34: {
 
             //multiply
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp[0]
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp[0];
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump(2)
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump(2);
 
-            expStr[expStr.size() - 1].push_back(
-              Multiply(
-                &first[0],
-                &second[0],
-                &calc_params.dump()[0],
-                line
-              )
-            );
+            string _val(Multiply(
+              &first[0],
+              &second[0],
+              &calc_params.dump()[0],
+              line
+            ));
+
+            json val = json::parse(_val);
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = val;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
         case 35: {
 
             //divide
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp[0][0]
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp[0][0];
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump(2)
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump(2);
 
-            expStr[expStr.size() - 1].push_back(
-              Division(
-                &first[0],
-                &second[0],
-                &calc_params.dump()[0],
-                line
-              )
-            );
+            string _val(Division(
+              &first[0],
+              &second[0],
+              &calc_params.dump()[0],
+              line
+            ));
+
+            json val = json::parse(_val);
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = val;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
         case 36: {
 
             //exponentiate
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp[0][0]
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp[0][0];
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump(2)
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump(2);
 
-            expStr[expStr.size() - 1].push_back(
-              Exponentiate(
-                &first[0],
-                &second[0],
-                &calc_params.dump()[0],
-                line
-              )
-            );
+            string _val(Exponentiate(
+              &first[0],
+              &second[0],
+              &calc_params.dump()[0],
+              line
+            ));
+
+            json val = json::parse(_val);
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = val;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
         case 37: {
 
             //modulo
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp[0][0]
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp[0][0];
+            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump(2)
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump(2);
 
-            expStr[expStr.size() - 1].push_back(
-              Modulo(
-                &first[0],
-                &second[0],
-                &calc_params.dump()[0],
-                line
-              )
-            );
+            string _val(Modulo(
+              &first[0],
+              &second[0],
+              &calc_params.dump()[0],
+              line
+            ));
+
+            json val = json::parse(_val);
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = val;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
         case 38: {

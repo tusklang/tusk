@@ -34,7 +34,7 @@ func GetType(cVal *C.char) *C.char {
 
   var numMatch = func(num string) bool {
     for _, v := range num {
-      if !unicode.IsDigit(v) {
+      if !unicode.IsDigit(v) && v != '.' {
         return false
       }
     }

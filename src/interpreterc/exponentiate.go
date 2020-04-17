@@ -8,6 +8,38 @@ import "encoding/json"
 // #cgo CFLAGS: -std=c99
 import "C"
 
+func exponentiate(_num1 string, _num2 string, calc_params paramCalcOpts, line int) string {
+  _num1 = returnInit(_num1)
+  _num2 = returnInit(_num2)
+
+  if strings.Contains(_num2, ".") {
+    fmt.Println("There Was An Error: Currently You Cannot Exponentiate By Numbers With Decimals\n\n" + _num1 + "^" + _num2 + "\n" +"^^^ <- Error On Line " + string(line))
+    os.Exit(1)
+  }
+
+  var final = "1"
+
+  if strings.HasPrefix(_num2, "-") {
+    _num2 = _num2[1:]
+
+    for ;isLess("0", _num2); {
+      final = multiply(final, _num1, calc_params, line)
+      _num2 = subtract(_num2, "1", calc_params, line)
+    }
+
+    final = divide("1", final, calc_params, line)
+  } else {
+
+    for ;isLess("0", _num2); {
+
+      final = multiply(final, _num1, calc_params, line)
+      _num2 = subtract(_num2, "1", calc_params, line)
+    }
+  }
+
+  return final
+}
+
 //export Exponentiate
 func Exponentiate(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.char {
 
@@ -23,33 +55,33 @@ func Exponentiate(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.
 
   _ = json.Unmarshal([]byte(calc_params_str), &calc_params)
 
-  _num1 = returnInit(_num1)
-  _num2 = returnInit(_num2)
+  var _num1P_ Action
+  var _num2P_ Action
 
-  if strings.Contains(_num2, ".") {
-    fmt.Println("There Was An Error: Currently You Cannot Exponentiate By Numbers With Decimals\n\n" + _num1 + "^" + _num2 + "\n" +"^^^ <- Error On Line " + string(line))
-    os.Exit(1)
+  _ = json.Unmarshal([]byte(_num1), &_num1P_)
+  _ = json.Unmarshal([]byte(_num2), &_num2P_)
+
+  /* TABLE OF TYPES:
+
+    num ^ num = num
+    default = num
+  */
+
+  nums := TypeOperations{ _num1P_.Type, _num2P_.Type }
+
+  var finalRet Action
+
+  switch nums {
+    case TypeOperations{ "number", "number" }: //detect case "num" ^ "num"
+      val := exponentiate(_num1P_.ExpStr[0], _num2P_.ExpStr[0], calc_params, line)
+
+      finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"number", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
+    default: finalRet = Action{ "number", "", []string{ "0" }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"number", "", []string{ "0" }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
   }
 
-  var final = "1"
+  reCalc(&finalRet)
 
-  if strings.HasPrefix(_num2, "-") {
-    _num2 = _num2[1:]
+  jsonNum, _ := json.Marshal(finalRet)
 
-    for ;isLess("0", _num2); {
-      final = C.GoString(Multiply(C.CString(final), C.CString(_num1), calc_paramsP, line_))
-      _num2 = C.GoString(Subtract(C.CString(_num2), C.CString("1"), calc_paramsP, line_))
-    }
-
-    final = C.GoString(Division(C.CString("1"), C.CString(final), calc_paramsP, line_))
-  } else {
-
-    for ;isLess("0", _num2); {
-
-      final = C.GoString(Multiply(C.CString(final), C.CString(_num1), calc_paramsP, line_))
-      _num2 = C.GoString(Subtract(C.CString(_num2), C.CString("1"), calc_paramsP, line_))
-    }
-  }
-
-  return C.CString(final)
+  return C.CString(string(jsonNum))
 }
