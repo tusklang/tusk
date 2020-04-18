@@ -142,7 +142,7 @@ func Division(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
 
         str := strings.Join(_str, "")
 
-        finalRet = Action{ "string", "", []string{ str + "'" }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"string", "", []string{ str + "'" }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
+        finalRet = Action{ "string", "", []string{ str }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"string", "", []string{ str }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
       }
     case TypeOperations{ "number", "string" }: //detect case "string" / "num"
 
@@ -169,7 +169,7 @@ func Division(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
           cur+=getIndex(str, i)
         }
 
-        finalRet = Action{ "string", "", []string{ "'" + cur }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"string", "", []string{ "'" + cur }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
+        finalRet = Action{ "string", "", []string{ cur }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"string", "", []string{ cur }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
       }
     default: finalRet = Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
   }

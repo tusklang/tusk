@@ -975,6 +975,166 @@ func actionizer(lex []string, doExpress bool) []Action {
 
       }
 
+      for ;interfaceContain(exp, "=") || interfaceContain(exp, "!=") || interfaceContain(exp, ">") || interfaceContain(exp, "<") || interfaceContain(exp, ">=") || interfaceContain(exp, "<=") || interfaceContain(exp, "~~") || interfaceContain(exp, "~~~"); {
+        indexes := map[string]int{
+          "=": interfaceIndexOf("=", exp),
+          "!=": interfaceIndexOf("!=", exp),
+          ">": interfaceIndexOf(">", exp),
+          "<": interfaceIndexOf("<", exp),
+          ">=": interfaceIndexOf(">=", exp),
+          "<=": interfaceIndexOf("<=", exp),
+          "~~": interfaceIndexOf("~~", exp),
+          "~~~": interfaceIndexOf("~~~", exp),
+        }
+
+        //get min index
+
+        var min = [2]interface{}{ "=", indexes["="] }
+
+        for k, v := range indexes {
+          if v != -1 && v < min[1].(int) {
+            min = [2]interface{}{ k, v }
+          }
+        }
+
+        switch min[0].(string) {
+          case "=":
+            index := min[1].(int)
+
+            var _num1 []interface{}
+            var _num2 []interface{}
+
+            cbCnt := 0
+            glCnt := 0
+            bCnt := 0
+            pCnt := 0
+
+            //_num1 loop
+            for o := index - 1; o >= 0; o-- {
+
+              if lex[o] == "{" {
+                cbCnt++;
+              }
+              if lex[o] == "}" {
+                cbCnt--;
+              }
+
+              if lex[o] == "[:" {
+                glCnt++;
+              }
+              if lex[o] == ":]" {
+                glCnt--;
+              }
+
+              if lex[o] == "[" {
+                bCnt++;
+              }
+              if lex[o] == "]" {
+                bCnt--;
+              }
+
+              if lex[o] == "(" {
+                pCnt++;
+              }
+              if lex[o] == ")" {
+                pCnt--;
+              }
+
+              if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+                break
+              }
+
+              _num1 = append(_num1, exp[o])
+            }
+
+            //_num2 loop
+            for o := index + 1; o < len(exp); o++ {
+
+              if lex[o] == "{" {
+                cbCnt++;
+              }
+              if lex[o] == "}" {
+                cbCnt--;
+              }
+
+              if lex[o] == "[:" {
+                glCnt++;
+              }
+              if lex[o] == ":]" {
+                glCnt--;
+              }
+
+              if lex[o] == "[" {
+                bCnt++;
+              }
+              if lex[o] == "]" {
+                bCnt--;
+              }
+
+              if lex[o] == "(" {
+                pCnt++;
+              }
+              if lex[o] == ")" {
+                pCnt--;
+              }
+
+              if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+                break
+              }
+
+              _num2 = append(_num2, exp[o])
+            }
+
+            reverseInterface(_num1)
+
+            var num1 []Action
+            var num2 []Action
+
+            if reflect.TypeOf(_num1[0]).String() == "string" {
+
+              var num []string
+
+              for _, v := range _num1 {
+                num = append(num, v.(string))
+              }
+
+              num1 = actionizer(num, false)
+
+            } else {
+
+              for _, v := range _num1 {
+                num1 = append(num1, v.(Action))
+              }
+
+            }
+
+            if reflect.TypeOf(_num2[0]).String() == "string" {
+
+              var num []string
+
+              for _, v := range _num2 {
+                num = append(num, v.(string))
+              }
+
+              num2 = actionizer(num, true)
+
+            } else {
+
+              for _, v := range _num2 {
+                num2 = append(num2, v.(Action))
+              }
+
+            }
+
+            var act_exp = Action{ "equals", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 47, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false), false }
+
+            exp_ := append(exp[:index - len(_num1)], act_exp)
+            exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
+
+            exp = exp_
+        }
+      }
+
       if reflect.TypeOf(exp[0]).String() == "string" {
         exp[0] = actionizer([]string{ exp[0].(string) }, false)[0]
       }
@@ -2219,7 +2379,7 @@ func actionizer(lex []string, doExpress bool) []Action {
         }
 
         if i >= len_lex {
-          actions = append(actions, Action{ "hash", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false), false })
+          actions = append(actions, Action{ "hash", "hashed_value", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false), false })
           break
         }
 
@@ -2231,7 +2391,7 @@ func actionizer(lex []string, doExpress bool) []Action {
         }
 
         if i >= len_lex {
-          actions = append(actions, Action{ "hash", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false), isMutable })
+          actions = append(actions, Action{ "hash", "hashed_value", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false), isMutable })
           break
         }
 
@@ -2302,7 +2462,7 @@ func actionizer(lex []string, doExpress bool) []Action {
 
           actions = append(actions, Action{ "hashIndex", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 23, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, translated, actionizer([]string{ "�hash" }, false), isMutable })
         } else {
-          actions = append(actions, Action{ "hash", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false), isMutable })
+          actions = append(actions, Action{ "hash", "hashed_value", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false), isMutable })
         }
       case "[":
         var phrase = []string{}
@@ -2414,7 +2574,7 @@ func actionizer(lex []string, doExpress bool) []Action {
         }
 
         if i >= len_lex {
-          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false), false })
+          actions = append(actions, Action{ "array", "hashed_value", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false), false })
           break
         }
 
@@ -2426,7 +2586,7 @@ func actionizer(lex []string, doExpress bool) []Action {
         }
 
         if i >= len_lex {
-          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false), isMutable })
+          actions = append(actions, Action{ "array", "hashed_value", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false), isMutable })
           break
         }
 
@@ -2497,7 +2657,7 @@ func actionizer(lex []string, doExpress bool) []Action {
 
           actions = append(actions, Action{ "arrayIndex", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 25, []Action{}, []Action{}, []Action{}, arr, putIndexes, hashedArr, actionizer([]string{ "�array" }, false), isMutable })
         } else {
-          actions = append(actions, Action{ "array", "", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false), isMutable })
+          actions = append(actions, Action{ "array", "hashed_value", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false), isMutable })
         }
       case "ascii":
         var phrase = []string{}
@@ -2648,41 +2808,43 @@ func actionizer(lex []string, doExpress bool) []Action {
               hashedString := make(map[string][]Action)
 
               //specify the value for the "falsey" case
-              hashedString["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), isMutable  } }
+              hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), isMutable  } }
 
               cur := "0"
+
+              val = val[1:len(val) - 1]
 
               for _, v := range noQ {
                 hashedString[cur] = actionizer([]string{ "" + string(v) }, true)
                 cur = add(cur, "1", paramCalcOpts{}, -1)
               }
 
-              actions = append(actions, Action{ "string", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedString, actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false), isMutable })
+              actions = append(actions, Action{ "string", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedString, actionizer([]string{ "�string" }, false), isMutable })
             }
             case "number":
 
               hashed := make(map[string][]Action)
 
               //specify the value for the "falsey" case
-              hashed["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), isMutable } }
+              hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), isMutable } }
 
-              actions = append(actions, Action{ "number", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false), false })
+              actions = append(actions, Action{ "number", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false), false })
             case "boolean":
 
               hashed := make(map[string][]Action)
 
               //specify the value for the "falsey" case
-              hashed["falsey"] = []Action{ Action{ "boolean", "", []string{ strconv.FormatBool(val != "true") }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("boolean"))) }, false), isMutable } }
+              hashed["falsey"] = []Action{ Action{ "boolean", "exp_value", []string{ strconv.FormatBool(val != "true") }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("boolean"))) }, false), isMutable } }
 
-              actions = append(actions, Action{ "boolean", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false), isMutable })
+              actions = append(actions, Action{ "boolean", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false), isMutable })
             case "falsey":
 
               hashed := make(map[string][]Action)
 
               //specify the value for the "falsey" case
-              hashed["falsey"] = []Action{ Action{ "falsey", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), isMutable } }
+              hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), isMutable } }
 
-              actions = append(actions, Action{ "falsey", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false), isMutable })
+              actions = append(actions, Action{ "falsey", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false), isMutable })
             case "none":
 
               if strings.HasPrefix(val, "$") {
@@ -2690,22 +2852,22 @@ func actionizer(lex []string, doExpress bool) []Action {
                 actions = append(actions, Action{ "variable", val, []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 43, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�variable" }, false), isMutable })
               } else if strings.HasPrefix(val, "�") {
 
-                actions = append(actions, Action{ "type", "", []string{ strings.TrimPrefix(val, "�") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(val, "�")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false })
+                actions = append(actions, Action{ "type", "exp_value", []string{ strings.TrimPrefix(val, "�") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(val, "�")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false })
               } else if strings.HasPrefix(val, "") {
 
                 hashed := make(map[string][]Action)
-                hashed["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), false } }
+                hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), false } }
 
-                actions = append(actions, Action{ "index_key", "", []string{ strings.TrimPrefix(val, "") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(val, "")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, []Action{}, false })
+                actions = append(actions, Action{ "index_key", "exp_value", []string{ strings.TrimPrefix(val, "") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(val, "")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, []Action{}, false })
               } else {
 
                 hashedString := make(map[string][]Action)
 
                 //specify the value for the "falsey" case
-                hashedString["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), isMutable } }
+                hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), isMutable } }
 
                 //get it? 42?
-                actions = append(actions, Action{ "none", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 42, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false), isMutable })
+                actions = append(actions, Action{ "none", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 42, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false), isMutable })
               }
           }
 

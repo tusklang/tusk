@@ -360,14 +360,7 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
         val1 := _num1P_.ExpStr[0]
         val2 := _num2P_.ExpStr[0]
 
-        if strings.HasPrefix(val1, "'") || strings.HasPrefix(val1, "\"") || strings.HasPrefix(val1, "`") {
-          val1 = val1[1:len(val1) - 1]
-        }
-        if strings.HasPrefix(val2, "'") || strings.HasPrefix(val2, "\"") || strings.HasPrefix(val2, "`") {
-          val2 = val2[1:len(val2) - 1]
-        }
-
-        final := "'" + val1 + val2 + "'"
+        final := val1 + val2
 
         finalRet = Action{ "string", "", []string{ final }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"string", "", []string{ final }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
       } else if (nums.First == "array" && nums.Second != "none") || (nums.First != "none" && nums.Second == "array") { //detect case "array" + (* - "none") = "array"
@@ -421,14 +414,7 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
         val1 := _num1P_.ExpStr[0]
         val2 := _num2P_.ExpStr[0]
 
-        if strings.HasPrefix(val1, "'") || strings.HasPrefix(val1, "\"") || strings.HasPrefix(val1, "`") {
-          val1 = val1[1:len(val1) - 1]
-        }
-        if strings.HasPrefix(val2, "'") || strings.HasPrefix(val2, "\"") || strings.HasPrefix(val2, "`") {
-          val2 = val2[1:len(val2) - 1]
-        }
-
-        final := "'" + val1 + val2 + "'"
+        final := val1 + val2
 
         finalRet = Action{ "string", "", []string{ final }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"string", "", []string{ final }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
 

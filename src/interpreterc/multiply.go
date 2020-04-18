@@ -132,7 +132,7 @@ func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
         val+=str
       }
 
-      val = "'" + val + "'"
+      val = val
       finalRet = Action{ "string", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"string", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
     case TypeOperations{ "number", "string" }: //detect case "string" * "num"
       str := _num2P_.ExpStr[0]
@@ -144,7 +144,7 @@ func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
         val+=str
       }
 
-      val = "'" + val + "'"
+      val = val
       finalRet = Action{ "string", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"string", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
     case TypeOperations{ "array", "array" }: //detect case "array" * "array"
 

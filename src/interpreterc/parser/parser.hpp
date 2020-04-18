@@ -11,7 +11,8 @@
 #include "structs.h"
 #include "indexes.hpp"
 #include "log_format.hpp"
-#include "falsey_val.hpp"
+#include "values.hpp"
+#include "comparisons.hpp"
 using namespace std;
 using json = nlohmann::json;
 
@@ -1196,6 +1197,36 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               vector<string> returnNone;
 
               return Returner{ returnNone, vars, index, "expression" };
+            }
+          }
+          break;
+        case 47: {
+
+            //equals
+
+            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+
+            json val = equals(
+              first,
+              second,
+              calc_params,
+              line
+            );
+
+            if (first["Type"] != second["Type"]) val = falseRet;
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = val;
+              ret.type = "expression";
+
+              return ret;
             }
           }
           break;
