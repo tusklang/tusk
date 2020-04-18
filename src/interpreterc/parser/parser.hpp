@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <thread>
+#include <windows.h>
 #include "json.hpp"
 #include "bind.h"
 #include "structs.h"
@@ -16,6 +17,7 @@
 #include "similarity.hpp"
 using namespace std;
 using json = nlohmann::json;
+using ulong = unsigned long;
 
 Returner parser(const json actions, const json calc_params, json vars, const string dir, const bool groupReturn, int line, const bool expReturn) {
 
@@ -1477,6 +1479,27 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               vector<string> noRet;
 
               return Returner{ noRet, vars, actions[i], "expression" };
+            }
+          }
+          break;
+        case 57: {
+
+            //wait
+
+            json amt = parser(actions[i]["ExpAct"], &calc_params.dump()[0], vars, dir, false, line, true).exp;
+
+            if (IsLessC(&(amt["ExpStr"][0].get<string>())[0], "4294967296")) Sleep((ulong) atoi(&(amt["ExpStr"][0].get<string>())[0]));
+            else {
+              for (char* i = "0"; (bool) IsLessC(i, &(amt["ExpStr"][0].get<string>())[0]); i = AddStrings(i, "4294967296", &calc_params.dump()[0], line)) {
+
+                char* subtracted = SubtractStrings(&(amt["ExpStr"][0].get<string>())[0], i, &calc_params.dump()[0], line);
+
+                if (IsLessC(
+                  subtracted,
+                  "4294967296"
+                )) Sleep((ulong) atoi(subtracted));
+                else Sleep((ulong) 4294967296);
+              }
             }
           }
           break;

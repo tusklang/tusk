@@ -1,1 +1,2 @@
-log ~ 'b' + 'vs' + ['s'];
+wait(1000);
+log ~ "test";

@@ -179,6 +179,92 @@ func calcExp(index int, exp []interface{}) ([]Action, []Action, []interface{}, [
   return num1, num2, _num1, _num2
 }
 
+func procCalc(i *int, lex []string, len_lex int) ([]Action, []string, string) {
+
+  var params []string
+  var procName string
+  var logic []Action
+
+  if lex[(*i) + 1] == "~" {
+    procName = lex[*i + 2]
+
+    for o := (*i) + 4; o < len_lex; o++ {
+      if lex[o] == ")" {
+        break
+      }
+
+      if lex[o] == "," {
+        continue
+      }
+
+      params = append(params, lex[o])
+    }
+    *i+=(len(params) + 5)
+
+    var logic_ = []string{}
+
+    cbCnt := 0
+
+    for o := *i; o < len_lex; o++ {
+      if lex[o] == "{" {
+        cbCnt++
+      }
+
+      if lex[o] == "}" {
+        cbCnt--
+      }
+
+      logic_ = append(logic_, lex[o])
+
+      if cbCnt == 0 {
+        break
+      }
+    }
+
+    *i+=len(logic_) - 1
+
+    logic = actionizer(logic_, false)
+  } else {
+    params = []string{}
+    procName = ""
+
+    for o := (*i) + 2; o < len_lex; o+=2 {
+      if lex[o] == ")" {
+        break
+      }
+
+      params = append(params, lex[o])
+    }
+    *i+=(3 + len(params))
+
+    var logic_ = []string{}
+
+    cbCnt := 0
+
+    for o := *i; o < len_lex; o++ {
+      if lex[o] == "{" {
+        cbCnt++
+      }
+
+      if lex[o] == "}" {
+        cbCnt--
+      }
+
+      logic_ = append(logic_, lex[o])
+
+      if cbCnt == 0 {
+        break
+      }
+    }
+
+    (*i)+=len(logic_) - 1
+
+    logic = actionizer(logic_, false)
+  }
+
+  return logic, params, procName
+}
+
 func actionizer(lex []string, doExpress bool) []Action {
   var actions = []Action{}
   var len_lex = len(lex)
@@ -1021,174 +1107,47 @@ func actionizer(lex []string, doExpress bool) []Action {
         actions = append(actions, Action{ "group", "", []string{}, exp, []string{}, []Action{}, []Condition{}, 9, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
         i+=(len(exp_) + 1)
       case "thread":
+
         putFalsey := make(map[string][]Action)
         putFalsey["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), false } }
 
-        if lex[i + 1] == "~" {
-          var procName = lex[i + 2]
-          params := []string{}
+        logic, params, procName := procCalc(&i, lex, len_lex)
 
-          for o := i + 4; o < len_lex; o++ {
-            if lex[o] == ")" {
-              break
-            }
-
-            if lex[o] == "," {
-              continue
-            }
-
-            params = append(params, lex[o])
-          }
-          i+=(len(params) + 5)
-
-          var logic_ = []string{}
-
-          cbCnt := 0
-
-          for o := i; o < len_lex; o++ {
-            if lex[o] == "{" {
-              cbCnt++
-            }
-
-            if lex[o] == "}" {
-              cbCnt--
-            }
-
-            logic_ = append(logic_, lex[o])
-
-            if cbCnt == 0 {
-              break
-            }
-          }
-
-          i+=len(logic_) - 1
-
-          logic := actionizer(logic_, false)
-
-          actions = append(actions, Action{ "thread", procName, []string{}, logic, params, []Action{}, []Condition{}, 56, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, actionizer([]string{ "�process" }, false), false })
-        } else {
-          params := []string{}
-
-          for o := i + 2; o < len_lex; o+=2 {
-            if lex[o] == ")" {
-              break
-            }
-
-            params = append(params, lex[o])
-          }
-          i+=(3 + len(params))
-
-          var logic_ = []string{}
-
-          cbCnt := 0
-
-          for o := i; o < len_lex; o++ {
-            if lex[o] == "{" {
-              cbCnt++
-            }
-
-            if lex[o] == "}" {
-              cbCnt--
-            }
-
-            logic_ = append(logic_, lex[o])
-
-            if cbCnt == 0 {
-              break
-            }
-          }
-
-          i+=len(logic_) - 1
-
-          logic := actionizer(logic_, false)
-
-          actions = append(actions, Action{ "thread", "", []string{}, logic, params, []Action{}, []Condition{}, 56, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, actionizer([]string{ "�process" }, false), false })
-        }
+        actions = append(actions, Action{ "thread", procName, []string{}, logic, params, []Action{}, []Condition{}, 56, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, actionizer([]string{ "�thread" }, false), false })
       case "process":
 
         putFalsey := make(map[string][]Action)
         putFalsey["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), false } }
 
-        if lex[i + 1] == "~" {
-          var procName = lex[i + 2]
-          params := []string{}
+        logic, params, procName := procCalc(&i, lex, len_lex)
 
-          for o := i + 4; o < len_lex; o++ {
-            if lex[o] == ")" {
-              break
-            }
+        actions = append(actions, Action{ "process", procName, []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, actionizer([]string{ "�process" }, false), false })
+      case "wait":
 
-            if lex[o] == "," {
-              continue
-            }
+        var exp []string
+        pCnt := 0
 
-            params = append(params, lex[o])
+        for o := i + 1; o < len_lex; o++ {
+          if lex[o] == "(" {
+            pCnt++
+            continue
           }
-          i+=(len(params) + 5)
-
-          var logic_ = []string{}
-
-          cbCnt := 0
-
-          for o := i; o < len_lex; o++ {
-            if lex[o] == "{" {
-              cbCnt++
-            }
-
-            if lex[o] == "}" {
-              cbCnt--
-            }
-
-            logic_ = append(logic_, lex[o])
-
-            if cbCnt == 0 {
-              break
-            }
+          if lex[o] == ")" {
+            pCnt--
+            continue
           }
 
-          i+=len(logic_) - 1
-
-          logic := actionizer(logic_, false)
-
-          actions = append(actions, Action{ "process", procName, []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, actionizer([]string{ "�process" }, false), false })
-        } else {
-          params := []string{}
-
-          for o := i + 2; o < len_lex; o+=2 {
-            if lex[o] == ")" {
-              break
-            }
-
-            params = append(params, lex[o])
-          }
-          i+=(3 + len(params))
-
-          var logic_ = []string{}
-
-          cbCnt := 0
-
-          for o := i; o < len_lex; o++ {
-            if lex[o] == "{" {
-              cbCnt++
-            }
-
-            if lex[o] == "}" {
-              cbCnt--
-            }
-
-            logic_ = append(logic_, lex[o])
-
-            if cbCnt == 0 {
-              break
-            }
+          if pCnt == 0 {
+            break
           }
 
-          i+=len(logic_) - 1
-
-          logic := actionizer(logic_, false)
-
-          actions = append(actions, Action{ "process", "", []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, actionizer([]string{ "�process" }, false), false })
+          exp = append(exp, lex[o])
         }
+
+        actionized := actionizer(exp, true)
+
+        actions = append(actions, Action{ "wait", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 57, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�wait" }, false), false })
+        i++
       case "#":
 
         cbCnt := 0

@@ -98,5 +98,5 @@ func index(fileName, dir string, calcParams paramCalcOpts) {
 
   cp, _ := json.Marshal(calcParams)
 
-  C.bind(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir))
+  C.bindCgo(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir))
 }

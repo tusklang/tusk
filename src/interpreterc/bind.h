@@ -21,8 +21,7 @@ extern "C" {
   extern char* Similar(char*, char*, char*, char*, int, char*, char*);
   extern char* AddStrings(char*, char*, char*, int);
   extern char* SubtractStrings(char*, char*, char*, int);
-  void bind(char *actions, char *calc_params, char *dir);
-  char* parser_exp(const char* actionsP, const char* calc_paramsP, const char* varsP, const char* dirP, const int groupReturn, int line, const int expReturn);
+  void bindCgo(char* actions, char* calc_params, char* dir);
 #ifdef __cplusplus
 }
 #endif

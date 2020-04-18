@@ -300,6 +300,12 @@
     "type": "operation"
   },
   {
+    "name": "wait",
+    "remove": "wait",
+    "pattern": "(wait\\()",
+    "type": "id"
+  },
+  {
     "name": "thread",
     "remove": "thread",
     "pattern": "(thread\\~)",
