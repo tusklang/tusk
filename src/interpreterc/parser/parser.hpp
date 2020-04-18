@@ -19,9 +19,6 @@ using json = nlohmann::json;
 
 Returner parser(const json actions, const json calc_params, json vars, const string dir, const bool groupReturn, int line, const bool expReturn) {
 
-  //empty expStr
-  json expStr = "[[]]"_json;
-
   //loop through every action
   for (int i = 0; i < actions.size(); i++) {
 
@@ -86,10 +83,10 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             int o = 0;
 
-            struct Returner cond = parser(actions[i]["Condition"][0]["Condition"], calc_params, vars, dir, true, line, false);
+            Returner cond = parser(actions[i]["Condition"][0]["Condition"], calc_params, vars, dir, true, line, false);
 
             //while the alt statement should continue
-            while (cond.exp[0][0] != "false" && cond.exp[0][0] != "undefined" && cond.exp[0][0] != "null") {
+            while (isTruthy(cond.exp)) {
 
               //going back to the first block when it reached the last block
               if (o >= actions[i]["Condition"].size()) o = 0;
@@ -324,9 +321,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             for (int o = 0; o < actions[i]["Condition"].size(); o++) {
 
-              string val = (string) parser(actions[i]["Condition"][o]["Condition"], calc_params, vars, dir, false, line, true).exp[0][0];
+              json val = parser(actions[i]["Condition"][o]["Condition"], calc_params, vars, dir, false, line, true).exp;
 
-              if (val != "false" && val != "undefined" && val != "null") {
+              if (isTruthy(val)) {
 
                 Returner parsed = parser(actions[i]["Condition"][o]["Actions"], calc_params, vars, dir, true, line, false);
 
@@ -351,9 +348,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //import
 
-            string fileName = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp[0][0];
-
-            if (fileName.rfind("\'", 0) == 0 || fileName.rfind("\"", 0) == 0 || fileName.rfind("`", 0) == 0) fileName = fileName.substr(1, fileName.length() - 2);
+            string fileName = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
 
             string readerFile = dir + fileName
             , errMsg = "Could Not Find File: " + fileName;
@@ -464,10 +459,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //eval
 
-            string _code = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp[0][0].dump()
-            , code = _code.substr(2, _code.length() - 4);
+            json code = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
 
-            char* codeNQ = NQReplaceC(&code[0]);
+            char* codeNQ = NQReplaceC(&(code["ExpStr"][0].get<string>())[0]);
 
             char* len = CLex(codeNQ);
 
@@ -479,7 +473,12 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             Returner parsed = parser(acts, calc_params, vars, dir, false, line, false);
 
-            expStr[expStr.size() - 1].push_back(json::parse("[\"" + parsed.value[0] + "\"]")[0]);
+            if (expReturn) {
+
+              vector<string> returnNone;
+
+              return Returner{ returnNone, vars, parsed.exp, "expression" };
+            }
           }
           break;
         case 19: {
@@ -507,11 +506,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //err
 
-            Returner parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true);
+            string parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
 
-            string exp = parsed.exp[0][0].dump().substr(1, parsed.exp[0][0].dump().length() - 2);
-
-            cout << exp << "\n\nerr~" << exp << "\n^^^^ <-- Error On Line " << line << endl;
+            cout << parsed << "\n\nerr~" << parsed << "\n^^^^ <-- Error On Line " << line << endl;
 
             Kill();
           }
@@ -525,9 +522,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             Returner parsed;
 
-            json condP = parser(cond, calc_params, vars, dir, false, line, true).exp[0][0];
+            json condP = parser(cond, calc_params, vars, dir, false, line, true).exp;
 
-            while (condP != "false" && condP != "undefined" && condP != "null") {
+            while (isTruthy(condP)) {
 
               parsed = parser(acts, calc_params, vars, dir, true, line, false);
 
@@ -542,7 +539,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               if (parsed.type == "skip") continue;
               if (parsed.type == "break") break;
 
-              condP = parser(cond, calc_params, vars, dir, false, line, true).exp[0][0];
+              condP = parser(cond, calc_params, vars, dir, false, line, true).exp;
             }
 
           }
@@ -1476,28 +1473,40 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               if (vars[name].find("value") != vars[name].end()) {
 
-                string _val = vars[name]["value"][0].dump()
-                , val = _val.substr(2, _val.length() - 4);
+                json _val = vars[name]["value"];
 
-                char* _added = Add(&(val)[0], "1", &calc_params.dump()[0], line);
+                char* _added = Add(&(_val.dump())[0], "1", &calc_params.dump()[0], line);
                 string added(_added);
 
                 nVar = {
                   {"type", vars[name]["type"]},
                   {"name", name},
-                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"value", json::parse(added)},
                   {"valueActs", json::parse("[]")}
                 };
               } else
                 nVar = {
                   {"type", "local"},
                   {"name", name},
-                  {"value", json::parse("[[\"1\"]]")},
+                  {"value", val1},
                   {"valueActs", json::parse("[]")}
                 };
             }
 
             vars[name] = nVar;
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = val1;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
         case 4545: {
@@ -1512,28 +1521,40 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               if (vars[name].find("value") != vars[name].end()) {
 
-                string _val = vars[name]["value"][0].dump()
-                , val = _val.substr(2, _val.length() - 4);
+                json _val = vars[name]["value"];
 
-                char* _added = Subtract(&(val)[0], "1", &calc_params.dump()[0], line);
+                char* _added = Subtract(&(_val.dump())[0], "1", &calc_params.dump()[0], line);
                 string added(_added);
 
                 nVar = {
                   {"type", vars[name]["type"]},
                   {"name", name},
-                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"value", json::parse(added)},
                   {"valueActs", json::parse("[]")}
                 };
               } else
                 nVar = {
                   {"type", "local"},
                   {"name", name},
-                  {"value", json::parse("[[\"1\"]]")},
+                  {"value", valn1},
                   {"valueActs", json::parse("[]")}
                 };
             }
 
             vars[name] = nVar;
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = val1;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
         case 4361: {
@@ -1543,8 +1564,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string name = actions[i]["Name"];
 
             json __inc = actions[i]["ExpAct"]
-            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp[0][0];
-            string inc = _inc.dump().substr(1, _inc.dump().length() - 2);
+            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp;
 
             json nVar;
 
@@ -1552,28 +1572,39 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               if (vars[name].find("value") != vars[name].end()) {
 
-                string _val = vars[name]["value"][0].dump()
-                , val = _val.substr(2, _val.length() - 4);
+                json _val = vars[name]["value"];
 
-                char* _added = Add(&(val)[0], &inc[0], &calc_params.dump()[0], line);
+                char* _added = Add(&(_val.dump())[0], &(_inc.dump())[0], &calc_params.dump()[0], line);
                 string added(_added);
 
                 nVar = {
                   {"type", vars[name]["type"]},
                   {"name", name},
-                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"value", json::parse(added)},
                   {"valueActs", json::parse("[]")}
                 };
-              } else
-                nVar = {
+              } else nVar = {
                   {"type", "local"},
                   {"name", name},
-                  {"value", json::parse("[[\"" + inc + "\"]]")},
+                  {"value", _inc},
                   {"valueActs", json::parse("[]")}
                 };
             }
 
             vars[name] = nVar;
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = _inc;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
         case 4561: {
@@ -1583,8 +1614,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string name = actions[i]["Name"];
 
             json __inc = actions[i]["ExpAct"]
-            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp[0][0];
-            string inc = _inc.dump().substr(1, _inc.dump().length() - 2);
+            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp;
 
             json nVar;
 
@@ -1592,28 +1622,39 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               if (vars[name].find("value") != vars[name].end()) {
 
-                string _val = vars[name]["value"][0].dump()
-                , val = _val.substr(2, _val.length() - 4);
+                json _val = vars[name]["value"];
 
-                char* _added = Subtract(&(val)[0], &inc[0], &calc_params.dump()[0], line);
+                char* _added = Subtract(&(_val.dump())[0], &(_inc.dump())[0], &calc_params.dump()[0], line);
                 string added(_added);
 
                 nVar = {
                   {"type", vars[name]["type"]},
                   {"name", name},
-                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"value", json::parse(added)},
                   {"valueActs", json::parse("[]")}
                 };
-              } else
-                nVar = {
+              } else nVar = {
                   {"type", "local"},
                   {"name", name},
-                  {"value", json::parse("[[\"" + inc + "\"]]")},
+                  {"value", _inc},
                   {"valueActs", json::parse("[]")}
                 };
             }
 
             vars[name] = nVar;
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = _inc;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
         case 4261: {
@@ -1623,8 +1664,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string name = actions[i]["Name"];
 
             json __inc = actions[i]["ExpAct"]
-            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp[0][0];
-            string inc = _inc.dump().substr(1, _inc.dump().length() - 2);
+            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp;
 
             json nVar;
 
@@ -1632,28 +1672,39 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               if (vars[name].find("value") != vars[name].end()) {
 
-                string _val = vars[name]["value"][0].dump()
-                , val = _val.substr(2, _val.length() - 4);
+                json _val = vars[name]["value"];
 
-                char* _added = Multiply(&(val)[0], &inc[0], &calc_params.dump()[0], line);
+                char* _added = Multiply(&(_val.dump())[0], &(_inc.dump())[0], &calc_params.dump()[0], line);
                 string added(_added);
 
                 nVar = {
                   {"type", vars[name]["type"]},
                   {"name", name},
-                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"value", json::parse(added)},
                   {"valueActs", json::parse("[]")}
                 };
-              } else
-                nVar = {
+              } else nVar = {
                   {"type", "local"},
                   {"name", name},
-                  {"value", json::parse("[[\"" + inc + "\"]]")},
+                  {"value", _inc},
                   {"valueActs", json::parse("[]")}
                 };
             }
 
             vars[name] = nVar;
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = _inc;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
         case 4761: {
@@ -1663,8 +1714,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string name = actions[i]["Name"];
 
             json __inc = actions[i]["ExpAct"]
-            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp[0][0];
-            string inc = _inc.dump().substr(1, _inc.dump().length() - 2);
+            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp;
 
             json nVar;
 
@@ -1672,28 +1722,39 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               if (vars[name].find("value") != vars[name].end()) {
 
-                string _val = vars[name]["value"][0].dump()
-                , val = _val.substr(2, _val.length() - 4);
+                json _val = vars[name]["value"];
 
-                char* _added = Division(&(val)[0], &inc[0], &calc_params.dump()[0], line);
+                char* _added = Division(&(_val.dump())[0], &(_inc.dump())[0], &calc_params.dump()[0], line);
                 string added(_added);
 
                 nVar = {
                   {"type", vars[name]["type"]},
                   {"name", name},
-                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"value", json::parse(added)},
                   {"valueActs", json::parse("[]")}
                 };
-              } else
-                nVar = {
+              } else nVar = {
                   {"type", "local"},
                   {"name", name},
-                  {"value", json::parse("[[\"" + inc + "\"]]")},
+                  {"value", _inc},
                   {"valueActs", json::parse("[]")}
                 };
             }
 
             vars[name] = nVar;
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = _inc;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
         case 9461: {
@@ -1703,8 +1764,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string name = actions[i]["Name"];
 
             json __inc = actions[i]["ExpAct"]
-            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp[0][0];
-            string inc = _inc.dump().substr(1, _inc.dump().length() - 2);
+            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp;
 
             json nVar;
 
@@ -1712,28 +1772,39 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               if (vars[name].find("value") != vars[name].end()) {
 
-                string _val = vars[name]["value"][0].dump()
-                , val = _val.substr(2, _val.length() - 4);
+                json _val = vars[name]["value"];
 
-                char* _added = Exponentiate(&(val)[0], &inc[0], &calc_params.dump()[0], line);
+                char* _added = Exponentiate(&(_val.dump())[0], &(_inc.dump())[0], &calc_params.dump()[0], line);
                 string added(_added);
 
                 nVar = {
                   {"type", vars[name]["type"]},
                   {"name", name},
-                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"value", json::parse(added)},
                   {"valueActs", json::parse("[]")}
                 };
-              } else
-                nVar = {
+              } else nVar = {
                   {"type", "local"},
                   {"name", name},
-                  {"value", json::parse("[[\"" + inc + "\"]]")},
+                  {"value", _inc},
                   {"valueActs", json::parse("[]")}
                 };
             }
 
             vars[name] = nVar;
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = _inc;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
         case 3761: {
@@ -1743,8 +1814,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string name = actions[i]["Name"];
 
             json __inc = actions[i]["ExpAct"]
-            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp[0][0];
-            string inc = _inc.dump().substr(1, _inc.dump().length() - 2);
+            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp;
 
             json nVar;
 
@@ -1752,28 +1822,39 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               if (vars[name].find("value") != vars[name].end()) {
 
-                string _val = vars[name]["value"][0].dump()
-                , val = _val.substr(2, _val.length() - 4);
+                json _val = vars[name]["value"];
 
-                char* _added = Modulo(&(val)[0], &inc[0], &calc_params.dump()[0], line);
+                char* _added = Modulo(&(_val.dump())[0], &(_inc.dump())[0], &calc_params.dump()[0], line);
                 string added(_added);
 
                 nVar = {
                   {"type", vars[name]["type"]},
                   {"name", name},
-                  {"value", json::parse("[[\"" + added + "\"]]")},
+                  {"value", json::parse(added)},
                   {"valueActs", json::parse("[]")}
                 };
-              } else
-                nVar = {
+              } else nVar = {
                   {"type", "local"},
                   {"name", name},
-                  {"value", json::parse("[[\"" + inc + "\"]]")},
+                  {"value", _inc},
                   {"valueActs", json::parse("[]")}
                 };
             }
 
             vars[name] = nVar;
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = _inc;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
           break;
       }

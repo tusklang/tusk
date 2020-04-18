@@ -281,17 +281,6 @@ func actionizer(lex []string, doExpress bool) []Action {
         exp = exp_
       }
 
-      if !interfaceContainForExp(exp, operations) {
-
-        var act_exp []string
-
-        for _, v := range exp {
-          act_exp = append(act_exp, v.(string))
-        }
-
-        return actionizer(act_exp, false);
-      }
-
       for ;interfaceContain(exp, "!"); {
 
         index := interfaceIndexOf("!", exp)
