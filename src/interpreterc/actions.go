@@ -1020,6 +1020,90 @@ func actionizer(lex []string, doExpress bool) []Action {
 
         actions = append(actions, Action{ "group", "", []string{}, exp, []string{}, []Action{}, []Condition{}, 9, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
         i+=(len(exp_) + 1)
+      case "thread":
+        putFalsey := make(map[string][]Action)
+        putFalsey["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false), false } }
+
+        if lex[i + 1] == "~" {
+          var procName = lex[i + 2]
+          params := []string{}
+
+          for o := i + 4; o < len_lex; o++ {
+            if lex[o] == ")" {
+              break
+            }
+
+            if lex[o] == "," {
+              continue
+            }
+
+            params = append(params, lex[o])
+          }
+          i+=(len(params) + 5)
+
+          var logic_ = []string{}
+
+          cbCnt := 0
+
+          for o := i; o < len_lex; o++ {
+            if lex[o] == "{" {
+              cbCnt++
+            }
+
+            if lex[o] == "}" {
+              cbCnt--
+            }
+
+            logic_ = append(logic_, lex[o])
+
+            if cbCnt == 0 {
+              break
+            }
+          }
+
+          i+=len(logic_) - 1
+
+          logic := actionizer(logic_, false)
+
+          actions = append(actions, Action{ "thread", procName, []string{}, logic, params, []Action{}, []Condition{}, 56, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, actionizer([]string{ "�process" }, false), false })
+        } else {
+          params := []string{}
+
+          for o := i + 2; o < len_lex; o+=2 {
+            if lex[o] == ")" {
+              break
+            }
+
+            params = append(params, lex[o])
+          }
+          i+=(3 + len(params))
+
+          var logic_ = []string{}
+
+          cbCnt := 0
+
+          for o := i; o < len_lex; o++ {
+            if lex[o] == "{" {
+              cbCnt++
+            }
+
+            if lex[o] == "}" {
+              cbCnt--
+            }
+
+            logic_ = append(logic_, lex[o])
+
+            if cbCnt == 0 {
+              break
+            }
+          }
+
+          i+=len(logic_) - 1
+
+          logic := actionizer(logic_, false)
+
+          actions = append(actions, Action{ "thread", "", []string{}, logic, params, []Action{}, []Condition{}, 56, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, actionizer([]string{ "�process" }, false), false })
+        }
       case "process":
 
         putFalsey := make(map[string][]Action)
@@ -1644,53 +1728,6 @@ func actionizer(lex []string, doExpress bool) []Action {
 
         actionizedPhrase := actionizer(phrase, true)
         actions = append(actions, Action{ "typeof", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 19, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
-        i+=(2 + len(phrase))
-      case "err":
-        var phrase = []string{}
-
-        cbCnt := 0
-        glCnt := 0
-        bCnt := 0
-        pCnt := 0
-
-        for o := i + 2; o < len_lex; o++ {
-          if lex[o] == "{" {
-            cbCnt++
-          }
-          if lex[o] == "}" {
-            cbCnt--
-          }
-
-          if lex[o] == "[:" {
-            glCnt++
-          }
-          if lex[o] == ":]" {
-            glCnt--
-          }
-
-          if lex[o] == "[" {
-            bCnt++
-          }
-          if lex[o] == "]" {
-            bCnt--
-          }
-
-          if lex[o] == "(" {
-            pCnt++
-          }
-          if lex[o] == ")" {
-            pCnt--
-          }
-
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
-            break
-          }
-
-          phrase = append(phrase, lex[o])
-        }
-
-        actionizedPhrase := actionizer(phrase, true)
-        actions = append(actions, Action{ "err", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 20, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
         i+=(2 + len(phrase))
       case "loop":
 

@@ -43,8 +43,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json parsed = parser(acts, calc_params, vars, dir, false, line, true).exp;
 
-            cout << parsed.dump(2) << endl;
-
             if (parsed.size() == 0) {
               cout << "There Was An Unidentified Error On Line " << line << endl;
               Kill();
@@ -136,6 +134,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             //print
 
             json _val = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
+
             log_format(_val, calc_params, vars, dir, line, 2, "print");
           }
           break;
@@ -199,7 +198,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           break;
         case 11: {
 
-            //# (call process)
+            //# (call)
 
             string name = actions[i]["Name"];
 
@@ -245,7 +244,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             Returner fparsed = Returner{ noRet, vars, fRet, "none" };
 
-            if (vars.find(name) == vars.end()) parsed = fparsed;
+            parsed = fparsed;
+
+            if (vars.find(name) == vars.end()) goto stopIndexing;
             else {
 
               json var = vars[name]["value"];
@@ -263,7 +264,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                 var = parser(var["Hash_Values"][index], calc_params, vars, dir, false, line, true).exp;
               }
 
-              if (var["Type"] != "process") {
+              if (var["Type"] != "process" && var["Type"] != "thread") {
                 parsed = fparsed;
                 goto stopIndexing;
               }
@@ -285,14 +286,22 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                 sendVars[(string) params[o]] = cur;
               }
 
-              parsed = parser(var["ExpAct"], calc_params, sendVars, dir, true, line, false);
+              if (vars[name]["type"] == "process") {
 
-              json pVars = parsed.variables;
+                parsed = parser(var["ExpAct"], calc_params, sendVars, dir, true, line, false);
 
-              //filter the variables that are not global
-              for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-                if (!(o.value()["type"] != "global" && o.value()["type"] != "process"))
-                  vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
+                json pVars = parsed.variables;
+
+                //filter the variables that are not global
+                for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
+                  if (!(o.value()["type"] != "global" && o.value()["type"] != "process"))
+                    vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
+              } else if (vars[name]["type"] == "thread") {
+
+                thread _(parser, var["ExpAct"], calc_params, sendVars, dir, true, line, false);
+
+                _.join();
+              }
             }
 
             stopIndexing:
@@ -502,17 +511,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             if (expReturn) return Returner{ noRet, vars, type[0], "expression" };
           }
           break;
-        case 20: {
-
-            //err
-
-            string parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
-
-            cout << parsed << "\n\nerr~" << parsed << "\n^^^^ <-- Error On Line " << line << endl;
-
-            Kill();
-          }
-          break;
         case 21: {
 
             //loop
@@ -618,8 +616,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json val = actions[i]["Hash_Values"]
             , index = indexesCalc(val, actions[i]["Indexes"], calc_params, vars, line, dir);
-
-            cout << index.dump(2) << endl;
 
             if (expReturn) {
               vector<string> returnNone;
@@ -1456,6 +1452,31 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               ret.type = "expression";
 
               return ret;
+            }
+          }
+          break;
+        case 56: {
+
+            //thread
+
+            string name = actions[i]["Name"];
+
+            if (name != "") {
+              json acts = actions[i]["ExpAct"];
+
+              json nVar = {
+                {"type", "thread"},
+                {"name", name},
+                {"value", actions[i]},
+                {"valueActs", json::parse("[]")}
+              };
+              vars[name] = nVar;
+            }
+
+            if (expReturn) {
+              vector<string> noRet;
+
+              return Returner{ noRet, vars, actions[i], "expression" };
             }
           }
           break;

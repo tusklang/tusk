@@ -300,6 +300,12 @@
     "type": "operation"
   },
   {
+    "name": "thread",
+    "remove": "thread",
+    "pattern": "(thread\\~)",
+    "type": "id"
+  },
+  {
     "name": "process",
     "remove": "proc",
     "pattern": "(proc\\()",

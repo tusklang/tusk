@@ -19,7 +19,6 @@ break: 16
 skip: 17
 eval: 18
 typeof: 19
-err: 20
 loop: 21
 hash: 22
 hashIndex: 23
@@ -53,6 +52,7 @@ lessOrEqual: 52
 not: 53
 similar: 54
 strictSimilar: 55
+thread: 56
 
 ++: 4343
 --: 4545
