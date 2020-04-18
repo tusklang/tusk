@@ -18,6 +18,12 @@
     "type": "operation"
   },
   {
+    "name": ">:",
+    "remove": ">:",
+    "pattern": "(\\>\\:)",
+    "type": "operation"
+  },
+  {
     "name": "++",
     "remove": "++",
     "pattern": "((?<!\\d)(\\+\\+))",
@@ -87,6 +93,12 @@
     "type": "id"
   },
   {
+    "name": "~!~",
+    "remove": "~!~",
+    "pattern": "((~\\!~))",
+    "type": "id"
+  },
+  {
     "name": "!~~",
     "remove": "!~~",
     "pattern": "((\\!~~))",
@@ -101,7 +113,7 @@
   {
     "name": "!~",
     "remove": "!~",
-    "pattern": "(~\\!)",
+    "pattern": "(\\!~)",
     "type": "id"
   },
   {

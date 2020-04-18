@@ -13,6 +13,7 @@
 #include "log_format.hpp"
 #include "values.hpp"
 #include "comparisons.hpp"
+#include "similarity.hpp"
 using namespace std;
 using json = nlohmann::json;
 
@@ -1211,6 +1212,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               first,
               second,
               calc_params,
+              vars,
+              dir,
               line
             );
 
@@ -1224,6 +1227,235 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               ret.value = retNo;
               ret.variables = vars;
               ret.exp = val;
+              ret.type = "expression";
+
+              return ret;
+            }
+          }
+          break;
+        case 48: {
+
+            //notEqual
+
+            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+
+            json val = equals(
+              first,
+              second,
+              calc_params,
+              vars,
+              dir,
+              line
+            );
+
+            val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
+            if (first["Type"] != second["Type"]) val = trueRet;
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = val;
+              ret.type = "expression";
+
+              return ret;
+            }
+          }
+          break;
+        case 49: {
+
+            //greater
+
+            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+
+            json val = isGreater(
+              first,
+              second,
+              calc_params,
+              line
+            );
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = val;
+              ret.type = "expression";
+
+              return ret;
+            }
+          }
+          break;
+        case 50: {
+
+            //less
+
+            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+
+            json val = isLess(
+              first,
+              second,
+              calc_params,
+              line
+            );
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = val;
+              ret.type = "expression";
+
+              return ret;
+            }
+          }
+          break;
+        case 51: {
+
+            //greaterOrEqual
+
+            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+
+            json val = isLess(
+              first,
+              second,
+              calc_params,
+              line
+            );
+
+            val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = val;
+              ret.type = "expression";
+
+              return ret;
+            }
+          }
+          break;
+        case 52: {
+
+            //lessOrEqual
+
+            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+
+            json val = isGreater(
+              first,
+              second,
+              calc_params,
+              line
+            );
+
+            val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
+            if (first["Type"] != second["Type"]) val = trueRet;
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = val;
+              ret.type = "expression";
+
+              return ret;
+            }
+          }
+          break;
+        case 53: {
+
+            //not
+
+            json val = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp
+            , expstr = val["ExpStr"][0]
+            , retval;
+
+            if (expstr == "false" || val["Type"] == "falsey") retval = trueRet;
+            else retval = falseRet;
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = retval;
+              ret.type = "expression";
+
+              return ret;
+            }
+          }
+          break;
+        case 54: {
+
+            //similar
+
+            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp
+            , degree = parser(actions[i]["Degree"], calc_params, vars, dir, false, line, true).exp;
+
+            json retval;
+
+            if (degree.size() == 0) retval = similarity(first, second, zero, calc_params, vars, dir, line);
+            else retval = similarity(first, second, degree, calc_params, vars, dir, line);
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = retval;
+              ret.type = "expression";
+
+              return ret;
+            }
+          }
+          break;
+        case 55: {
+
+            //strictSimilar
+
+            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp
+            , degree = parser(actions[i]["Degree"], calc_params, vars, dir, false, line, true).exp;
+
+            json retval;
+
+            if (degree.size() == 0) retval = strictSimilarity(first, second, zero, calc_params, vars, dir, line);
+            else retval = strictSimilarity(first, second, degree, calc_params, vars, dir, line);
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = retval;
               ret.type = "expression";
 
               return ret;

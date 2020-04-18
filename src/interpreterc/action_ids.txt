@@ -45,6 +45,14 @@ type: 44
 index_key: 45
 variableIndex: 46
 equals: 47
+notEqual: 48
+greater: 49
+less: 50
+greaterOrEqual: 51
+lessOrEqual: 52
+not: 53
+similar: 54
+strictSimilar: 55
 
 ++: 4343
 --: 4545

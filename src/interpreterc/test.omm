@@ -1,1 +1,1 @@
-log ~ "false" = false;
+log ~ [1] ~~~ 2: [2];

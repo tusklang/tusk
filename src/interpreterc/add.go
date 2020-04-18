@@ -8,6 +8,18 @@ import "encoding/json"
 // #cgo CFLAGS: -std=c99
 import "C"
 
+//export AddStrings
+func AddStrings(num1, num2, calc_params *C.char, line C.int) *C.char {
+
+  var cp paramCalcOpts
+
+  _ = json.Unmarshal([]byte(C.GoString(calc_params)), &cp)
+
+  sum := add(C.GoString(num1), C.GoString(num2), cp, int(line))
+
+  return C.CString(sum)
+}
+
 func add(__num1 string, __num2 string, calc_params paramCalcOpts, line int) string {
 
   _num1 := __num1
