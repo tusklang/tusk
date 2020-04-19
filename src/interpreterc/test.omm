@@ -1,2 +1,1 @@
-wait(1000);
-log ~ "test";
+log ~ num -> [::] + 2 + 3;

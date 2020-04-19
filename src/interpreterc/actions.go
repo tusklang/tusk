@@ -1849,7 +1849,7 @@ func actionizer(lex []string, doExpress bool) []Action {
         }
 
         if i >= len_lex {
-          actions = append(actions, Action{ "hash", "hashed_value", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false), false })
+          actions = append(actions, Action{ "hash", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false), false })
           break
         }
 
@@ -1861,7 +1861,7 @@ func actionizer(lex []string, doExpress bool) []Action {
         }
 
         if i >= len_lex {
-          actions = append(actions, Action{ "hash", "hashed_value", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false), isMutable })
+          actions = append(actions, Action{ "hash", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false), isMutable })
           break
         }
 
@@ -1930,9 +1930,9 @@ func actionizer(lex []string, doExpress bool) []Action {
 
           i+=3
 
-          actions = append(actions, Action{ "hashIndex", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 23, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, translated, actionizer([]string{ "�hash" }, false), isMutable })
+          actions = append(actions, Action{ "hashIndex", "", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 23, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, translated, actionizer([]string{ "�hash" }, false), isMutable })
         } else {
-          actions = append(actions, Action{ "hash", "hashed_value", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false), isMutable })
+          actions = append(actions, Action{ "hash", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false), isMutable })
         }
       case "[":
         var phrase = []string{}
@@ -2044,7 +2044,7 @@ func actionizer(lex []string, doExpress bool) []Action {
         }
 
         if i >= len_lex {
-          actions = append(actions, Action{ "array", "hashed_value", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false), false })
+          actions = append(actions, Action{ "array", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false), false })
           break
         }
 
@@ -2056,7 +2056,7 @@ func actionizer(lex []string, doExpress bool) []Action {
         }
 
         if i >= len_lex {
-          actions = append(actions, Action{ "array", "hashed_value", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false), isMutable })
+          actions = append(actions, Action{ "array", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false), isMutable })
           break
         }
 
@@ -2125,9 +2125,9 @@ func actionizer(lex []string, doExpress bool) []Action {
 
           i+=3
 
-          actions = append(actions, Action{ "arrayIndex", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 25, []Action{}, []Action{}, []Action{}, arr, putIndexes, hashedArr, actionizer([]string{ "�array" }, false), isMutable })
+          actions = append(actions, Action{ "arrayIndex", "", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 25, []Action{}, []Action{}, []Action{}, arr, putIndexes, hashedArr, actionizer([]string{ "�array" }, false), isMutable })
         } else {
-          actions = append(actions, Action{ "array", "hashed_value", phrase, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false), isMutable })
+          actions = append(actions, Action{ "array", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false), isMutable })
         }
       case "ascii":
         var phrase = []string{}
@@ -2345,6 +2345,73 @@ func actionizer(lex []string, doExpress bool) []Action {
         }
 
         if i + 1 < len_lex {
+
+          if lex[i + 1] == "->" {
+
+            var val_ []string
+
+            cbCnt := 0
+            glCnt := 0
+            bCnt := 0
+            pCnt := 0
+
+            for o := i + 2; o < len_lex; o++ {
+              if lex[o] == "{" {
+                cbCnt++
+              }
+              if lex[o] == "}" {
+                cbCnt--
+              }
+
+              if lex[o] == "[:" {
+                glCnt++
+              }
+              if lex[o] == ":]" {
+                glCnt--
+              }
+
+              if lex[o] == "[" {
+                bCnt++
+              }
+              if lex[o] == "]" {
+                bCnt--
+              }
+
+              if lex[o] == "(" {
+                pCnt++
+              }
+              if lex[o] == ")" {
+                pCnt--
+              }
+
+              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && arrayContainInterface(operations, lex[o]) {
+                break
+              }
+
+              val_ = append(val_, lex[o])
+            }
+
+            val := actionizer(val_, true)
+
+            getValueType := func(val string) string {
+              switch (C.GoString(GetType(C.CString(val)))) {
+                case "string": fallthrough
+                case "number": fallthrough
+                case "boolean": fallthrough
+                case "falsey":
+                  return "exp_value"
+                case "array": fallthrough
+                case "hash":
+                  return "hashed_value"
+              }
+
+              return "exp_value"
+            }
+
+            actions = append(actions, Action{ "cast", lex[i], []string{ getValueType(lex[i]) }, val, []string{}, []Action{}, []Condition{}, 58, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
+            i+=len(val_) + 2
+            continue
+          }
 
           if (lex[i + 1] == "++" || lex[i + 1] == "--") && strings.HasPrefix(lex[i], "$") {
 

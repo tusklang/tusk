@@ -328,6 +328,7 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
           final_ = "1"
         case BoolSwitch{ "false", "false" }:
           final_ = "0"
+        default: final_ = "0"
       }
 
       finalRet = Action{ "boolean", "", []string{ final_ }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"boolean", "", []string{ final_ }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }

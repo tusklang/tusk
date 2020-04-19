@@ -54,6 +54,7 @@ similar: 54
 strictSimilar: 55
 thread: 56
 wait: 57
+cast: 58
 
 ++: 4343
 --: 4545

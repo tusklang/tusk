@@ -167,8 +167,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //filter the variables that are not global
             for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-              if (!(o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end()))
-                vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
+              if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
+                vars[o.value()["name"].get<string>()] = o.value();
 
             if (groupReturn) return Returner{ parsed.value, vars, parsed.exp, parsed.type };
           }
@@ -296,8 +296,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 //filter the variables that are not global
                 for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-                  if (!(o.value()["type"] != "global" && o.value()["type"] != "process"))
-                    vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
+                  if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
+                    vars[o.value()["name"].get<string>()] = o.value();
+
               } else if (vars[name]["type"] == "thread") {
 
                 thread _(parser, var["ExpAct"], calc_params, sendVars, dir, true, line, false);
@@ -342,8 +343,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 //filter the variables that are not global
                 for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-                  if (!(o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end()))
-                    vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
+                  if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
+                    vars[o.value()["name"].get<string>()] = o.value();
 
                 if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
                 if (parsed.type == "skip") return Returner{ parsed.value, vars, parsed.exp, "skip" };
@@ -376,8 +377,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //filter the variables that are not global
             for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-              if (!(o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end()))
-                vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
+              if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
+                vars[o.value()["name"].get<string>()] = o.value();
           }
           break;
         case 15: {
@@ -532,8 +533,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               //filter the variables that are not global
               for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-                if (!(o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end()))
-                  vars[o.value()["name"].dump().substr(1, o.value()["name"].dump().length() - 2)] = o.value();
+                if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
+                  vars[o.value()["name"].get<string>()] = o.value();
 
               if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
               if (parsed.type == "skip") continue;
@@ -1503,6 +1504,28 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             }
           }
           break;
+        case 58: {
+
+            //cast
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              json cur = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
+              cur["Type"] = actions[i]["Name"];
+              cur["Name"] = actions[i]["ExpStr"][0];
+
+              ret.exp = retNo;
+              ret.variables = vars;
+              ret.exp = cur;
+              ret.type = "expression";
+
+              return ret;
+            }
+          }
+          break;
 
         //assignment operators
         case 4343: {
@@ -1519,7 +1542,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 json _val = vars[name]["value"];
 
-                char* _added = Add(&(_val.dump())[0], "1", &calc_params.dump()[0], line);
+                char* _added = Add(&(_val.dump())[0], &val1.dump()[0], &calc_params.dump()[0], line);
                 string added(_added);
 
                 nVar = {
@@ -1528,8 +1551,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                   {"value", json::parse(added)},
                   {"valueActs", json::parse("[]")}
                 };
-              } else
-                nVar = {
+              } else nVar = {
                   {"type", "local"},
                   {"name", name},
                   {"value", val1},
@@ -1567,7 +1589,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 json _val = vars[name]["value"];
 
-                char* _added = Subtract(&(_val.dump())[0], "1", &calc_params.dump()[0], line);
+                char* _added = Subtract(&(_val.dump())[0], &val1.dump()[0], &calc_params.dump()[0], line);
                 string added(_added);
 
                 nVar = {
@@ -1576,8 +1598,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                   {"value", json::parse(added)},
                   {"valueActs", json::parse("[]")}
                 };
-              } else
-                nVar = {
+              } else nVar = {
                   {"type", "local"},
                   {"name", name},
                   {"value", valn1},
@@ -1914,7 +1935,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
   ret.value = returnNone;
   ret.variables = vars;
-  ret.exp = "{}"_json;
+  ret.exp = falseyVal;
   ret.type = "none";
 
   return ret;

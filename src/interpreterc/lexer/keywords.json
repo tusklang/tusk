@@ -12,6 +12,12 @@
     "type": "id"
   },
   {
+    "name": "->",
+    "remove": "->",
+    "pattern": "(\\-\\>)",
+    "type": "id"
+  },
+  {
     "name": "=>",
     "remove": "=>",
     "pattern": "(\\=\\>\\{)",
@@ -573,5 +579,47 @@
     "remove": "parse",
     "pattern": "(parse\\~)",
     "type": "id"
+  },
+  {
+    "name": "number",
+    "remove": "number",
+    "pattern": "(number\\-\\>)",
+    "type": "type"
+  },
+  {
+    "name": "number",
+    "remove": "num",
+    "pattern": "(num\\-\\>)",
+    "type": "type"
+  },
+  {
+    "name": "string",
+    "remove": "string",
+    "pattern": "(string\\-\\>)",
+    "type": "type"
+  },
+  {
+    "name": "boolean",
+    "remove": "bool",
+    "pattern": "(bool\\-\\>)",
+    "type": "type"
+  },
+  {
+    "name": "falsey",
+    "remove": "falsey",
+    "pattern": "(falsey\\-\\>)",
+    "type": "type"
+  },
+  {
+    "name": "hash",
+    "remove": "hash",
+    "pattern": "(hash\\-\\>)",
+    "type": "type"
+  },
+  {
+    "name": "array",
+    "remove": "array",
+    "pattern": "(array\\-\\>)",
+    "type": "type"
   }
 ]
