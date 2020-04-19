@@ -25,7 +25,6 @@ hashIndex: 23
 array: 24
 arrayIndex: 25
 ascii: 26
-parse: 27
 let: 28
 len: 31
 add: 32
@@ -55,6 +54,7 @@ strictSimilar: 55
 thread: 56
 wait: 57
 cast: 58
+each: 59
 
 ++: 4343
 --: 4545

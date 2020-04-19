@@ -11,8 +11,7 @@ json indexesCalc(json val, json indexes, json calc_params, json vars, int line, 
 
   if (indexes.size() == 0) return val;
 
-  json _index = parser(indexes[0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0];
-  string index = _index.dump().substr(1, _index.dump().length() - 2);
+  string index = parser(indexes[0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
 
   if (val.find(index) == val.end()) return val["falsey"][0];
   else {

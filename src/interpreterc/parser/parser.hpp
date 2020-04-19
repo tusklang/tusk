@@ -207,44 +207,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             Returner parsed;
 
             vector<string> noRet;
-            json type = {
-              {"Type", "falsey"},
-              {"Name", ""},
-              {"ExpStr", json::parse("[\"undefined\"]")},
-              {"ExpAct", "[]"_json},
-              {"Params", "[]"_json},
-              {"Args", "[]"_json},
-              {"Condition", "[]"_json},
-              {"ID", 41},
-              {"First", "[]"_json},
-              {"Second", "[]"_json},
-              {"Degree", "[]"_json},
-              {"Value", "[[]]"_json},
-              {"Indexes", "[[]]"_json},
-              {"Index_Type", ""},
-              {"Hash_Values", "{}"_json},
-              {"ValueType", "[]"_json}
-            }
-            , fRet = {
-              {"Type", "falsey"},
-              {"Name", ""},
-              {"ExpStr", json::parse("[\"undefined\"]")},
-              {"ExpAct", "[]"_json},
-              {"Params", "[]"_json},
-              {"Args", "[]"_json},
-              {"Condition", "[]"_json},
-              {"ID", 41},
-              {"First", "[]"_json},
-              {"Second", "[]"_json},
-              {"Degree", "[]"_json},
-              {"Value", "[[]]"_json},
-              {"Indexes", "[[]]"_json},
-              {"Index_Type", ""},
-              {"Hash_Values", "{}"_json},
-              {"ValueType", json::parse("[" + type.dump() + "]")}
-            };
 
-            Returner fparsed = Returner{ noRet, vars, fRet, "none" };
+            Returner fparsed = Returner{ noRet, vars, falseyVal, "none" };
 
             parsed = fparsed;
 
@@ -410,6 +374,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                 {"Indexes", "[[]]"_json},
                 {"Index_Type", ""},
                 {"Hash_Values", "{}"_json},
+                {"IsMutable", false},
                 {"ValueType", "[]"_json}
               }
               , expRet = {
@@ -428,6 +393,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                 {"Indexes", "[[]]"_json},
                 {"Index_Type", ""},
                 {"Hash_Values", "{}"_json},
+                {"IsMutable", false},
                 {"ValueType", json::parse("[" + type.dump() + "]")}
               };
 
@@ -658,6 +624,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                   {"Indexes", "[[]]"_json},
                   {"Index_Type", ""},
                   {"Hash_Values", "{}"_json},
+                  {"IsMutable", false},
                   {"ValueType", "[]"_json}
                 }
                 , ascVal = {
@@ -676,68 +643,12 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                   {"Indexes", "[[]]"_json},
                   {"Index_Type", ""},
                   {"Hash_Values", "{}"_json},
+                  {"IsMutable", false},
                   {"ValueType", json::parse("[" + ascValType.dump() + "]")}
                 };
 
                 return Returner{returnNone, vars, ascVal, "expression"};
               }
-            }
-          }
-          break;
-        case 27: {
-
-            //parse
-
-            json parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
-
-            vector<string> returnNone;
-
-            if ((parsed["Type"] != "string" && parsed["Type"] != "number") && expReturn) return Returner{ returnNone, vars, falseyVal, "expression" };
-            else {
-
-              string putVal;
-
-              if (parsed["Type"] == "number") putVal = "\"" + parsed["ExpStr"][0].get<string>() + "\"";
-              else if (parsed["Type"] == "string") putVal = "\"" + parsed["ExpStr"][0].get<string>().substr(1, parsed["ExpStr"][0].get<string>().length() - 2) + "\"";
-
-              json typeVal = {
-                {"Type", "number"},
-                {"Name", ""},
-                {"ExpStr", json::parse("[" + putVal + "]")},
-                {"ExpAct", "[]"_json},
-                {"Params", "[]"_json},
-                {"Args", "[]"_json},
-                {"Condition", "[]"_json},
-                {"ID", 39},
-                {"First", "[]"_json},
-                {"Second", "[]"_json},
-                {"Degree", "[]"_json},
-                {"Value", "[[]]"_json},
-                {"Indexes", "[[]]"_json},
-                {"Index_Type", ""},
-                {"Hash_Values", "{}"_json},
-                {"ValueType", "[]"_json}
-              }
-              , retVal = {
-                {"Type", "number"},
-                {"Name", ""},
-                {"ExpStr", json::parse("[" + putVal + "]")},
-                {"ExpAct", "[]"_json},
-                {"Params", "[]"_json},
-                {"Args", "[]"_json},
-                {"Condition", "[]"_json},
-                {"ID", 39},
-                {"First", "[]"_json},
-                {"Second", "[]"_json},
-                {"Degree", "[]"_json},
-                {"Value", "[[]]"_json},
-                {"Indexes", "[[]]"_json},
-                {"Index_Type", ""},
-                {"Hash_Values", "{}"_json},
-                {"ValueType", json::parse("[" + typeVal.dump() + "]")}
-              };
-
-              return Returner{ returnNone, vars, retVal, "expression" };
             }
           }
           break;
@@ -832,6 +743,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               {"Indexes", "[[]]"_json},
               {"Index_Type", ""},
               {"Hash_Values", "{}"_json},
+              {"IsMutable", false},
               {"ValueType", {
                 {
                   {"Type", "number"},
@@ -849,6 +761,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                   {"Indexes", "[[]]"_json},
                   {"Index_Type", ""},
                   {"Hash_Values", "{}"_json},
+                  {"IsMutable", false},
                   {"ValueType", "[]"_json}
                 }
               }}
@@ -1154,15 +1067,21 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //variable
 
-            json var = vars[actions[i]["Name"].get<string>()]["value"];
+            json val;
 
-            bool varIsMutable = var["IsMutable"].get<bool>()
-            , actIsMutable = actions[i]["IsMutable"].get<bool>()
-            , isMutable = varIsMutable ^ actIsMutable;
+            if (vars.find(actions[i]["Name"].get<string>()) == vars.end()) val = falseyVal;
+            else {
 
-            var["IsMutable"] = isMutable;
+              json var = vars[actions[i]["Name"].get<string>()]["value"];
 
-            json val = parser(json::parse("[" + var.dump() + "]"), calc_params, vars, dir, false, line, true).exp;
+              bool varIsMutable = var["IsMutable"].get<bool>()
+              , actIsMutable = actions[i]["IsMutable"].get<bool>()
+              , isMutable = varIsMutable ^ actIsMutable;
+
+              var["IsMutable"] = isMutable;
+
+              val = parser(json::parse("[" + var.dump() + "]"), calc_params, vars, dir, false, line, true).exp;
+            }
 
             vector<string> noRet;
 
@@ -1523,6 +1442,90 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               ret.type = "expression";
 
               return ret;
+            }
+          }
+          break;
+        case 59: {
+
+            //each
+
+            json putterVars = actions[i]["ExpStr"];
+            string var1 = putterVars[0]
+            , var2 = putterVars[1];
+
+            //parse the iterator value
+            json iterator = parser(actions[i]["Args"], calc_params, vars, dir, false, line, true).exp["Hash_Values"];
+
+            iterator.erase("falsey");
+
+            for (auto& it : iterator.items()) {
+              json sendVars = vars;
+
+              json key = {
+                {"Type", "string"},
+                {"Name", ""},
+                {"ExpStr", json::parse("[\"" + it.key() + "\"]")},
+                {"ExpAct", "[]"_json},
+                {"Params", "[]"_json},
+                {"Args", "[]"_json},
+                {"Condition", "[]"_json},
+                {"ID", 38},
+                {"First", "[]"_json},
+                {"Second", "[]"_json},
+                {"Degree", "[]"_json},
+                {"Value", "[[]]"_json},
+                {"Indexes", "[[]]"_json},
+                {"Index_Type", ""},
+                {"Hash_Values", {
+                  {"falsey", falseyVal}
+                }},
+                {"IsMutable", false},
+                {"ValueType", {{
+                  {"Type", "string"},
+                  {"Name", ""},
+                  {"ExpStr", json::parse("[\"" + it.key() + "\"]")},
+                  {"ExpAct", "[]"_json},
+                  {"Params", "[]"_json},
+                  {"Args", "[]"_json},
+                  {"Condition", "[]"_json},
+                  {"ID", 38},
+                  {"First", "[]"_json},
+                  {"Second", "[]"_json},
+                  {"Degree", "[]"_json},
+                  {"Value", "[[]]"_json},
+                  {"Indexes", "[[]]"_json},
+                  {"Index_Type", ""},
+                  {"Hash_Values", "{}"_json},
+                  {"IsMutable", false},
+                  {"ValueType", "[]"_json}
+                }}}
+              };
+
+              sendVars[var1] = {
+                {"type", "local"},
+                {"name", var1},
+                {"value", key},
+                {"valueActs", json::parse("[]")}
+              };
+              sendVars[var2] = {
+                {"type", "local"},
+                {"name", var2},
+                {"value", parser(it.value(), calc_params, vars, dir, false, line, true).exp},
+                {"valueActs", json::parse("[]")}
+              };
+
+              Returner parsed = parser(actions[i]["ExpAct"], calc_params, sendVars, dir, true, line, false);
+
+              json pVars = parsed.variables;
+
+              //filter the variables that are not global
+              for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
+                if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
+                  vars[o.value()["name"].get<string>()] = o.value();
+
+              if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
+              if (parsed.type == "skip") continue;
+              if (parsed.type == "break") break;
             }
           }
           break;

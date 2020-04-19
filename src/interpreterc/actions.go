@@ -2176,15 +2176,116 @@ func actionizer(lex []string, doExpress bool) []Action {
         actionizedPhrase := actionizer(phrase, true)
         actions = append(actions, Action{ "ascii", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 26, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
         i+=(2 + len(phrase))
-      case "parse":
-        var phrase = []string{}
+      case "len":
+
+        var exp []string
+        pCnt := 0
+
+        for o := i + 1; o < len_lex; o++ {
+          if lex[o] == "(" {
+            pCnt++
+            continue
+          }
+          if lex[o] == ")" {
+            pCnt--
+            continue
+          }
+
+          if pCnt == 0 {
+            break
+          }
+
+          exp = append(exp, lex[o])
+        }
+
+        actionized := actionizer(exp, true)
+
+        actions = append(actions, Action{ "len", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 31, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
+        i+=3 + len(exp)
+      case "each":
+        var condition_ = []string{}
+
+        pCnt := 0
+
+        for o := i + 1; o < len_lex; o++ {
+          if lex[o] == "(" {
+            pCnt++
+          }
+          if lex[o] == ")" {
+            pCnt--
+          }
+
+          condition_ = append(condition_, lex[o])
+
+          if pCnt == 0 {
+            break
+          }
+        }
+
+        i+=len(condition_) + 1
+
+        condition_ = condition_[1:len(condition_) - 1]
+
+        var _iterator []string
 
         cbCnt := 0
         glCnt := 0
         bCnt := 0
-        pCnt := 0
+        pCnt = 0
 
-        for o := i + 2; o < len_lex; o++ {
+        var stopIterIndex int
+
+        for k, v := range condition_ {
+
+          if v == "{" {
+            cbCnt++
+          }
+          if v == "}" {
+            cbCnt--
+          }
+
+          if v == "[:" {
+            glCnt++
+          }
+          if v == ":]" {
+            glCnt--
+          }
+
+          if v == "[" {
+            bCnt++
+          }
+          if v == "]" {
+            bCnt--
+          }
+
+          if v == "(" {
+            pCnt++
+          }
+          if v == ")" {
+            pCnt--
+          }
+
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && v == "newlineS" {
+            stopIterIndex = k
+            break
+          }
+
+          _iterator = append(_iterator, v)
+        }
+
+        iterator := actionizer(_iterator, true)
+
+        //add error handling here later
+        var1, var2 := condition_[stopIterIndex + 1], condition_[stopIterIndex + 3]
+
+        cbCnt = 0
+        glCnt = 0
+        bCnt = 0
+        pCnt = 0
+
+        var exp []string
+
+        for o := i; o < len_lex; o++ {
           if lex[o] == "{" {
             cbCnt++
           }
@@ -2213,42 +2314,18 @@ func actionizer(lex []string, doExpress bool) []Action {
             pCnt--
           }
 
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
-            break
-          }
-
-          phrase = append(phrase, lex[o])
-        }
-
-        actionizedPhrase := actionizer(phrase, true)
-        actions = append(actions, Action{ "parse", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 27, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
-        i+=(2 + len(phrase))
-      case "len":
-
-        var exp []string
-        pCnt := 0
-
-        for o := i + 1; o < len_lex; o++ {
-          if lex[o] == "(" {
-            pCnt++
-            continue
-          }
-          if lex[o] == ")" {
-            pCnt--
-            continue
-          }
-
-          if pCnt == 0 {
-            break
-          }
-
           exp = append(exp, lex[o])
+
+          i = o
+
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+            break
+          }
         }
 
-        actionized := actionizer(exp, true)
+        actionized := actionizer(exp, false)
+        actions = append(actions, Action{ "each", "", []string{ var1, var2 }, actionized, []string{}, iterator, []Condition{}, 59, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
 
-        actions = append(actions, Action{ "len", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 31, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false), false })
-        i+=3 + len(exp)
       default:
 
         valPuts := func(lex []string, i int) int {

@@ -86,6 +86,12 @@
     "pre_prohib_soft": ["\\d"]
   },
   {
+    "name": "each",
+    "remove": "each",
+    "pattern": "(each\\()",
+    "type": "id"
+  },
+  {
     "name": "len",
     "remove": "len",
     "pattern": "(len\\()",
