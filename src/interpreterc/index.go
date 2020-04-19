@@ -16,13 +16,13 @@ func Kill() {
 }
 
 //export Cactions
-func Cactions(file *C.char) *C.char {
+func Cactions(file *C.char, dir *C.char) *C.char {
 
   var lex []string
 
   json.Unmarshal([]byte(C.GoString(file)), &lex)
 
-  acts, _ := json.Marshal(actionizer(lex, false))
+  acts, _ := json.Marshal(actionizer(lex, false, C.GoString(dir)))
 
   return C.CString(string(acts))
 }
@@ -76,9 +76,7 @@ func CLex(_file *C.char) *C.char {
   return C.CString(lex_)
 }
 
-func index(fileName, dir string, calcParams paramCalcOpts) {
-
-  file := read("./pre.omm", "", true) + read(dir + fileName, "File Not Found: " + dir + fileName, true)
+func lexer(file string) []string {
   fileNQ, _ := NQReplace(file)
 
   lexCmd := exec.Command("./lexer/main-win.exe")
@@ -92,11 +90,22 @@ func index(fileName, dir string, calcParams paramCalcOpts) {
 
   json.Unmarshal([]byte(lex_), &lex)
 
-  var actions = actionizer(lex, false)
+  return lex
+}
+
+func index(fileName, dir string, calcParams paramCalcOpts) {
+
+  file := read("./pre.omm", "", true) + read(dir + fileName, "File Not Found: " + dir + fileName, true)
+
+  lex := lexer(file)
+
+  var actions = actionizer(lex, false, dir)
 
   var acts, _ = json.Marshal(actions)
 
   cp, _ := json.Marshal(calcParams)
+
+  _, _ = acts, cp
 
   C.bindCgo(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir))
 }

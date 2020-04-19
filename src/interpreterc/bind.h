@@ -8,7 +8,7 @@ extern "C" {
   extern char* Division(char*, char*, char*, int);
   extern char* Modulo(char*, char*, char*, int);
   extern char* Exponentiate(char*, char*, char*, int);
-  extern char* Cactions(char*);
+  extern char* Cactions(char*, char*);
   extern char* GetType(char*);
   extern char* ReturnInitC(char*);
   extern int IsLessC(char*, char*);

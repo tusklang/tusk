@@ -324,25 +324,20 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //import
 
-            string fileName = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+            json files = actions[i]["Value"]; //get all actionized files imported
 
-            string readerFile = dir + fileName
-            , errMsg = "Could Not Find File: " + fileName;
+            //loop through actionized files
+            for (json it : files) {
 
-            char* file = CReadFile(&readerFile[0], &errMsg[0], 1);
+              Returner parsed = parser(it, calc_params, vars, dir, true, 0, false);
 
-            string _acts = Cactions( CLex(file) );
+              json pVars = parsed.variables;
 
-            json acts = json::parse(_acts);
-
-            Returner parsed = parser(acts, calc_params, vars, dir, false, 1, false);
-
-            json pVars = parsed.variables;
-
-            //filter the variables that are not global
-            for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-              if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
-                vars[o.value()["name"].get<string>()] = o.value();
+              //filter the variables that are not global
+              for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
+                if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
+                  vars[o.value()["name"].get<string>()] = o.value();
+            }
           }
           break;
         case 15: {
@@ -443,7 +438,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             char* len = CLex(codeNQ);
 
-            char* __acts = Cactions(len);
+            char* sendDir = const_cast<char*>(&dir[0]);
+
+            char* __acts = Cactions(len, sendDir);
 
             string _acts(__acts);
 

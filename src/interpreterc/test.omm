@@ -1,3 +1,1 @@
-each ([: "test": "test" :]; k, v) {
-    log ~ v;
-  }
+import ~ "test2.omm";
