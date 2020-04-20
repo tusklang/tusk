@@ -1,8 +1,6 @@
 package main
 
 import "strings"
-import "os"
-import "fmt"
 import "encoding/json"
 
 // #cgo CFLAGS: -std=c99
@@ -13,8 +11,7 @@ func exponentiate(_num1 string, _num2 string, calc_params paramCalcOpts, line in
   _num2 = returnInit(_num2)
 
   if strings.Contains(_num2, ".") {
-    fmt.Println("There Was An Error: Currently You Cannot Exponentiate By Numbers With Decimals\n\n" + _num1 + "^" + _num2 + "\n" +"^^^ <- Error On Line " + string(line))
-    os.Exit(1)
+    return "NaN"
   }
 
   var final = "1"

@@ -1,1 +1,1 @@
-import ~ "test2.omm";
+log ~ 3.14 / 991

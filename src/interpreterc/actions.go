@@ -39,10 +39,6 @@ type Action struct {
 
   ValueType     []Action
   IsMutable       bool
-
-  //stuff for operations
-
-  Number          string
 }
 
 var operations = []string{ "+", "-", "*", "/", "^", "%", "&", "|", "=", "!=", ">", "<", ">=", "<=", ")", "(", "~~", "~~~", "!", ":" }
@@ -2351,8 +2347,6 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
               //specify the value for the "falsey" case
               hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false, dir), isMutable } }
-
-              conved := convnums(val)
 
               actions = append(actions, Action{ "number", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false, dir), false })
             case "boolean":

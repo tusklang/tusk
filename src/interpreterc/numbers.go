@@ -174,6 +174,10 @@ func addDec(num string) string {
 
 func isLess(num1 string, num2 string) bool {
 
+  if num1 == "undefined" || num2 == "undefined" || num1 == "NaN" || num2 == "NaN" {
+    return false
+  }
+
   if C.GoString(GetType(C.CString(num1))) == "string" {
     num1 = strconv.Itoa(len(num1) - 2)
   }
