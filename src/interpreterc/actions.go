@@ -35,9 +35,6 @@ type Action struct {
   Indexes     [][]Action
   Hash_Values     map[string][]Action
 
-  //type of the action as a value
-
-  ValueType     []Action
   IsMutable       bool
 }
 
@@ -374,7 +371,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         val, _val := getRight(index, exp, dir)
 
-        var act_exp = Action{ "not", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 53, []Action{}, val, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+        var act_exp = Action{ "not", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 53, []Action{}, val, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
         exp_ := append(exp[:index], act_exp)
         exp_ = append(exp_, exp[index + len(_val) + 1:]...)
@@ -387,7 +384,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
-        var act_exp = Action{ "exponentiate", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 36, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+        var act_exp = Action{ "exponentiate", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 36, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
         exp_ := append(exp[:index - len(_num1)], act_exp)
         exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
@@ -402,7 +399,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
           num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
-          var act_exp = Action{ "multiply", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 34, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+          var act_exp = Action{ "multiply", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 34, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
           exp_ := append(exp[:index - len(_num1)], act_exp)
           exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
@@ -413,7 +410,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
           num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
-          var act_exp = Action{ "divide", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 35, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+          var act_exp = Action{ "divide", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 35, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
           exp_ := append(exp[:index - len(_num1)], act_exp)
           exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
@@ -428,7 +425,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
-        var act_exp = Action{ "modulo", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 37, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+        var act_exp = Action{ "modulo", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 37, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
         exp_ := append(exp[:index - len(_num1)], act_exp)
         exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
@@ -443,7 +440,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
           num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
-          var act_exp = Action{ "add", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 32, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+          var act_exp = Action{ "add", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 32, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
           exp_ := append(exp[:index - len(_num1)], act_exp)
           exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
@@ -454,7 +451,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
           num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
-          var act_exp = Action{ "subtract", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 33, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+          var act_exp = Action{ "subtract", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 33, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
           exp_ := append(exp[:index - len(_num1)], act_exp)
           exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
@@ -498,7 +495,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
-            var act_exp = Action{ "equals", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 47, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+            var act_exp = Action{ "equals", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 47, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
             exp_ := append(exp[:index - len(_num1)], act_exp)
             exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
@@ -509,7 +506,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
-            var act_exp = Action{ "notEqual", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 48, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+            var act_exp = Action{ "notEqual", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 48, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
             exp_ := append(exp[:index - len(_num1)], act_exp)
             exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
@@ -520,7 +517,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
-            var act_exp = Action{ "greater", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 49, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+            var act_exp = Action{ "greater", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 49, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
             exp_ := append(exp[:index - len(_num1)], act_exp)
             exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
@@ -531,7 +528,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
-            var act_exp = Action{ "less", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 50, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+            var act_exp = Action{ "less", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 50, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
             exp_ := append(exp[:index - len(_num1)], act_exp)
             exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
@@ -542,7 +539,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
-            var act_exp = Action{ "greaterOrEqual", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 51, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+            var act_exp = Action{ "greaterOrEqual", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 51, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
             exp_ := append(exp[:index - len(_num1)], act_exp)
             exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
@@ -553,7 +550,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
-            var act_exp = Action{ "lessOrEqual", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 52, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+            var act_exp = Action{ "lessOrEqual", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 52, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
             exp_ := append(exp[:index - len(_num1)], act_exp)
             exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
@@ -620,7 +617,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             num1, _num1 := getLeft(index, exp, dir)
             num2, _num2 := getRight(index + len(degree_) + 1, exp, dir)
 
-            var act_exp = Action{ "similar", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 54, num1, num2, degree, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+            var act_exp = Action{ "similar", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 54, num1, num2, degree, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
             exp_ := append(exp[:index - len(_num1)], act_exp)
             exp_ = append(exp_, exp[index + len(_num2) + len(degree_) + 1:]...)
@@ -687,7 +684,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             num1, _num1 := getLeft(index, exp, dir)
             num2, _num2 := getRight(index + len(degree_) + 1, exp, dir)
 
-            var act_exp = Action{ "strictSimilar", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 55, num1, num2, degree, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�operation" }, false, dir), false }
+            var act_exp = Action{ "strictSimilar", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 55, num1, num2, degree, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
             exp_ := append(exp[:index - len(_num1)], act_exp)
             exp_ = append(exp_, exp[index + len(_num2) + len(degree_) + 1:]...)
@@ -709,7 +706,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
     switch lex[i] {
       case "newlineN":
-        actions = append(actions, Action{ "newline", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 0, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "newline", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 0, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
       case "local":
         exp_ := []string{}
 
@@ -763,7 +760,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         exp := actionizer(exp_, true, dir)
 
-        actions = append(actions, Action{ "local", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, 1, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "local", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, 1, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(4 + len(exp_))
       case "dynamic":
         exp_ := []string{}
@@ -818,11 +815,11 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         exp := actionizer(exp_, true, dir)
 
-        actions = append(actions, Action{ "dynamic", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, 2, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "dynamic", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, 2, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(4 + len(exp_))
       case "alt":
 
-        var alter = Action{ "alt", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 3, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false }
+        var alter = Action{ "alt", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 3, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
         pCnt := 0
 
@@ -933,7 +930,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         exp := actionizer(exp_, true, dir)
 
-        actions = append(actions, Action{ "global", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, 4, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "global", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, 4, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(4 + len(exp_))
       case "log":
         exp_ := []string{}
@@ -988,7 +985,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         exp := actionizer(exp_, true, dir)
 
-        actions = append(actions, Action{ "log", "", exp_, exp, []string{}, []Action{}, []Condition{}, 5, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "log", "", exp_, exp, []string{}, []Action{}, []Condition{}, 5, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(2 + len(exp_))
       case "print":
         exp_ := []string{}
@@ -1043,7 +1040,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         exp := actionizer(exp_, false, dir)
 
-        actions = append(actions, Action{ "print", "", exp_, exp, []string{}, []Action{}, []Condition{}, 6, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "print", "", exp_, exp, []string{}, []Action{}, []Condition{}, 6, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(2 + len(exp_))
       case "{":
         exp_ := []string{}
@@ -1105,24 +1102,24 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         exp := actionizer(exp_, false, dir)
 
-        actions = append(actions, Action{ "group", "", []string{}, exp, []string{}, []Action{}, []Condition{}, 9, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "group", "", []string{}, exp, []string{}, []Action{}, []Condition{}, 9, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(len(exp_) + 1)
       case "thread":
 
         putFalsey := make(map[string][]Action)
-        putFalsey["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false, dir), false } }
+        putFalsey["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false } }
 
         logic, params, procName := procCalc(&i, lex, len_lex, dir)
 
-        actions = append(actions, Action{ "thread", procName, []string{}, logic, params, []Action{}, []Condition{}, 56, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, actionizer([]string{ "�thread" }, false, dir), false })
+        actions = append(actions, Action{ "thread", procName, []string{}, logic, params, []Action{}, []Condition{}, 56, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, false })
       case "process":
 
         putFalsey := make(map[string][]Action)
-        putFalsey["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false, dir), false } }
+        putFalsey["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false } }
 
         logic, params, procName := procCalc(&i, lex, len_lex, dir)
 
-        actions = append(actions, Action{ "process", procName, []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, actionizer([]string{ "�process" }, false, dir), false })
+        actions = append(actions, Action{ "process", procName, []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, false })
       case "wait":
 
         var exp []string
@@ -1147,7 +1144,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         actionized := actionizer(exp, true, dir)
 
-        actions = append(actions, Action{ "wait", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 57, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�wait" }, false, dir), false })
+        actions = append(actions, Action{ "wait", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 57, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i++
       case "#":
 
@@ -1300,7 +1297,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
           }
         }
 
-        actions = append(actions, Action{ "#", name, []string{}, []Action{}, []string{}, params_, []Condition{}, 11, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "#", name, []string{}, []Action{}, []string{}, params_, []Condition{}, 11, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false })
         i+=skip_nums
       case "return":
 
@@ -1349,7 +1346,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         returner := actionizer(returner_, true, dir)
 
-        actions = append(actions, Action{ "return", "", []string{}, returner, []string{}, []Action{}, []Condition{}, 12, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "return", "", []string{}, returner, []string{}, []Action{}, []Condition{}, 12, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=len(returner_) + 2
       case "if":
 
@@ -1495,7 +1492,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
           }
         }
 
-        actions = append(actions, Action{ "conditional", "", []string{}, []Action{}, []string{}, []Action{}, conditions, 13, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "conditional", "", []string{}, []Action{}, []string{}, []Action{}, conditions, 13, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
       case "import":
 
         var fileDir = lex[i + 2]
@@ -1514,7 +1511,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
           actionizedFiles = append(actionizedFiles, actionizer(v, false, dir))
         }
 
-        actions = append(actions, Action{ "import", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 14, []Action{}, []Action{}, []Action{}, actionizedFiles, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "import", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 14, []Action{}, []Action{}, []Action{}, actionizedFiles, [][]Action{}, make(map[string][]Action), false })
         i+=(2 + len(fileDir))
       case "read":
         var phrase = []string{}
@@ -1561,12 +1558,12 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         }
 
         actionizedPhrase := actionizer(phrase, true, dir)
-        actions = append(actions, Action{ "read", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 15, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "read", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 15, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(2 + len(phrase))
       case "break":
-        actions = append(actions, Action{ "break", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 16, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "break", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 16, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
       case "skip":
-        actions = append(actions, Action{ "skip", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 17, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "skip", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 17, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
       case "eval":
         var phrase = []string{}
 
@@ -1612,7 +1609,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         }
 
         actionized := actionizer(phrase, true, dir)
-        actions = append(actions, Action{ "eval", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 18, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "eval", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 18, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(2 + len(phrase))
       case "typeof":
         var phrase = []string{}
@@ -1659,7 +1656,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         }
 
         actionizedPhrase := actionizer(phrase, true, dir)
-        actions = append(actions, Action{ "typeof", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 19, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "typeof", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 19, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(2 + len(phrase))
       case "loop":
 
@@ -1704,7 +1701,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         action := actionizer(action_, false, dir)
 
-        actions = append(actions, Action{ "loop", "", []string{}, action, []string{}, []Action{}, []Condition{ { "loop", condition, action } }, 21, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "loop", "", []string{}, action, []string{}, []Action{}, []Condition{ { "loop", condition, action } }, 21, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(1 + len(condition_) + len(action_))
       case "[:":
         var phrase = []string{}
@@ -1822,7 +1819,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         }
 
         if i >= len_lex {
-          actions = append(actions, Action{ "hash", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false, dir), false })
+          actions = append(actions, Action{ "hash", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, false })
           break
         }
 
@@ -1834,7 +1831,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         }
 
         if i >= len_lex {
-          actions = append(actions, Action{ "hash", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false, dir), isMutable })
+          actions = append(actions, Action{ "hash", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, isMutable })
           break
         }
 
@@ -1903,9 +1900,9 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
           i+=3
 
-          actions = append(actions, Action{ "hashIndex", "", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 23, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, translated, actionizer([]string{ "�hash" }, false, dir), isMutable })
+          actions = append(actions, Action{ "hashIndex", "", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 23, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, translated, isMutable })
         } else {
-          actions = append(actions, Action{ "hash", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, actionizer([]string{ "�hash" }, false, dir), isMutable })
+          actions = append(actions, Action{ "hash", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, isMutable })
         }
       case "[":
         var phrase = []string{}
@@ -2017,7 +2014,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         }
 
         if i >= len_lex {
-          actions = append(actions, Action{ "array", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false, dir), false })
+          actions = append(actions, Action{ "array", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, false })
           break
         }
 
@@ -2029,7 +2026,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         }
 
         if i >= len_lex {
-          actions = append(actions, Action{ "array", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false, dir), isMutable })
+          actions = append(actions, Action{ "array", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, isMutable })
           break
         }
 
@@ -2098,9 +2095,9 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
           i+=3
 
-          actions = append(actions, Action{ "arrayIndex", "", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 25, []Action{}, []Action{}, []Action{}, arr, putIndexes, hashedArr, actionizer([]string{ "�array" }, false, dir), isMutable })
+          actions = append(actions, Action{ "arrayIndex", "", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 25, []Action{}, []Action{}, []Action{}, arr, putIndexes, hashedArr, isMutable })
         } else {
-          actions = append(actions, Action{ "array", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, actionizer([]string{ "�array" }, false, dir), isMutable })
+          actions = append(actions, Action{ "array", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, isMutable })
         }
       case "ascii":
         var phrase = []string{}
@@ -2147,7 +2144,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         }
 
         actionizedPhrase := actionizer(phrase, true, dir)
-        actions = append(actions, Action{ "ascii", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 26, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "ascii", "", []string{}, actionizedPhrase, []string{}, []Action{}, []Condition{}, 26, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(2 + len(phrase))
       case "len":
 
@@ -2173,7 +2170,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         actionized := actionizer(exp, true, dir)
 
-        actions = append(actions, Action{ "len", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 31, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "len", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 31, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=3 + len(exp)
       case "each":
         var condition_ = []string{}
@@ -2297,13 +2294,12 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         }
 
         actionized := actionizer(exp, false, dir)
-        actions = append(actions, Action{ "each", "", []string{ var1, var2 }, actionized, []string{}, iterator, []Condition{}, 59, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+        actions = append(actions, Action{ "each", "", []string{ var1, var2 }, actionized, []string{}, iterator, []Condition{}, 59, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
 
       default:
 
         valPuts := func(lex []string, i int) int {
 
-          //KEEP IN MIND: type key starts with ascii of 233
           //KEEP IN MIND: index key starts with ascii of 8
 
           if i >= len_lex {
@@ -2328,7 +2324,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
               hashedString := make(map[string][]Action)
 
               //specify the value for the "falsey" case
-              hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false, dir), isMutable  } }
+              hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
 
               cur := "0"
 
@@ -2339,55 +2335,52 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
                 cur = add(cur, "1", paramCalcOpts{}, -1)
               }
 
-              actions = append(actions, Action{ "string", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedString, actionizer([]string{ "�string" }, false, dir), isMutable })
+              actions = append(actions, Action{ "string", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedString, isMutable })
             }
             case "number":
 
               hashed := make(map[string][]Action)
 
               //specify the value for the "falsey" case
-              hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false, dir), isMutable } }
+              hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
 
-              actions = append(actions, Action{ "number", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false, dir), false })
+              actions = append(actions, Action{ "number", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, false })
             case "boolean":
 
               hashed := make(map[string][]Action)
 
               //specify the value for the "falsey" case
-              hashed["falsey"] = []Action{ Action{ "boolean", "exp_value", []string{ strconv.FormatBool(val != "true") }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("boolean"))) }, false, dir), isMutable } }
+              hashed["falsey"] = []Action{ Action{ "boolean", "exp_value", []string{ strconv.FormatBool(val != "true") }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
 
-              actions = append(actions, Action{ "boolean", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false, dir), isMutable })
+              actions = append(actions, Action{ "boolean", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, isMutable })
             case "falsey":
 
               hashed := make(map[string][]Action)
 
               //specify the value for the "falsey" case
-              hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false, dir), isMutable } }
+              hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
 
-              actions = append(actions, Action{ "falsey", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false, dir), isMutable })
+              actions = append(actions, Action{ "falsey", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, isMutable })
             case "none":
 
               if strings.HasPrefix(val, "$") {
 
-                actions = append(actions, Action{ "variable", val, []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 43, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�variable" }, false, dir), isMutable })
-              } else if strings.HasPrefix(val, "�") {
-
-                actions = append(actions, Action{ "type", "exp_value", []string{ strings.TrimPrefix(val, "�") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(val, "�")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false })
+                actions = append(actions, Action{ "variable", val, []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 43, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable })
               } else if strings.HasPrefix(val, "") {
 
                 hashed := make(map[string][]Action)
-                hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false, dir), false } }
+                hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false } }
 
-                actions = append(actions, Action{ "index_key", "exp_value", []string{ strings.TrimPrefix(val, "") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(val, "")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, []Action{}, false })
+                actions = append(actions, Action{ "index_key", "exp_value", []string{ strings.TrimPrefix(val, "") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(val, "")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, false })
               } else {
 
                 hashedString := make(map[string][]Action)
 
                 //specify the value for the "falsey" case
-                hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString("undefined"))) }, false, dir), isMutable } }
+                hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
 
                 //get it? 42?
-                actions = append(actions, Action{ "none", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 42, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false, dir), isMutable })
+                actions = append(actions, Action{ "none", "exp_value", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 42, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable })
               }
           }
 
@@ -2458,7 +2451,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
               return "exp_value"
             }
 
-            actions = append(actions, Action{ "cast", lex[i], []string{ getValueType(lex[i]) }, val, []string{}, []Action{}, []Condition{}, 58, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+            actions = append(actions, Action{ "cast", lex[i], []string{ getValueType(lex[i]) }, val, []string{}, []Action{}, []Condition{}, 58, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
             i+=len(val_) + 2
             continue
           }
@@ -2476,7 +2469,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             intID, _ := strconv.Atoi(id)
 
-            actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, []Action{}, []string{}, []Action{}, []Condition{}, intID, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+            actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, []Action{}, []string{}, []Action{}, []Condition{}, intID, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
             i++
             continue;
           }
@@ -2539,7 +2532,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             intID, _ := strconv.Atoi(id)
 
-            actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, by, []string{}, []Action{}, []Condition{}, intID, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+            actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, by, []string{}, []Action{}, []Condition{}, intID, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
             continue;
           }
 
@@ -2696,7 +2689,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             exp := actionizer(exp_, true, dir)
 
-            actions = append(actions, Action{ "let", name, exp_, exp, []string{}, []Action{}, []Condition{}, 28, []Action{}, []Action{}, []Action{}, [][]Action{}, indexes, make(map[string][]Action), actionizer([]string{ "�statement" }, false, dir), false })
+            actions = append(actions, Action{ "let", name, exp_, exp, []string{}, []Action{}, []Condition{}, 28, []Action{}, []Action{}, []Action{}, [][]Action{}, indexes, make(map[string][]Action), false })
             i+=(len(exp))
             continue
           }
@@ -2777,11 +2770,11 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             if strings.HasPrefix(val, "$") {
               actVal := actionizer([]string{ val }, true, dir)
 
-              actions = append(actions, Action{ "variableIndex", "", []string{}, actVal, []string{}, []Action{}, []Condition{}, 46, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false, dir), false })
+              actions = append(actions, Action{ "variableIndex", "", []string{}, actVal, []string{}, []Action{}, []Condition{}, 46, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false })
             } else {
               actVal := actionizer([]string{ val }, true, dir)
 
-              actions = append(actions, Action{ "expressionIndex", "", []string{}, actVal, []string{}, []Action{}, []Condition{}, 8, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), actionizer([]string{ "�" + C.GoString(GetType(C.CString(val))) }, false, dir), false })
+              actions = append(actions, Action{ "expressionIndex", "", []string{}, actVal, []string{}, []Action{}, []Condition{}, 8, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false })
             }
 
           }

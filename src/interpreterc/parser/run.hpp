@@ -5,7 +5,7 @@
 #include <string>
 #include "parser.hpp"
 #include "json.hpp"
-#include "structs.h"
+#include "structs.hpp"
 using namespace std;
 using json = nlohmann::json;
 

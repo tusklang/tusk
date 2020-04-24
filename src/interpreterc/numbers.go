@@ -2,6 +2,8 @@ package main
 
 import "strings"
 import "strconv"
+import "math/big"
+import "fmt"
 
 // #cgo CFLAGS: -std=c99
 import "C"
@@ -15,6 +17,8 @@ type BoolSwitch struct {
   First    string
   Second   string
 }
+
+const PREC = 1000
 
 //export ReturnInitC
 func ReturnInitC(str *C.char) *C.char {
@@ -172,6 +176,81 @@ func addDec(num string) string {
   return num
 }
 
+func abs(num []string) []string {
+
+  //ensure that the given number will not change
+  num = append(num, "-")
+
+  for k, v := range num {
+    if v[0] == '-' {
+      num[k] = num[k][1:]
+    }
+  }
+
+  return num
+}
+
+func isLessSlices(num1 []string, num2 []string) bool {
+
+  //if the lengths are different return accordingly
+  if len(num1) < len(num2) {
+    return true
+  }
+  if len(num2) < len(num1) {
+    return false
+  }
+
+  var eqs = 0
+
+  fmt.Println(num1, num2)
+
+  for k := len(num1) - 1; k >= 0; k-- {
+
+    v1 := num1[k]
+    v2 := num2[k]
+
+    fmt.Println(v1, v2)
+
+    if v1 == "." && v2 == "."  {
+      continue
+    }
+
+    if v1 == "." {
+      return true
+    }
+    if v2 == "." {
+      return false
+    }
+
+    //convert each value into big ints
+    num1_big, _ := new(big.Int).SetString(v1, 10)
+    num2_big, _ := new(big.Int).SetString(v2, 10)
+
+    //if the current digit is less for num1 return true
+    if num1_big.Cmp(num2_big) == -1 {
+      return true
+    }
+
+    //if the current digit is greater for num1 return false
+    if num1_big.Cmp(num2_big) == 1 {
+      return false
+    }
+
+    //if both digits are equal, increment the nunber of equals
+    if num1_big.Cmp(num2_big) == 0 {
+      eqs++
+    }
+
+  }
+
+  //if they are both equal return false
+  if eqs == len(num1) && len(num2) == eqs {
+    return false
+  }
+
+  return false
+}
+
 func isLess(num1 string, num2 string) bool {
 
   if num1 == "undefined" || num2 == "undefined" || num1 == "NaN" || num2 == "NaN" {
@@ -255,7 +334,7 @@ func reCalc(val *Action) {
       expstr := val.ExpStr[0][1:len(val.ExpStr[0]) - 1]
 
       for i := 0; i < len(expstr); i++ {
-        val.Hash_Values[strconv.Itoa(i)] = []Action{ Action{ "string", "", []string{ string(expstr[i]) }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"string", "", []string{ string(expstr[i]) }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false } }
+        val.Hash_Values[strconv.Itoa(i)] = []Action{ Action{ "string", "", []string{ string(expstr[i]) }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false } }
       }
   }
 }

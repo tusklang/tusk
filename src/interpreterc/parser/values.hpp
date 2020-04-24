@@ -20,24 +20,7 @@ const json falseyVal = {
   {"Indexes", "[[]]"_json},
   {"Index_Type", ""},
   {"Hash_Values", "{}"_json},
-  {"ValueType", {{
-    {"Type", "falsey"},
-    {"Name", ""},
-    {"ExpStr", json::parse("[\"undefined\"]")},
-    {"ExpAct", "[]"_json},
-    {"Params", "[]"_json},
-    {"Args", "[]"_json},
-    {"Condition", "[]"_json},
-    {"ID", 41},
-    {"First", "[]"_json},
-    {"Second", "[]"_json},
-    {"Degree", "[]"_json},
-    {"Value", "[[]]"_json},
-    {"Indexes", "[[]]"_json},
-    {"Index_Type", ""},
-    {"Hash_Values", "{}"_json},
-    {"ValueType", "[]"_json}
-  }}}
+  {"IsMutable", false}
 }
 , trueRet = {
   {"Type", "boolean"},
@@ -55,24 +38,7 @@ const json falseyVal = {
   {"Indexes", "[[]]"_json},
   {"Index_Type", ""},
   {"Hash_Values", "{}"_json},
-  {"ValueType", {{
-    {"Type", "boolean"},
-    {"Name", ""},
-    {"ExpStr", json::parse("[\"true\"]")},
-    {"ExpAct", "[]"_json},
-    {"Params", "[]"_json},
-    {"Args", "[]"_json},
-    {"Condition", "[]"_json},
-    {"ID", 41},
-    {"First", "[]"_json},
-    {"Second", "[]"_json},
-    {"Degree", "[]"_json},
-    {"Value", "[[]]"_json},
-    {"Indexes", "[[]]"_json},
-    {"Index_Type", ""},
-    {"Hash_Values", "{}"_json},
-    {"ValueType", "[]"_json}
-  }}}
+  {"IsMutable", false}
 }
 , falseRet = {
   {"Type", "boolean"},
@@ -90,24 +56,7 @@ const json falseyVal = {
   {"Indexes", "[[]]"_json},
   {"Index_Type", ""},
   {"Hash_Values", "{}"_json},
-  {"ValueType", {{
-    {"Type", "boolean"},
-    {"Name", ""},
-    {"ExpStr", json::parse("[\"false\"]")},
-    {"ExpAct", "[]"_json},
-    {"Params", "[]"_json},
-    {"Args", "[]"_json},
-    {"Condition", "[]"_json},
-    {"ID", 41},
-    {"First", "[]"_json},
-    {"Second", "[]"_json},
-    {"Degree", "[]"_json},
-    {"Value", "[[]]"_json},
-    {"Indexes", "[[]]"_json},
-    {"Index_Type", ""},
-    {"Hash_Values", "{}"_json},
-    {"ValueType", "[]"_json}
-  }}}
+  {"IsMutable", false}
 }
 , zero = {
   {"Type", "number"},
@@ -125,24 +74,7 @@ const json falseyVal = {
   {"Indexes", "[[]]"_json},
   {"Index_Type", ""},
   {"Hash_Values", "{}"_json},
-  {"ValueType", {{
-    {"Type", "number"},
-    {"Name", ""},
-    {"ExpStr", json::parse("[\"0\"]")},
-    {"ExpAct", "[]"_json},
-    {"Params", "[]"_json},
-    {"Args", "[]"_json},
-    {"Condition", "[]"_json},
-    {"ID", 39},
-    {"First", "[]"_json},
-    {"Second", "[]"_json},
-    {"Degree", "[]"_json},
-    {"Value", "[[]]"_json},
-    {"Indexes", "[[]]"_json},
-    {"Index_Type", ""},
-    {"Hash_Values", "{}"_json},
-    {"ValueType", "[]"_json}
-  }}}
+  {"IsMutable", false}
 }
 , val1 = {
   {"Type", "number"},
@@ -160,26 +92,9 @@ const json falseyVal = {
   {"Indexes", "[[]]"_json},
   {"Index_Type", ""},
   {"Hash_Values", "{}"_json},
-  {"ValueType", {{
-    {"Type", "number"},
-    {"Name", ""},
-    {"ExpStr", json::parse("[\"1\"]")},
-    {"ExpAct", "[]"_json},
-    {"Params", "[]"_json},
-    {"Args", "[]"_json},
-    {"Condition", "[]"_json},
-    {"ID", 39},
-    {"First", "[]"_json},
-    {"Second", "[]"_json},
-    {"Degree", "[]"_json},
-    {"Value", "[[]]"_json},
-    {"Indexes", "[[]]"_json},
-    {"Index_Type", ""},
-    {"Hash_Values", "{}"_json},
-    {"ValueType", "[]"_json}
-  }}}
+  {"IsMutable", false}
 }
-, valn1= {
+, valn1 = {
   {"Type", "number"},
   {"Name", ""},
   {"ExpStr", json::parse("[\"-1\"]")},
@@ -195,24 +110,25 @@ const json falseyVal = {
   {"Indexes", "[[]]"_json},
   {"Index_Type", ""},
   {"Hash_Values", "{}"_json},
-  {"ValueType", {{
-    {"Type", "number"},
-    {"Name", ""},
-    {"ExpStr", json::parse("[\"-1\"]")},
-    {"ExpAct", "[]"_json},
-    {"Params", "[]"_json},
-    {"Args", "[]"_json},
-    {"Condition", "[]"_json},
-    {"ID", 39},
-    {"First", "[]"_json},
-    {"Second", "[]"_json},
-    {"Degree", "[]"_json},
-    {"Value", "[[]]"_json},
-    {"Indexes", "[[]]"_json},
-    {"Index_Type", ""},
-    {"Hash_Values", "{}"_json},
-    {"ValueType", "[]"_json}
-  }}}
-};
+  {"IsMutable", false}
+}
+, strPlaceholder = {
+  {"Type", "string"},
+  {"Name", ""},
+  {"ExpStr", json::parse("[\"\"]")},
+  {"ExpAct", "[]"_json},
+  {"Params", "[]"_json},
+  {"Args", "[]"_json},
+  {"Condition", "[]"_json},
+  {"ID", 38},
+  {"First", "[]"_json},
+  {"Second", "[]"_json},
+  {"Degree", "[]"_json},
+  {"Value", "[[]]"_json},
+  {"Indexes", "[[]]"_json},
+  {"Index_Type", ""},
+  {"Hash_Values", "{}"_json},
+  {"IsMutable", false}
+};;
 
 #endif

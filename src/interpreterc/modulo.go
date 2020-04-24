@@ -1,28 +1,25 @@
 package main
 
-import "strings"
+import "math/big"
 import "encoding/json"
+import "fmt"
 
 // #cgo CFLAGS: -std=c99
 import "C"
 
-func modulo(_num1 string, _num2 string, calc_params paramCalcOpts, line int) string {
-  if _num2 == "0"  {
+func modulo(num1 string, num2 string, calc_params paramCalcOpts, line int) string {
+  if num2 == "0"  {
     return "undefined"
   }
 
-  if returnInit(_num1) == "0" {
-    return "0"
-  }
+  divved := divide(num1, num2, calc_params, line)
 
-  divved_ := addDec(divide(_num1, _num2, calc_params, line))
+  floored, _ := new(big.Int).SetString(divved, 10)
 
-  divved := divved_[:strings.Index(divved_, ".")]
+  mult := multiply(fmt.Sprint(floored), num2, calc_params, line)
+  remainder := subtract(num1, mult, calc_params, line)
 
-  mult := multiply(divved, _num2, calc_params, line)
-  remainder := subtract(_num1, mult, calc_params, line)
-
-  return remainder
+  return returnInit(fmt.Sprintf("%f", remainder))
 }
 
 //export Modulo
@@ -60,8 +57,8 @@ func Modulo(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *
     case TypeOperations{ "number", "number" }: //detect case "num" % "num"
       val := modulo(_num1P_.ExpStr[0], _num2P_.ExpStr[0], calc_params, line)
 
-      finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"number", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
-    default: finalRet = Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
+      finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
+    default: finalRet = Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
   }
 
   reCalc(&finalRet)

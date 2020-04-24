@@ -5,6 +5,7 @@ import "os/exec"
 import "strings"
 import "encoding/json"
 import "unicode"
+import "regexp"
 
 // #cgo CFLAGS: -std=c99
 // #include "bind.h"
@@ -33,6 +34,14 @@ func GetType(cVal *C.char) *C.char {
   val := C.GoString(cVal)
 
   var numMatch = func(num string) bool {
+
+    //see if it includes at least one digit
+    match, _ := regexp.MatchString("\\d", num)
+
+    if !match {
+      return false
+    }
+
     for _, v := range num {
       if !unicode.IsDigit(v) && v != '.' && v != '-' && v != '+' {
         return false

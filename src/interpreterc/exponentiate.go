@@ -1,40 +1,36 @@
 package main
 
-import "strings"
+import "math/big"
 import "encoding/json"
+import "fmt"
+import "strconv"
+import "github.com/ALTree/bigfloat"
 
 // #cgo CFLAGS: -std=c99
 import "C"
 
-func exponentiate(_num1 string, _num2 string, calc_params paramCalcOpts, line int) string {
-  _num1 = returnInit(_num1)
-  _num2 = returnInit(_num2)
+func exponentiate(num1 string, num2 string, calc_params paramCalcOpts, line int) string {
 
-  if strings.Contains(_num2, ".") {
-    return "NaN"
+  num1big, _ := new(big.Float).SetPrec(PREC).SetString(num1)
+  num2big, _ := new(big.Float).SetString(num2)
+
+  var doNeg = 1
+  if num1big.Cmp(big.NewFloat(0)) == -1 {
+
+    inted, _ := new(big.Int).SetString(num2big.String(), 10)
+    doNeg, _ = strconv.Atoi(new(big.Int).Quo(inted, big.NewInt(2)).String())
+
+    num1big = new(big.Float).Mul(big.NewFloat(-1), num1big)
   }
 
-  var final = "1"
+  powwed := bigfloat.Pow(num1big, num2big)
 
-  if strings.HasPrefix(_num2, "-") {
-    _num2 = _num2[1:]
-
-    for ;isLess("0", _num2); {
-      final = multiply(final, _num1, calc_params, line)
-      _num2 = subtract(_num2, "1", calc_params, line)
-    }
-
-    final = divide("1", final, calc_params, line)
-  } else {
-
-    for ;isLess("0", _num2); {
-
-      final = multiply(final, _num1, calc_params, line)
-      _num2 = subtract(_num2, "1", calc_params, line)
-    }
+  //if it is a negative power to 1/num1^num2
+  if doNeg == 0 {
+    powwed = new(big.Float).Mul(big.NewFloat(-1), powwed)
   }
 
-  return final
+  return returnInit(fmt.Sprintf("%f", powwed))
 }
 
 //export Exponentiate
@@ -72,8 +68,8 @@ func Exponentiate(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.
     case TypeOperations{ "number", "number" }: //detect case "num" ^ "num"
       val := exponentiate(_num1P_.ExpStr[0], _num2P_.ExpStr[0], calc_params, line)
 
-      finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"number", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
-    default: finalRet = Action{ "number", "", []string{ "0" }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{ Action{"number", "", []string{ "0" }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), []Action{}, false} }, false }
+      finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
+    default: finalRet = Action{ "number", "", []string{ "0" }, []Action{}, []string{}, []Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
   }
 
   reCalc(&finalRet)
