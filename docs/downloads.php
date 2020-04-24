@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" charset='utf-8'>
   </head>
   <nav class="navbar navbar-expand-sm navbar-custom">
-    <img src='/Logos/Logo2.gif' id='logo' onclick='document.location.href="/"'>
+    <img src='/Logos/new/logo1@2x.png' id='logo' onclick='document.location.href="/"'>
     <ul class="navbar-nav">
       <li class="nav-item">
         <a class="nav-link" href="/">Home</a>
@@ -46,7 +46,7 @@
   </tbody>
   </table>
   <div class='footer'>
-    <img src='/Logos/Logo2.gif' id='foot-img' onclick='document.location.href="/"'>
+    <img src='/Logos/new/logo1@2x.png' id='foot-img' onclick='document.location.href="/"'>
     <a id='foot-img-txt'>Omm</a>
     <br>
     <a class='footer-copyright textcenter py-3' id='copyright'>© 2019 Ankit Karnam</a>
