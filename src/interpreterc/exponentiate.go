@@ -12,6 +12,7 @@ func exponentiate(_num1 string, _num2 string, calc_params paramCalcOpts, line in
   _num2 = returnInit(_num2)
 
   if strings.Contains(_num2, ".") {
+    //add exponentiation with exp(_num1 * log(_num2))
     return "NaN"
   }
 
