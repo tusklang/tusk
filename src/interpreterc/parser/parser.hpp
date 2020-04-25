@@ -144,9 +144,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //expressionIndex
 
-            Returner parsedVal = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true);
-
-            json index = indexesCalc(parsedVal.exp["Hash_Values"], actions[i]["Indexes"], calc_params, vars, line, dir);
+            json index = indexesCalc(actions[i]["Hash_Values"], actions[i]["Indexes"], calc_params, vars, line, dir);
 
             if (expReturn) {
               vector<string> returnNone;

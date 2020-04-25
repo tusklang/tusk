@@ -1,3 +1,7 @@
+const keywords = require('./keywords.json');
+
+//this entire file is bad and needs re-factoring
+
 function expFormat(input) {
 
   if (input == '$variable') return '(\\$[^\\s]+)';
@@ -5,6 +9,17 @@ function expFormat(input) {
   if (input == '$hash') return '((\\[\\:)[\\s\\S]+(\\:\\]))';
   if (input == '$array') return '((\\[)[\\s\\S]+(\\]))';
   if (input == '(') return '\\(';
+  if (input == ')') return '\\)';
+  if (input == ']') return '\\]';
+  if (input == ':]') return '\\:\\]'
+  if (input == '*keyword') {
+
+    //craft the regex of all the keywords that are ids
+    var ids = keywords.filter(k => k.type == 'id').map(k => k.remove).join('|')
+    , match_reg = `(${ids})`;
+
+    return match_reg;
+  }
 
   return input;
 }
@@ -19,8 +34,9 @@ function format(input) {
   if (input == '$string') return 'string';
   if (input == '$hash') return 'hash';
   if (input == '$array') return 'array';
+  if (input == '*keyword') return 'Any Keyword';
 
-  if (input.startsWith('\\')) input = input.substr(1);
+  if (input.includes('\\')) input = input.replace('\\', '');
 
   return input;
 }
@@ -84,6 +100,9 @@ module.exports = (keeper, file, keyword, line, curExp) => {
               `Error During Lexing >> Expected${keyword.pre_prohib.length != 1 ? ' One Of The Following' : ''}:`,
               needed_items,
               `${keyword.pre_prohib.length != 1 ? '\n' : ''}After \"${keyword.remove}\"`,
+              `\nInstead Got ${!file_[keyword.remove.length + 1] ? 'nothing' : format(file_[keyword.remove.length + 1])}`,
+              `\n\nFound Near: \"${file.slice(0, MAX_CUR_EXP_SIZE)}\"`,
+              `\n             ${' '.repeat(keyword.remove.length - 2) + '~~~^~~~'}`, //point to error location
               `\n\nError Occurred On Line: ${line}`
             );
 
@@ -121,6 +140,9 @@ module.exports = (keeper, file, keyword, line, curExp) => {
           `Error During Lexing >> Expected${keyword.pre_or_necc.length != 1 ? ' One Of The Following' : ''}:`,
           needed_items,
           `${keyword.pre_or_necc.length != 1 ? '\n' : ''}Before \"${keyword.remove}\"`,
+          `\nInstead Got ${!file_[keyword.remove.length + 1] ? 'nothing' : format(file_[keyword.remove.length + 1])}`,
+          `\n\nFound Near: \"${file.slice(0, MAX_CUR_EXP_SIZE)}\"`,
+          `\n             ${' '.repeat(keyword.remove.length - 2) + '~~~^~~~'}`, //point to error location
           `\n\nError Occurred On Line: ${line}`
         );
 
@@ -155,9 +177,12 @@ module.exports = (keeper, file, keyword, line, curExp) => {
 
         //give an error
         console.log(
-          `Error During Lexing >> Expected${keyword.post_or_necc.length != 1 ? ' One Of The Following' : ''}:`,
+          `Error During Lexing >> Expected${keyword.post_or_necc.length != 1 ? ' One Of The Following:' : ''}`,
           needed_items,
           `${keyword.post_or_necc.length != 1 ? '\n' : ''}After \"${keyword.remove}\"`,
+          `\nInstead Got ${!file_[keyword.remove.length + 1] ? 'nothing' : format(file_[keyword.remove.length + 1])}`,
+          `\n\nFound Near: \"${file.slice(0, MAX_CUR_EXP_SIZE)}\"`,
+          `\n             ${' '.repeat(keyword.remove.length - 2) + '~~~^~~~'}`, //point to error location
           `\n\nError Occurred On Line: ${line}`
         );
 
@@ -168,7 +193,7 @@ module.exports = (keeper, file, keyword, line, curExp) => {
 
     if (keyword.post_or_necc_after_tilde) {
 
-      file = file.substr(1);
+      var file_ = file.substr(1);
 
       //create the or exp
       var or_exp = '(';
@@ -190,11 +215,14 @@ module.exports = (keeper, file, keyword, line, curExp) => {
 
       if (keyword.post_or_necc_after_tilde.length == 1) needed_items = format(keyword.post_or_necc_after_tilde[0]);
 
-      if (!file.substr(keyword.remove.length).match(pattern)) {
+      if (!file_.substr(keyword.remove.length).match(pattern)) {
 
         //give an error
         console.log(
-          `Error During Lexing >> Expected ${needed_items} After ${keyword.remove + '~'}`,
+          `Error During Lexing >> Expected ${needed_items.startsWith('[') ? 'One Of The Following: \n' : ''}${needed_items}${needed_items.startsWith('[') ? '\n' : ' '}After ${keyword.remove + '~'}`,
+          `\nInstead Got ${!file_[keyword.remove.length + 1] ? 'nothing' : format(file_[keyword.remove.length + 1])}`,
+          `\n\nFound Near: \"${file.slice(0, MAX_CUR_EXP_SIZE)}\"`,
+          `\n             ${' '.repeat(keyword.remove.length - 2) + '~~~^~~~'}`, //point to error location
           `\n\nError Occurred On Line: ${line}`
         );
 
@@ -205,7 +233,7 @@ module.exports = (keeper, file, keyword, line, curExp) => {
 
     if (keyword.post_or_necc_after_paren) {
 
-      file = file.substr(1);
+      var file_ = file.substr(1);
 
       //create the or exp
       var or_exp = '(';
@@ -227,11 +255,14 @@ module.exports = (keeper, file, keyword, line, curExp) => {
 
       if (keyword.post_or_necc_after_paren.length == 1) needed_items = format(keyword.post_or_necc_after_paren[0]);
 
-      if (!file.substr(keyword.remove.length).match(pattern)) {
+      if (!file_.substr(keyword.remove.length).match(pattern)) {
 
         //give an error
         console.log(
-          `Error During Lexing >> Expected${needed_items.startsWith('[') ? ' One Of The Following: \n' : ''}${needed_items}${needed_items.startsWith('[') ? '\n' : ' '}After ${keyword.remove + '('}`,
+          `Error During Lexing >> Expected ${needed_items.startsWith('[') ? 'One Of The Following: \n' : ''}${needed_items}${needed_items.startsWith('[') ? '\n' : ' '}After ${keyword.remove + '('}`,
+          `\nInstead Got ${!file_[keyword.remove.length + 1] ? 'nothing' : format(file_[keyword.remove.length + 1])}`,
+          `\n\nFound Near: \"${file.slice(0, MAX_CUR_EXP_SIZE)}\"`,
+          `\n             ${'~'.repeat(keyword.remove.length - 2) + '~~~^~~'}`, //point to error location
           `\n\nError Occurred On Line: ${line}`
         );
 

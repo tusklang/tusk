@@ -3,7 +3,7 @@ const keywords = require('./keywords.json')
 , fs = require('fs');
 
 //set the maximum size of the cur exp
-global.MAX_CUR_EXP_SIZE = 20;
+global.MAX_CUR_EXP_SIZE = 15;
 
 //fetch file
 var stdinBuffer = fs.readFileSync(0)
@@ -25,9 +25,9 @@ for (let i = 0; i < keywords.length; i++) {
 
   while (curExp.length > MAX_CUR_EXP_SIZE) curExp = curExp.substr(1);
 
-  if (testKey(copyFile, file, keywords[i], line, curExp)) {
+  if (new RegExp('^' + keywords[i].pattern).test(file)) curExp+=keywords[i].remove;
 
-    curExp+=keywords[i].name;
+  if (testKey(copyFile, file, keywords[i], line, curExp)) {
 
     //if it is a newline then increment line
     if (keywords[i].name == 'newlineN') line++;

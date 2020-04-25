@@ -24,6 +24,17 @@ func arrayContainInterface(arr []string, sub interface{}) bool {
   return false;
 }
 
+func arrayContainInterfaceOperations(arr []string, sub interface{}) bool {
+
+  for i := 0; i < len(arr); i++ {
+    if arr[i] == sub.(string) {
+      return true
+    }
+  }
+
+  return false;
+}
+
 func arrayContain2Nest(arr [][]string, sub string) bool {
 
   for i := 0; i < len(arr); i++ {
@@ -84,11 +95,52 @@ func interfaceIndexOf(sub interface{}, inter []interface{}) int {
   return -1
 }
 
+func interfaceContainOperations(inter []interface{}, sub interface{}) bool {
+
+  loop:
+  for _, a := range inter {
+
+    switch a.(type) {
+      case Action:
+        continue loop
+    }
+
+    if a.(Lex).Name == sub {
+      return true
+    }
+  }
+  
+  return false
+}
+
+func interfaceIndexOfOperations(sub interface{}, inter []interface{}) int {
+  loop:
+  for k, a := range inter {
+
+    switch a.(type) {
+      case Action:
+        continue loop
+    }
+
+    if a.(Lex).Name == sub {
+      return k
+    }
+  }
+
+  return -1
+}
+
 func interfaceContainWithProcIndex(inter []interface{}, sub interface{}, indexes []int) bool {
 
   loop:
   for k, v := range inter {
-    if sub == v {
+
+    switch v.(type) {
+      case Action:
+        continue loop
+    }
+
+    if sub.(string) == v.(Lex).Name {
 
       for _, o := range indexes {
         if k == o {
@@ -107,7 +159,13 @@ func interfaceIndexOfWithProcIndex(sub interface{}, inter []interface{}, indexes
 
   loop:
   for k, v := range inter {
-    if sub == v {
+
+    switch v.(type) {
+      case Action:
+        continue loop
+    }
+
+    if sub.(string) == v.(Lex).Name {
 
       for _, o := range indexes {
         if k == o {
@@ -140,7 +198,7 @@ func interfaceContainForExp(inter []interface{}, _sub []string) bool {
     v := inter[o]
 
     //prevent parenthesis after process declarations from being counted as expression parenthesis
-    if o > 0 && (strings.HasPrefix(inter[o - 1].(string), "$") || inter[o - 1].(string) == "]" || inter[o - 1] == "process") && v == "(" {
+    if o > 0 && (strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "process") && v.(Lex).Name == "(" {
 
       scbCnt := 0
       sglCnt := 0
@@ -148,31 +206,31 @@ func interfaceContainForExp(inter []interface{}, _sub []string) bool {
       spCnt := 0
 
       for i := o; i < len(inter); i, o = i + 1, o + 1 {
-        if inter[i] == "{" {
+        if inter[i].(Lex).Name == "{" {
           scbCnt++;
         }
-        if inter[i] == "}" {
+        if inter[i].(Lex).Name == "}" {
           scbCnt--;
         }
 
-        if inter[i] == "[:" {
+        if inter[i].(Lex).Name == "[:" {
           sglCnt++;
         }
-        if inter[i] == ":]" {
+        if inter[i].(Lex).Name == ":]" {
           sglCnt--;
         }
 
-        if inter[i] == "[" {
+        if inter[i].(Lex).Name == "[" {
           sbCnt++;
         }
-        if inter[i] == "]" {
+        if inter[i].(Lex).Name == "]" {
           sbCnt--;
         }
 
-        if inter[i] == "(" {
+        if inter[i].(Lex).Name == "(" {
           spCnt++;
         }
-        if inter[i] == ")" {
+        if inter[i].(Lex).Name == ")" {
           spCnt--;
         }
 
@@ -184,38 +242,38 @@ func interfaceContainForExp(inter []interface{}, _sub []string) bool {
       continue
     }
 
-    if v == "{" {
+    if v.(Lex).Name == "{" {
       cbCnt++;
     }
-    if v == "}" {
+    if v.(Lex).Name == "}" {
       cbCnt--;
     }
 
-    if v == "[:" {
+    if v.(Lex).Name == "[:" {
       glCnt++;
     }
-    if v == ":]" {
+    if v.(Lex).Name == ":]" {
       glCnt--;
     }
 
-    if v == "[" {
+    if v.(Lex).Name == "[" {
       bCnt++;
     }
-    if v == "]" {
+    if v.(Lex).Name == "]" {
       bCnt--;
     }
 
-    if v == "(" {
+    if v.(Lex).Name == "(" {
       pCnt++;
     }
-    if v == ")" {
+    if v.(Lex).Name == ")" {
       pCnt--;
     }
 
     if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
 
       for _, i := range sub {
-        if i == v {
+        if i == v.(Lex).Name {
           return true
         }
       }

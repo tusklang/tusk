@@ -108,7 +108,7 @@
 
     <div class='ui segment inverted'>
 
-      <h1 class='feature-head'>Ease Of Learning</h1>
+      <h1 class='feature-head'>Ease of Learning</h1>
       <div class='ui horizontal divider'>
         <i class='fas fa-brain fa-2x feature-ico'></i>
       </div>

@@ -174,14 +174,15 @@
     "name": "~",
     "remove": "~",
     "pattern": "\\~",
-    "type": "operation"
+    "type": "operation",
+    "pre_or_necc": ["*keyword"]
   },
   {
     "name": "[:",
     "remove": "[:",
     "pattern": "(\\[\\:)",
     "type": "operation",
-    "post_or_necc": ["\"", "'", "`", "\\d", "true", "false", ":", "\n"]
+    "post_or_necc": ["\"", "'", "`", "\\d", "true", "false", ":\\]", "\n"]
   },
   {
     "name": ":]",
@@ -306,7 +307,7 @@
     "remove": "proc",
     "pattern": "(proc\\()",
     "type": "id",
-    "post_or_necc_after_paren": ["$variable", "(", "\n"]
+    "post_or_necc_after_paren": ["$variable", "\\)", "\n"]
   },
   {
     "name": "process",
@@ -352,19 +353,19 @@
     "name": "if",
     "remove": "if",
     "pattern": "(if\\()",
-    "type": "id"
+    "type": "cond"
   },
   {
     "name": "elseif",
     "remove": "elseif",
     "pattern": "(elseif\\()",
-    "type": "id"
+    "type": "cond"
   },
   {
     "name": "else",
     "remove": "else",
     "pattern": "(else\\{)",
-    "type": "id"
+    "type": "cond"
   },
   {
     "name": "true",
@@ -394,7 +395,7 @@
     "name": "loop",
     "remove": "loop",
     "pattern": "(loop\\()",
-    "type": "id"
+    "type": "cond"
   },
   {
     "name": "<=",
@@ -424,7 +425,7 @@
     "name": "!=",
     "remove": "!=",
     "pattern": "(\\!\\=)",
-    "type": "id"
+    "type": "comparison"
   },
   {
     "name": "=",
@@ -454,14 +455,14 @@
     "name": "&",
     "remove": "&&",
     "pattern": "(\\&\\&)",
-    "type": "id",
+    "type": "comparison",
     "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
     "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
   {
     "name": "!|",
     "pattern": "(\\!\\|)",
-    "type": "id",
+    "type": "comparison",
     "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
     "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
@@ -469,7 +470,7 @@
     "name": "$|",
     "remove": "$|",
     "pattern": "(\\$\\|)",
-    "type": "id",
+    "type": "comparison",
     "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
     "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
@@ -477,7 +478,7 @@
     "name": "!$|",
     "remove": "$!|",
     "pattern": "(\\$\\!\\|)",
-    "type": "id",
+    "type": "comparison",
     "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
     "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
@@ -485,7 +486,7 @@
     "name": "!$|",
     "remove": "!$|",
     "pattern": "(\\!\\$\\|)",
-    "type": "id",
+    "type": "comparison",
     "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
     "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
@@ -493,7 +494,7 @@
     "name": "!&",
     "remove": "!&",
     "pattern": "(\\!\\&)",
-    "type": "id",
+    "type": "comparison",
     "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
     "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
@@ -501,7 +502,7 @@
     "name": "|",
     "remove": "||",
     "pattern": "(\\|\\|)",
-    "type": "id",
+    "type": "comparison",
     "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
     "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
@@ -509,14 +510,14 @@
     "name": "!",
     "remove": "!",
     "pattern": "\\!",
-    "type": "id",
+    "type": "comparison",
     "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
   {
     "name": "&",
     "remove": "&",
     "pattern": "\\&",
-    "type": "id",
+    "type": "comparison",
     "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
     "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
@@ -524,7 +525,7 @@
     "name": "|",
     "remove": "|",
     "pattern": "\\|",
-    "type": "id",
+    "type": "comparison",
     "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
     "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
@@ -556,7 +557,7 @@
     "name": "loop",
     "remove": "while",
     "pattern": "(while\\()",
-    "type": "id"
+    "type": "cond"
   },
   {
     "name": "ascii",

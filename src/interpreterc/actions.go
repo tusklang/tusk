@@ -43,7 +43,7 @@ var operations = []string{ "+", "-", "*", "/", "^", "%", "&", "|", "=", "!=", ">
 func convToAct(_val []interface{}, dir string) []Action {
   var val []Action
 
-  if reflect.TypeOf(_val[0]).String() == "string" {
+  if reflect.TypeOf(_val[0]).String() == "main.Lex" {
 
     var num []Lex
 
@@ -497,10 +497,10 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         pCnt := 0
 
         for o := index; o < len(exp); o++ {
-          if exp[o] == "(" {
+          if exp[o].(Lex).Name == "(" {
             pCnt++;
           }
-          if exp[o] == ")" {
+          if exp[o].(Lex).Name == ")" {
             pCnt--;
           }
 
@@ -515,14 +515,86 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
         pExpAct := actionizer(pExp, true, dir)
 
+        scbCnt := 0
+        sglCnt := 0
+        sbCnt := 0
+        spCnt := 0
+
+        indexes := [][]Lex{}
+
+        if !(index + len(pExp) + 2 >= len(exp)) {
+          if exp[index + len(pExp) + 2].(Lex).Name == "." {
+            for o := index + len(pExp) + 2; o < len_lex; o++ {
+              if exp[o].(Lex).Name == "{" {
+                scbCnt++
+              }
+              if exp[o].(Lex).Name == "}" {
+                scbCnt--
+              }
+
+              if exp[o].(Lex).Name == "[" {
+                sbCnt++
+              }
+              if exp[o].(Lex).Name == "]" {
+                sbCnt--
+              }
+
+              if exp[o].(Lex).Name == "[:" {
+                sglCnt++
+              }
+              if exp[o].(Lex).Name == ":]" {
+                sglCnt--
+              }
+
+              if exp[o].(Lex).Name == "(" {
+                spCnt++
+              }
+              if exp[o].(Lex).Name == ")" {
+                spCnt--
+              }
+
+              if exp[o].(Lex).Name == "." {
+                indexes = append(indexes, []Lex{})
+              } else {
+
+                i++
+
+                indexes[len(indexes) - 1] = append(indexes[len(indexes) - 1], exp[o].(Lex))
+
+                if scbCnt == 0 && sglCnt == 0 && sbCnt == 0 && spCnt == 0 {
+
+                  if o < len(exp) - 1 && exp[o + 1].(Lex).Name == "." {
+                    continue
+                  } else {
+                    break
+                  }
+
+                }
+              }
+            }
+
+            var putIndexes [][]Action
+
+            for _, v := range indexes {
+
+              v = v[1:len(v) - 1]
+              putIndexes = append(putIndexes, actionizer(v, true, dir))
+            }
+
+            pExpAct[0].Type = "expressionIndex"
+            pExpAct[0].Indexes = putIndexes
+            pExpAct[0].ID = 8 //set the action ID to the epxressionIndex ID
+          }
+        }
+
         exp_ := append(exp[:index], pExpAct[0])
         exp_ = append(exp_, exp[index + len(pExp) + 2:]...)
         exp = exp_
       }
 
-      for ;interfaceContain(exp, "!"); {
+      for ;interfaceContainOperations(exp, "!"); {
 
-        index := interfaceIndexOf("!", exp)
+        index := interfaceIndexOfOperations("!", exp)
 
         val, _val := getRight(index, exp, dir)
 
@@ -534,8 +606,8 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         exp = exp_
       }
 
-      for ;interfaceContain(exp, "^"); {
-        index := interfaceIndexOf("^", exp)
+      for ;interfaceContainOperations(exp, "^"); {
+        index := interfaceIndexOfOperations("^", exp)
 
         num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
@@ -547,10 +619,10 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         exp = exp_
       }
 
-      for ;interfaceContain(exp, "*") || interfaceContain(exp, "/"); {
+      for ;interfaceContainOperations(exp, "*") || interfaceContainOperations(exp, "/"); {
 
-        if interfaceIndexOf("*", exp) > interfaceIndexOf("/", exp) || interfaceIndexOf("/", exp) == -1 {
-          index := interfaceIndexOf("*", exp)
+        if interfaceIndexOfOperations("*", exp) > interfaceIndexOfOperations("/", exp) || interfaceIndexOfOperations("/", exp) == -1 {
+          index := interfaceIndexOfOperations("*", exp)
 
           num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
@@ -561,7 +633,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
           exp = exp_
         } else {
-          index := interfaceIndexOf("/", exp)
+          index := interfaceIndexOfOperations("/", exp)
 
           num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
@@ -575,8 +647,8 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
       }
 
-      for ;interfaceContain(exp, "%"); {
-        index := interfaceIndexOf("%", exp)
+      for ;interfaceContainOperations(exp, "%"); {
+        index := interfaceIndexOfOperations("%", exp)
 
         num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
@@ -588,10 +660,10 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         exp = exp_
       }
 
-      for ;interfaceContain(exp, "+") || interfaceContain(exp, "-"); {
+      for ;interfaceContainOperations(exp, "+") || interfaceContainOperations(exp, "-"); {
 
-        if interfaceIndexOf("+", exp) > interfaceIndexOf("-", exp) || interfaceIndexOf("-", exp) == -1 {
-          index := interfaceIndexOf("+", exp)
+        if interfaceIndexOfOperations("+", exp) > interfaceIndexOfOperations("-", exp) || interfaceIndexOfOperations("-", exp) == -1 {
+          index := interfaceIndexOfOperations("+", exp)
 
           num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
@@ -602,7 +674,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
           exp = exp_
         } else {
-          index := interfaceIndexOf("-", exp)
+          index := interfaceIndexOfOperations("-", exp)
 
           num1, num2, _num1, _num2 := calcExp(index, exp, dir)
 
@@ -616,16 +688,16 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
       }
 
-      for ;interfaceContain(exp, "=") || interfaceContain(exp, "!=") || interfaceContain(exp, ">") || interfaceContain(exp, "<") || interfaceContain(exp, ">=") || interfaceContain(exp, "<=") || interfaceContain(exp, "~~") || interfaceContain(exp, "~~~"); {
+      for ;interfaceContainOperations(exp, "=") || interfaceContainOperations(exp, "!=") || interfaceContainOperations(exp, ">") || interfaceContainOperations(exp, "<") || interfaceContainOperations(exp, ">=") || interfaceContainOperations(exp, "<=") || interfaceContainOperations(exp, "~~") || interfaceContainOperations(exp, "~~~"); {
         indexes := map[string]int{
-          "=": interfaceIndexOf("=", exp),
-          "!=": interfaceIndexOf("!=", exp),
-          ">": interfaceIndexOf(">", exp),
-          "<": interfaceIndexOf("<", exp),
-          ">=": interfaceIndexOf(">=", exp),
-          "<=": interfaceIndexOf("<=", exp),
-          "~~": interfaceIndexOf("~~", exp),
-          "~~~": interfaceIndexOf("~~~", exp),
+          "=": interfaceIndexOfOperations("=", exp),
+          "!=": interfaceIndexOfOperations("!=", exp),
+          ">": interfaceIndexOfOperations(">", exp),
+          "<": interfaceIndexOfOperations("<", exp),
+          ">=": interfaceIndexOfOperations(">=", exp),
+          "<=": interfaceIndexOfOperations("<=", exp),
+          "~~": interfaceIndexOfOperations("~~", exp),
+          "~~~": interfaceIndexOfOperations("~~~", exp),
         }
 
         //get min index
@@ -756,7 +828,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
                 break
               }
 
-              if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && o != index + 1 {
+              if arrayContainInterfaceOperations(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && o != index + 1 {
                 break
               }
 
@@ -823,7 +895,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
                 break
               }
 
-              if arrayContainInterface(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && o != index + 1 {
+              if arrayContainInterfaceOperations(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && o != index + 1 {
                 break
               }
 
@@ -848,7 +920,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         }
       }
 
-      if reflect.TypeOf(exp[0]).String() == "string" {
+      if reflect.TypeOf(exp[0]).String() == "main.Lex" {
         exp[0] = actionizer([]Lex{ exp[0].(Lex) }, false, dir)[0]
       }
 
