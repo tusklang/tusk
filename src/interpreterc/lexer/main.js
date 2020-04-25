@@ -2,21 +2,38 @@ const keywords = require('./keywords.json')
 , testKey = require('./testKey.js')
 , fs = require('fs');
 
+//set the maximum size of the cur exp
+global.MAX_CUR_EXP_SIZE = 20;
+
 //fetch file
-var stdinBuffer = fs.readFileSync(0)
-, file = stdinBuffer.toString();
+// var stdinBuffer = fs.readFileSync(0)
+// , file = stdinBuffer.toString();
+
+var file = `proc(`
 
 file = require('./procInit')(file);
 
 const copyFile = file;
 
-var lex = [];
+var lex = []
+, line = 1
+
+//cur exp is the current expression (to help locate the error)
+, curExp = '';
 
 for (let i = 0; i < keywords.length; i++) {
 
   if (file.length == 0) break;
 
-  if (testKey(copyFile, file, keywords[i])) {
+  if (testKey(copyFile, file, keywords[i], line, curExp)) {
+
+    curExp+=keywords[i].name;
+
+    //if it is a newline then increment line
+    if (keywords[i].name == 'newlineN') {
+      line++;
+      curExp = '';
+    }
 
     file = file.substr(keywords[i].remove.length);
     lex.push(keywords[i].name);
@@ -63,6 +80,11 @@ for (let i = 0; i < keywords.length; i++) {
         }
       }
 
+      //increase line by amount of newlines in the string
+      line+=exp.split('\n').length - 1;
+
+      curExp+=exp;
+
       lex.push('\'' + exp.substr(1).slice(0, -1) + '\'');
 
       file = file.substr(exp.length);
@@ -92,6 +114,8 @@ for (let i = 0; i < keywords.length; i++) {
         lex.push('.');
       } else lex.push(num);
 
+      curExp+=num;
+
       if (file.startsWith('(')) lex.push('*');
 
       i = -1;
@@ -113,6 +137,8 @@ for (let i = 0; i < keywords.length; i++) {
 
       file = file.substr(name.length);
       lex.push('$' + name);
+
+      curExp+='$' + name;
 
       i = -1;
       continue;

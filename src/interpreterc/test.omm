@@ -1,5 +1,1 @@
-process ~ test() {
-  log ~ 'test';
-}
-
-@test();
+proc~

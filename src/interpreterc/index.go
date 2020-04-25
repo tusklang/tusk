@@ -6,6 +6,7 @@ import "strings"
 import "encoding/json"
 import "unicode"
 import "regexp"
+import "fmt"
 
 // #cgo CFLAGS: -std=c99
 // #include "bind.h"
@@ -95,6 +96,11 @@ func lexer(file string) []string {
   _lex, _ := lexCmd.CombinedOutput()
   lex_ := string(_lex)
 
+  if strings.HasPrefix(lex_, "Error") {
+    fmt.Println(lex_)
+    os.Exit(1)
+  }
+
   var lex []string
 
   json.Unmarshal([]byte(lex_), &lex)
@@ -104,7 +110,7 @@ func lexer(file string) []string {
 
 func index(fileName, dir string, calcParams paramCalcOpts) {
 
-  file := read("./pre.omm", "", true) + read(dir + fileName, "File Not Found: " + dir + fileName, true)
+  file := read(dir + fileName, "File Not Found: " + dir + fileName, true)
 
   lex := lexer(file)
 

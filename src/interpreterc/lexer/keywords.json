@@ -3,87 +3,85 @@
     "name": "local",
     "remove": "local",
     "pattern": "local~",
-    "type": "id"
+    "type": "id",
+    "post_or_necc_after_tilde": ["$variable"]
   },
   {
     "name": "local",
     "remove": "lcl",
     "pattern": "lcl~",
-    "type": "id"
+    "type": "id",
+    "post_or_necc_after_tilde": ["$variable"]
   },
   {
     "name": "->",
     "remove": "->",
     "pattern": "(\\-\\>)",
-    "type": "id"
+    "type": "id",
+    "pre_or_necc": ["string", "number", "boolean", "falsey", "hash", "array", "bool", "num"]
   },
   {
     "name": "=>",
     "remove": "=>",
-    "pattern": "(\\=\\>\\{)",
-    "type": "operation"
-  },
-  {
-    "name": ">:",
-    "remove": ">:",
-    "pattern": "(\\>\\:)",
-    "type": "operation"
+    "pattern": "(\\=\\>)",
+    "type": "operation",
+    "post_or_necc": ["{"]
   },
   {
     "name": "++",
     "remove": "++",
     "pattern": "((?<!\\d)(\\+\\+))",
     "type": "operation",
-    "pre_prohib_soft": ["\\d"]
+    "pre_prohib": ["\\d"]
   },
   {
     "name": "+=",
     "remove": "+=",
     "pattern": "((?<!\\d)(\\+\\=))",
     "type": "operation",
-    "pre_prohib_soft": ["\\d"]
+    "pre_prohib": ["\\d"]
   },
   {
     "name": "--",
     "remove": "--",
     "pattern": "((?<!\\d)(\\-\\-))",
     "type": "operation",
-    "pre_prohib_soft": ["\\d"]
+    "pre_prohib": ["\\d"]
   },
   {
     "name": "-=",
     "remove": "-=",
     "pattern": "((?<!\\d)(\\-\\=))",
     "type": "operation",
-    "pre_prohib_soft": ["\\d"]
+    "pre_prohib": ["\\d"]
   },
   {
     "name": "*=",
     "remove": "*=",
     "pattern": "((?<!\\d)(\\*\\=))",
     "type": "operation",
-    "pre_prohib_soft": ["\\d"]
+    "pre_prohib": ["\\d"]
   },
   {
     "name": "/=",
     "remove": "/=",
     "pattern": "((?<!\\d)(\\/\\=))",
     "type": "operation",
-    "pre_prohib_soft": ["\\d"]
+    "pre_prohib": ["\\d"]
   },
   {
     "name": "^=",
     "remove": "^=",
     "pattern": "((?<!\\d)(\\^\\=))",
     "type": "operation",
-    "pre_prohib_soft": ["\\d"]
+    "pre_prohib": ["\\d"]
   },
   {
     "name": "%=",
     "remove": "%=",
     "pattern": "((?<!\\d)(\\%\\=))",
     "type": "operation",
-    "pre_prohib_soft": ["\\d"]
+    "pre_prohib": ["\\d"]
   },
   {
     "name": "each",
@@ -105,40 +103,24 @@
     "type": "id"
   },
   {
-    "name": "~!~",
-    "remove": "~!~",
-    "pattern": "((~\\!~))",
-    "type": "id"
-  },
-  {
-    "name": "!~~",
-    "remove": "!~~",
-    "pattern": "((\\!~~))",
-    "type": "id"
-  },
-  {
     "name": "~~",
     "remove": "~~",
     "pattern": "(~~)",
     "type": "id"
   },
   {
-    "name": "!~",
-    "remove": "!~",
-    "pattern": "(\\!~)",
-    "type": "id"
-  },
-  {
     "name": "dynamic",
     "remove": "dyn",
     "pattern": "(dyn~)",
-    "type": "id"
+    "type": "id",
+    "post_or_necc_after_tilde": ["$variable"]
   },
   {
     "name": "dynamic",
     "remove": "dynamic",
     "pattern": "(dynamic~)",
-    "type": "id"
+    "type": "id",
+    "post_or_necc_after_tilde": ["$variable"]
   },
   {
     "name": "alt",
@@ -150,12 +132,6 @@
     "name": "log",
     "remove": "log",
     "pattern": "(log~)",
-    "type": "id"
-  },
-  {
-    "name": "goto",
-    "remove": "goto",
-    "pattern": "(goto~)",
     "type": "id"
   },
   {
@@ -205,7 +181,7 @@
     "remove": "[:",
     "pattern": "(\\[\\:)",
     "type": "operation",
-    "after_prohib": ["*keywords"]
+    "post_or_necc": ["\"", "'", "`", "\\d", "true", "false", "\n"]
   },
   {
     "name": ":]",
@@ -229,13 +205,15 @@
     "name": ":",
     "remove": ":=",
     "pattern": "(\\:\\=)",
-    "type": "assignment"
+    "type": "assignment",
+    "pre_or_necc": ["$variable"]
   },
   {
     "name": ":",
     "remove": ":",
     "pattern": "\\:",
-    "type": "assignment"
+    "type": "assignment",
+    "pre_or_necc": ["$variable"]
   },
   {
     "name": "+",
@@ -321,37 +299,43 @@
     "name": "@",
     "remove": "@",
     "pattern": "(@\\~)",
-    "type": "id"
+    "type": "id",
+    "post_or_necc_after_paren": ["$variable"]
   },
   {
     "name": "process",
     "remove": "proc",
     "pattern": "(proc\\()",
-    "type": "id"
+    "type": "id",
+    "post_or_necc_after_paren": ["$variable", "(", "\n"]
   },
   {
     "name": "process",
     "remove": "proc",
     "pattern": "(proc\\~)",
-    "type": "id"
+    "type": "id",
+    "post_or_necc_after_tilde": ["$variable"]
   },
   {
     "name": "global",
     "remove": "gbl",
     "pattern": "(gbl~)",
-    "type": "id"
+    "type": "id",
+    "post_or_necc_after_tilde": ["$variable"]
   },
   {
     "name": "global",
     "remove": "global",
     "pattern": "(global\\~)",
-    "type": "id"
+    "type": "id",
+    "post_or_necc_after_tilde": ["$variable"]
   },
   {
     "name": "#",
     "remove": "#",
-    "pattern": "\\#",
-    "type": "id"
+    "pattern": "\\#\\~",
+    "type": "id",
+    "post_or_necc_after_tilde": ["$variable"]
   },
   {
     "name": ",",
@@ -436,12 +420,6 @@
     "remove": "<",
     "pattern": "\\<",
     "type": "comparison"
-  },
-  {
-    "name": "!==",
-    "remove": "!==",
-    "pattern": "(\\!\\=\\=)",
-    "type": "id"
   },
   {
     "name": "!=",
@@ -569,21 +547,9 @@
     "type": "id"
   },
   {
-    "name": "err",
-    "remove": "err",
-    "pattern": "(err\\~)",
-    "type": "id"
-  },
-  {
     "name": "ascii",
     "remove": "ascii",
     "pattern": "(ascii\\~)",
-    "type": "id"
-  },
-  {
-    "name": "parse",
-    "remove": "parse",
-    "pattern": "(parse\\~)",
     "type": "id"
   },
   {
