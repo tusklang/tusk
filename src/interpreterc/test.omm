@@ -1,3 +1,16 @@
-loop('2') {
-  log ~'s';
+proc ~ haschar(test, y) {
+
+  if len(y) != 1 {
+    return ~ false;
+  }
+
+  each (test) {
+    if (v == y) {
+      return ~ true;
+    }
+  }
+
+  return ~ false;
 }
+
+log ~ #haschar('fwefw', 'j');

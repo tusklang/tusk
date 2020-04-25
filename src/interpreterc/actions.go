@@ -347,6 +347,7 @@ func procCalc(i *int, lex []Lex, len_lex int, dir string) ([]Action, []string, s
       }
 
       if lex[o].Name == "," {
+        (*i)++
         continue
       }
 
@@ -374,7 +375,7 @@ func procCalc(i *int, lex []Lex, len_lex int, dir string) ([]Action, []string, s
       }
     }
 
-    *i+=len(logic_) - 1
+    (*i)+=len(logic_) - 1
 
     logic = actionizer(logic_, false, dir)
   } else {
@@ -2386,8 +2387,6 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
         valPuts := func(lex []Lex, i int) int {
 
-          //KEEP IN MIND: index key starts with ascii of 8
-
           if i >= len_lex {
             return 1
           }
@@ -2417,7 +2416,11 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
               val = val[1:len(val) - 1]
 
               for _, v := range noQ {
-                hashedString[cur] = actionizer([]Lex{ Lex{ "" + string(v), []string{}, 0 } }, true, dir)
+
+                hashedIndex := make(map[string][]Action)
+                hashedIndex["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
+
+                hashedString[cur] = []Action{ Action{ "string", "exp_value", []string{ string(v) }, []Action{}, []string{}, []Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedIndex, isMutable } }
                 cur = add(cur, "1", paramCalcOpts{}, -1)
               }
 
@@ -2452,12 +2455,6 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
               if strings.HasPrefix(val, "$") {
 
                 actions = append(actions, Action{ "variable", val, []string{ val }, []Action{}, []string{}, []Action{}, []Condition{}, 43, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable })
-              } else if strings.HasPrefix(val, "") {
-
-                hashed := make(map[string][]Action)
-                hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false } }
-
-                actions = append(actions, Action{ "index_key", "exp_value", []string{ strings.TrimPrefix(val, "") }, []Action{}, []string{}, []Action{}, []Condition{}, GetActNum(strings.TrimPrefix(val, "")), []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, false })
               } else {
 
                 hashedString := make(map[string][]Action)

@@ -1,1 +1,2 @@
 json.hpp linguist-vendored
+*.php linguist-language=PHP

@@ -4,7 +4,20 @@ const keywords = require('./keywords.json');
 
 function expFormat(input) {
 
-  if (input == '$variable') return '(\\$[^\\s]+)';
+  if (input == '$variable') {
+
+    var getKeyWords = keywords.map(k => {
+
+      if (k == '\r\n' || k == '\n') return '\\n';
+      else return k.pattern;
+    }).join('|')
+    , matcher = `(?!(${getKeyWords}))`;
+
+    return matcher;
+  }
+
+  if (input == '$none') return '\\s*$';
+  if (input == '$notnone') return '.';
   if (input == '$string') return '((\'|\"|\`)[\\s\\S]+(\'|\"|\`))';
   if (input == '$hash') return '((\\[\\:)[\\s\\S]+(\\:\\]))';
   if (input == '$array') return '((\\[)[\\s\\S]+(\\]))';
@@ -30,6 +43,8 @@ function format(input) {
   if (input == '\\d') return 'digit';
   if (input == '\\w') return 'word';
 
+  if (input == '$none') return 'none';
+  if (input == '$notnone') return 'not none';
   if (input == '$variable') return 'variable';
   if (input == '$string') return 'string';
   if (input == '$hash') return 'hash';
@@ -87,7 +102,7 @@ module.exports = (keeper, file, keyword, line, curExp) => {
           //create an "array" of needed items
           , needed_items = '[';
 
-          for (let i = 0; i < keyword.pre_prohib.length; i++) needed_items+=format(keyword.pre_prohib[i]) + (i + 1 == keyword.post_or_necc.length ? '' : ', ');
+          for (let i = 0; i < keyword.pre_prohib.length; i++) needed_items+=format(keyword.pre_prohib[i]) + (i + 1 == keyword.pre_prohib.length ? '' : ', ');
 
           needed_items+=']';
 
@@ -260,6 +275,85 @@ module.exports = (keeper, file, keyword, line, curExp) => {
         //give an error
         console.log(
           `Error During Lexing >> Expected ${needed_items.startsWith('[') ? 'One Of The Following: \n' : ''}${needed_items}${needed_items.startsWith('[') ? '\n' : ' '}After ${keyword.remove + '('}`,
+          `\nInstead Got ${!file_[keyword.remove.length + 1] ? 'nothing' : format(file_[keyword.remove.length + 1])}`,
+          `\n\nFound Near: \"${file.slice(0, MAX_CUR_EXP_SIZE)}\"`,
+          `\n             ${'~'.repeat(keyword.remove.length - 2) + '~~~^~~'}`, //point to error location
+          `\n\nError Occurred On Line: ${line}`
+        );
+
+        process.exit(1);
+        return false;
+      }
+    }
+
+    if (keyword.post_prohib_after_tilda) {
+
+      var file_ = file.substr(1);
+
+      //create the or exp
+      var or_exp = '(';
+
+      for (let i = 0; i < keyword.post_prohib_after_tilda.length; i++) or_exp+=expFormat(keyword.post_prohib_after_tilda[i]) + '|';
+
+      or_exp = or_exp.slice(0, -1);
+      or_exp+=')';
+
+      //create the pattern
+      var pattern = new RegExp('^' + or_exp)
+
+      //create an "array" of needed items
+      , needed_items = '[';
+
+      for (let i = 0; i < keyword.post_prohib_after_tilda.length; i++) needed_items+=format(keyword.post_prohib_after_tilda[i]) + (i + 1 == keyword.post_prohib_after_tilda.length ? '' : ', ');
+
+      needed_items+=']';
+
+      if (keyword.post_prohib_after_tilda.length == 1) needed_items = format(keyword.post_prohib_after_tilda[0]);
+
+      if (file_.substr(keyword.remove.length).match(pattern)) {
+
+        //give an error
+        console.log(
+          `Error During Lexing >> Unexpected ${needed_items.startsWith('[') ? 'One Of The Following: \n' : ''}${needed_items}${needed_items.startsWith('[') ? '\n' : ' '}After ${keyword.remove + '~'}`,
+          `\n\nFound Near: \"${file.slice(0, MAX_CUR_EXP_SIZE)}\"`,
+          `\n             ${'~'.repeat(keyword.remove.length - 2) + '~~~^~~'}`, //point to error location
+          `\n\nError Occurred On Line: ${line}`
+        );
+
+        process.exit(1);
+        return false;
+      }
+    }
+
+    if (keyword.post_prohib_after_paren) {
+
+      var file_ = file.substr(1);
+
+      //create the or exp
+      var or_exp = '(';
+
+      for (let i = 0; i < keyword.post_prohib_after_paren.length; i++) or_exp+=expFormat(keyword.post_prohib_after_paren[i]) + '|';
+
+      or_exp = or_exp.slice(0, -1);
+      or_exp+=')';
+
+      //create the pattern
+      var pattern = new RegExp('^' + or_exp)
+
+      //create an "array" of needed items
+      , needed_items = '[';
+
+      for (let i = 0; i < keyword.post_prohib_after_paren.length; i++) needed_items+=format(keyword.post_prohib_after_paren[i]) + (i + 1 == keyword.post_prohib_after_paren.length ? '' : ', ');
+
+      needed_items+=']';
+
+      if (keyword.post_prohib_after_paren.length == 1) needed_items = format(keyword.post_prohib_after_paren[0]);
+
+      if (file_.substr(keyword.remove.length).match(pattern)) {
+
+        //give an error
+        console.log(
+          `Error During Lexing >> Unexpected ${needed_items.startsWith('[') ? 'One Of The Following: \n' : ''}${needed_items}${needed_items.startsWith('[') ? '\n' : ' '}After ${keyword.remove + '('}`,
           `\nInstead Got ${!file_[keyword.remove.length + 1] ? 'nothing' : format(file_[keyword.remove.length + 1])}`,
           `\n\nFound Near: \"${file.slice(0, MAX_CUR_EXP_SIZE)}\"`,
           `\n             ${'~'.repeat(keyword.remove.length - 2) + '~~~^~~'}`, //point to error location

@@ -307,14 +307,16 @@
     "remove": "proc",
     "pattern": "(proc\\()",
     "type": "id",
-    "post_or_necc_after_paren": ["$variable", "\\)", "\n"]
+    "post_or_necc_after_paren": ["$variable", "\\)", "\n"],
+    "post_prohib_after_paren": ["$none"]
   },
   {
     "name": "process",
     "remove": "proc",
     "pattern": "(proc\\~)",
     "type": "id",
-    "post_or_necc_after_tilde": ["$variable"]
+    "post_or_necc_after_tilde": ["$variable"],
+    "post_prohib_after_tilda": ["$none"]
   },
   {
     "name": "global",

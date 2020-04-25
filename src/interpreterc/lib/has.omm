@@ -1,0 +1,19 @@
+proc ~ has_singlechar(val, what) {
+
+  if (len(what) != 1) {
+    return false;
+  }
+
+  i: 0;
+
+  loop (i < len(val)) {
+
+    if (val.[i] == what) {
+      return true;
+    }
+
+    i++;
+  }
+
+  return false;
+}
