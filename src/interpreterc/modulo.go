@@ -1,25 +1,29 @@
 package main
 
-import "math/big"
 import "encoding/json"
-import "fmt"
+import "strings"
 
 // #cgo CFLAGS: -std=c99
 import "C"
 
-func modulo(num1 string, num2 string, calc_params paramCalcOpts, line int) string {
-  if num2 == "0"  {
+func modulo(_num1 string, _num2 string, calc_params paramCalcOpts, line int) string {
+
+  if _num2 == "0"  {
     return "undefined"
   }
 
-  divved := divide(num1, num2, calc_params, line)
+  if returnInit(_num1) == "0" {
+    return "0"
+  }
 
-  floored, _ := new(big.Int).SetString(divved, 10)
+  divved_ := addDec(divide(_num1, _num2, calc_params, line))
 
-  mult := multiply(fmt.Sprint(floored), num2, calc_params, line)
-  remainder := subtract(num1, mult, calc_params, line)
+  divved := divved_[:strings.Index(divved_, ".")]
 
-  return returnInit(fmt.Sprintf("%f", remainder))
+  mult := multiply(divved, _num2, calc_params, line)
+  remainder := subtract(_num1, mult, calc_params, line)
+
+  return remainder
 }
 
 //export Modulo

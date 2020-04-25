@@ -1,19 +1,84 @@
 package main
 
 import "encoding/json"
-import "math/big"
-import "fmt"
+import "strings"
 
 // #cgo CFLAGS: -std=c99
 import "C"
 
-func multiply(num1 string, num2 string, calc_params paramCalcOpts, line int) string {
-  calc := new(big.Float)
+func multiply(_num1 string, _num2 string, calc_params paramCalcOpts, line int) string {
 
-  num1big, _ := new(big.Float).SetPrec(PREC).SetString(num1)
-  num2big, _ := new(big.Float).SetPrec(PREC).SetString(num2)
+  if returnInit(_num1) == "0" || returnInit(_num2) == "0" {
+    return "0"
+  }
 
-  return returnInit(fmt.Sprintf("%f", calc.Mul(num1big, num2big)))
+  decIndex := 0
+
+  if strings.Contains(_num1, ".") {
+    decIndex+=len(strings.Replace(_num1, ".", "", 1)) - strings.Index(_num1, ".")
+  }
+  if strings.Contains(_num2, ".") {
+    decIndex+=len(strings.Replace(_num2, ".", "", 1)) - strings.Index(_num2, ".")
+  }
+
+  _num1 = strings.Replace(_num1, ".", "", 1)
+  _num2 = strings.Replace(_num2, ".", "", 1)
+
+  if isLess(_num1, _num2) {
+    _num1, _num2 = _num2, _num1
+  }
+
+  neg := false
+
+  if strings.HasPrefix(_num1, "-") {
+    _num1 = _num1[1:]
+    neg = !neg
+  }
+  if strings.HasPrefix(_num2, "-") {
+    _num2= _num2[1:]
+    neg = !neg
+  }
+
+  var nNum string
+
+  if len(_num1) < len(_num2) {
+    _num1, _num2 = _num2, _num1
+  }
+
+  if len(_num1) >= calc_params.LONG_MULT_THRESH && len(_num2) >= calc_params.LONG_MULT_THRESH {
+
+    final := "0"
+
+    for i := len(_num2) - 1; i >= 0; i-- {
+      mult := multiply(_num1, _num2[i:i + 1], calc_params, line) + strings.Repeat("0", len(_num2) - i - 1)
+      final = add(final, mult, calc_params, line)
+    }
+
+    nNum = final
+  } else {
+
+    nNum = "0"
+
+    for ;returnInit(_num2) != "0"; {
+      nNum = add(nNum, _num1, calc_params, line)
+      _num2 = subtract(_num2, "1", calc_params, line)
+    }
+  }
+
+  if decIndex > 0 {
+
+    nNum = Reverse(nNum)
+
+    nNum = nNum[:decIndex] + "." + nNum[decIndex:]
+
+    nNum = Reverse(nNum)
+  }
+
+  if neg == true {
+    nNum = "-" + nNum
+  }
+
+  return returnInit(nNum)
 }
 
 //export Multiply

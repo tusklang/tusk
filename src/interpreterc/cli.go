@@ -4,11 +4,14 @@ import "os"
 
 var operators = []string{"^", "*", "/", "%", "+", "-", "&", "|", "!", "~", ";"}
 
-type paramCalcOpts struct {}
+type paramCalcOpts struct {
+  PREC             int
+  LONG_MULT_THRESH int
+}
 
-func defaults(params paramCalcOpts) paramCalcOpts {
-
-  return params
+func defaults(params *paramCalcOpts) {
+  (*params).PREC = 1000
+  (*params).LONG_MULT_THRESH = 5
 }
 
 func main() {
@@ -17,7 +20,7 @@ func main() {
   var fileName = args[2]
   params := paramCalcOpts{}
 
-  params = defaults(params)
+  defaults(&params)
 
   index(fileName, dir, params)
 }

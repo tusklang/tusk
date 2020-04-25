@@ -1,36 +1,41 @@
 package main
 
-import "math/big"
 import "encoding/json"
-import "fmt"
-import "strconv"
-import "github.com/ALTree/bigfloat"
+import "strings"
 
 // #cgo CFLAGS: -std=c99
 import "C"
 
-func exponentiate(num1 string, num2 string, calc_params paramCalcOpts, line int) string {
+func exponentiate(_num1 string, _num2 string, calc_params paramCalcOpts, line int) string {
 
-  num1big, _ := new(big.Float).SetPrec(PREC).SetString(num1)
-  num2big, _ := new(big.Float).SetString(num2)
+  _num1 = returnInit(_num1)
+  _num2 = returnInit(_num2)
 
-  var doNeg = 1
-  if num1big.Cmp(big.NewFloat(0)) == -1 {
-
-    inted, _ := new(big.Int).SetString(num2big.String(), 10)
-    doNeg, _ = strconv.Atoi(new(big.Int).Quo(inted, big.NewInt(2)).String())
-
-    num1big = new(big.Float).Mul(big.NewFloat(-1), num1big)
+  if strings.Contains(_num2, ".") {
+    return "NaN"
   }
 
-  powwed := bigfloat.Pow(num1big, num2big)
+  var final = "1"
 
-  //if it is a negative power to 1/num1^num2
-  if doNeg == 0 {
-    powwed = new(big.Float).Mul(big.NewFloat(-1), powwed)
+  if strings.HasPrefix(_num2, "-") {
+    _num2 = _num2[1:]
+
+    for ;isLess("0", _num2); {
+      final = multiply(final, _num1, calc_params, line)
+      _num2 = subtract(_num2, "1", calc_params, line)
+    }
+
+    final = divide("1", final, calc_params, line)
+  } else {
+
+    for ;isLess("0", _num2); {
+
+      final = multiply(final, _num1, calc_params, line)
+      _num2 = subtract(_num2, "1", calc_params, line)
+    }
   }
 
-  return returnInit(fmt.Sprintf("%f", powwed))
+  return final
 }
 
 //export Exponentiate
