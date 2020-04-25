@@ -1,6 +1,9 @@
 function expFormat(input) {
 
-  if (input == '$variable') return '(\\$.*)';
+  if (input == '$variable') return '(\\$[^\\s]+)';
+  if (input == '$string') return '((\'|\"|\`)[\\s\\S]+(\'|\"|\`))';
+  if (input == '$hash') return '((\\[\\:)[\\s\\S]+(\\:\\]))';
+  if (input == '$array') return '((\\[)[\\s\\S]+(\\]))';
   if (input == '(') return '\\(';
 
   return input;
@@ -13,6 +16,9 @@ function format(input) {
   if (input == '\\w') return 'word';
 
   if (input == '$variable') return 'variable';
+  if (input == '$string') return 'string';
+  if (input == '$hash') return 'hash';
+  if (input == '$array') return 'array';
 
   if (input.startsWith('\\')) input = input.substr(1);
 
@@ -151,7 +157,7 @@ module.exports = (keeper, file, keyword, line, curExp) => {
         console.log(
           `Error During Lexing >> Expected${keyword.post_or_necc.length != 1 ? ' One Of The Following' : ''}:`,
           needed_items,
-          `${keyword.post_or_necc.length != 1 ? '\n' : ''}Before Expression: \"${file.substr(keyword.remove.length).slice(0, MAX_CUR_EXP_SIZE)}\"`,
+          `${keyword.post_or_necc.length != 1 ? '\n' : ''}After \"${keyword.remove}\"`,
           `\n\nError Occurred On Line: ${line}`
         );
 

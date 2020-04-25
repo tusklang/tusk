@@ -17,10 +17,16 @@ func Kill() {
   os.Exit(1)
 }
 
+type Lex struct {
+  Name   string
+  Exp  []string
+  Line   uint64
+}
+
 //export Cactions
 func Cactions(file *C.char, dir *C.char) *C.char {
 
-  var lex []string
+  var lex []Lex
 
   json.Unmarshal([]byte(C.GoString(file)), &lex)
 
@@ -86,7 +92,7 @@ func CLex(_file *C.char) *C.char {
   return C.CString(lex_)
 }
 
-func lexer(file string) []string {
+func lexer(file string) []Lex {
   fileNQ, _ := NQReplace(file)
 
   lexCmd := exec.Command("./lexer/main-win.exe")
@@ -101,7 +107,7 @@ func lexer(file string) []string {
     os.Exit(1)
   }
 
-  var lex []string
+  var lex []Lex
 
   json.Unmarshal([]byte(lex_), &lex)
 

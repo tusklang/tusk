@@ -6,10 +6,8 @@ const keywords = require('./keywords.json')
 global.MAX_CUR_EXP_SIZE = 20;
 
 //fetch file
-// var stdinBuffer = fs.readFileSync(0)
-// , file = stdinBuffer.toString();
-
-var file = `proc(`
+var stdinBuffer = fs.readFileSync(0)
+, file = stdinBuffer.toString();
 
 file = require('./procInit')(file);
 
@@ -25,18 +23,21 @@ for (let i = 0; i < keywords.length; i++) {
 
   if (file.length == 0) break;
 
+  while (curExp.length > MAX_CUR_EXP_SIZE) curExp = curExp.substr(1);
+
   if (testKey(copyFile, file, keywords[i], line, curExp)) {
 
     curExp+=keywords[i].name;
 
     //if it is a newline then increment line
-    if (keywords[i].name == 'newlineN') {
-      line++;
-      curExp = '';
-    }
+    if (keywords[i].name == 'newlineN') line++;
 
     file = file.substr(keywords[i].remove.length);
-    lex.push(keywords[i].name);
+    lex.push({
+      Name: keywords[i].name,
+      Exp: curExp,
+      Line: line
+    });
     i = -1;
     continue;
   }
@@ -85,7 +86,11 @@ for (let i = 0; i < keywords.length; i++) {
 
       curExp+=exp;
 
-      lex.push('\'' + exp.substr(1).slice(0, -1) + '\'');
+      lex.push({
+        Name: '\'' + exp.substr(1).slice(0, -1) + '\'',
+        Exp: curExp,
+        Line: line
+      });
 
       file = file.substr(exp.length);
 
@@ -110,13 +115,29 @@ for (let i = 0; i < keywords.length; i++) {
 
       if (num.endsWith('.') && file.startsWith('[')) {
         num = num.slice(0, -1);
-        lex.push(num);
-        lex.push('.');
-      } else lex.push(num);
+        lex.push({
+          Name: num,
+          Exp: curExp,
+          Line: line
+        });
+        lex.push({
+          Name: '.',
+          Exp: curExp,
+          Line: line
+        });
+      } else lex.push({
+        Name: num,
+        Exp: curExp,
+        Line: line
+      });
 
       curExp+=num;
 
-      if (file.startsWith('(')) lex.push('*');
+      if (file.startsWith('(')) lex.push({
+        Name: '*',
+        Exp: curExp,
+        Line: line
+      });
 
       i = -1;
       continue;
@@ -136,7 +157,11 @@ for (let i = 0; i < keywords.length; i++) {
       }
 
       file = file.substr(name.length);
-      lex.push('$' + name);
+      lex.push({
+        Name: '$' + name,
+        Exp: curExp,
+        Line: line
+      });
 
       curExp+='$' + name;
 

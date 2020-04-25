@@ -30,56 +30,56 @@
   {
     "name": "++",
     "remove": "++",
-    "pattern": "((?<!\\d)(\\+\\+))",
+    "pattern": "(\\+\\+)",
     "type": "operation",
     "pre_prohib": ["\\d"]
   },
   {
     "name": "+=",
     "remove": "+=",
-    "pattern": "((?<!\\d)(\\+\\=))",
+    "pattern": "(\\+\\=)",
     "type": "operation",
     "pre_prohib": ["\\d"]
   },
   {
     "name": "--",
     "remove": "--",
-    "pattern": "((?<!\\d)(\\-\\-))",
+    "pattern": "(\\-\\-)",
     "type": "operation",
     "pre_prohib": ["\\d"]
   },
   {
     "name": "-=",
     "remove": "-=",
-    "pattern": "((?<!\\d)(\\-\\=))",
+    "pattern": "(\\-\\=)",
     "type": "operation",
     "pre_prohib": ["\\d"]
   },
   {
     "name": "*=",
     "remove": "*=",
-    "pattern": "((?<!\\d)(\\*\\=))",
+    "pattern": "(\\*\\=)",
     "type": "operation",
     "pre_prohib": ["\\d"]
   },
   {
     "name": "/=",
     "remove": "/=",
-    "pattern": "((?<!\\d)(\\/\\=))",
+    "pattern": "(\\/\\=)",
     "type": "operation",
     "pre_prohib": ["\\d"]
   },
   {
     "name": "^=",
     "remove": "^=",
-    "pattern": "((?<!\\d)(\\^\\=))",
+    "pattern": "(\\^\\=)",
     "type": "operation",
     "pre_prohib": ["\\d"]
   },
   {
     "name": "%=",
     "remove": "%=",
-    "pattern": "((?<!\\d)(\\%\\=))",
+    "pattern": "(\\%\\=)",
     "type": "operation",
     "pre_prohib": ["\\d"]
   },
@@ -181,7 +181,7 @@
     "remove": "[:",
     "pattern": "(\\[\\:)",
     "type": "operation",
-    "post_or_necc": ["\"", "'", "`", "\\d", "true", "false", "\n"]
+    "post_or_necc": ["\"", "'", "`", "\\d", "true", "false", ":", "\n"]
   },
   {
     "name": ":]",
@@ -212,8 +212,7 @@
     "name": ":",
     "remove": ":",
     "pattern": "\\:",
-    "type": "assignment",
-    "pre_or_necc": ["$variable"]
+    "type": "assignment"
   },
   {
     "name": "+",
@@ -455,66 +454,79 @@
     "name": "&",
     "remove": "&&",
     "pattern": "(\\&\\&)",
-    "type": "id"
+    "type": "id",
+    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
+    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
   {
     "name": "!|",
     "pattern": "(\\!\\|)",
-    "type": "id"
+    "type": "id",
+    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
+    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
   {
     "name": "$|",
     "remove": "$|",
     "pattern": "(\\$\\|)",
-    "type": "id"
+    "type": "id",
+    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
+    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
   {
     "name": "!$|",
     "remove": "$!|",
     "pattern": "(\\$\\!\\|)",
-    "type": "id"
+    "type": "id",
+    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
+    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
   {
     "name": "!$|",
     "remove": "!$|",
     "pattern": "(\\!\\$\\|)",
-    "type": "id"
+    "type": "id",
+    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
+    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
   {
     "name": "!&",
     "remove": "!&",
     "pattern": "(\\!\\&)",
-    "type": "id"
+    "type": "id",
+    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
+    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
   {
     "name": "|",
     "remove": "||",
     "pattern": "(\\|\\|)",
-    "type": "id"
+    "type": "id",
+    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
+    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
   {
     "name": "!",
     "remove": "!",
     "pattern": "\\!",
-    "type": "id"
-  },
-  {
-    "name": "&",
-    "remove": "&&",
-    "pattern": "(\\&\\&)",
-    "type": "id"
+    "type": "id",
+    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
   {
     "name": "&",
     "remove": "&",
     "pattern": "\\&",
-    "type": "id"
+    "type": "id",
+    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
+    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
   {
     "name": "|",
     "remove": "|",
     "pattern": "\\|",
-    "type": "id"
+    "type": "id",
+    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
+    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
   },
   {
     "name": "break",

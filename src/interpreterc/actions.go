@@ -45,10 +45,10 @@ func convToAct(_val []interface{}, dir string) []Action {
 
   if reflect.TypeOf(_val[0]).String() == "string" {
 
-    var num []string
+    var num []Lex
 
     for _, v := range _val {
-      num = append(num, v.(string))
+      num = append(num, v.(Lex))
     }
 
     val = actionizer(num, false, dir)
@@ -177,18 +177,18 @@ func calcExp(index int, exp []interface{}, dir string) ([]Action, []Action, []in
   return num1, num2, _num1, _num2
 }
 
-func callCalc(i *int, lex []string, len_lex int, dir string) ([]Action, string, [][]Action) {
+func callCalc(i *int, lex []Lex, len_lex int, dir string) ([]Action, string, [][]Action) {
   cbCnt := 0
   glCnt := 0
   bCnt := 0
   pCnt := 1
 
-  var name = lex[(*i) + 2]
+  var name = lex[(*i) + 2].Name
 
-  indexes := [][]string{[]string{}}
+  indexes := [][]Lex{[]Lex{}}
   var putIndexes [][]Action
 
-  if lex[(*i) + 3] == "." {
+  if lex[(*i) + 3].Name == "." {
 
     cbCnt = 0
     glCnt = 0
@@ -196,34 +196,34 @@ func callCalc(i *int, lex []string, len_lex int, dir string) ([]Action, string, 
     pCnt = 0
 
     for o := (*i) + 4; o < len_lex; o++ {
-      if lex[o] == "{" {
+      if lex[o].Name == "{" {
         cbCnt++
       }
-      if lex[o] == "[:" {
+      if lex[o].Name == "[:" {
         glCnt++
       }
-      if lex[o] == "[" {
+      if lex[o].Name == "[" {
         bCnt++
       }
-      if lex[o] == "(" {
+      if lex[o].Name == "(" {
         pCnt++
       }
 
-      if lex[o] == "}" {
+      if lex[o].Name == "}" {
         cbCnt--
       }
-      if lex[o] == ":]" {
+      if lex[o].Name == ":]" {
         glCnt--
       }
-      if lex[o] == "]" {
+      if lex[o].Name == "]" {
         bCnt--
       }
-      if lex[o] == ")" {
+      if lex[o].Name == ")" {
         pCnt--
       }
 
-      if lex[o] == "." {
-        indexes = append(indexes, []string{})
+      if lex[o].Name == "." {
+        indexes = append(indexes, []Lex{})
       } else {
 
         (*i)++
@@ -232,7 +232,7 @@ func callCalc(i *int, lex []string, len_lex int, dir string) ([]Action, string, 
 
         if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
 
-          if o < len_lex - 1 && lex[o + 1] == "." {
+          if o < len_lex - 1 && lex[o + 1].Name == "." {
             continue
           } else {
             break
@@ -251,52 +251,52 @@ func callCalc(i *int, lex []string, len_lex int, dir string) ([]Action, string, 
     (*i)+=3
   }
 
-  params := [][]string{{}}
+  params := [][]Lex{[]Lex{}}
 
-  for o := (*i) + 3; o < len_lex; o++ {
-    if lex[o] == "{" {
+  for o := *i + 3; o < len_lex; o++ {
+    if lex[o].Name == "{" {
       cbCnt++;
     }
-    if lex[o] == "}" {
+    if lex[o].Name == "}" {
       cbCnt--;
     }
 
-    if lex[o] == "[:" {
+    if lex[o].Name == "[:" {
       glCnt++;
     }
-    if lex[o] == ":]" {
+    if lex[o].Name == ":]" {
       glCnt--;
     }
 
-    if lex[o] == "[" {
+    if lex[o].Name == "[" {
       bCnt++;
     }
-    if lex[o] == "]" {
+    if lex[o].Name == "]" {
       bCnt--;
     }
 
-    if lex[o] == "(" {
+    if lex[o].Name == "(" {
       pCnt++;
     }
-    if lex[o] == ")" {
+    if lex[o].Name == ")" {
       pCnt--;
     }
 
-    if lex[o] == "(" {
+    if lex[o].Name == "(" {
       continue
     }
 
     if cbCnt != 0 && glCnt != 0 && bCnt != 0 && pCnt != 0 {
-      params = append(params, []string{})
+      params = append(params, []Lex{})
       continue
     }
 
-    if lex[o] == ")" {
+    if lex[o].Name == ")" {
       break
     }
 
-    if lex[o] == "," {
-      params = append(params, []string{})
+    if lex[o].Name == "," {
+      params = append(params, []Lex{})
       continue
     }
 
@@ -313,16 +313,16 @@ func callCalc(i *int, lex []string, len_lex int, dir string) ([]Action, string, 
   skip_nums := 0
 
   for o := *i; o < len_lex; o++ {
-    if lex[o] == "(" {
+    if lex[o].Name == "(" {
       pCnt_++
     }
-    if lex[o] == ")" {
+    if lex[o].Name == ")" {
       pCnt_--
     }
 
     skip_nums++;
 
-    if pCnt_ == 0 && lex[o] == "newlineS" {
+    if pCnt_ == 0 && lex[o].Name == "newlineS" {
       break
     }
   }
@@ -332,38 +332,38 @@ func callCalc(i *int, lex []string, len_lex int, dir string) ([]Action, string, 
   return params_, name, putIndexes
 }
 
-func procCalc(i *int, lex []string, len_lex int, dir string) ([]Action, []string, string) {
+func procCalc(i *int, lex []Lex, len_lex int, dir string) ([]Action, []string, string) {
 
   var params []string
   var procName string
   var logic []Action
 
-  if lex[(*i) + 1] == "~" {
-    procName = lex[*i + 2]
+  if lex[(*i) + 1].Name == "~" {
+    procName = lex[*i + 2].Name
 
     for o := (*i) + 4; o < len_lex; o++ {
-      if lex[o] == ")" {
+      if lex[o].Name == ")" {
         break
       }
 
-      if lex[o] == "," {
+      if lex[o].Name == "," {
         continue
       }
 
-      params = append(params, lex[o])
+      params = append(params, lex[o].Name)
     }
     *i+=(len(params) + 5)
 
-    var logic_ = []string{}
+    var logic_ = []Lex{}
 
     cbCnt := 0
 
     for o := *i; o < len_lex; o++ {
-      if lex[o] == "{" {
+      if lex[o].Name == "{" {
         cbCnt++
       }
 
-      if lex[o] == "}" {
+      if lex[o].Name == "}" {
         cbCnt--
       }
 
@@ -382,24 +382,24 @@ func procCalc(i *int, lex []string, len_lex int, dir string) ([]Action, []string
     procName = ""
 
     for o := (*i) + 2; o < len_lex; o+=2 {
-      if lex[o] == ")" {
+      if lex[o].Name == ")" {
         break
       }
 
-      params = append(params, lex[o])
+      params = append(params, lex[o].Name)
     }
     *i+=(3 + len(params))
 
-    var logic_ = []string{}
+    var logic_ = []Lex{}
 
     cbCnt := 0
 
     for o := *i; o < len_lex; o++ {
-      if lex[o] == "{" {
+      if lex[o].Name == "{" {
         cbCnt++
       }
 
-      if lex[o] == "}" {
+      if lex[o].Name == "}" {
         cbCnt--
       }
 
@@ -418,7 +418,7 @@ func procCalc(i *int, lex []string, len_lex int, dir string) ([]Action, []string
   return logic, params, procName
 }
 
-func actionizer(lex []string, doExpress bool, dir string) []Action {
+func actionizer(lex []Lex, doExpress bool, dir string) []Action {
   var actions = []Action{}
   var len_lex = len(lex)
 
@@ -433,35 +433,35 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
       pCnt := 0
 
       for o := i; o < len_lex; o++ {
-        if lex[o] == "{" {
+        if lex[o].Name == "{" {
           cbCnt++;
         }
-        if lex[o] == "}" {
+        if lex[o].Name == "}" {
           cbCnt--;
         }
 
-        if lex[o] == "[:" {
+        if lex[o].Name == "[:" {
           glCnt++;
         }
-        if lex[o] == ":]" {
+        if lex[o].Name == ":]" {
           glCnt--;
         }
 
-        if lex[o] == "[" {
+        if lex[o].Name == "[" {
           bCnt++;
         }
-        if lex[o] == "]" {
+        if lex[o].Name == "]" {
           bCnt--;
         }
 
-        if lex[o] == "(" {
+        if lex[o].Name == "(" {
           pCnt++;
         }
-        if lex[o] == ")" {
+        if lex[o].Name == ")" {
           pCnt--;
         }
 
-        if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
+        if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
           break
         }
 
@@ -472,10 +472,10 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
       if !interfaceContainForExp(exp, operations) {
 
-        var act_exp []string
+        var act_exp []Lex
 
         for _, v := range exp {
-          act_exp = append(act_exp, v.(string))
+          act_exp = append(act_exp, v.(Lex))
         }
 
         return actionizer(act_exp, false, dir);
@@ -492,7 +492,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
           continue
         }
 
-        var pExp []string
+        var pExp []Lex
 
         pCnt := 0
 
@@ -504,7 +504,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             pCnt--;
           }
 
-          pExp = append(pExp, exp[o].(string))
+          pExp = append(pExp, exp[o].(Lex))
 
           if pCnt == 0 {
             break
@@ -849,7 +849,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
       }
 
       if reflect.TypeOf(exp[0]).String() == "string" {
-        exp[0] = actionizer([]string{ exp[0].(string) }, false, dir)[0]
+        exp[0] = actionizer([]Lex{ exp[0].(Lex) }, false, dir)[0]
       }
 
       actions = append(actions, exp[0].(Action))
@@ -859,11 +859,11 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
       break
     }
 
-    switch lex[i] {
+    switch lex[i].Name {
       case "newlineN":
         actions = append(actions, Action{ "newline", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 0, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
       case "local":
-        exp_ := []string{}
+        exp_ := []Lex{}
 
         //getting nb semicolons
         cbCnt := 0
@@ -873,31 +873,31 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         for o := i + 4; o < len_lex; o++ {
 
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++;
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--;
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++;
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--;
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++;
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--;
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++;
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--;
           }
 
@@ -906,7 +906,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             continue
           }
 
-          if lex[o] == "newlineS" {
+          if lex[o].Name == "newlineS" {
             break
           }
 
@@ -915,10 +915,10 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         exp := actionizer(exp_, true, dir)
 
-        actions = append(actions, Action{ "local", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, 1, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        actions = append(actions, Action{ "local", lex[i + 2].Name, []string{}, exp, []string{}, []Action{}, []Condition{}, 1, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(4 + len(exp_))
       case "dynamic":
-        exp_ := []string{}
+        exp_ := []Lex{}
 
         //getting nb semicolons
         cbCnt := 0
@@ -928,31 +928,31 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         for o := i + 4; o < len_lex; o++ {
 
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++;
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--;
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++;
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--;
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++;
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--;
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++;
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--;
           }
 
@@ -961,7 +961,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             continue
           }
 
-          if lex[o] == "newlineS" {
+          if lex[o].Name == "newlineS" {
             break
           }
 
@@ -970,7 +970,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         exp := actionizer(exp_, true, dir)
 
-        actions = append(actions, Action{ "dynamic", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, 2, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        actions = append(actions, Action{ "dynamic", lex[i + 2].Name, []string{}, exp, []string{}, []Action{}, []Condition{}, 2, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(4 + len(exp_))
       case "alt":
 
@@ -978,13 +978,13 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         pCnt := 0
 
-        cond_ := []string{}
+        cond_ := []Lex{}
 
         for o := i + 1; o < len_lex; o++ {
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--
           }
 
@@ -999,16 +999,16 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         cond := actionizer(cond_, true, dir)
 
-        for ;lex[i] == "=>"; {
+        for ;lex[i].Name == "=>"; {
           cbCnt := 0
 
-          actions_ := []string{}
+          actions_ := []Lex{}
 
           for o := i + 1; o < len_lex; o++ {
-            if lex[o] == "{" {
+            if lex[o].Name == "{" {
               cbCnt++
             }
-            if lex[o] == "}" {
+            if lex[o].Name == "}" {
               cbCnt--
             }
 
@@ -1033,7 +1033,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         actions = append(actions, alter)
 
       case "global":
-        exp_ := []string{}
+        exp_ := []Lex{}
 
         //getting nb semicolons
         cbCnt := 0
@@ -1043,31 +1043,31 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         for o := i + 4; o < len_lex; o++ {
 
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++;
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--;
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++;
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--;
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++;
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--;
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++;
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--;
           }
 
@@ -1076,7 +1076,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             continue
           }
 
-          if lex[o] == "newlineS" {
+          if lex[o].Name == "newlineS" {
             break
           }
 
@@ -1085,10 +1085,10 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         exp := actionizer(exp_, true, dir)
 
-        actions = append(actions, Action{ "global", lex[i + 2], []string{}, exp, []string{}, []Action{}, []Condition{}, 4, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        actions = append(actions, Action{ "global", lex[i + 2].Name, []string{}, exp, []string{}, []Action{}, []Condition{}, 4, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(4 + len(exp_))
       case "log":
-        exp_ := []string{}
+        exp_ := []Lex{}
 
         //getting nb semicolons
         cbCnt := 0
@@ -1098,31 +1098,31 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         for o := i + 2; o < len_lex; o++ {
 
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++;
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--;
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++;
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--;
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++;
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--;
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++;
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--;
           }
 
@@ -1131,7 +1131,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             continue
           }
 
-          if lex[o] == "newlineS" {
+          if lex[o].Name == "newlineS" {
             break
           }
 
@@ -1140,10 +1140,10 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         exp := actionizer(exp_, true, dir)
 
-        actions = append(actions, Action{ "log", "", exp_, exp, []string{}, []Action{}, []Condition{}, 5, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        actions = append(actions, Action{ "log", "", []string{}, exp, []string{}, []Action{}, []Condition{}, 5, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(2 + len(exp_))
       case "print":
-        exp_ := []string{}
+        exp_ := []Lex{}
 
         //getting nb semicolons
         cbCnt := 0
@@ -1153,31 +1153,31 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         for o := i + 2; o < len_lex; o++ {
 
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++;
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--;
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++;
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--;
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++;
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--;
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++;
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--;
           }
 
@@ -1186,7 +1186,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             continue
           }
 
-          if lex[o] == "newlineS" {
+          if lex[o].Name == "newlineS" {
             break
           }
 
@@ -1195,10 +1195,10 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         exp := actionizer(exp_, false, dir)
 
-        actions = append(actions, Action{ "print", "", exp_, exp, []string{}, []Action{}, []Condition{}, 6, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        actions = append(actions, Action{ "print", "", []string{}, exp, []string{}, []Action{}, []Condition{}, 6, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(2 + len(exp_))
       case "{":
-        exp_ := []string{}
+        exp_ := []Lex{}
 
         //getting nb semicolons
         cbCnt := 0
@@ -1208,31 +1208,31 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         for o := i; o < len_lex; o++ {
 
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++;
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--;
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++;
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--;
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++;
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--;
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++;
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--;
           }
 
@@ -1247,7 +1247,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             break
           }
 
-          if lex[o] == "newlineS" {
+          if lex[o].Name == "newlineS" {
             break
           }
         }
@@ -1269,15 +1269,15 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         actions = append(actions, Action{ "process", procName, []string{}, logic, params, []Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, false })
       case "wait":
 
-        var exp []string
+        var exp []Lex
         pCnt := 0
 
         for o := i + 1; o < len_lex; o++ {
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++
             continue
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--
             continue
           }
@@ -1305,7 +1305,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         actions = append(actions, Action{ "@", name, []string{}, []Action{}, []string{}, params_, []Condition{}, 56, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false })
       case "return":
 
-        returner_ := []string{}
+        returner_ := []Lex{}
 
         cbCnt := 0
         glCnt := 0
@@ -1313,35 +1313,35 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         pCnt := 0
 
         for o := i + 2; o < len_lex; o++ {
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--
           }
 
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
             break
           }
 
@@ -1356,15 +1356,15 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         conditions := []Condition{}
 
-        for ;lex[i] == "if"; {
-          var cond_ = []string{}
+        for ;lex[i].Name == "if"; {
+          var cond_ = []Lex{}
           pCnt := 0
 
           for o := i + 1; o < len_lex; o++ {
-            if lex[o] == "(" {
+            if lex[o].Name == "(" {
               pCnt++
             }
-            if lex[o] == ")" {
+            if lex[o].Name == ")" {
               pCnt--
             }
 
@@ -1377,13 +1377,13 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
           cond := actionizer(cond_, true, dir)
           cbCnt := 0
-          actions_ := []string{}
+          actions_ := []Lex{}
 
           for o := i + 1 + len(cond_); o < len_lex; o++ {
-            if lex[o] == "{" {
+            if lex[o].Name == "{" {
               cbCnt++
             }
-            if lex[o] == "}" {
+            if lex[o].Name == "}" {
               cbCnt--
             }
 
@@ -1408,16 +1408,16 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         }
 
         if !(i >= len_lex) {
-          for ;lex[i] == "elseif"; {
+          for ;lex[i].Name == "elseif"; {
 
-            var cond_ = []string{}
+            var cond_ = []Lex{}
             pCnt := 0
 
             for o := i + 1; o < len_lex; o++ {
-              if lex[o] == "(" {
+              if lex[o].Name == "(" {
                 pCnt++
               }
-              if lex[o] == ")" {
+              if lex[o].Name == ")" {
                 pCnt--
               }
 
@@ -1430,13 +1430,13 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             cond := actionizer(cond_, true, dir)
             cbCnt := 0
-            actions_ := []string{}
+            actions_ := []Lex{}
 
             for o := i + 1 + len(cond_); o < len_lex; o++ {
-              if lex[o] == "{" {
+              if lex[o].Name == "{" {
                 cbCnt++
               }
-              if lex[o] == "}" {
+              if lex[o].Name == "}" {
                 cbCnt--
               }
 
@@ -1462,16 +1462,16 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         }
 
         if !(i >= len_lex) {
-          actions_ := []string{}
+          actions_ := []Lex{}
 
-          for ;lex[i] == "else"; {
+          for ;lex[i].Name == "else"; {
             cbCnt := 0
 
             for o := i + 1; o < len_lex; o++ {
-              if lex[o] == "{" {
+              if lex[o].Name == "{" {
                 cbCnt++
               }
-              if lex[o] == "}" {
+              if lex[o].Name == "}" {
                 cbCnt--
               }
 
@@ -1499,11 +1499,11 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         actions = append(actions, Action{ "conditional", "", []string{}, []Action{}, []string{}, []Action{}, conditions, 13, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
       case "import":
 
-        var fileDir = lex[i + 2]
+        var fileDir = lex[i + 2].Name
 
         var files = readFileJS(dir + fileDir)
 
-        var lexxed [][]string
+        var lexxed [][]Lex
 
         for _, v := range files {
           lexxed = append(lexxed, lexer(v))
@@ -1518,7 +1518,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         actions = append(actions, Action{ "import", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 14, []Action{}, []Action{}, []Action{}, actionizedFiles, [][]Action{}, make(map[string][]Action), false })
         i+=(2 + len(fileDir))
       case "read":
-        var phrase = []string{}
+        var phrase = []Lex{}
 
         cbCnt := 0
         glCnt := 0
@@ -1526,35 +1526,35 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         pCnt := 0
 
         for o := i + 2; o < len_lex; o++ {
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--
           }
 
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
             break
           }
 
@@ -1569,7 +1569,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
       case "skip":
         actions = append(actions, Action{ "skip", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 17, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
       case "eval":
-        var phrase = []string{}
+        var phrase = []Lex{}
 
         cbCnt := 0
         glCnt := 0
@@ -1577,35 +1577,35 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         pCnt := 0
 
         for o := i + 2; o < len_lex; o++ {
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--
           }
 
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
             break
           }
 
@@ -1616,7 +1616,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         actions = append(actions, Action{ "eval", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 18, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(2 + len(phrase))
       case "typeof":
-        var phrase = []string{}
+        var phrase = []Lex{}
 
         cbCnt := 0
         glCnt := 0
@@ -1624,35 +1624,35 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         pCnt := 0
 
         for o := i + 2; o < len_lex; o++ {
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--
           }
 
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
             break
           }
 
@@ -1664,15 +1664,15 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         i+=(2 + len(phrase))
       case "loop":
 
-        var condition_ = []string{}
+        var condition_ = []Lex{}
 
         pCnt := 0
 
         for o := i + 1; o < len_lex; o++ {
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--
           }
 
@@ -1684,15 +1684,15 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         }
 
         condition := actionizer(condition_, true, dir)
-        action_ := []string{}
+        action_ := []Lex{}
 
         cbCnt := 0
 
         for o := i + 1 + len(condition_); o < len_lex; o++ {
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--
           }
 
@@ -1708,7 +1708,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         actions = append(actions, Action{ "loop", "", []string{}, action, []string{}, []Action{}, []Condition{ { "loop", condition, action } }, 21, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(1 + len(condition_) + len(action_))
       case "[:":
-        var phrase = []string{}
+        var phrase = []Lex{}
 
         cbCnt := 0
         glCnt := 0
@@ -1716,31 +1716,31 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         pCnt := 0
 
         for o := i; o < len_lex; o++ {
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--
           }
 
@@ -1755,7 +1755,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         phrase = phrase[1:len(phrase) - 1]
 
-        var _translated =  [][][]string{ [][]string{ []string{}, []string{} } }
+        var _translated =  [][][]Lex{ [][]Lex{ []Lex{}, []Lex{} } }
 
         cbCnt = 0
         glCnt = 0
@@ -1764,62 +1764,62 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         cur := 0
 
-        for _, k := range phrase {
+        for _, v := range phrase {
 
-          if k == "newlineN" {
+          if v.Name == "newlineN" {
             continue
           }
 
-          if k == "{" {
+          if v.Name == "{" {
             cbCnt++
           }
-          if k == "}" {
+          if v.Name == "}" {
             cbCnt--
           }
 
-          if k == "[:" {
+          if v.Name == "[:" {
             glCnt++
           }
-          if k == ":]" {
+          if v.Name == ":]" {
             glCnt--
           }
 
-          if k == "[" {
+          if v.Name == "[" {
             bCnt++
           }
-          if k == "]" {
+          if v.Name == "]" {
             bCnt--
           }
 
-          if k == "(" {
+          if v.Name == "(" {
             pCnt++
           }
-          if k == ")" {
+          if v.Name == ")" {
             pCnt--
           }
 
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && k == ":" {
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && v.Name == ":" {
             cur = 1
             continue
           }
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && k == "," {
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && v.Name == "," {
             cur = 0
-            _translated = append(_translated, [][]string{ []string{}, []string{} })
+            _translated = append(_translated, [][]Lex{ []Lex{}, []Lex{} })
             continue
           }
 
-          _translated[len(_translated) - 1][cur] = append(_translated[len(_translated) - 1][cur], k)
+          _translated[len(_translated) - 1][cur] = append(_translated[len(_translated) - 1][cur], v)
         }
 
         var translated = make(map[string][]Action)
 
-        for _, k := range _translated {
+        for _, v := range _translated {
 
-          if len(k[0]) <= 0 {
+          if len(v[0]) <= 0 {
             break
           }
 
-          translated[k[0][0]] = actionizer(k[1], true, dir)
+          translated[v[0][0].Name] = actionizer(v[1], true, dir)
         }
 
         if i >= len_lex {
@@ -1830,7 +1830,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         isMutable := false
 
         //checks for a runtime hash
-        for ;i < len_lex && lex[i] == ":::"; i++ {
+        for ;i < len_lex && lex[i].Name == ":::"; i++ {
           isMutable = !isMutable
         }
 
@@ -1839,8 +1839,8 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
           break
         }
 
-        if lex[i] == "." {
-          indexes := [][]string{[]string{}}
+        if lex[i].Name == "." {
+          indexes := [][]Lex{ []Lex{} }
 
           cbCnt = 0
           glCnt = 0
@@ -1848,34 +1848,34 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
           pCnt = 0
 
           for o := i + 1; o < len_lex; o++ {
-            if lex[o] == "{" {
+            if lex[o].Name == "{" {
               cbCnt++
             }
-            if lex[o] == "[:" {
+            if lex[o].Name == "[:" {
               glCnt++
             }
-            if lex[o] == "[" {
+            if lex[o].Name == "[" {
               bCnt++
             }
-            if lex[o] == "(" {
+            if lex[o].Name == "(" {
               pCnt++
             }
 
-            if lex[o] == "}" {
+            if lex[o].Name == "}" {
               cbCnt--
             }
-            if lex[o] == ":]" {
+            if lex[o].Name == ":]" {
               glCnt--
             }
-            if lex[o] == "]" {
+            if lex[o].Name == "]" {
               bCnt--
             }
-            if lex[o] == ")" {
+            if lex[o].Name == ")" {
               pCnt--
             }
 
-            if lex[o] == "." {
-              indexes = append(indexes, []string{})
+            if lex[o].Name == "." {
+              indexes = append(indexes, []Lex{})
             } else {
 
               i++
@@ -1884,7 +1884,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
               if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
 
-                if o < len_lex - 1 && lex[o + 1] == "." {
+                if o < len_lex - 1 && lex[o + 1].Name == "." {
                   continue
                 } else {
                   break
@@ -1909,7 +1909,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
           actions = append(actions, Action{ "hash", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, isMutable })
         }
       case "[":
-        var phrase = []string{}
+        var phrase = []Lex{}
 
         cbCnt := 0
         glCnt := 0
@@ -1917,31 +1917,31 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         pCnt := 0
 
         for o := i; o < len_lex; o++ {
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--
           }
 
@@ -1960,7 +1960,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         for o := 0; o < len(phrase); o++ {
 
-          var sub []string
+          var sub []Lex
 
           cbCnt := 0
           glCnt := 0
@@ -1969,35 +1969,35 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
           for j := o; j < len(phrase); j++ {
 
-            if phrase[j] == "{" {
+            if phrase[j].Name == "{" {
               cbCnt++
             }
-            if phrase[j] == "}" {
+            if phrase[j].Name == "}" {
               cbCnt--
             }
 
-            if phrase[j] == "[:" {
+            if phrase[j].Name == "[:" {
               glCnt++
             }
-            if phrase[j] == ":]" {
+            if phrase[j].Name == ":]" {
               glCnt--
             }
 
-            if phrase[j] == "[" {
+            if phrase[j].Name == "[" {
               bCnt++
             }
-            if phrase[j] == "]" {
+            if phrase[j].Name == "]" {
               bCnt--
             }
 
-            if phrase[j] == "(" {
+            if phrase[j].Name == "(" {
               pCnt++
             }
-            if phrase[j] == ")" {
+            if phrase[j].Name == ")" {
               pCnt--
             }
 
-            if phrase[j] == "," && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+            if phrase[j].Name == "," && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
               break
             }
             sub = append(sub, phrase[j])
@@ -2025,7 +2025,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         isMutable := false
 
         //checks for a runtime array
-        for ;i < len_lex && lex[i] == ":::"; i++ {
+        for ;i < len_lex && lex[i].Name == ":::"; i++ {
           isMutable = !isMutable
         }
 
@@ -2034,8 +2034,8 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
           break
         }
 
-        if lex[i] == "." {
-          indexes := [][]string{[]string{}}
+        if lex[i].Name == "." {
+          indexes := [][]Lex{ []Lex{} }
 
           cbCnt = 0
           glCnt = 0
@@ -2043,34 +2043,34 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
           pCnt = 0
 
           for o := i + 1; o < len_lex; o++ {
-            if lex[o] == "{" {
+            if lex[o].Name == "{" {
               cbCnt++
             }
-            if lex[o] == "[:" {
+            if lex[o].Name == "[:" {
               glCnt++
             }
-            if lex[o] == "[" {
+            if lex[o].Name == "[" {
               bCnt++
             }
-            if lex[o] == "(" {
+            if lex[o].Name == "(" {
               pCnt++
             }
 
-            if lex[o] == "}" {
+            if lex[o].Name == "}" {
               cbCnt--
             }
-            if lex[o] == ":]" {
+            if lex[o].Name == ":]" {
               glCnt--
             }
-            if lex[o] == "]" {
+            if lex[o].Name == "]" {
               bCnt--
             }
-            if lex[o] == ")" {
+            if lex[o].Name == ")" {
               pCnt--
             }
 
-            if lex[o] == "." {
-              indexes = append(indexes, []string{})
+            if lex[o].Name == "." {
+              indexes = append(indexes, []Lex{})
             } else {
 
               i++
@@ -2079,7 +2079,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
               if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
 
-                if o < len_lex - 1 && lex[o + 1] == "." {
+                if o < len_lex - 1 && lex[o + 1].Name == "." {
                   continue
                 } else {
                   break
@@ -2104,7 +2104,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
           actions = append(actions, Action{ "array", "hashed_value", []string{""}, []Action{}, []string{}, []Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, isMutable })
         }
       case "ascii":
-        var phrase = []string{}
+        var phrase = []Lex{}
 
         cbCnt := 0
         glCnt := 0
@@ -2112,35 +2112,35 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         pCnt := 0
 
         for o := i + 2; o < len_lex; o++ {
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--
           }
 
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
             break
           }
 
@@ -2152,15 +2152,15 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         i+=(2 + len(phrase))
       case "len":
 
-        var exp []string
+        var exp []Lex
         pCnt := 0
 
         for o := i + 1; o < len_lex; o++ {
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++
             continue
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--
             continue
           }
@@ -2177,15 +2177,15 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         actions = append(actions, Action{ "len", "", []string{}, actionized, []string{}, []Action{}, []Condition{}, 31, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=3 + len(exp)
       case "each":
-        var condition_ = []string{}
+        var condition_ = []Lex{}
 
         pCnt := 0
 
         for o := i + 1; o < len_lex; o++ {
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--
           }
 
@@ -2200,7 +2200,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         condition_ = condition_[1:len(condition_) - 1]
 
-        var _iterator []string
+        var _iterator []Lex
 
         cbCnt := 0
         glCnt := 0
@@ -2211,35 +2211,35 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         for k, v := range condition_ {
 
-          if v == "{" {
+          if v.Name == "{" {
             cbCnt++
           }
-          if v == "}" {
+          if v.Name == "}" {
             cbCnt--
           }
 
-          if v == "[:" {
+          if v.Name == "[:" {
             glCnt++
           }
-          if v == ":]" {
+          if v.Name == ":]" {
             glCnt--
           }
 
-          if v == "[" {
+          if v.Name == "[" {
             bCnt++
           }
-          if v == "]" {
+          if v.Name == "]" {
             bCnt--
           }
 
-          if v == "(" {
+          if v.Name == "(" {
             pCnt++
           }
-          if v == ")" {
+          if v.Name == ")" {
             pCnt--
           }
 
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && v == "newlineS" {
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && v.Name == "newlineS" {
             stopIterIndex = k
             break
           }
@@ -2249,42 +2249,52 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         iterator := actionizer(_iterator, true, dir)
 
-        //add error handling here later
-        var1, var2 := condition_[stopIterIndex + 1], condition_[stopIterIndex + 3]
+        var var1 string
+        var var2 string
+
+        if stopIterIndex + 1 >= len(condition_) {
+          var1 = "$k"
+          var2 = "$v"
+        } else if stopIterIndex + 3 >= len(condition_) {
+          var1 = condition_[stopIterIndex + 1].Name
+          var2 = "$v"
+        } else {
+          var1, var2 = condition_[stopIterIndex + 1].Name, condition_[stopIterIndex + 3].Name
+        }
 
         cbCnt = 0
         glCnt = 0
         bCnt = 0
         pCnt = 0
 
-        var exp []string
+        var exp []Lex
 
         for o := i; o < len_lex; o++ {
-          if lex[o] == "{" {
+          if lex[o].Name == "{" {
             cbCnt++
           }
-          if lex[o] == "}" {
+          if lex[o].Name == "}" {
             cbCnt--
           }
 
-          if lex[o] == "[:" {
+          if lex[o].Name == "[:" {
             glCnt++
           }
-          if lex[o] == ":]" {
+          if lex[o].Name == ":]" {
             glCnt--
           }
 
-          if lex[o] == "[" {
+          if lex[o].Name == "[" {
             bCnt++
           }
-          if lex[o] == "]" {
+          if lex[o].Name == "]" {
             bCnt--
           }
 
-          if lex[o] == "(" {
+          if lex[o].Name == "(" {
             pCnt++
           }
-          if lex[o] == ")" {
+          if lex[o].Name == ")" {
             pCnt--
           }
 
@@ -2302,7 +2312,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
       default:
 
-        valPuts := func(lex []string, i int) int {
+        valPuts := func(lex []Lex, i int) int {
 
           //KEEP IN MIND: index key starts with ascii of 8
 
@@ -2311,10 +2321,10 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
           }
 
           isMutable := false
-          val := lex[i]
+          val := lex[i].Name
 
           //checks for a runtime value
-          for ;i + 1 < len_lex && lex[i + 1] == ":::"; i++ {
+          for ;i + 1 < len_lex && lex[i + 1].Name == ":::"; i++ {
             isMutable = !isMutable
           }
 
@@ -2335,7 +2345,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
               val = val[1:len(val) - 1]
 
               for _, v := range noQ {
-                hashedString[cur] = actionizer([]string{ "" + string(v) }, true, dir)
+                hashedString[cur] = actionizer([]Lex{ Lex{ "" + string(v), []string{}, 0 } }, true, dir)
                 cur = add(cur, "1", paramCalcOpts{}, -1)
               }
 
@@ -2393,9 +2403,9 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         if i + 1 < len_lex {
 
-          if lex[i + 1] == "->" {
+          if lex[i + 1].Name == "->" {
 
-            var val_ []string
+            var val_ []Lex
 
             cbCnt := 0
             glCnt := 0
@@ -2403,35 +2413,35 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             pCnt := 0
 
             for o := i + 2; o < len_lex; o++ {
-              if lex[o] == "{" {
+              if lex[o].Name == "{" {
                 cbCnt++
               }
-              if lex[o] == "}" {
+              if lex[o].Name == "}" {
                 cbCnt--
               }
 
-              if lex[o] == "[:" {
+              if lex[o].Name == "[:" {
                 glCnt++
               }
-              if lex[o] == ":]" {
+              if lex[o].Name == ":]" {
                 glCnt--
               }
 
-              if lex[o] == "[" {
+              if lex[o].Name == "[" {
                 bCnt++
               }
-              if lex[o] == "]" {
+              if lex[o].Name == "]" {
                 bCnt--
               }
 
-              if lex[o] == "(" {
+              if lex[o].Name == "(" {
                 pCnt++
               }
-              if lex[o] == ")" {
+              if lex[o].Name == ")" {
                 pCnt--
               }
 
-              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && arrayContainInterface(operations, lex[o]) {
+              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && arrayContainInterface(operations, lex[o].Name) {
                 break
               }
 
@@ -2455,14 +2465,14 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
               return "exp_value"
             }
 
-            actions = append(actions, Action{ "cast", lex[i], []string{ getValueType(lex[i]) }, val, []string{}, []Action{}, []Condition{}, 58, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+            actions = append(actions, Action{ "cast", lex[i].Name, []string{ getValueType(lex[i].Name) }, val, []string{}, []Action{}, []Condition{}, 58, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
             i+=len(val_) + 2
             continue
           }
 
-          if (lex[i + 1] == "++" || lex[i + 1] == "--") && strings.HasPrefix(lex[i], "$") {
+          if (lex[i + 1].Name == "++" || lex[i + 1].Name == "--") && strings.HasPrefix(lex[i].Name, "$") {
 
-            id_ := []byte(lex[i + 1])
+            id_ := []byte(lex[i + 1].Name)
 
             id := ""
 
@@ -2473,14 +2483,14 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             intID, _ := strconv.Atoi(id)
 
-            actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, []Action{}, []string{}, []Action{}, []Condition{}, intID, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+            actions = append(actions, Action{ lex[i + 1].Name, lex[i].Name, []string{}, []Action{}, []string{}, []Action{}, []Condition{}, intID, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
             i++
             continue;
           }
 
-          if (lex[i + 1] == "+=" || lex[i + 1] == "-=" || lex[i + 1] == "*=" || lex[i + 1] == "/=" || lex[i + 1] == "%=" || lex[i + 1] == "^=") && strings.HasPrefix(lex[i], "$") {
+          if (lex[i + 1].Name == "+=" || lex[i + 1].Name == "-=" || lex[i + 1].Name == "*=" || lex[i + 1].Name == "/=" || lex[i + 1].Name == "%=" || lex[i + 1].Name == "^=") && strings.HasPrefix(lex[i].Name, "$") {
 
-            var by_ []string
+            var by_ []Lex
 
             cbCnt := 0
             glCnt := 0
@@ -2488,35 +2498,35 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             pCnt := 0
 
             for o := i + 2; o < len_lex; o++ {
-              if lex[o] == "{" {
+              if lex[o].Name == "{" {
                 cbCnt++
               }
-              if lex[o] == "}" {
+              if lex[o].Name == "}" {
                 cbCnt--
               }
 
-              if lex[o] == "[:" {
+              if lex[o].Name == "[:" {
                 glCnt++
               }
-              if lex[o] == ":]" {
+              if lex[o].Name == ":]" {
                 glCnt--
               }
 
-              if lex[o] == "[" {
+              if lex[o].Name == "[" {
                 bCnt++
               }
-              if lex[o] == "]" {
+              if lex[o].Name == "]" {
                 bCnt--
               }
 
-              if lex[o] == "(" {
+              if lex[o].Name == "(" {
                 pCnt++
               }
-              if lex[o] == ")" {
+              if lex[o].Name == ")" {
                 pCnt--
               }
 
-              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
+              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
                 break
               }
 
@@ -2525,7 +2535,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             by := actionizer(by_, true, dir)
 
-            id_ := []byte(lex[i + 1])
+            id_ := []byte(lex[i + 1].Name)
 
             id := ""
 
@@ -2536,7 +2546,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             intID, _ := strconv.Atoi(id)
 
-            actions = append(actions, Action{ lex[i + 1], lex[i], []string{}, by, []string{}, []Action{}, []Condition{}, intID, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+            actions = append(actions, Action{ lex[i + 1].Name, lex[i].Name, []string{}, by, []string{}, []Action{}, []Condition{}, intID, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
             continue;
           }
 
@@ -2548,50 +2558,50 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
           ipCnt := 0
 
           for o := i; o < len_lex; o++ {
-            if lex[o] == "{" {
+            if lex[o].Name == "{" {
               icbCnt++
             }
-            if lex[o] == "}" {
+            if lex[o].Name == "}" {
               icbCnt--
             }
 
-            if lex[o] == "[:" {
+            if lex[o].Name == "[:" {
               iglCnt++
             }
-            if lex[o] == ":]" {
+            if lex[o].Name == ":]" {
               iglCnt--
             }
 
-            if lex[o] == "[" {
+            if lex[o].Name == "[" {
               ibCnt++
             }
-            if lex[o] == "]" {
+            if lex[o].Name == "]" {
               ibCnt--
             }
 
-            if lex[o] == "(" {
+            if lex[o].Name == "(" {
               ipCnt++
             }
-            if lex[o] == ")" {
+            if lex[o].Name == ")" {
               ipCnt--
             }
 
-            if icbCnt == 0 && iglCnt == 0 && ibCnt == 0 && ipCnt == 0 && lex[o] == "newlineS" {
+            if icbCnt == 0 && iglCnt == 0 && ibCnt == 0 && ipCnt == 0 && lex[o].Name == "newlineS" {
               break
             }
 
-            if icbCnt == 0 && iglCnt == 0 && ibCnt == 0 && ipCnt == 0 && lex[o] == ":" {
+            if icbCnt == 0 && iglCnt == 0 && ibCnt == 0 && ipCnt == 0 && lex[o].Name == ":" {
               doPutIndex = true
               break
             }
           }
 
           var indexes [][]Action
-          name := lex[i]
+          name := lex[i].Name
 
-          if lex[i + 1] == "." && lex[i + 2] == "[" && doPutIndex {
+          if lex[i + 1].Name == "." && lex[i + 2].Name == "[" && doPutIndex {
 
-            _indexes := [][]string{}
+            _indexes := [][]Lex{}
 
             cbCnt := 0
             glCnt := 0
@@ -2599,42 +2609,42 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             pCnt := 0
 
             for o := i + 1; o < len_lex; i, o = i + 1, o + 1 {
-              if lex[o] == "{" {
+              if lex[o].Name == "{" {
                 cbCnt++
               }
-              if lex[o] == "}" {
+              if lex[o].Name == "}" {
                 cbCnt--
               }
 
-              if lex[o] == "[:" {
+              if lex[o].Name == "[:" {
                 glCnt++
               }
-              if lex[o] == ":]" {
+              if lex[o].Name == ":]" {
                 glCnt--
               }
 
-              if lex[o] == "[" {
+              if lex[o].Name == "[" {
                 bCnt++
               }
-              if lex[o] == "]" {
+              if lex[o].Name == "]" {
                 bCnt--
               }
 
-              if lex[o] == "(" {
+              if lex[o].Name == "(" {
                 pCnt++
               }
-              if lex[o] == ")" {
+              if lex[o].Name == ")" {
                 pCnt--
               }
 
-              if lex[o] == "." {
-                _indexes = append(_indexes, []string{})
+              if lex[o].Name == "." {
+                _indexes = append(_indexes, []Lex{})
                 continue
               }
 
               _indexes[len(_indexes) - 1] = append(_indexes[len(_indexes) - 1], lex[o])
 
-              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o + 1] == ":" {
+              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o + 1].Name == ":" {
                 break
               }
             }
@@ -2646,8 +2656,8 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             i++
           }
 
-          if lex[i + 1] == ":" && (strings.HasPrefix(lex[i], "$") || lex[i] == "]") {
-            exp_ := []string{}
+          if lex[i + 1].Name == ":" && (strings.HasPrefix(lex[i].Name, "$") || lex[i].Name == "]") {
+            exp_ := []Lex{}
 
             cbCnt := 0
             glCnt := 0
@@ -2656,35 +2666,35 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             for o := i + 2; o < len_lex; o++ {
 
-              if lex[o] == "{" {
+              if lex[o].Name == "{" {
                 cbCnt++
               }
-              if lex[o] == "}" {
+              if lex[o].Name == "}" {
                 cbCnt--
               }
 
-              if lex[o] == "[:" {
+              if lex[o].Name == "[:" {
                 glCnt++
               }
-              if lex[o] == ":]" {
+              if lex[o].Name == ":]" {
                 glCnt--
               }
 
-              if lex[o] == "[" {
+              if lex[o].Name == "[" {
                 bCnt++
               }
-              if lex[o] == "]" {
+              if lex[o].Name == "]" {
                 bCnt--
               }
 
-              if lex[o] == "(" {
+              if lex[o].Name == "(" {
                 pCnt++
               }
-              if lex[o] == ")" {
+              if lex[o].Name == ")" {
                 pCnt--
               }
 
-              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o] == "newlineS" {
+              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
                 break
               }
 
@@ -2693,21 +2703,21 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
             exp := actionizer(exp_, true, dir)
 
-            actions = append(actions, Action{ "let", name, exp_, exp, []string{}, []Action{}, []Condition{}, 28, []Action{}, []Action{}, []Action{}, [][]Action{}, indexes, make(map[string][]Action), false })
+            actions = append(actions, Action{ "let", name, []string{}, exp, []string{}, []Action{}, []Condition{}, 28, []Action{}, []Action{}, []Action{}, [][]Action{}, indexes, make(map[string][]Action), false })
             i+=(len(exp))
             continue
           }
 
-          if lex[i + 1] == "." {
+          if lex[i + 1].Name == "." {
 
-            val := lex[i]
+            val := lex[i].Name
 
             cbCnt := 0
             glCnt := 0
             bCnt := 0
             pCnt := 0
 
-            indexes := [][]string{[]string{}}
+            indexes := [][]Lex{ []Lex{} }
 
             cbCnt = 0
             glCnt = 0
@@ -2715,34 +2725,34 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             pCnt = 0
 
             for o := i + 2; o < len_lex; o++ {
-              if lex[o] == "{" {
+              if lex[o].Name == "{" {
                 cbCnt++
               }
-              if lex[o] == "[:" {
+              if lex[o].Name == "[:" {
                 glCnt++
               }
-              if lex[o] == "[" {
+              if lex[o].Name == "[" {
                 bCnt++
               }
-              if lex[o] == "(" {
+              if lex[o].Name == "(" {
                 pCnt++
               }
 
-              if lex[o] == "}" {
+              if lex[o].Name == "}" {
                 cbCnt--
               }
-              if lex[o] == ":]" {
+              if lex[o].Name == ":]" {
                 glCnt--
               }
-              if lex[o] == "]" {
+              if lex[o].Name == "]" {
                 bCnt--
               }
-              if lex[o] == ")" {
+              if lex[o].Name == ")" {
                 pCnt--
               }
 
-              if lex[o] == "." {
-                indexes = append(indexes, []string{})
+              if lex[o].Name == "." {
+                indexes = append(indexes, []Lex{})
               } else {
 
                 i++
@@ -2751,7 +2761,7 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
                 if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
 
-                  if o < len_lex - 1 && lex[o + 1] == "." {
+                  if o < len_lex - 1 && lex[o + 1].Name == "." {
                     continue
                   } else {
                     break
@@ -2772,11 +2782,11 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
             i+=3
 
             if strings.HasPrefix(val, "$") {
-              actVal := actionizer([]string{ val }, true, dir)
+              actVal := actionizer([]Lex{ Lex{ val, []string{}, 0 } }, true, dir)
 
               actions = append(actions, Action{ "variableIndex", "", []string{}, actVal, []string{}, []Action{}, []Condition{}, 46, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false })
             } else {
-              actVal := actionizer([]string{ val }, true, dir)
+              actVal := actionizer([]Lex{ Lex{ val, []string{}, 0 } }, true, dir)
 
               actions = append(actions, Action{ "expressionIndex", "", []string{}, actVal, []string{}, []Action{}, []Condition{}, 8, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false })
             }
