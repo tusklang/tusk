@@ -318,9 +318,9 @@
     "type": "id"
   },
   {
-    "name": "thread",
-    "remove": "thread",
-    "pattern": "(thread\\~)",
+    "name": "@",
+    "remove": "@",
+    "pattern": "(@\\~)",
     "type": "id"
   },
   {

@@ -200,7 +200,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           break;
         case 11: {
 
-            //# (call)
+            //# (call process)
 
             string name = actions[i]["Name"];
 
@@ -212,7 +212,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             parsed = fparsed;
 
-            if (vars.find(name) == vars.end()) goto stopIndexing;
+            if (vars.find(name) == vars.end()) goto stopIndexing_processes;
             else {
 
               json var = vars[name]["value"];
@@ -224,15 +224,15 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 if (var["Hash_Values"].find(index) == var["Hash_Values"].end()) {
                   parsed = fparsed;
-                  goto stopIndexing;
+                  goto stopIndexing_processes;
                 }
 
                 var = parser(var["Hash_Values"][index], calc_params, vars, dir, false, line, true).exp;
               }
 
-              if (var["Type"] != "process" && var["Type"] != "thread") {
+              if (var["Type"] != "process") {
                 parsed = fparsed;
-                goto stopIndexing;
+                goto stopIndexing_processes;
               }
 
               json params = var["Params"]
@@ -263,15 +263,10 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                   if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
                     vars[o.value()["name"].get<string>()] = o.value();
 
-              } else if (vars[name]["type"] == "thread") {
-
-                thread _(parser, var["ExpAct"], calc_params, sendVars, dir, true, line, false);
-
-                _.join();
               }
             }
 
-            stopIndexing:
+            stopIndexing_processes:
             if (expReturn) {
 
               json val = parsed.exp;
@@ -1314,28 +1309,75 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             }
           }
           break;
-        case 56: {
+        case 56:  {
 
-            //thread
+            //# (call process)
 
             string name = actions[i]["Name"];
 
-            if (name != "") {
-              json acts = actions[i]["ExpAct"];
+            Returner parsed;
 
-              json nVar = {
-                {"type", "thread"},
-                {"name", name},
-                {"value", actions[i]},
-                {"valueActs", json::parse("[]")}
-              };
-              vars[name] = nVar;
+            vector<string> noRet;
+
+            Returner fparsed = Returner{ noRet, vars, falseyVal, "none" };
+
+            parsed = fparsed;
+
+            if (vars.find(name) == vars.end()) goto stopIndexing_threads;
+            else {
+
+              json var = vars[name]["value"];
+
+              for (json it : actions[i]["Indexes"]) {
+
+                json _index = parser(it, calc_params, vars, dir, false, line, true).exp["ExpStr"][0];
+                string index = _index.dump().substr(1, _index.dump().length() - 2);
+
+                if (var["Hash_Values"].find(index) == var["Hash_Values"].end()) {
+                  parsed = fparsed;
+                  goto stopIndexing_threads;
+                }
+
+                var = parser(var["Hash_Values"][index], calc_params, vars, dir, false, line, true).exp;
+              }
+
+              if (var["Type"] != "process") {
+                parsed = fparsed;
+                goto stopIndexing_threads;
+              }
+
+              json params = var["Params"]
+              , args = actions[i]["Args"];
+
+              json sendVars = vars;
+
+              for (int o = 0; o < params.size() || o < args.size(); o++) {
+
+                json cur = {
+                  {"type", "local"},
+                  {"name", (string) params[o]},
+                  {"value", parser(json::parse("[" + args[o].dump() + "]"), calc_params, vars, dir, false, line, true).exp},
+                  {"valueActs", json::parse("[]")}
+                };
+
+                sendVars[(string) params[o]] = cur;
+              }
+
+              if (vars[name]["type"] == "process") {
+                thread _(parser, var["ExpAct"], calc_params, sendVars, dir, true, line, false);
+
+                _.join();
+              }
             }
 
+            stopIndexing_threads:
             if (expReturn) {
+
+              json val = parsed.exp;
+
               vector<string> noRet;
 
-              return Returner{ noRet, vars, actions[i], "expression" };
+              return Returner{ noRet, vars, val, "expression" };
             }
           }
           break;

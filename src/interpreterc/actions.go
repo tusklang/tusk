@@ -177,6 +177,161 @@ func calcExp(index int, exp []interface{}, dir string) ([]Action, []Action, []in
   return num1, num2, _num1, _num2
 }
 
+func callCalc(i *int, lex []string, len_lex int, dir string) ([]Action, string, [][]Action) {
+  cbCnt := 0
+  glCnt := 0
+  bCnt := 0
+  pCnt := 1
+
+  var name = lex[(*i) + 2]
+
+  indexes := [][]string{[]string{}}
+  var putIndexes [][]Action
+
+  if lex[(*i) + 3] == "." {
+
+    cbCnt = 0
+    glCnt = 0
+    bCnt = 0
+    pCnt = 0
+
+    for o := (*i) + 4; o < len_lex; o++ {
+      if lex[o] == "{" {
+        cbCnt++
+      }
+      if lex[o] == "[:" {
+        glCnt++
+      }
+      if lex[o] == "[" {
+        bCnt++
+      }
+      if lex[o] == "(" {
+        pCnt++
+      }
+
+      if lex[o] == "}" {
+        cbCnt--
+      }
+      if lex[o] == ":]" {
+        glCnt--
+      }
+      if lex[o] == "]" {
+        bCnt--
+      }
+      if lex[o] == ")" {
+        pCnt--
+      }
+
+      if lex[o] == "." {
+        indexes = append(indexes, []string{})
+      } else {
+
+        (*i)++
+
+        indexes[len(indexes) - 1] = append(indexes[len(indexes) - 1], lex[o])
+
+        if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+
+          if o < len_lex - 1 && lex[o + 1] == "." {
+            continue
+          } else {
+            break
+          }
+
+        }
+      }
+    }
+
+    for _, v := range indexes {
+
+      v = v[1:len(v) - 1]
+      putIndexes = append(putIndexes, actionizer(v, true, dir))
+    }
+
+    (*i)+=3
+  }
+
+  params := [][]string{{}}
+
+  for o := (*i) + 3; o < len_lex; o++ {
+    if lex[o] == "{" {
+      cbCnt++;
+    }
+    if lex[o] == "}" {
+      cbCnt--;
+    }
+
+    if lex[o] == "[:" {
+      glCnt++;
+    }
+    if lex[o] == ":]" {
+      glCnt--;
+    }
+
+    if lex[o] == "[" {
+      bCnt++;
+    }
+    if lex[o] == "]" {
+      bCnt--;
+    }
+
+    if lex[o] == "(" {
+      pCnt++;
+    }
+    if lex[o] == ")" {
+      pCnt--;
+    }
+
+    if lex[o] == "(" {
+      continue
+    }
+
+    if cbCnt != 0 && glCnt != 0 && bCnt != 0 && pCnt != 0 {
+      params = append(params, []string{})
+      continue
+    }
+
+    if lex[o] == ")" {
+      break
+    }
+
+    if lex[o] == "," {
+      params = append(params, []string{})
+      continue
+    }
+
+    params[len(params) - 1] = append(params[len(params) - 1], lex[o])
+  }
+
+  var params_ = []Action{}
+
+  for o := 0; o < len(params); o++ {
+    params_ = append(params_, actionizer(params[o], true, dir)...)
+  }
+
+  pCnt_ := 0
+  skip_nums := 0
+
+  for o := *i; o < len_lex; o++ {
+    if lex[o] == "(" {
+      pCnt_++
+    }
+    if lex[o] == ")" {
+      pCnt_--
+    }
+
+    skip_nums++;
+
+    if pCnt_ == 0 && lex[o] == "newlineS" {
+      break
+    }
+  }
+
+  (*i)+=skip_nums
+
+  return params_, name, putIndexes
+}
+
 func procCalc(i *int, lex []string, len_lex int, dir string) ([]Action, []string, string) {
 
   var params []string
@@ -1104,14 +1259,6 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
 
         actions = append(actions, Action{ "group", "", []string{}, exp, []string{}, []Action{}, []Condition{}, 9, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         i+=(len(exp_) + 1)
-      case "thread":
-
-        putFalsey := make(map[string][]Action)
-        putFalsey["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, []Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false } }
-
-        logic, params, procName := procCalc(&i, lex, len_lex, dir)
-
-        actions = append(actions, Action{ "thread", procName, []string{}, logic, params, []Action{}, []Condition{}, 56, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, false })
       case "process":
 
         putFalsey := make(map[string][]Action)
@@ -1148,157 +1295,14 @@ func actionizer(lex []string, doExpress bool, dir string) []Action {
         i++
       case "#":
 
-        cbCnt := 0
-        glCnt := 0
-        bCnt := 0
-        pCnt := 1
-
-        var name = lex[i + 2]
-
-        indexes := [][]string{[]string{}}
-        var putIndexes [][]Action
-
-        if lex[i + 3] == "." {
-
-          cbCnt = 0
-          glCnt = 0
-          bCnt = 0
-          pCnt = 0
-
-          for o := i + 4; o < len_lex; o++ {
-            if lex[o] == "{" {
-              cbCnt++
-            }
-            if lex[o] == "[:" {
-              glCnt++
-            }
-            if lex[o] == "[" {
-              bCnt++
-            }
-            if lex[o] == "(" {
-              pCnt++
-            }
-
-            if lex[o] == "}" {
-              cbCnt--
-            }
-            if lex[o] == ":]" {
-              glCnt--
-            }
-            if lex[o] == "]" {
-              bCnt--
-            }
-            if lex[o] == ")" {
-              pCnt--
-            }
-
-            if lex[o] == "." {
-              indexes = append(indexes, []string{})
-            } else {
-
-              i++
-
-              indexes[len(indexes) - 1] = append(indexes[len(indexes) - 1], lex[o])
-
-              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
-
-                if o < len_lex - 1 && lex[o + 1] == "." {
-                  continue
-                } else {
-                  break
-                }
-
-              }
-            }
-          }
-
-          for _, v := range indexes {
-
-            v = v[1:len(v) - 1]
-            putIndexes = append(putIndexes, actionizer(v, true, dir))
-          }
-
-          i+=3
-        }
-
-        params := [][]string{{}}
-
-        for o := i + 3; o < len_lex; o++ {
-          if lex[o] == "{" {
-            cbCnt++;
-          }
-          if lex[o] == "}" {
-            cbCnt--;
-          }
-
-          if lex[o] == "[:" {
-            glCnt++;
-          }
-          if lex[o] == ":]" {
-            glCnt--;
-          }
-
-          if lex[o] == "[" {
-            bCnt++;
-          }
-          if lex[o] == "]" {
-            bCnt--;
-          }
-
-          if lex[o] == "(" {
-            pCnt++;
-          }
-          if lex[o] == ")" {
-            pCnt--;
-          }
-
-          if lex[o] == "(" {
-            continue
-          }
-
-          if cbCnt != 0 && glCnt != 0 && bCnt != 0 && pCnt != 0 {
-            params = append(params, []string{})
-            continue
-          }
-
-          if lex[o] == ")" {
-            break
-          }
-
-          if lex[o] == "," {
-            params = append(params, []string{})
-            continue
-          }
-
-          params[len(params) - 1] = append(params[len(params) - 1], lex[o])
-        }
-
-        var params_ = []Action{}
-
-        for o := 0; o < len(params); o++ {
-          params_ = append(params_, actionizer(params[o], true, dir)...)
-        }
-
-        pCnt_ := 0
-        skip_nums := 0
-
-        for o := i; o < len_lex; o++ {
-          if lex[o] == "(" {
-            pCnt_++
-          }
-          if lex[o] == ")" {
-            pCnt_--
-          }
-
-          skip_nums++;
-
-          if pCnt_ == 0 && lex[o] == "newlineS" {
-            break
-          }
-        }
+        params_, name, putIndexes := callCalc(&i, lex, len_lex, dir)
 
         actions = append(actions, Action{ "#", name, []string{}, []Action{}, []string{}, params_, []Condition{}, 11, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false })
-        i+=skip_nums
+      case "@":
+
+        params_, name, putIndexes := callCalc(&i, lex, len_lex, dir)
+
+        actions = append(actions, Action{ "@", name, []string{}, []Action{}, []string{}, params_, []Condition{}, 56, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false })
       case "return":
 
         returner_ := []string{}

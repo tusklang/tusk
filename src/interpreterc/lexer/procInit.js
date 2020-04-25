@@ -20,7 +20,7 @@ module.exports = (file) => {
       }
     } else escaped = false;
 
-    if (typeOfQ == '' && file[i] == '#' && file[i + 1] != "~") nFile+="#~";
+    if (typeOfQ == '' && (file[i] == '#' || file[i] == '@') && file[i + 1] != '~') nFile+=file[i] + '~';
     else nFile+=file[i];
   }
 

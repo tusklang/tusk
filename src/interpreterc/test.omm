@@ -1,6 +1,5 @@
-i:0;
-
-loop (true) {
-  log ~ i;
-  i++;
+process ~ test() {
+  log ~ 'test';
 }
+
+@test();
