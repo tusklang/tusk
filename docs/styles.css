@@ -1,6 +1,3 @@
-.menu-item {
-  width: 9%;
-}
 .fas, .fab {
   padding-bottom: 10px;
 }
@@ -12,9 +9,83 @@
 }
 /**************/
 
+.omm-icon {
+  background-image: url('Logos/new/logo1@2x.png');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  height: 150px;
+  width: 150px;
+  display: block;
+}
 #omm {
   font-weight: bolder;
-  font-style: italic;
   font-size: 100px;
   font-family: 'anklada', monospace;
+  color: #c9a308;
+  z-index: 1
+
+  /*prevent highlighting*/
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#omm-body {
+  font-weight: bolder;
+  font-family: 'anklada', monospace;
+  color: white;
+  z-index: 1;
+  font-size: 20px;
+}
+#index-body {
+  background-color: #1f1f1f;
+  min-height: 40%;
+  margin-bottom: 3%;
+}
+#index-background {
+  opacity: .3;
+}
+.ui.download-btn {
+  background-color: #c9a308;
+  font-weight: bolder;
+  font-family: 'anklada', monospace;
+  color: white;
+}
+.ui.download-btn:hover {
+  background-color: #9e8006;
+  color: #cccaca;
+}
+#navbar {
+  width: 100.5%;
+  margin-top: 0;
+  border-radius: 0;
+}
+#index-background-div {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+}
+#feature {
+  text-align: center;
+}
+.feature-head {
+  size: 30px;
+  font-weight: bolder;
+}
+.feature-ico {
+  color: white;
+}
+.description {
+  size: 30px;
+  font-weight: bold;
+}
+body {
+  overflow: none;
+  padding-bottom: 20px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+body::-webkit-scrollbar {
+  display: none;
 }
