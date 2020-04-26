@@ -26,7 +26,14 @@ func arrayContainInterface(arr []string, sub interface{}) bool {
 
 func arrayContainInterfaceOperations(arr []string, sub interface{}) bool {
 
+  loop:
   for i := 0; i < len(arr); i++ {
+
+    switch sub.(type) {
+      case Lex: continue loop
+      case Action: continue loop
+    }
+
     if arr[i] == sub.(string) {
       return true
     }
@@ -109,7 +116,7 @@ func interfaceContainOperations(inter []interface{}, sub interface{}) bool {
       return true
     }
   }
-  
+
   return false
 }
 

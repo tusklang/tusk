@@ -51,7 +51,7 @@ func convToAct(_val []interface{}, dir string) []Action {
       num = append(num, v.(Lex))
     }
 
-    val = actionizer(num, false, dir)
+    val = actionizer(num, true, dir)
 
   } else {
 
@@ -110,6 +110,7 @@ func getLeft(index int, exp []interface{}, dir string) ([]Action, []interface{})
 
     _num1 = append(_num1, exp[o])
   }
+
 
   reverseInterface(_num1)
 
@@ -488,7 +489,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
         index := interfaceIndexOfWithProcIndex("(", exp, proc_indexes)
 
-        if index - 1 != -1 && (strings.HasPrefix(exp[index - 1].(string), "$") || exp[index - 1].(string) == "len" || exp[index - 1].(string) == "]")  {
+        if index - 1 != -1 && reflect.TypeOf(exp[index - 1]).String() != "main.Lex" && ((strings.HasPrefix(exp[index - 1].(string), "$") || exp[index - 1].(string) == "len" || exp[index - 1].(string) == "]"))  {
           proc_indexes = append(proc_indexes, index)
           continue
         }
@@ -824,31 +825,33 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
                 pCnt--;
               }
 
-              if exp[o] == ":" || exp[o] == ">:" {
+              if reflect.TypeOf(exp[o]).String() == "main.Lex" && exp[o].(Lex).Name == ":" {
                 doDeg = true
                 break
               }
 
-              if arrayContainInterfaceOperations(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && o != index + 1 {
+              if arrayContainInterfaceOperations(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
                 break
               }
 
               degree_ = append(degree_, exp[o])
             }
 
-            var degree []Action
+            var degree = []Action{}
+            var addDeg = 0
 
             if doDeg {
               degree = convToAct(degree_, dir)
+              addDeg = len(degree_) + 1
             }
 
             num1, _num1 := getLeft(index, exp, dir)
-            num2, _num2 := getRight(index + len(degree_) + 1, exp, dir)
+            num2, _num2 := getRight(index + addDeg, exp, dir)
 
             var act_exp = Action{ "similar", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 54, num1, num2, degree, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
             exp_ := append(exp[:index - len(_num1)], act_exp)
-            exp_ = append(exp_, exp[index + len(_num2) + len(degree_) + 1:]...)
+            exp_ = append(exp_, exp[index + len(_num2) + addDeg + 1:]...)
 
             exp = exp_
           case "~~~":
@@ -891,31 +894,33 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
                 pCnt--;
               }
 
-              if exp[o] == ":" || exp[o] == ">:" {
+              if reflect.TypeOf(exp[o]).String() == "main.Lex" && exp[o].(Lex).Name == ":" {
                 doDeg = true
                 break
               }
 
-              if arrayContainInterfaceOperations(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && o != index + 1 {
+              if arrayContainInterfaceOperations(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
                 break
               }
 
               degree_ = append(degree_, exp[o])
             }
 
-            var degree []Action
+            var degree = []Action{}
+            var addDeg = 0
 
             if doDeg {
               degree = convToAct(degree_, dir)
+              addDeg = len(degree_) + 1
             }
 
             num1, _num1 := getLeft(index, exp, dir)
-            num2, _num2 := getRight(index + len(degree_) + 1, exp, dir)
+            num2, _num2 := getRight(index + addDeg, exp, dir)
 
             var act_exp = Action{ "strictSimilar", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 55, num1, num2, degree, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
             exp_ := append(exp[:index - len(_num1)], act_exp)
-            exp_ = append(exp_, exp[index + len(_num2) + len(degree_) + 1:]...)
+            exp_ = append(exp_, exp[index + len(_num2) + addDeg + 1:]...)
 
             exp = exp_
         }

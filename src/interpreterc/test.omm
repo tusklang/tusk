@@ -1,16 +1,1 @@
-proc ~ haschar(test, y) {
-
-  if len(y) != 1 {
-    return ~ false;
-  }
-
-  each (test) {
-    if (v == y) {
-      return ~ true;
-    }
-  }
-
-  return ~ false;
-}
-
-log ~ #haschar('fwefw', 'j');
+log ~ 10 ~~ "10";

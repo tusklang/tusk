@@ -1258,13 +1258,12 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             //similar
 
             json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp
-            , degree = parser(actions[i]["Degree"], calc_params, vars, dir, false, line, true).exp;
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
 
             json retval;
 
-            if (degree.size() == 0) retval = similarity(first, second, zero, calc_params, vars, dir, line);
-            else retval = similarity(first, second, degree, calc_params, vars, dir, line);
+            if (actions[i]["Degree"].size() == 0) retval = similarity(first, second, zero, calc_params, vars, dir, line);
+            else retval = similarity(first, second, parser(actions[i]["Degree"], calc_params, vars, dir, false, line, true).exp, calc_params, vars, dir, line);
 
             if (expReturn) {
               Returner ret;
@@ -1285,13 +1284,12 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             //strictSimilar
 
             json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp
-            , degree = parser(actions[i]["Degree"], calc_params, vars, dir, false, line, true).exp;
+            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
 
             json retval;
 
-            if (degree.size() == 0) retval = strictSimilarity(first, second, zero, calc_params, vars, dir, line);
-            else retval = strictSimilarity(first, second, degree, calc_params, vars, dir, line);
+            if (actions[i]["Degree"].size() == 0) retval = strictSimilarity(first, second, zero, calc_params, vars, dir, line);
+            else retval = strictSimilarity(first, second, parser(actions[i]["Degree"], calc_params, vars, dir, false, line, true).exp, calc_params, vars, dir, line);
 
             if (expReturn) {
               Returner ret;
@@ -1309,7 +1307,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           break;
         case 56:  {
 
-            //# (call process)
+            //@ (call thread)
 
             string name = actions[i]["Name"];
 

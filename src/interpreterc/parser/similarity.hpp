@@ -48,13 +48,13 @@ json similarity(json val1, json val2, json degree, const json calc_params, json 
 
       if (degreeE != "0") {
         char* upper = AddStrings(&num1E[0], &degreeE[0], &calc_params.dump()[0], line);
-        char* lower = SubtractStrings(&degreeE[0], &num1E[0], &calc_params.dump()[0], line);
+        char* lower = SubtractStrings(&num1E[0], &degreeE[0], &calc_params.dump()[0], line);
 
         upperLess = ((bool) IsLessC(&num2E[0], upper)) || strcmp(ReturnInitC(&num2E[0]), ReturnInitC(upper)) == 0;
         lowerGreater = ((bool) IsLessC(lower, &num2E[0])) || strcmp(ReturnInitC(lower), ReturnInitC(&num2E[0])) == 0;
       } else {
 
-        //if it is 0, no need to add
+        //if it is 0, no need to add (also it serves as lazy equality)
         upperLess = strcmp(ReturnInitC(&num2E[0]), ReturnInitC(&num1E[0])) == 0;
         lowerGreater = strcmp(ReturnInitC(&num1E[0]), ReturnInitC(&num2E[0])) == 0;
       }
