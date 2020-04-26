@@ -2,14 +2,14 @@ const fs = require('fs')
 , path = require('path');
 
 var stdinBuffer = fs.readFileSync(0)
-, dir = stdinBuffer.toString().trim()
+, dir = stdinBuffer.toString().trim();
 
 //nested directory get
 if (dir.endsWith('*->')) {
 
   try {
 
-    var fileGet = (dir) => fs.readdirSync(dir).map(f => dir + (dir.endsWith('/') ? '' : '/') + f).filter(f => fs.lstatSync(f).isFile());
+    var fileGet = (dir) => fs.readdirSync(dir).filter(f =>  f.endsWith('.omm')).map(f => dir + (dir.endsWith('/') ? '' : '/') + f).filter(f => fs.lstatSync(f).isFile());
     var dirGet = (dir) => fs.readdirSync(dir).map(d => dir + (dir.endsWith('/') ? '' : '/') + d).filter(d => fs.lstatSync(d).isDirectory()).map(getAll);
 
     function getAll(dir) {
@@ -21,7 +21,7 @@ if (dir.endsWith('*->')) {
 
     var files = getAll(dir.slice(0, -3)).flat(Infinity).map(f => fs.readFileSync(f, 'utf8'));
 
-    console.log(files);
+    console.log(JSON.stringify(files));
   } catch (e) {
     console.log(e)
     console.log('Error: cannot import directory ' + dir.slice(0, -3));
@@ -32,14 +32,19 @@ if (dir.endsWith('*->')) {
   try {
     fs.readdir(dir.slice(0, -1), (err, files) => {
 
-      if (err) {
+      try {
+        if (err) {
+          console.log('Error: cannot import directory ' + dir.slice(0, -1));
+          process.exit(1);
+        }
+
+        files = files.filter(f => f.endsWith('.omm') && fs.lstatSync(dir.slice(0, -1) + f).isFile());
+
+        console.log(JSON.stringify(files.map(f => fs.readFileSync(dir.slice(0, -1) + f, 'utf8'))));
+      } catch {
         console.log('Error: cannot import directory ' + dir.slice(0, -1));
         process.exit(1);
       }
-
-      files = files.filter(f => f.endsWith('.omm') && fs.lstatSync(f).isFile());
-
-      console.log(JSON.stringify(files.map(f => fs.readFileSync(dir.slice(0, -1) + f, 'utf8'))));
     });
   } catch {
     console.log('Error: cannot import directory ' + dir.slice(0, -1));

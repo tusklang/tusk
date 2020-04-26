@@ -171,5 +171,8 @@ for (let i = 0; i < keywords.length; i++) {
   }
 }
 
+//remove all newlines, since they are useless now
+lex = lex.filter(l => l.Name != 'newlineN');
+
 // send data through stdout back to go process
 console.log(JSON.stringify(lex));

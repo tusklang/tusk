@@ -3,8 +3,6 @@ package main
 import "strings"
 import "strconv"
 import "reflect"
-import "encoding/json"
-import "fmt"
 
 // #cgo CFLAGS: -std=c99
 import "C"
@@ -44,10 +42,6 @@ var operations = []string{ "+", "-", "*", "/", "^", "%", "&", "|", "=", "!=", ">
 
 func convToAct(_val []interface{}, dir string) []Action {
   var val []Action
-
-  t, _ := json.MarshalIndent(_val, "", "  ");
-
-  fmt.Println(string(t))
 
   if reflect.TypeOf(_val[0]).String() == "main.Lex" {
 
@@ -495,7 +489,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
         index := interfaceIndexOfWithProcIndex("(", exp, proc_indexes)
 
-        if index - 1 != -1 && reflect.TypeOf(exp[index - 1]).String() != "main.Lex" && ((strings.HasPrefix(exp[index - 1].(string), "$") || exp[index - 1].(string) == "len" || exp[index - 1].(string) == "]"))  {
+        if index - 1 != -1 && reflect.TypeOf(exp[index - 1]).String() != "main.Lex" && ((strings.HasPrefix(exp[index - 1].(string), "$") || exp[index - 1].(string) == "]"))  {
           proc_indexes = append(proc_indexes, index)
           continue
         }
@@ -1588,7 +1582,14 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         //remove the quotes
         fileDir = fileDir[1:len(fileDir) - 1]
 
-        var files = readFileJS(dir + fileDir)
+        var files []string
+
+        //see if user wants to import a fire from the basedir
+        if strings.HasPrefix(fileDir, "?~") {
+          files = readFileJS("./" + fileDir[2:])
+        } else {
+          files = readFileJS(dir + fileDir)
+        }
 
         var lexxed [][]Lex
 

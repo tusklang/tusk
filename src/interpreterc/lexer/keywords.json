@@ -90,13 +90,6 @@
     "type": "id"
   },
   {
-    "name": "len",
-    "remove": "len",
-    "pattern": "(len\\()",
-    "type": "id",
-    "pre_prohib_soft": ["#"]
-  },
-  {
     "name": "~~~",
     "remove": "~~~",
     "pattern": "((~~~))",
