@@ -111,7 +111,6 @@ func getLeft(index int, exp []interface{}, dir string) ([]Action, []interface{})
     _num1 = append(_num1, exp[o])
   }
 
-
   reverseInterface(_num1)
 
   num1 := convToAct(_num1, dir)
@@ -489,7 +488,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
         index := interfaceIndexOfWithProcIndex("(", exp, proc_indexes)
 
-        if index - 1 != -1 && reflect.TypeOf(exp[index - 1]).String() != "main.Lex" && ((strings.HasPrefix(exp[index - 1].(string), "$") || exp[index - 1].(string) == "]"))  {
+        if index - 1 != -1 && (reflect.TypeOf(exp[index - 1]).String() != "main.Lex" || ((strings.HasPrefix(exp[index - 1].(Lex).Name, "$") || exp[index - 1].(Lex).Name == "]")))  {
           proc_indexes = append(proc_indexes, index)
           continue
         }
@@ -927,7 +926,15 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
       }
 
       if reflect.TypeOf(exp[0]).String() == "main.Lex" {
-        exp[0] = actionizer([]Lex{ exp[0].(Lex) }, false, dir)[0]
+
+        //variale that grets convved to a []Lex
+        var toa []Lex
+
+        for _, v := range exp {
+          toa = append(toa, v.(Lex))
+        }
+
+        exp[0] = actionizer(toa, false, dir)[0]
       }
 
       actions = append(actions, exp[0].(Action))

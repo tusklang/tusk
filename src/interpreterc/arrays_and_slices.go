@@ -1,6 +1,7 @@
 package main
 
 import "strings"
+import "reflect"
 
 func arrayContain(arr []string, sub string) bool {
 
@@ -204,8 +205,12 @@ func interfaceContainForExp(inter []interface{}, _sub []string) bool {
 
     v := inter[o]
 
+    if reflect.TypeOf(v).String() != "main.Lex" {
+      continue
+    }
+
     //prevent parenthesis after process declarations from being counted as expression parenthesis
-    if o > 0 && (strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "process") && v.(Lex).Name == "(" {
+    if o > 0 && !(strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "process") && v.(Lex).Name == "(" {
 
       scbCnt := 0
       sglCnt := 0
@@ -280,6 +285,13 @@ func interfaceContainForExp(inter []interface{}, _sub []string) bool {
     if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
 
       for _, i := range sub {
+
+        if i == "(" {
+          if o > 0 && (strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "process") {
+            continue
+          }
+        }
+
         if i == v.(Lex).Name {
           return true
         }

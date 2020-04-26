@@ -1,4 +1,3 @@
 import ~ '?~stdlib/*->';
 
-log ~ #len('s');
-log ~ 'tst';
+log ~ #haschar('fs', 'f')
