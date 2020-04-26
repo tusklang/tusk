@@ -1,0 +1,3 @@
+proc ~ test(s) {
+  return ~ 'N';
+}

@@ -3,6 +3,8 @@ package main
 import "strings"
 import "strconv"
 import "reflect"
+import "encoding/json"
+import "fmt"
 
 // #cgo CFLAGS: -std=c99
 import "C"
@@ -42,6 +44,10 @@ var operations = []string{ "+", "-", "*", "/", "^", "%", "&", "|", "=", "!=", ">
 
 func convToAct(_val []interface{}, dir string) []Action {
   var val []Action
+
+  t, _ := json.MarshalIndent(_val, "", "  ");
+
+  fmt.Println(string(t))
 
   if reflect.TypeOf(_val[0]).String() == "main.Lex" {
 
@@ -1579,6 +1585,9 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
         var fileDir = lex[i + 2].Name
 
+        //remove the quotes
+        fileDir = fileDir[1:len(fileDir) - 1]
+
         var files = readFileJS(dir + fileDir)
 
         var lexxed [][]Lex
@@ -1594,7 +1603,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         }
 
         actions = append(actions, Action{ "import", "", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 14, []Action{}, []Action{}, []Action{}, actionizedFiles, [][]Action{}, make(map[string][]Action), false })
-        i+=(2 + len(fileDir))
+        i+=3
       case "read":
         var phrase = []Lex{}
 

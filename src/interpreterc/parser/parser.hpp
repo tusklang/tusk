@@ -327,9 +327,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               json pVars = parsed.variables;
 
               //filter the variables that are not global
-              for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-                if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
-                  vars[o.value()["name"].get<string>()] = o.value();
+              for (auto& o : pVars.items())
+                if (o.value()["type"] == "global" || o.value()["type"] == "process")
+                  vars[o.key()] = o.value();
             }
           }
           break;
