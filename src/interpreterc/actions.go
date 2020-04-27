@@ -3,6 +3,7 @@ package main
 import "strings"
 import "strconv"
 import "reflect"
+import "fmt"
 
 // #cgo CFLAGS: -std=c99
 import "C"
@@ -54,6 +55,8 @@ func convToAct(_val []interface{}, dir string) []Action {
     val = actionizer(num, true, dir)
 
   } else {
+
+    fmt.Println(_val)
 
     for _, v := range _val {
       val = append(val, v.(Action))
@@ -588,9 +591,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
           }
         }
 
-        exp_ := append(exp[:index], pExpAct[0])
-        exp_ = append(exp_, exp[index + len(pExp) + 2:]...)
-        exp = exp_
+        exp = append([]interface{}{ pExpAct[0] }, exp...)
       }
 
       for ;interfaceContainOperations(exp, "!"); {
@@ -1461,8 +1462,15 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
           }
 
           cond := actionizer(cond_, true, dir)
+
           cbCnt := 0
+          glCnt := 0
+          bCnt := 0
+          pCnt = 0
+
           actions_ := []Lex{}
+
+          var curlyBraceCond = lex[i + 1 + len(cond_)].Name == "{"
 
           for o := i + 1 + len(cond_); o < len_lex; o++ {
             if lex[o].Name == "{" {
@@ -1472,20 +1480,46 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
               cbCnt--
             }
 
+            if lex[o].Name == "[:" {
+              glCnt++
+            }
+            if lex[o].Name == ":]" {
+              glCnt--
+            }
+
+            if lex[o].Name == "[" {
+              bCnt++
+            }
+            if lex[o].Name == "]" {
+              bCnt--
+            }
+
+            if lex[o].Name == "(" {
+              pCnt++
+            }
+            if lex[o].Name == ")" {
+              pCnt--
+            }
+
             actions_ = append(actions_, lex[o])
 
-            if cbCnt == 0 {
+            if !curlyBraceCond {
+
+              if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
+                break
+              }
+            } else if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
               break
             }
           }
 
-          actions := actionizer(actions_, false, dir)
+          acts := actionizer(actions_, false, dir)
 
-          var if_ = Condition{ "if", cond, actions }
+          var if_ = Condition{ "if", cond, acts }
 
           conditions = append(conditions, if_)
 
-          i+=(1 + len(cond_) + len(actions_))
+          i+=(1 + len(cond_) + len(acts))
 
           if i >= len_lex {
             break
@@ -1514,8 +1548,15 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
             }
 
             cond := actionizer(cond_, true, dir)
+
             cbCnt := 0
+            glCnt := 0
+            bCnt := 0
+            pCnt = 0
+
             actions_ := []Lex{}
+
+            var curlyBraceCond = lex[i + 1 + len(cond_)].Name == "{"
 
             for o := i + 1 + len(cond_); o < len_lex; o++ {
               if lex[o].Name == "{" {
@@ -1525,20 +1566,46 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
                 cbCnt--
               }
 
+              if lex[o].Name == "[:" {
+                glCnt++
+              }
+              if lex[o].Name == ":]" {
+                glCnt--
+              }
+
+              if lex[o].Name == "[" {
+                bCnt++
+              }
+              if lex[o].Name == "]" {
+                bCnt--
+              }
+
+              if lex[o].Name == "(" {
+                pCnt++
+              }
+              if lex[o].Name == ")" {
+                pCnt--
+              }
+
               actions_ = append(actions_, lex[o])
 
-              if cbCnt == 0 {
+              if !curlyBraceCond {
+
+                if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
+                  break
+                }
+              } else if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
                 break
               }
             }
 
-            actions := actionizer(actions_, false, dir)
+            acts := actionizer(actions_, false, dir)
 
-            var elseif_ = Condition{ "elseif", cond, actions }
+            var elseif_ = Condition{ "elseif", cond, acts }
 
             conditions = append(conditions, elseif_)
 
-            i+=(1 + len(cond_) + len(actions_))
+            i+=(1 + len(cond_) + len(acts))
 
             if i >= len_lex {
               break
@@ -1551,6 +1618,12 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
           for ;lex[i].Name == "else"; {
             cbCnt := 0
+            glCnt := 0
+            bCnt := 0
+            pCnt := 0
+
+            //allow for user to write: else ~ <do something>;
+            var curlyBraceCond = lex[i + 1].Name == "{"
 
             for o := i + 1; o < len_lex; o++ {
               if lex[o].Name == "{" {
@@ -1560,11 +1633,41 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
                 cbCnt--
               }
 
-              if cbCnt == 0 {
+              if lex[o].Name == "[:" {
+                glCnt++
+              }
+              if lex[o].Name == ":]" {
+                glCnt--
+              }
+
+              if lex[o].Name == "[" {
+                bCnt++
+              }
+              if lex[o].Name == "]" {
+                bCnt--
+              }
+
+              if lex[o].Name == "(" {
+                pCnt++
+              }
+              if lex[o].Name == ")" {
+                pCnt--
+              }
+
+              if !curlyBraceCond {
+
+                if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
+                  break
+                }
+              } else if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
                 break
               }
 
               actions_ = append(actions_, lex[o])
+            }
+
+            if !curlyBraceCond {
+              actions_ = actions_[1:]
             }
 
             actions := actionizer(actions_, false, dir)
@@ -1582,6 +1685,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         }
 
         actions = append(actions, Action{ "conditional", "", []string{}, []Action{}, []string{}, []Action{}, conditions, 13, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        i--
       case "import":
 
         var fileDir = lex[i + 2].Name
@@ -1781,7 +1885,12 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         condition := actionizer(condition_, true, dir)
         action_ := []Lex{}
 
+        var curlyBraceCond = lex[i + 1 + len(condition_)].Name == "{"
+
         cbCnt := 0
+        glCnt := 0
+        bCnt := 0
+        pCnt = 0
 
         for o := i + 1 + len(condition_); o < len_lex; o++ {
           if lex[o].Name == "{" {
@@ -1791,9 +1900,35 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
             cbCnt--
           }
 
+          if lex[o].Name == "[:" {
+            glCnt++
+          }
+          if lex[o].Name == ":]" {
+            glCnt--
+          }
+
+          if lex[o].Name == "[" {
+            bCnt++
+          }
+          if lex[o].Name == "]" {
+            bCnt--
+          }
+
+          if lex[o].Name == "(" {
+            pCnt++
+          }
+          if lex[o].Name == ")" {
+            pCnt--
+          }
+
           action_ = append(action_, lex[o])
 
-          if cbCnt == 0 {
+          if !curlyBraceCond {
+
+            if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
+              break
+            }
+          } else if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
             break
           }
         }
@@ -2364,6 +2499,8 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
         var exp []Lex
 
+        var curlyBraceCond = lex[i + 1 + len(condition_)].Name == "{"
+
         for o := i; o < len_lex; o++ {
           if lex[o].Name == "{" {
             cbCnt++
@@ -2395,9 +2532,12 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
           exp = append(exp, lex[o])
 
-          i = o
+          if !curlyBraceCond {
 
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+            if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
+              break
+            }
+          } else if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
             break
           }
         }

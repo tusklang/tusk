@@ -1,3 +1,1 @@
-import ~ '?~stdlib/*->';
-
-log ~ #haschar('sf', 'f');
+log ~ 2 / 3 + 1

@@ -359,7 +359,7 @@
   {
     "name": "else",
     "remove": "else",
-    "pattern": "(else\\{)",
+    "pattern": "(else(\\{|\\~))",
     "type": "cond"
   },
   {
