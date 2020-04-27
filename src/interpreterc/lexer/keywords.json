@@ -17,7 +17,7 @@
     "name": "->",
     "remove": "->",
     "pattern": "(\\-\\>)",
-    "type": "id",
+    "type": "operation",
     "pre_or_necc": ["string", "number", "boolean", "falsey", "hash", "array", "bool", "num"]
   },
   {
@@ -93,13 +93,13 @@
     "name": "~~~",
     "remove": "~~~",
     "pattern": "((~~~))",
-    "type": "id"
+    "type": "comparison"
   },
   {
     "name": "~~",
     "remove": "~~",
     "pattern": "(~~)",
-    "type": "id"
+    "type": "comparison"
   },
   {
     "name": "dynamic",
@@ -137,7 +137,9 @@
     "name": "^",
     "remove": "**",
     "pattern": "(\\*\\*)",
-    "type": "operation"
+    "type": "math",
+    "post_prohib": ["*operation", "*comparison", "*math"],
+    "pre_prohib": ["*operation", "*comparison", "*math"]
   },
   {
     "name": ".",
@@ -168,7 +170,8 @@
     "remove": "~",
     "pattern": "\\~",
     "type": "operation",
-    "pre_or_necc": ["*keyword"]
+    "pre_or_necc": ["*keyword"],
+    "pre_prohib": ["$none"]
   },
   {
     "name": "[:",
@@ -213,50 +216,64 @@
     "remove": "+",
     "pattern": "\\+",
     "type": "math",
-    "pre_prohib_soft": ["\\+", "\\-", "\\*", "\\/", "\\^", "\\~", "\\<", "\\>", "\\=", "\\!", "\\&", "\\|", "\\%", "\n", "\\:", "$none"]
+    "pre_prohib_soft": ["\\+", "\\-", "\\*", "\\/", "\\^", "\\~", "\\<", "\\>", "\\=", "\\!", "\\&", "\\|", "\\%", "\n", "\\:", "$none"],
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": "-",
     "remove": "-",
     "pattern": "\\-",
     "type": "math",
-    "pre_prohib_soft": ["\\+", "\\-", "\\*", "\\/", "\\^", "\\~", "\\<", "\\>", "\\=", "\\!", "\\&", "\\|", "\\%", "\n", "\\:", "$none"]
+    "pre_prohib_soft": ["\\+", "\\-", "\\*", "\\/", "\\^", "\\~", "\\<", "\\>", "\\=", "\\!", "\\&", "\\|", "\\%", "\n", "\\:", "$none"],
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": "*",
     "remove": "*",
     "pattern": "\\*",
-    "type": "math"
+    "type": "math",
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": "/",
     "remove": "/",
     "pattern": "\\/",
-    "type": "math"
+    "type": "math",
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": "%",
     "remove": "%",
     "pattern": "\\%",
-    "type": "math"
+    "type": "math",
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": "^",
     "remove": "^",
     "pattern": "\\^",
-    "type": "math"
+    "type": "math",
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": "(",
     "remove": "(",
     "pattern": "\\(",
-    "type": "operation"
+    "type": "operation",
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": ")",
     "remove": ")",
     "pattern": "\\)",
-    "type": "operation"
+    "type": "operation",
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": "{",
@@ -396,43 +413,57 @@
     "name": "<=",
     "remove": "<=",
     "pattern": "(\\<\\=)",
-    "type": "comparison"
+    "type": "comparison",
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": ">=",
     "remove": ">=",
     "pattern": "(\\>\\=)",
-    "type": "comparison"
+    "type": "comparison",
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": ">",
     "remove": ">",
     "pattern": "\\>",
-    "type": "comparison"
+    "type": "comparison",
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": "<",
     "remove": "<",
     "pattern": "\\<",
-    "type": "comparison"
+    "type": "comparison",
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": "!=",
     "remove": "!=",
     "pattern": "(\\!\\=)",
-    "type": "comparison"
+    "type": "comparison",
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": "=",
     "remove": "==",
     "pattern": "(\\=\\=)",
-    "type": "comparison"
+    "type": "comparison",
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": "=",
     "remove": "=",
     "pattern": "\\=",
-    "type": "comparison"
+    "type": "comparison",
+    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
+    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
   },
   {
     "name": "import",

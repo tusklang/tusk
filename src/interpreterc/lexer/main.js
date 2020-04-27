@@ -9,170 +9,178 @@ global.MAX_CUR_EXP_SIZE = 15;
 var stdinBuffer = fs.readFileSync(0)
 , file = stdinBuffer.toString();
 
-file = require('./procInit')(file);
+global.lexer = (file) => {
+  file = require('./procInit')(file);
 
-const copyFile = file;
+  const copyFile = file;
 
-var lex = []
-, line = 1
+  var lex = []
+  , line = 1
 
-//cur exp is the current expression (to help locate the error)
-, curExp = '';
+  //cur exp is the current expression (to help locate the error)
+  , curExp = '';
 
-for (let i = 0; i < keywords.length; i++) {
+  for (let i = 0; i < keywords.length; i++) {
 
-  if (file.length == 0) break;
+    if (file.length == 0) break;
 
-  while (curExp.length > MAX_CUR_EXP_SIZE) curExp = curExp.substr(1);
+    while (curExp.length > MAX_CUR_EXP_SIZE) curExp = curExp.substr(1);
 
-  if (new RegExp('^' + keywords[i].pattern).test(file)) curExp+=keywords[i].remove;
+    if (testKey(copyFile, file, keywords[i], line, curExp, lex)) {
 
-  if (testKey(copyFile, file, keywords[i], line, curExp)) {
+      curExp+=keywords[i].remove;
 
-    //if it is a newline then increment line
-    if (keywords[i].name == 'newlineN') line++;
+      //if it is a newline then increment line
+      if (keywords[i].name == 'newlineN') line++;
 
-    file = file.substr(keywords[i].remove.length);
-    lex.push({
-      Name: keywords[i].name,
-      Exp: curExp,
-      Line: line
-    });
-    i = -1;
-    continue;
-  }
-
-  if (i + 1 == keywords.length) {
-
-    if (/^(\'|\"|\`)/.test(file)) {
-
-      var typeOfQ = ''
-      , exp = ''
-
-      for (let o = 0; o < file.length; o++) {
-        if (file[o] == '\'') {
-          if (typeOfQ == '\'') {
-            typeOfQ = '';
-          } else if (typeOfQ == '') {
-            typeOfQ = '\'';
-          }
-        }
-
-        if (file[o] == '\"') {
-          if (typeOfQ == '\"') {
-            typeOfQ = '';
-          } else if (typeOfQ == '') {
-            typeOfQ = '\"';
-          }
-        }
-
-        if (file[o] == '\`') {
-          if (typeOfQ == '\`') {
-            typeOfQ = '';
-          } else if (typeOfQ == '') {
-            typeOfQ = '\`';
-          }
-        }
-
-        exp+=file[o];
-
-        if (typeOfQ == '') {
-          break;
-        }
-      }
-
-      //increase line by amount of newlines in the string
-      line+=exp.split('\n').length - 1;
-
-      curExp+=exp;
-
+      file = file.substr(keywords[i].remove.length);
       lex.push({
-        Name: '\'' + exp.substr(1).slice(0, -1) + '\'',
+        Name: keywords[i].name,
         Exp: curExp,
         Line: line
       });
-
-      file = file.substr(exp.length);
-
       i = -1;
       continue;
-    } else if (/^(\d|\-|\+|\.)/.test(file)) {
+    }
 
-      var num = '';
+    if (i + 1 == keywords.length) {
 
-      if (/^(\-|\+)/.test(file)) {
-        num+=file[0];
-        file = file.substr(1)
-      }
+      if (/^(\'|\"|\`)/.test(file)) {
 
-      while (/^(\d|\.)+/.test(file)) {
-        num+=file[0];
+        var typeOfQ = ''
+        , exp = ''
 
-        file = file.substr(1);
-      }
+        for (let o = 0; o < file.length; o++) {
+          if (file[o] == '\'') {
+            if (typeOfQ == '\'') {
+              typeOfQ = '';
+            } else if (typeOfQ == '') {
+              typeOfQ = '\'';
+            }
+          }
 
-      if (num == '-' || num == '+') num+='1';
+          if (file[o] == '\"') {
+            if (typeOfQ == '\"') {
+              typeOfQ = '';
+            } else if (typeOfQ == '') {
+              typeOfQ = '\"';
+            }
+          }
 
-      if (num.endsWith('.') && file.startsWith('[')) {
-        num = num.slice(0, -1);
+          if (file[o] == '\`') {
+            if (typeOfQ == '\`') {
+              typeOfQ = '';
+            } else if (typeOfQ == '') {
+              typeOfQ = '\`';
+            }
+          }
+
+          exp+=file[o];
+
+          if (typeOfQ == '') {
+            break;
+          }
+        }
+
+        //increase line by amount of newlines in the string
+        line+=exp.split('\n').length - 1;
+
+        curExp+=exp;
+
         lex.push({
+          Name: '\'' + exp.substr(1).slice(0, -1) + '\'',
+          Exp: curExp,
+          Line: line
+        });
+
+        file = file.substr(exp.length);
+
+        i = -1;
+        continue;
+      } else if (/^(\d|\-|\+|\.)/.test(file)) {
+
+        var num = '';
+
+        if (/^(\-|\+)/.test(file)) {
+          num+=file[0];
+          file = file.substr(1)
+        }
+
+        while (/^(\d|\.)+/.test(file)) {
+          num+=file[0];
+
+          file = file.substr(1);
+        }
+
+        if (num == '-' || num == '+') num+='1';
+
+        if (num.startsWith('+')) num = num.substr(1);
+
+        curExp+=num;
+
+        if (num.endsWith('.') && file.startsWith('[')) {
+          num = num.slice(0, -1);
+          lex.push({
+            Name: num,
+            Exp: curExp,
+            Line: line
+          });
+          lex.push({
+            Name: '.',
+            Exp: curExp,
+            Line: line
+          });
+        } else lex.push({
           Name: num,
           Exp: curExp,
           Line: line
         });
-        lex.push({
-          Name: '.',
+
+        if (file.startsWith('(')) lex.push({
+          Name: '*',
           Exp: curExp,
           Line: line
         });
-      } else lex.push({
-        Name: num,
-        Exp: curExp,
-        Line: line
-      });
 
-      curExp+=num;
+        i = -1;
+        continue;
+      } else {
 
-      if (file.startsWith('(')) lex.push({
-        Name: '*',
-        Exp: curExp,
-        Line: line
-      });
+        var name = '';
 
-      i = -1;
-      continue;
-    } else {
+        count: for (let o = 0; o < file.length; o++) {
 
-      var name = '';
+          for (let j = 0; j < keywords.length; j++) {
+            let pattern = new RegExp(keywords[j].pattern);
 
-      count: for (let o = 0; o < file.length; o++) {
+            if (file.substr(o).search(pattern) == 0) break count;
+          }
 
-        for (let j = 0; j < keywords.length; j++) {
-          let pattern = new RegExp(keywords[j].pattern);
-
-          if (file.substr(o).search(pattern) == 0) break count;
+          name+=file[o];
         }
 
-        name+=file[o];
+        file = file.substr(name.length);
+        lex.push({
+          Name: '$' + name,
+          Exp: curExp,
+          Line: line
+        });
+
+        curExp+=name;
+
+        i = -1;
+        continue;
       }
-
-      file = file.substr(name.length);
-      lex.push({
-        Name: '$' + name,
-        Exp: curExp,
-        Line: line
-      });
-
-      curExp+='$' + name;
-
-      i = -1;
-      continue;
     }
   }
+
+  //remove all newlines, since they are useless now
+  lex = lex.filter(l => l.Name != 'newlineN');
+
+  return lex;
 }
 
-//remove all newlines, since they are useless now
-lex = lex.filter(l => l.Name != 'newlineN');
+var lex = lexer(file);
 
 // send data through stdout back to go process
 console.log(JSON.stringify(lex));
