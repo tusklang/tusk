@@ -174,8 +174,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
         case 10: {
 
             //process
-
-            string name = actions[i]["Name"];
+                                                             /* process overloading */
+            string name = actions[i]["Name"].get<string>() + to_string(actions[i]["Params"].size());
 
             if (name != "") {
               json acts = actions[i]["ExpAct"];
@@ -186,6 +186,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                 {"value", actions[i]},
                 {"valueActs", json::parse("[]")}
               };
+
               vars[name] = nVar;
             }
 
@@ -200,7 +201,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //# (call process)
 
-            string name = actions[i]["Name"];
+                                                             /* process overloading */
+            string name = actions[i]["Name"].get<string>() + to_string(actions[i]["Args"].size());
 
             Returner parsed;
 

@@ -1,8 +1,9 @@
-import ~ "stdlib/utils/len.omm";
+import ~ "?~stdlib/utils/len.omm";
 
 proc ~ haschar(main, inc) {
-  each (main)
+  each (main) {
     if (v = inc) return ~ true;
+  }
 
   return ~ false;
 }
