@@ -25,6 +25,23 @@ func arrayContainInterface(arr []string, sub interface{}) bool {
   return false;
 }
 
+func arrayContainInterfaceLexStr(arr []string, sub interface{}) bool {
+
+  loop:
+  for i := 0; i < len(arr); i++ {
+
+    switch sub.(type) {
+      case Action: continue loop
+    }
+
+    if arr[i] == sub.(Lex).Name {
+      return true
+    }
+  }
+
+  return false;
+}
+
 func arrayContainInterfaceOperations(arr []string, sub interface{}) bool {
 
   loop:
@@ -105,6 +122,11 @@ func interfaceIndexOf(sub interface{}, inter []interface{}) int {
 
 func interfaceContainOperations(inter []interface{}, sub interface{}) bool {
 
+  cbCnt := 0
+  glCnt := 0
+  bCnt := 0
+  pCnt := 0
+
   loop:
   for _, a := range inter {
 
@@ -113,7 +135,35 @@ func interfaceContainOperations(inter []interface{}, sub interface{}) bool {
         continue loop
     }
 
-    if a.(Lex).Name == sub {
+    if a.(Lex).Name == "{" {
+      cbCnt++;
+    }
+    if a.(Lex).Name == "}" {
+      cbCnt--;
+    }
+
+    if a.(Lex).Name == "[:" {
+      glCnt++;
+    }
+    if a.(Lex).Name == ":]" {
+      glCnt--;
+    }
+
+    if a.(Lex).Name == "[" {
+      bCnt++;
+    }
+    if a.(Lex).Name == "]" {
+      bCnt--;
+    }
+
+    if a.(Lex).Name == "(" {
+      pCnt++;
+    }
+    if a.(Lex).Name == ")" {
+      pCnt--;
+    }
+
+    if a.(Lex).Name == sub && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
       return true
     }
   }
@@ -122,6 +172,12 @@ func interfaceContainOperations(inter []interface{}, sub interface{}) bool {
 }
 
 func interfaceIndexOfOperations(sub interface{}, inter []interface{}) int {
+
+  cbCnt := 0
+  glCnt := 0
+  bCnt := 0
+  pCnt := 0
+
   loop:
   for k, a := range inter {
 
@@ -130,7 +186,35 @@ func interfaceIndexOfOperations(sub interface{}, inter []interface{}) int {
         continue loop
     }
 
-    if a.(Lex).Name == sub {
+    if a.(Lex).Name == "{" {
+      cbCnt++;
+    }
+    if a.(Lex).Name == "}" {
+      cbCnt--;
+    }
+
+    if a.(Lex).Name == "[:" {
+      glCnt++;
+    }
+    if a.(Lex).Name == ":]" {
+      glCnt--;
+    }
+
+    if a.(Lex).Name == "[" {
+      bCnt++;
+    }
+    if a.(Lex).Name == "]" {
+      bCnt--;
+    }
+
+    if a.(Lex).Name == "(" {
+      pCnt++;
+    }
+    if a.(Lex).Name == ")" {
+      pCnt--;
+    }
+
+    if a.(Lex).Name == sub && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
       return k
     }
   }
