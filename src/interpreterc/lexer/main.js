@@ -37,7 +37,7 @@ var lexer = (file) => {
           OName: KEYWORDS[o].remove
         });
 
-        i+=KEYWORDS[o].remove.length - 1;
+        if (KEYWORDS[o].name != 'newlineN') i+=KEYWORDS[o].remove.length - 1;
         continue outer;
       }
 
@@ -53,7 +53,7 @@ var lexer = (file) => {
       , value = ''
       , escaped = false;
 
-      for (let o = i + 1; o < file.length; o++) {
+      for (let o = i + 1; o < file.length; o++, i++) {
         if (escaped) escaped = false;
 
         //if it is escape character, set escaped to true
@@ -62,10 +62,9 @@ var lexer = (file) => {
         if (file.substr(o)[0] == qType && !escaped) break;
 
         value+=file[o];
-        i++;
       }
 
-      i--;
+      i++;
       curExp+=value;
       line+=value.match(/\n/g) == null ? 0 : value.match(/\n/g).length;
 
@@ -74,7 +73,7 @@ var lexer = (file) => {
         Exp: curExp,
         Line: line,
         Type: 'string',
-        OName: value
+        OName: '\'' + value + '\''
       });
       continue;
     } else if (/^(\d|\+|\-)/.test(file.substr(i))) {
@@ -169,9 +168,9 @@ var lexer = (file) => {
     if (lex[i - 1] && v.Type[0] != '?' && v.Type != 'newline') {
       if (v.Type == lex[i - 1].Type) {
         console.log(
-          `Error while lexing! \nUnexpected token: \"${v.OName}\" on line ${v.Line}`,
+          `Error while lexing! \nUnexpected token: \"${v.OName.trim()}\" on line ${v.Line}`,
           `\n\nFound near: ${v.Exp.trim()}`,
-          `\n           ${' '.repeat(v.Exp.indexOf(v.OName))}${'^'.repeat(v.OName.length)}`,
+          `\n           ${' '.repeat(v.Exp.indexOf(v.OName) == -1 ? '' : v.Exp.indexOf(v.OName))}${'^'.repeat(v.OName.length)}`,
           `\nAdvanced Info: Two tokens of the type \"${v.Type}\" were detected adjacent to each other`
         );
         process.exit(1);

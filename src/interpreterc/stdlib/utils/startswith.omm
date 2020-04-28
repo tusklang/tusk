@@ -1,0 +1,12 @@
+import ~ '?~stdlib/utils/len.omm';
+
+proc ~ startsWith(main, inc) {
+
+  if (#len(inc) > #len(main)) return ~ false;
+
+  each (inc) {
+    if (v != main.[k]) return ~ false;
+  }
+
+  return ~ true;
+}

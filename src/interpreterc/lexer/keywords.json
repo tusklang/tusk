@@ -231,37 +231,37 @@
     "name": "(",
     "remove": "(",
     "pattern": "\\(",
-    "type": "paren"
+    "type": "?paren"
   },
   {
     "name": ")",
     "remove": ")",
     "pattern": "\\)",
-    "type": "paren"
+    "type": "?paren"
   },
   {
     "name": "{",
     "remove": "{",
     "pattern": "\\{",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": "}",
     "remove": "}",
     "pattern": "\\}",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": "[",
     "remove": "[",
     "pattern": "\\[",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": "]",
     "remove": "]",
     "pattern": "\\]",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": "wait",

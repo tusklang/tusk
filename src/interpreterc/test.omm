@@ -1,1 +1,4 @@
-log ~ !&&;
+import ~ '?~stdlib/*->';
+
+
+log ~ #startsWith('ss', 'f');

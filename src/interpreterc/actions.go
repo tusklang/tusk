@@ -634,7 +634,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
       for ;interfaceContainOperations(exp, "+") || interfaceContainOperations(exp, "-"); {
 
-        if interfaceIndexOfOperations("+", exp) < interfaceIndexOfOperations("-", exp) || interfaceIndexOfOperations("-", exp) == -1 {
+        if interfaceIndexOfOperations("+", exp) > interfaceIndexOfOperations("-", exp) || interfaceIndexOfOperations("-", exp) == -1 {
           index := interfaceIndexOfOperations("+", exp)
 
           num1, num2, _num1, _num2 := calcExp(index, exp, dir)
