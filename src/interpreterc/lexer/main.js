@@ -4,6 +4,7 @@ const
   fs = require('fs');
 
 global.KEYWORDS = require('./keywords.json');
+global.MAX_CUR_EXP = 12;
 
 var lexer = (file) => {
 
@@ -15,9 +16,9 @@ var lexer = (file) => {
   , line = 1;
 
   //loop through file
+  outer: for (let i = 0; i < file.length; i++) {
 
-  outer:
-  for (let i = 0; i < file.length; i++) {
+    while (curExp.length > MAX_CUR_EXP) curExp = curExp.substr(1);
 
     for (let o = 0; o < KEYWORDS.length; o++) {
 
@@ -27,7 +28,7 @@ var lexer = (file) => {
         //if it is a newline, increment "line"
         if (KEYWORDS[o].name == 'newlineN') line++;
 
-        curExp+=KEYWORDS[o].remove;
+        curExp += KEYWORDS[o].remove;
 
         lex.push({
           Name: KEYWORDS[o].name,
@@ -37,10 +38,9 @@ var lexer = (file) => {
           OName: KEYWORDS[o].remove
         });
 
-        if (KEYWORDS[o].name != 'newlineN') i+=KEYWORDS[o].remove.length - 1;
+        if (KEYWORDS[o].name != 'newlineN') i += KEYWORDS[o].remove.length - 1;
         continue outer;
       }
-
     }
 
     var substrfile = file.substr(i);
@@ -49,9 +49,9 @@ var lexer = (file) => {
     if (substrfile.startsWith('\"') || substrfile.startsWith('\'') || substrfile.startsWith('\`')) {
 
       //get quote type
-      let qType = substrfile[0]
-      , value = ''
-      , escaped = false;
+      let qType = substrfile[0],
+        value = '',
+        escaped = false;
 
       for (let o = i + 1; o < file.length; o++, i++) {
         if (escaped) escaped = false;
@@ -61,12 +61,12 @@ var lexer = (file) => {
 
         if (file.substr(o)[0] == qType && !escaped) break;
 
-        value+=file[o];
+        value += file[o];
       }
 
       i++;
-      curExp+=value;
-      line+=value.match(/\n/g) == null ? 0 : value.match(/\n/g).length;
+      curExp += value;
+      line += value.match(/\n/g) == null ? 0 : value.match(/\n/g).length;
 
       lex.push({
         Name: '\'' + value + '\'',
@@ -75,7 +75,7 @@ var lexer = (file) => {
         Type: 'string',
         OName: '\'' + value + '\''
       });
-      continue;
+      continue outer;
     } else if (/^(\d|\+|\-)/.test(file.substr(i))) {
 
       var sign = true;
@@ -94,7 +94,7 @@ var lexer = (file) => {
         if (sign) num = '1';
         else num = '-1';
 
-        curExp+=num;
+        curExp += num;
 
         i++;
 
@@ -105,16 +105,17 @@ var lexer = (file) => {
           Type: 'number',
           OName: num
         });
+        continue outer;
       }
 
       while (/^\d/.test(file.substr(i))) {
-        num+=file[i];
+        num += file[i];
         i++;
 
         if (i > file.length) break;
       }
 
-      curExp+=num;
+      curExp += num;
 
       i--;
 
@@ -130,16 +131,16 @@ var lexer = (file) => {
       var variable = '$';
 
       var_loop:
-      for (let o = i; o < file.length; o++) {
+        for (let o = i; o < file.length; o++) {
 
-        for (let j = 0; j < KEYWORDS.length; j++)
-          if (testkey(KEYWORDS[j], file, o)) break var_loop;
+          for (let j = 0; j < KEYWORDS.length; j++)
+            if (testkey(KEYWORDS[j], file, o)) break var_loop;
 
-        variable+=file[o];
-        i++;
-      }
+          variable += file[o];
+          i++;
+        }
 
-      curExp+=variable.substr(1);
+      curExp += variable.substr(1);
 
       i--;
       lex.push({
@@ -158,7 +159,8 @@ var lexer = (file) => {
     if (/\$true|\$false|\$undefined|\$null/.test(l.Name)) return {
       ...l,
       Name: l.Name.substr(1)
-    }; else return l;
+    };
+    else return l;
   });
 
   //determine if there is an error
@@ -170,7 +172,7 @@ var lexer = (file) => {
         console.log(
           `Error while lexing! \nUnexpected token: \"${v.OName.trim()}\" on line ${v.Line}`,
           `\n\nFound near: ${v.Exp.trim()}`,
-          `\n           ${' '.repeat(v.Exp.indexOf(v.OName) == -1 ? '' : v.Exp.indexOf(v.OName))}${'^'.repeat(v.OName.length)}`,
+          `\n            ${' '.repeat(v.Exp.indexOf(v.OName) == -1 ? '' : v.Exp.indexOf(v.OName))}${'^'.repeat(v.OName.length)}`,
           `\nAdvanced Info: Two tokens of the type \"${v.Type}\" were detected adjacent to each other`
         );
         process.exit(1);
