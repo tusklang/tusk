@@ -1,5 +1,5 @@
-import ~ '?~stdlib/utils/len.omm';
-import ~ '?~stdlib/utils/startswith.omm';
+import ~ '?~utils/len.omm';
+import ~ '?~utils/startswith.omm';
 
 proc ~ haschar(main, inc) {
 

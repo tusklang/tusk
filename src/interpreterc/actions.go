@@ -1672,7 +1672,13 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
         //see if user wants to import a fire from the basedir
         if strings.HasPrefix(fileDir, "?~") {
-          files = readFileJS("./" + fileDir[2:])
+
+          if strings.HasPrefix(fileDir[2:], "/") {
+            files = readFileJS("./stdlib" + fileDir[2:])
+          } else {
+            files = readFileJS("./stdlib/" + fileDir[2:])
+          }
+
         } else {
           files = readFileJS(dir + fileDir)
         }
@@ -2988,11 +2994,11 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
             i+=3
 
             if strings.HasPrefix(val, "$") {
-              actVal := actionizer([]Lex{ Lex{ val, []string{}, 0, "", "" } }, true, dir)
+              actVal := actionizer([]Lex{ Lex{ val, "", 0, "", "" } }, true, dir)
 
               actions = append(actions, Action{ "variableIndex", "", []string{}, actVal, []string{}, []Action{}, []Condition{}, 46, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false })
             } else {
-              actVal := actionizer([]Lex{ Lex{ val, []string{}, 0, "", "" } }, true, dir)
+              actVal := actionizer([]Lex{ Lex{ val, "", 0, "", "" } }, true, dir)
 
               actions = append(actions, Action{ "expressionIndex", "", []string{}, actVal, []string{}, []Action{}, []Condition{}, 8, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false })
             }

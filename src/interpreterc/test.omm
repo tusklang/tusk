@@ -1,4 +1,3 @@
-import ~ '?~stdlib/*->';
+import ~ '?~/*->';
 
-
-log ~ #startsWith('ss', 'f');
+log ~ has('s', 's');

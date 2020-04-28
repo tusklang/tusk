@@ -1,4 +1,4 @@
-import ~ '?~stdlib/utils/len.omm';
+import ~ '?~utils/len.omm';
 
 proc ~ startsWith(main, inc) {
 

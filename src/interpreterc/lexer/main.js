@@ -1,6 +1,6 @@
 const
   testkey = require('./testkey'),
-  procinit = require('./procinit')
+  processes = require('./processes')
   fs = require('fs');
 
 global.KEYWORDS = require('./keywords.json');
@@ -186,6 +186,10 @@ var stdinBuffer = fs.readFileSync(0)
 
 console.log(
   JSON.stringify(
-    lexer(procinit(f))
+    processes.insert_hashes(
+      lexer(
+        processes.init(f)
+      )
+    )
   )
 );
