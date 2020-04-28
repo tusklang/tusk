@@ -397,17 +397,6 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         i++
       }
 
-      if !interfaceContainForExp(exp, operations) {
-
-        var act_exp []Lex
-
-        for _, v := range exp {
-          act_exp = append(act_exp, v.(Lex))
-        }
-
-        return actionizer(act_exp, false, dir);
-      }
-
       for ;interfaceContainOperations(exp, "=") || interfaceContainOperations(exp, "!=") || interfaceContainOperations(exp, ">") || interfaceContainOperations(exp, "<") || interfaceContainOperations(exp, ">=") || interfaceContainOperations(exp, "<=") || interfaceContainOperations(exp, "~~") || interfaceContainOperations(exp, "~~~"); {
         indexes := map[string]int{
           "=": interfaceIndexOfOperations("=", exp),
@@ -749,12 +738,56 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
         index := interfaceIndexOfOperations("!", exp)
 
-        num2, _num2 := getRight(index, exp, dir)
+        var num []interface{}
 
-        var act_exp = Action{ "not", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 53, []Action{}, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
+        cbCnt := 0
+        glCnt := 0
+        bCnt := 0
+        pCnt := 0
+
+        for o := index + 1; o < len(exp); o++ {
+
+          if exp[o].(Lex).Name == "{" {
+            cbCnt++
+          }
+          if exp[o].(Lex).Name == "}" {
+            cbCnt--
+          }
+
+          if exp[o].(Lex).Name == "[" {
+            bCnt++
+          }
+          if exp[o].(Lex).Name == "]" {
+            bCnt--
+          }
+
+          if exp[o].(Lex).Name == "[:" {
+            glCnt++
+          }
+          if exp[o].(Lex).Name == ":]" {
+            glCnt--
+          }
+
+          if exp[o].(Lex).Name == "(" {
+            pCnt++
+          }
+          if exp[o].(Lex).Name == ")" {
+            pCnt--
+          }
+
+          if arrayContainInterface(operations, exp[o]) {
+            break
+          }
+
+          num = append(num, exp[o])
+        }
+
+        numAct := convToAct(num, dir)
+
+        var act_exp = Action{ "not", "operation", []string{}, []Action{}, []string{}, []Action{}, []Condition{}, 53, []Action{}, numAct, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
 
         exp_ := append(exp[:index], act_exp)
-        exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
+        exp_ = append(exp_, exp[index + len(num) + 1:]...)
 
         exp = exp_
       }
@@ -2955,11 +2988,11 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
             i+=3
 
             if strings.HasPrefix(val, "$") {
-              actVal := actionizer([]Lex{ Lex{ val, []string{}, 0 } }, true, dir)
+              actVal := actionizer([]Lex{ Lex{ val, []string{}, 0, "", "" } }, true, dir)
 
               actions = append(actions, Action{ "variableIndex", "", []string{}, actVal, []string{}, []Action{}, []Condition{}, 46, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false })
             } else {
-              actVal := actionizer([]Lex{ Lex{ val, []string{}, 0 } }, true, dir)
+              actVal := actionizer([]Lex{ Lex{ val, []string{}, 0, "", "" } }, true, dir)
 
               actions = append(actions, Action{ "expressionIndex", "", []string{}, actVal, []string{}, []Action{}, []Condition{}, 8, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false })
             }

@@ -1,186 +1,192 @@
-const keywords = require('./keywords.json')
-, testKey = require('./testKey.js')
-, fs = require('fs');
+const
+  testkey = require('./testkey'),
+  procinit = require('./procinit')
+  fs = require('fs');
 
-//set the maximum size of the cur exp
-global.MAX_CUR_EXP_SIZE = 15;
+global.KEYWORDS = require('./keywords.json');
 
-//fetch file
-var stdinBuffer = fs.readFileSync(0)
-, file = stdinBuffer.toString();
+var lexer = (file) => {
 
-global.lexer = (file) => {
-  file = require('./procInit')(file);
+  //current expression
+  var curExp = ''
+  //current lexxed value
+  , lex = []
+  //current line
+  , line = 1;
 
-  const copyFile = file;
+  //loop through file
 
-  var lex = []
-  , line = 1
+  outer:
+  for (let i = 0; i < file.length; i++) {
 
-  //cur exp is the current expression (to help locate the error)
-  , curExp = '';
+    for (let o = 0; o < KEYWORDS.length; o++) {
 
-  for (let i = 0; i < keywords.length; i++) {
+      //if the current key is detected
+      if (testkey(KEYWORDS[o], file, i)) {
 
-    if (file.length == 0) break;
+        //if it is a newline, increment "line"
+        if (KEYWORDS[o].name == 'newlineN') line++;
 
-    while (curExp.length > MAX_CUR_EXP_SIZE) curExp = curExp.substr(1);
-
-    if (testKey(copyFile, file, keywords[i], line, curExp, lex)) {
-
-      curExp+=keywords[i].remove;
-
-      //if it is a newline then increment line
-      if (keywords[i].name == 'newlineN') line++;
-
-      file = file.substr(keywords[i].remove.length);
-      lex.push({
-        Name: keywords[i].name,
-        Exp: curExp,
-        Line: line
-      });
-      i = -1;
-      continue;
-    }
-
-    if (i + 1 == keywords.length) {
-
-      if (/^(\'|\"|\`)/.test(file)) {
-
-        var typeOfQ = ''
-        , exp = ''
-
-        for (let o = 0; o < file.length; o++) {
-          if (file[o] == '\'') {
-            if (typeOfQ == '\'') {
-              typeOfQ = '';
-            } else if (typeOfQ == '') {
-              typeOfQ = '\'';
-            }
-          }
-
-          if (file[o] == '\"') {
-            if (typeOfQ == '\"') {
-              typeOfQ = '';
-            } else if (typeOfQ == '') {
-              typeOfQ = '\"';
-            }
-          }
-
-          if (file[o] == '\`') {
-            if (typeOfQ == '\`') {
-              typeOfQ = '';
-            } else if (typeOfQ == '') {
-              typeOfQ = '\`';
-            }
-          }
-
-          exp+=file[o];
-
-          if (typeOfQ == '') {
-            break;
-          }
-        }
-
-        //increase line by amount of newlines in the string
-        line+=exp.split('\n').length - 1;
-
-        curExp+=exp;
+        curExp+=KEYWORDS[o].remove;
 
         lex.push({
-          Name: '\'' + exp.substr(1).slice(0, -1) + '\'',
+          Name: KEYWORDS[o].name,
           Exp: curExp,
-          Line: line
+          Line: line,
+          Type: KEYWORDS[o].type,
+          OName: KEYWORDS[o].remove
         });
 
-        file = file.substr(exp.length);
+        i+=KEYWORDS[o].remove.length - 1;
+        continue outer;
+      }
 
-        i = -1;
-        continue;
-      } else if (/^(\d|\-|\+|\.)/.test(file)) {
+    }
 
-        var num = '';
+    var substrfile = file.substr(i);
 
-        if (/^(\-|\+)/.test(file)) {
-          num+=file[0];
-          file = file.substr(1)
+    //detect a string
+    if (substrfile.startsWith('\"') || substrfile.startsWith('\'') || substrfile.startsWith('\`')) {
+
+      //get quote type
+      let qType = substrfile[0]
+      , value = ''
+      , escaped = false;
+
+      for (let o = i + 1; o < file.length; o++) {
+        if (escaped) escaped = false;
+
+        //if it is escape character, set escaped to true
+        if (file[o] == '\\') escaped = true;
+
+        if (file.substr(o)[0] == qType && !escaped) break;
+
+        value+=file[o];
+        i++;
+      }
+
+      i--;
+      curExp+=value;
+      line+=value.match(/\n/g) == null ? 0 : value.match(/\n/g).length;
+
+      lex.push({
+        Name: '\'' + value + '\'',
+        Exp: curExp,
+        Line: line,
+        Type: 'string',
+        OName: value
+      });
+      continue;
+    } else if (/^(\d|\+|\-)/.test(file.substr(i))) {
+
+      var sign = true;
+
+      //detect positive and negative
+      while (file.substr(i)[0] == '+' || file.substr(i)[0] == '-')
+        if (file.substr(i) == '+') i++;
+        else {
+          sign = !sign;
+          i++;
         }
 
-        while (/^(\d|\.)+/.test(file)) {
-          num+=file[0];
+      var num = '';
 
-          file = file.substr(1);
-        }
-
-        if (num == '-' || num == '+') num+='1';
-
-        if (num.startsWith('+')) num = num.substr(1);
+      if (!(/^\d/.test(file.substr(i)))) {
+        if (sign) num = '1';
+        else num = '-1';
 
         curExp+=num;
 
-        if (num.endsWith('.') && file.startsWith('[')) {
-          num = num.slice(0, -1);
-          lex.push({
-            Name: num,
-            Exp: curExp,
-            Line: line
-          });
-          lex.push({
-            Name: '.',
-            Exp: curExp,
-            Line: line
-          });
-        } else lex.push({
+        i++;
+
+        lex.push({
           Name: num,
           Exp: curExp,
-          Line: line
+          Line: line,
+          Type: 'number',
+          OName: num
         });
-
-        if (file.startsWith('(')) lex.push({
-          Name: '*',
-          Exp: curExp,
-          Line: line
-        });
-
-        i = -1;
-        continue;
-      } else {
-
-        var name = '';
-
-        count: for (let o = 0; o < file.length; o++) {
-
-          for (let j = 0; j < keywords.length; j++) {
-            let pattern = new RegExp(keywords[j].pattern);
-
-            if (file.substr(o).search(pattern) == 0) break count;
-          }
-
-          name+=file[o];
-        }
-
-        file = file.substr(name.length);
-        lex.push({
-          Name: '$' + name,
-          Exp: curExp,
-          Line: line
-        });
-
-        curExp+=name;
-
-        i = -1;
-        continue;
       }
+
+      while (/^\d/.test(file.substr(i))) {
+        num+=file[i];
+        i++;
+
+        if (i > file.length) break;
+      }
+
+      curExp+=num;
+
+      i--;
+
+      lex.push({
+        Name: (sign ? '' : '-') + num,
+        Exp: curExp,
+        Line: line,
+        Type: 'number',
+        OName: num
+      });
+    } else {
+
+      var variable = '$';
+
+      var_loop:
+      for (let o = i; o < file.length; o++) {
+
+        for (let j = 0; j < KEYWORDS.length; j++)
+          if (testkey(KEYWORDS[j], file, o)) break var_loop;
+
+        variable+=file[o];
+        i++;
+      }
+
+      curExp+=variable.substr(1);
+
+      i--;
+      lex.push({
+        Name: variable,
+        Exp: curExp,
+        Line: line,
+        Type: 'Variable',
+        OName: variable.substr(1)
+      });
     }
+
   }
 
-  //remove all newlines, since they are useless now
-  lex = lex.filter(l => l.Name != 'newlineN');
+  //account for: true, false, undefined, and null
+  lex = lex.map(l => {
+    if (/\$true|\$false|\$undefined|\$null/.test(l.Name)) return {
+      ...l,
+      Name: l.Name.substr(1)
+    }; else return l;
+  });
+
+  //determine if there is an error
+  //an error will occur when two adjacent tokens have the same type
+  lex.forEach((v, i) => {
+
+    if (lex[i - 1] && v.Type[0] != '?' && v.Type != 'newline') {
+      if (v.Type == lex[i - 1].Type) {
+        console.log(
+          `Error while lexing! \nUnexpected token: \"${v.OName}\" on line ${v.Line}`,
+          `\n\nFound near: ${v.Exp.trim()}`,
+          `\n           ${' '.repeat(v.Exp.indexOf(v.OName))}${'^'.repeat(v.OName.length)}`,
+          `\nAdvanced Info: Two tokens of the type \"${v.Type}\" were detected adjacent to each other`
+        );
+        process.exit(1);
+      }
+    }
+  });
 
   return lex;
 }
 
-var lex = lexer(file);
+var stdinBuffer = fs.readFileSync(0)
+, f = stdinBuffer.toString();
 
-// send data through stdout back to go process
-console.log(JSON.stringify(lex));
+console.log(
+  JSON.stringify(
+    lexer(procinit(f))
+  )
+);

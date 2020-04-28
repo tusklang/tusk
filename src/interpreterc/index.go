@@ -21,6 +21,8 @@ type Lex struct {
   Name   string
   Exp  []string
   Line   uint64
+  Type   string
+  OName  string
 }
 
 //export Cactions

@@ -3,85 +3,73 @@
     "name": "local",
     "remove": "local",
     "pattern": "local~",
-    "type": "id",
-    "post_or_necc_after_tilde": ["$variable"]
+    "type": "id"
   },
   {
     "name": "local",
     "remove": "lcl",
     "pattern": "lcl~",
-    "type": "id",
-    "post_or_necc_after_tilde": ["$variable"]
+    "type": "id"
   },
   {
     "name": "->",
     "remove": "->",
     "pattern": "(\\-\\>)",
-    "type": "operation",
-    "pre_or_necc": ["string", "number", "boolean", "falsey", "hash", "array", "bool", "num"]
+    "type": "operation"
   },
   {
     "name": "=>",
     "remove": "=>",
     "pattern": "(\\=\\>)",
-    "type": "operation",
-    "post_or_necc": ["{"]
+    "type": "operation"
   },
   {
     "name": "++",
     "remove": "++",
     "pattern": "(\\+\\+)",
-    "type": "operation",
-    "pre_prohib": ["\\d"]
+    "type": "operation"
   },
   {
     "name": "+=",
     "remove": "+=",
     "pattern": "(\\+\\=)",
-    "type": "operation",
-    "pre_prohib": ["\\d"]
+    "type": "operation"
   },
   {
     "name": "--",
     "remove": "--",
     "pattern": "(\\-\\-)",
-    "type": "operation",
-    "pre_prohib": ["\\d"]
+    "type": "operation"
   },
   {
     "name": "-=",
     "remove": "-=",
     "pattern": "(\\-\\=)",
-    "type": "operation",
-    "pre_prohib": ["\\d"]
+    "type": "operation"
   },
   {
     "name": "*=",
     "remove": "*=",
     "pattern": "(\\*\\=)",
-    "type": "operation",
-    "pre_prohib": ["\\d"]
+    "type": "operation"
   },
   {
     "name": "/=",
     "remove": "/=",
     "pattern": "(\\/\\=)",
-    "type": "operation",
-    "pre_prohib": ["\\d"]
+    "type": "operation"
   },
   {
     "name": "^=",
     "remove": "^=",
     "pattern": "(\\^\\=)",
-    "type": "operation",
-    "pre_prohib": ["\\d"]
+    "type": "operation"
   },
   {
     "name": "%=",
     "remove": "%=",
     "pattern": "(\\%\\=)",
-    "type": "operation",
-    "pre_prohib": ["\\d"]
+    "type": "operation"
   },
   {
     "name": "each",
@@ -93,27 +81,25 @@
     "name": "~~~",
     "remove": "~~~",
     "pattern": "((~~~))",
-    "type": "comparison"
+    "type": "operation"
   },
   {
     "name": "~~",
     "remove": "~~",
     "pattern": "(~~)",
-    "type": "comparison"
+    "type": "operation"
   },
   {
     "name": "dynamic",
     "remove": "dyn",
     "pattern": "(dyn~)",
-    "type": "id",
-    "post_or_necc_after_tilde": ["$variable"]
+    "type": "id"
   },
   {
     "name": "dynamic",
     "remove": "dynamic",
     "pattern": "(dynamic~)",
-    "type": "id",
-    "post_or_necc_after_tilde": ["$variable"]
+    "type": "id"
   },
   {
     "name": "alt",
@@ -137,9 +123,7 @@
     "name": "^",
     "remove": "**",
     "pattern": "(\\*\\*)",
-    "type": "math",
-    "post_prohib": ["*operation", "*comparison", "*math"],
-    "pre_prohib": ["*operation", "*comparison", "*math"]
+    "type": "operation"
   },
   {
     "name": ".",
@@ -169,16 +153,13 @@
     "name": "~",
     "remove": "~",
     "pattern": "\\~",
-    "type": "operation",
-    "pre_or_necc": ["*keyword"],
-    "pre_prohib": ["$none"]
+    "type": "operation"
   },
   {
     "name": "[:",
     "remove": "[:",
     "pattern": "(\\[\\:)",
-    "type": "operation",
-    "post_or_necc": ["\"", "'", "`", "\\d", "true", "false", ":\\]", "\n"]
+    "type": "operation"
   },
   {
     "name": ":]",
@@ -202,8 +183,7 @@
     "name": ":",
     "remove": ":=",
     "pattern": "(\\:\\=)",
-    "type": "assignment",
-    "pre_or_necc": ["$variable"]
+    "type": "assignment"
   },
   {
     "name": ":",
@@ -214,66 +194,50 @@
   {
     "name": "+",
     "remove": "+",
-    "pattern": "\\+",
-    "type": "math",
-    "pre_prohib_soft": ["\\+", "\\-", "\\*", "\\/", "\\^", "\\~", "\\<", "\\>", "\\=", "\\!", "\\&", "\\|", "\\%", "\n", "\\:", "$none"],
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "pattern": "((?<!(\\+\\-\\*\\/\\%\\^\\=\\!\\:\\(\\{\\[\\~\\,\\<\\>\\&\\|))\\+)",
+    "type": "operation"
   },
   {
     "name": "-",
     "remove": "-",
-    "pattern": "\\-",
-    "type": "math",
-    "pre_prohib_soft": ["\\+", "\\-", "\\*", "\\/", "\\^", "\\~", "\\<", "\\>", "\\=", "\\!", "\\&", "\\|", "\\%", "\n", "\\:", "$none"],
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "pattern": "((?<!(\\+\\-\\*\\/\\%\\^\\=\\!\\:\\(\\{\\[\\~\\,\\<\\>\\&\\|))\\-)",
+    "type": "operation"
   },
   {
     "name": "*",
     "remove": "*",
     "pattern": "\\*",
-    "type": "math",
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "type": "operation"
   },
   {
     "name": "/",
     "remove": "/",
     "pattern": "\\/",
-    "type": "math",
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "type": "operation"
   },
   {
     "name": "%",
     "remove": "%",
     "pattern": "\\%",
-    "type": "math",
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "type": "operation"
   },
   {
     "name": "^",
     "remove": "^",
     "pattern": "\\^",
-    "type": "math",
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "type": "operation"
   },
   {
     "name": "(",
     "remove": "(",
     "pattern": "\\(",
-    "type": "operation",
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "type": "paren"
   },
   {
     "name": ")",
     "remove": ")",
     "pattern": "\\)",
-    "type": "operation",
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "type": "paren"
   },
   {
     "name": "{",
@@ -309,45 +273,37 @@
     "name": "@",
     "remove": "@",
     "pattern": "(@\\~)",
-    "type": "id",
-    "post_or_necc_after_paren": ["$variable"]
+    "type": "id"
   },
   {
     "name": "process",
     "remove": "proc",
     "pattern": "(proc\\()",
-    "type": "id",
-    "post_or_necc_after_paren": ["$variable", "\\)", "\n"],
-    "post_prohib_after_paren": ["$none"]
+    "type": "id"
   },
   {
     "name": "process",
     "remove": "proc",
     "pattern": "(proc\\~)",
-    "type": "id",
-    "post_or_necc_after_tilde": ["$variable"],
-    "post_prohib_after_tilda": ["$none"]
+    "type": "id"
   },
   {
     "name": "global",
     "remove": "gbl",
     "pattern": "(gbl~)",
-    "type": "id",
-    "post_or_necc_after_tilde": ["$variable"]
+    "type": "id"
   },
   {
     "name": "global",
     "remove": "global",
     "pattern": "(global\\~)",
-    "type": "id",
-    "post_or_necc_after_tilde": ["$variable"]
+    "type": "id"
   },
   {
     "name": "#",
     "remove": "#",
     "pattern": "\\#\\~",
-    "type": "id",
-    "post_or_necc_after_tilde": ["$variable"]
+    "type": "id"
   },
   {
     "name": ",",
@@ -380,30 +336,6 @@
     "type": "cond"
   },
   {
-    "name": "true",
-    "remove": "true",
-    "pattern": "(true)",
-    "type": "value"
-  },
-  {
-    "name": "false",
-    "remove": "false",
-    "pattern": "(false)",
-    "type": "value"
-  },
-  {
-    "name": "undefined",
-    "remove": "undefined",
-    "pattern": "(undefined)",
-    "type": "value"
-  },
-  {
-    "name": "null",
-    "remove": "null",
-    "pattern": "(null)",
-    "type": "value"
-  },
-  {
     "name": "loop",
     "remove": "loop",
     "pattern": "(loop\\()",
@@ -413,57 +345,43 @@
     "name": "<=",
     "remove": "<=",
     "pattern": "(\\<\\=)",
-    "type": "comparison",
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "type": "operation"
   },
   {
     "name": ">=",
     "remove": ">=",
     "pattern": "(\\>\\=)",
-    "type": "comparison",
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "type": "operation"
   },
   {
     "name": ">",
     "remove": ">",
     "pattern": "\\>",
-    "type": "comparison",
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "type": "operation"
   },
   {
     "name": "<",
     "remove": "<",
     "pattern": "\\<",
-    "type": "comparison",
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "type": "operation"
   },
   {
     "name": "!=",
     "remove": "!=",
     "pattern": "(\\!\\=)",
-    "type": "comparison",
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "type": "operation"
   },
   {
     "name": "=",
     "remove": "==",
     "pattern": "(\\=\\=)",
-    "type": "comparison",
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "type": "operation"
   },
   {
     "name": "=",
     "remove": "=",
     "pattern": "\\=",
-    "type": "comparison",
-    "post_prohib": ["*operation", "*comparison", "*math", "$none"],
-    "pre_prohib": ["*operation", "*comparison", "*math", "$none"]
+    "type": "operation"
   },
   {
     "name": "import",
@@ -481,79 +399,61 @@
     "name": "&",
     "remove": "&&",
     "pattern": "(\\&\\&)",
-    "type": "comparison",
-    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
-    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
+    "type": "operation"
   },
   {
     "name": "!|",
     "pattern": "(\\!\\|)",
-    "type": "comparison",
-    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
-    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
+    "type": "operation"
   },
   {
     "name": "$|",
     "remove": "$|",
     "pattern": "(\\$\\|)",
-    "type": "comparison",
-    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
-    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
+    "type": "operation"
   },
   {
     "name": "!$|",
     "remove": "$!|",
     "pattern": "(\\$\\!\\|)",
-    "type": "comparison",
-    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
-    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
+    "type": "operation"
   },
   {
     "name": "!$|",
     "remove": "!$|",
     "pattern": "(\\!\\$\\|)",
-    "type": "comparison",
-    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
-    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
+    "type": "operation"
   },
   {
     "name": "!&",
     "remove": "!&",
     "pattern": "(\\!\\&)",
-    "type": "comparison",
-    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
-    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
+    "type": "operation"
   },
   {
     "name": "|",
     "remove": "||",
     "pattern": "(\\|\\|)",
-    "type": "comparison",
-    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
-    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
+    "type": "operation"
   },
   {
     "name": "!",
     "remove": "!",
     "pattern": "\\!",
-    "type": "comparison",
-    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
+    "type": "?operation",
+    "comment": "?operation is just notation for the error detector to not detect this as an operation"
   },
   {
     "name": "&",
     "remove": "&",
     "pattern": "\\&",
-    "type": "comparison",
-    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
-    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
+    "type": "operation"
   },
   {
     "name": "|",
     "remove": "|",
     "pattern": "\\|",
-    "type": "comparison",
-    "pre_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"],
-    "post_or_necc": ["$variable", "true", "false", "\\d", "$string", "$hash", "$array", "undefined", "null"]
+    "type": "operation"
   },
   {
     "name": "break",

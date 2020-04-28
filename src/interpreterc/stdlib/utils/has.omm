@@ -1,6 +1,11 @@
 import ~ "?~stdlib/utils/len.omm";
 
 proc ~ haschar(main, inc) {
+
+  if (#len(inc) != 1) {
+    return ~ false;
+  }
+
   each (main) {
     if (v = inc) return ~ true;
   }

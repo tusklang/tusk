@@ -1,1 +1,1 @@
-log ~ #haschar('f', 'gggggg');
+log ~ !&&;
