@@ -6,5 +6,5 @@ proc ~ len(val) {
     cnt++;
   }
 
-  return ~ cnt;
+  return ~ cnt - 1;
 }

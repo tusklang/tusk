@@ -3,7 +3,7 @@ import ~ '?~utils/startswith.omm';
 
 proc ~ haschar(main, inc) {
 
-  if (#len(inc) != 1) return ~ false;
+  if (len(inc) != 1) return ~ false;
 
   each (main) {
     if (v = inc) return ~ true;
@@ -14,11 +14,11 @@ proc ~ haschar(main, inc) {
 
 proc ~ has(main, inc) {
 
-  if (#len(inc) > #len(main)) return ~ false;
+  if (len(inc) > len(main)) return ~ false;
 
   each (main) {
 
-    if (#startswith(main, inc)) return ~ true;
+    if (startswith(main, inc)) return ~ true;
 
     main: 1 - main;
   }

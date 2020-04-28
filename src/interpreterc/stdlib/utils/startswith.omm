@@ -2,7 +2,7 @@ import ~ '?~utils/len.omm';
 
 proc ~ startsWith(main, inc) {
 
-  if (#len(inc) > #len(main)) return ~ false;
+  if (len(inc) > len(main)) return ~ false;
 
   each (inc) {
     if (v != main.[k]) return ~ false;
