@@ -232,6 +232,11 @@ func callCalc(i *int, lex []Lex, len_lex int, dir string) ([][]Action, string, [
   var params_ = [][]Action{}
 
   for o := 0; o < len(params); o++ {
+
+    if len(params[o]) == 0 {
+      continue
+    }
+
     params_ = append(params_, actionizer(params[o], true, dir))
   }
 
@@ -2543,6 +2548,15 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         args := cproc(&i, lex, uint(1), "files.exists", dir)
         actions = append(actions, Action{ "files.exists", "", []string{}, []Action{}, []string{}, args, []Condition{}, 62, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
 
+      case "files.isFile":
+
+        args := cproc(&i, lex, uint(1), "files.isFile", dir)
+        actions = append(actions, Action{ "files.isFile", "", []string{}, []Action{}, []string{}, args, []Condition{}, 63, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+
+      case "files.isDir":
+
+        args := cproc(&i, lex, uint(1), "files.isDir", dir)
+        actions = append(actions, Action{ "files.isDir", "", []string{}, []Action{}, []string{}, args, []Condition{}, 64, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
       //////////////////////
 
       default:

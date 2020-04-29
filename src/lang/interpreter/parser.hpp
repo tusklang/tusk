@@ -1529,6 +1529,70 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           }
           break;
         }
+        case 63: {
+
+          //files.isFile
+
+          //written as file.isFile(dir)
+
+          string filename = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+
+          smatch match;
+
+          //see if the filename is absolute
+          regex pat("^[a-zA-Z]:");
+          bool isOnDrive = regex_search(filename, match, pat);
+
+          string nDir = isOnDrive ? "" : dir;
+
+          bool isFileVal = isFile(nDir + filename);
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            ret.exp = retNo;
+            ret.variables = vars;
+            ret.exp = isFileVal ? trueRet : falseRet;
+            ret.type = "expression";
+
+            return ret;
+          }
+          break;
+        }
+        case 64: {
+
+          //files.isDir
+
+          //written as file.isDir(dir)
+
+          string filename = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+
+          smatch match;
+
+          //see if the filename is absolute
+          regex pat("^[a-zA-Z]:");
+          bool isOnDrive = regex_search(filename, match, pat);
+
+          string nDir = isOnDrive ? "" : dir;
+
+          bool isDirVal = isDir(nDir + filename);
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            ret.exp = retNo;
+            ret.variables = vars;
+            ret.exp = isDirVal ? trueRet : falseRet;
+            ret.type = "expression";
+
+            return ret;
+          }
+          break;
+        }
         //////////////////////////
 
         //assignment operators

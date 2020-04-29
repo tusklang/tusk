@@ -81,6 +81,11 @@ func cproc(i *int, lex []Lex, PARAM_COUNT uint, name, dir string) [][]Action {
   var actionSplit [][]Action
 
   for _, v := range splitParams {
+
+    if len(v) == 0 {
+      continue
+    }
+
     actionSplit = append(actionSplit, actionizer(v, true, dir))
   }
 

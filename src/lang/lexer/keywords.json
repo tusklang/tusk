@@ -198,6 +198,18 @@
     "type": "id"
   },
   {
+    "name": "files.isFile",
+    "remove": "files.isFile",
+    "pattern": "files\\.isFile\\(",
+    "type": "id"
+  },
+  {
+    "name": "files.isDir",
+    "remove": "files.isDir",
+    "pattern": "files\\.isDir\\(",
+    "type": "id"
+  },
+  {
     "name": ":",
     "remove": ":=",
     "pattern": "(\\:\\=)",

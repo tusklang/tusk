@@ -58,6 +58,8 @@ each: 59
 files.read: 60
 files.write: 61
 files.exists: 62
+files.isFile: 63
+files.isDir: 64
 
 ++: 4343
 --: 4545
