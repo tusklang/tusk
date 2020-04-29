@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <thread>
 #include <windows.h>
+#include <regex>
 #include "json.hpp"
 #include "bind.h"
 #include "structs.hpp"
@@ -15,6 +16,11 @@
 #include "values.hpp"
 #include "comparisons.hpp"
 #include "similarity.hpp"
+
+//file i/o
+#include "../files/readfile.hpp"
+#include "../files/writefile.h"
+
 using namespace std;
 using json = nlohmann::json;
 using ulong = unsigned long;
@@ -245,7 +251,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                 json cur = {
                   {"type", "local"},
                   {"name", (string) params[o]},
-                  {"value", parser(json::parse("[" + args[o].dump() + "]"), calc_params, vars, dir, false, line, true).exp},
+                  {"value", parser(args[o], calc_params, vars, dir, false, line, true).exp},
                   {"valueActs", json::parse("[]")}
                 };
 
@@ -1213,7 +1219,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //@ (call thread)
 
-            string name = actions[i]["Name"];
+            string name = actions[i]["Name"].get<string>() + to_string(actions[i]["Args"].size());
 
             Returner parsed;
 
@@ -1256,7 +1262,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                 json cur = {
                   {"type", "local"},
                   {"name", (string) params[o]},
-                  {"value", parser(json::parse("[" + args[o].dump() + "]"), calc_params, vars, dir, false, line, true).exp},
+                  {"value", parser(args[o], calc_params, vars, dir, false, line, true).exp},
                   {"valueActs", json::parse("[]")}
                 };
 
@@ -1333,7 +1339,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             , var2 = putterVars[1];
 
             //parse the iterator value
-            json iterator = parser(actions[i]["Args"], calc_params, vars, dir, false, line, true).exp["Hash_Values"];
+            json iterator = parser(actions[i]["First"] /* actions[i]["First"] is where the iterator is stored */, calc_params, vars, dir, false, line, true).exp["Hash_Values"];
 
             iterator.erase("falsey");
 
@@ -1389,6 +1395,86 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             }
           }
           break;
+
+        //all of the omm cprocs
+        case 60: {
+
+          //files.read
+
+          //written as files.read(dir)
+
+          string filename = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+
+          smatch match;
+
+          //see if the filename is absolute
+          regex pat("^[a-zA-Z]:");
+          bool isOnDrive = regex_search(filename, match, pat);
+
+          string content = readfile(&((isOnDrive ? "" : dir) + filename)[0]);
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            json contentJ = strPlaceholder;
+
+            contentJ["ExpStr"] = {content};
+
+            for (ulong i = 0; i < content.length(); i++) {
+              json curChar = strPlaceholder;
+
+              curChar["ExpStr"] = {
+                to_string(content[i])
+              };
+
+              contentJ["Hash_Values"][to_string(i)] = curChar;
+            }
+
+            ret.exp = retNo;
+            ret.variables = vars;
+            ret.exp = contentJ;
+            ret.type = "expression";
+
+            return ret;
+          }
+          break;
+        }
+        case 61: {
+
+          //files.write
+
+          //written as files.write(dir, content)
+
+          string filename = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+          json content = parser(actions[i]["Args"][1], calc_params, vars, dir, false, line, true).exp;
+
+          string contentstr = content["ExpStr"][0].get<string>();
+
+          smatch match;
+
+          //see if the filename is absolute
+          regex pat("^[a-zA-Z]:");
+          bool isOnDrive = regex_search(filename, match, pat);
+
+          writefile(&((isOnDrive ? "" : dir) + filename)[0], &contentstr[0]);
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            ret.exp = retNo;
+            ret.variables = vars;
+            ret.exp = content;
+            ret.type = "expression";
+
+            return ret;
+          }
+          break;
+        }
+        //////////////////////////
 
         //assignment operators
         case 4343: {

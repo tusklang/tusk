@@ -14,6 +14,8 @@ func arrayContain(arr []string, sub string) bool {
   return false;
 }
 
+var CPROCS = []string{ "files.read", "files.write" }
+
 func arrayContainInterface(arr []string, sub interface{}) bool {
 
   for i := 0; i < len(arr); i++ {
@@ -232,6 +234,10 @@ func interfaceContainWithProcIndex(inter []interface{}, sub interface{}, indexes
         continue loop
     }
 
+    if k != 0 && arrayContain(CPROCS, inter[k - 1].(Lex).Name) {
+      continue loop
+    }
+
     if sub.(string) == v.(Lex).Name {
 
       for _, o := range indexes {
@@ -255,6 +261,10 @@ func interfaceIndexOfWithProcIndex(sub interface{}, inter []interface{}, indexes
     switch v.(type) {
       case Action:
         continue loop
+    }
+
+    if k != 0 && arrayContain(CPROCS, inter[k - 1].(Lex).Name) {
+      continue loop
     }
 
     if sub.(string) == v.(Lex).Name {
@@ -294,7 +304,7 @@ func interfaceContainForExp(inter []interface{}, _sub []string) bool {
     }
 
     //prevent parenthesis after process declarations from being counted as expression parenthesis
-    if o > 0 && !(strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "process") && v.(Lex).Name == "(" {
+    if o > 0 && !(strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "process" || arrayContain(CPROCS, inter[o - 1].(Lex).Name) ) && v.(Lex).Name == "(" {
 
       scbCnt := 0
       sglCnt := 0

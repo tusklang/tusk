@@ -129,6 +129,6 @@ const json falseyVal = {
   {"Index_Type", ""},
   {"Hash_Values", "{}"_json},
   {"IsMutable", false}
-};;
+};
 
 #endif

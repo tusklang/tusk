@@ -55,6 +55,8 @@ strictSimilar: 55
 wait: 57
 cast: 58
 each: 59
+files.read: 60
+files.write: 61
 
 ++: 4343
 --: 4545

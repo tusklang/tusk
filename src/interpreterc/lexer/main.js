@@ -16,9 +16,11 @@ var lexer = (file) => {
   , line = 1;
 
   //loop through file
-  outer: for (let i = 0; i < file.length; i++) {
+  outer:
+  for (let i = 0; i < file.length; i++) {
 
     while (curExp.length > MAX_CUR_EXP) curExp = curExp.substr(1);
+    while (curExp.includes('\n')) curExp = curExp.substr(curExp.indexOf('\n') + 1);
 
     for (let o = 0; o < KEYWORDS.length; o++) {
 
@@ -28,7 +30,7 @@ var lexer = (file) => {
         //if it is a newline, increment "line"
         if (KEYWORDS[o].name == 'newlineN') line++;
 
-        curExp += KEYWORDS[o].remove;
+        curExp+=KEYWORDS[o].remove;
 
         lex.push({
           Name: KEYWORDS[o].name,
@@ -38,7 +40,7 @@ var lexer = (file) => {
           OName: KEYWORDS[o].remove
         });
 
-        if (KEYWORDS[o].name != 'newlineN') i += KEYWORDS[o].remove.length - 1;
+        if (KEYWORDS[o].name != 'newlineN') i+=KEYWORDS[o].remove.length - 1;
         continue outer;
       }
     }
@@ -61,12 +63,12 @@ var lexer = (file) => {
 
         if (file.substr(o)[0] == qType && !escaped) break;
 
-        value += file[o];
+        value+=file[o];
       }
 
       i++;
-      curExp += value;
-      line += value.match(/\n/g) == null ? 0 : value.match(/\n/g).length;
+      curExp+=value;
+      line+=value.match(/\n/g) == null ? 0 : value.match(/\n/g).length;
 
       lex.push({
         Name: '\'' + value + '\'',
@@ -76,7 +78,7 @@ var lexer = (file) => {
         OName: '\'' + value + '\''
       });
       continue outer;
-    } else if (/^(\d|\+|\-)/.test(file.substr(i))) {
+    } else if (/^(\d|\+|\-|\.)/.test(file.substr(i))) {
 
       var sign = true;
 
@@ -90,11 +92,11 @@ var lexer = (file) => {
 
       var num = '';
 
-      if (!(/^\d/.test(file.substr(i)))) {
+      if (!(/^(\d|\.)/.test(file.substr(i)))) {
         if (sign) num = '1';
         else num = '-1';
 
-        curExp += num;
+        curExp+=num;
 
         i++;
 
@@ -108,14 +110,14 @@ var lexer = (file) => {
         continue outer;
       }
 
-      while (/^\d/.test(file.substr(i))) {
-        num += file[i];
+      while (/^(\d|\.)/.test(file.substr(i))) {
+        num+=file[i];
         i++;
 
         if (i > file.length) break;
       }
 
-      curExp += num;
+      curExp+=num;
 
       i--;
 
@@ -136,11 +138,11 @@ var lexer = (file) => {
           for (let j = 0; j < KEYWORDS.length; j++)
             if (testkey(KEYWORDS[j], file, o)) break var_loop;
 
-          variable += file[o];
+          variable+=file[o];
           i++;
         }
 
-      curExp += variable.substr(1);
+      curExp+=variable.substr(1);
 
       i--;
       lex.push({
@@ -183,8 +185,10 @@ var lexer = (file) => {
   return lex;
 }
 
-var stdinBuffer = fs.readFileSync(0)
-, f = stdinBuffer.toString();
+// var stdinBuffer = fs.readFileSync(0)
+// , f = stdinBuffer.toString();
+
+var f = 'files.read()';
 
 console.log(
   JSON.stringify(

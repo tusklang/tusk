@@ -26,49 +26,49 @@
   {
     "name": "++",
     "remove": "++",
-    "pattern": "(\\+\\+)",
+    "pattern": "((?<!\\d)\\+\\+)",
     "type": "operation"
   },
   {
     "name": "+=",
     "remove": "+=",
-    "pattern": "(\\+\\=)",
+    "pattern": "((?<!\\d)\\+\\=)",
     "type": "operation"
   },
   {
     "name": "--",
     "remove": "--",
-    "pattern": "(\\-\\-)",
+    "pattern": "((?<!\\d)\\-\\-)",
     "type": "operation"
   },
   {
     "name": "-=",
     "remove": "-=",
-    "pattern": "(\\-\\=)",
+    "pattern": "((?<!\\d)\\-\\-)",
     "type": "operation"
   },
   {
     "name": "*=",
     "remove": "*=",
-    "pattern": "(\\*\\=)",
+    "pattern": "((?<!\\d)\\*\\=)",
     "type": "operation"
   },
   {
     "name": "/=",
     "remove": "/=",
-    "pattern": "(\\/\\=)",
+    "pattern": "((?<!\\d)\\/\\=)",
     "type": "operation"
   },
   {
     "name": "^=",
     "remove": "^=",
-    "pattern": "(\\^\\=)",
+    "pattern": "((?<!\\d)\\^\\=)",
     "type": "operation"
   },
   {
     "name": "%=",
     "remove": "%=",
-    "pattern": "(\\%\\=)",
+    "pattern": "((?<!\\d)\\%\\=)",
     "type": "operation"
   },
   {
@@ -178,6 +178,18 @@
     "remove": "_mut",
     "pattern": "_mut",
     "type": "operation"
+  },
+  {
+    "name": "files.read",
+    "remove": "files.read",
+    "pattern": "files\\.read\\(",
+    "type": "id"
+  },
+  {
+    "name": "files.write",
+    "remove": "files.write",
+    "pattern": "files\\.write\\(",
+    "type": "id"
   },
   {
     "name": ":",
