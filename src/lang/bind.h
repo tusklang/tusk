@@ -12,7 +12,6 @@ extern "C" {
   extern char* GetType(char*);
   extern char* ReturnInitC(char*);
   extern int IsLessC(char*, char*);
-  extern char* CReadFile(char*, char*, int);
   extern char* CLex(char*);
   extern char* NQReplaceC(char*);
   extern int GetActNumC(char*);

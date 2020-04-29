@@ -14,7 +14,9 @@ func arrayContain(arr []string, sub string) bool {
   return false;
 }
 
-var CPROCS = []string{ "files.read", "files.write" }
+//the list of cprocs goes here
+//just add to the slice if you add a new cproc
+var CPROCS = []string{ "files.read", "files.write", "files.exists" }
 
 func arrayContainInterface(arr []string, sub interface{}) bool {
 

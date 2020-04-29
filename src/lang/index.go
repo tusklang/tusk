@@ -118,7 +118,7 @@ func lexer(file string) []Lex {
 
 func index(fileName, dir string, calcParams paramCalcOpts) {
 
-  file := read(dir + fileName, "File Not Found: " + dir + fileName, true)
+  file := readFileJS(dir + fileName)[0]
 
   lex := lexer(file)
 

@@ -2538,6 +2538,11 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         args := cproc(&i, lex, uint(2), "files.write", dir)
         actions = append(actions, Action{ "files.write", "", []string{}, []Action{}, []string{}, args, []Condition{}, 61, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
 
+      case "files.exists":
+
+        args := cproc(&i, lex, uint(1), "files.exists", dir)
+        actions = append(actions, Action{ "files.exists", "", []string{}, []Action{}, []string{}, args, []Condition{}, 62, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+
       //////////////////////
 
       default:

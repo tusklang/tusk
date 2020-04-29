@@ -84,10 +84,10 @@ func cproc(i *int, lex []Lex, PARAM_COUNT uint, name, dir string) [][]Action {
     actionSplit = append(actionSplit, actionizer(v, true, dir))
   }
 
-  if uint(len(splitParams)) < PARAM_COUNT {
+  if uint(len(splitParams)) != PARAM_COUNT {
 
     //throw an error
-    fmt.Println("Error while actionizing! Not enough arguments for", /* say the process */ name, "\n\nError occured on line", curLex.Line, "\nFound near:", strings.TrimSpace(curLex.Exp))
+    fmt.Println("Error while actionizing! Expected", PARAM_COUNT, "argument(s), but got", len(splitParams), "instead to call", /* say the process */ name, "\n\nError occured on line", curLex.Line, "\nFound near:", strings.TrimSpace(curLex.Exp))
 
     //exit the process
     os.Exit(1)

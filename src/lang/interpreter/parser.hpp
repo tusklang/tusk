@@ -20,6 +20,8 @@
 //file i/o
 #include "../files/readfile.hpp"
 #include "../files/writefile.h"
+#include "../files/isDir.hpp"
+#include "../files/isFile.hpp"
 
 using namespace std;
 using json = nlohmann::json;
@@ -1411,34 +1413,52 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           regex pat("^[a-zA-Z]:");
           bool isOnDrive = regex_search(filename, match, pat);
 
-          string content = readfile(&((isOnDrive ? "" : dir) + filename)[0]);
+          string nDir = isOnDrive ? "" : dir;
 
-          if (expReturn) {
+          if (!isFile(nDir + filename) && expReturn) {
+
             Returner ret;
 
             vector<string> retNo;
 
-            json contentJ = strPlaceholder;
-
-            contentJ["ExpStr"] = {content};
-
-            for (ulong i = 0; i < content.length(); i++) {
-              json curChar = strPlaceholder;
-
-              curChar["ExpStr"] = {
-                to_string(content[i])
-              };
-
-              contentJ["Hash_Values"][to_string(i)] = curChar;
-            }
-
             ret.exp = retNo;
             ret.variables = vars;
-            ret.exp = contentJ;
+            ret.exp = falseyVal;
             ret.type = "expression";
 
             return ret;
+
+          } else {
+            string content = readfile(&(nDir + filename)[0]);
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              json contentJ = strPlaceholder;
+
+              contentJ["ExpStr"] = {content};
+
+              for (ulong i = 0; i < content.length(); i++) {
+                json curChar = strPlaceholder;
+
+                curChar["ExpStr"] = {
+                  to_string(content[i])
+                };
+
+                contentJ["Hash_Values"][to_string(i)] = curChar;
+              }
+
+              ret.exp = retNo;
+              ret.variables = vars;
+              ret.exp = contentJ;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
+
           break;
         }
         case 61: {
@@ -1458,7 +1478,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           regex pat("^[a-zA-Z]:");
           bool isOnDrive = regex_search(filename, match, pat);
 
-          writefile(&((isOnDrive ? "" : dir) + filename)[0], &contentstr[0]);
+          string nDir = isOnDrive ? "" : dir;
+
+          writefile(&(nDir + filename)[0], &contentstr[0]);
 
           if (expReturn) {
             Returner ret;
@@ -1474,56 +1496,89 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           }
           break;
         }
+        case 62: {
+
+          //files.exists
+
+          //written as file.exists(dir)
+
+          string filename = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+
+          smatch match;
+
+          //see if the filename is absolute
+          regex pat("^[a-zA-Z]:");
+          bool isOnDrive = regex_search(filename, match, pat);
+
+          string nDir = isOnDrive ? "" : dir;
+
+          //if it is not a directory and not a file, it does not exist
+          bool exists = !(!isDir(nDir + filename) && !isFile(nDir + filename));
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            ret.exp = retNo;
+            ret.variables = vars;
+            ret.exp = exists ? trueRet : falseRet;
+            ret.type = "expression";
+
+            return ret;
+          }
+          break;
+        }
         //////////////////////////
 
         //assignment operators
         case 4343: {
 
-            //++
+          //++
 
-            string name = actions[i]["Name"];
+          string name = actions[i]["Name"];
 
-            json nVar;
+          json nVar;
 
-            if (vars[name]["type"] != "dynamic") {
+          if (vars[name]["type"] != "dynamic") {
 
-              if (vars[name].find("value") != vars[name].end()) {
+            if (vars[name].find("value") != vars[name].end()) {
 
-                json _val = vars[name]["value"];
+              json _val = vars[name]["value"];
 
-                char* _added = Add(&(_val.dump())[0], &val1.dump()[0], &calc_params.dump()[0], line);
-                string added(_added);
+              char* _added = Add(&(_val.dump())[0], &val1.dump()[0], &calc_params.dump()[0], line);
+              string added(_added);
 
-                nVar = {
-                  {"type", vars[name]["type"]},
-                  {"name", name},
-                  {"value", json::parse(added)},
-                  {"valueActs", json::parse("[]")}
-                };
-              } else nVar = {
-                  {"type", "local"},
-                  {"name", name},
-                  {"value", val1},
-                  {"valueActs", json::parse("[]")}
-                };
-            }
+              nVar = {
+                {"type", vars[name]["type"]},
+                {"name", name},
+                {"value", json::parse(added)},
+                {"valueActs", json::parse("[]")}
+              };
+            } else nVar = {
+                {"type", "local"},
+                {"name", name},
+                {"value", val1},
+                {"valueActs", json::parse("[]")}
+              };
+          }
 
-            vars[name] = nVar;
+          vars[name] = nVar;
 
-            if (expReturn) {
-              Returner ret;
+          if (expReturn) {
+            Returner ret;
 
-              vector<string> retNo;
+            vector<string> retNo;
 
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val1;
-              ret.type = "expression";
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = val1;
+            ret.type = "expression";
 
-              return ret;
-            }
+            return ret;
           }
           break;
+        }
         case 4545: {
 
             //--

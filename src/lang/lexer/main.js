@@ -185,10 +185,8 @@ var lexer = (file) => {
   return lex;
 }
 
-// var stdinBuffer = fs.readFileSync(0)
-// , f = stdinBuffer.toString();
-
-var f = 'files.read()';
+var stdinBuffer = fs.readFileSync(0)
+, f = stdinBuffer.toString();
 
 console.log(
   JSON.stringify(

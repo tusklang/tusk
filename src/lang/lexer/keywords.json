@@ -192,6 +192,12 @@
     "type": "id"
   },
   {
+    "name": "files.exists",
+    "remove": "files.exists",
+    "pattern": "files\\.exists\\(",
+    "type": "id"
+  },
+  {
     "name": ":",
     "remove": ":=",
     "pattern": "(\\:\\=)",
