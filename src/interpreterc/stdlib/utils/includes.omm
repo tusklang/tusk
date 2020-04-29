@@ -1,8 +1,0 @@
-proc ~ includes(main, inc) {
-
-  each (main) {
-    if (v = inc) return ~ true;
-  }
-
-  return ~ false;
-}

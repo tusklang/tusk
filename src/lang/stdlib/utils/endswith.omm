@@ -1,0 +1,14 @@
+import ~ '?~utils/len.omm';
+
+proc ~ endsWith(main, inc) {
+
+  if (len(inc) > len(main)) return ~ false;
+
+  main: reverse(main);
+
+  each (inc) {
+    if (v != main.[k]) return ~ false;
+  }
+
+  return ~ true;
+}
