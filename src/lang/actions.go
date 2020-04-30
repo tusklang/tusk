@@ -536,12 +536,8 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
                 pCnt--;
               }
 
-              if reflect.TypeOf(exp[o]).String() == "main.Lex" && exp[o].(Lex).Name == ":" {
+              if reflect.TypeOf(exp[o]).String() == "main.Lex" && exp[o].(Lex).Name == ":" && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
                 doDeg = true
-                break
-              }
-
-              if arrayContainInterfaceOperations(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
                 break
               }
 
@@ -605,12 +601,8 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
                 pCnt--;
               }
 
-              if reflect.TypeOf(exp[o]).String() == "main.Lex" && exp[o].(Lex).Name == ":" {
+              if reflect.TypeOf(exp[o]).String() == "main.Lex" && exp[o].(Lex).Name == ":" && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
                 doDeg = true
-                break
-              }
-
-              if arrayContainInterfaceOperations(operations, exp[o]) && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
                 break
               }
 
