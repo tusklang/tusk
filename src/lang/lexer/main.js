@@ -171,15 +171,21 @@ var lexer = (file) => {
 
     if (lex[i - 1] && v.Type[0] != '?' && v.Type != 'newline') {
       if (v.Type == lex[i - 1].Type) {
-        console.log(
-          `Error while lexing! \nUnexpected token: \"${v.OName.trim()}\" on line ${v.Line}`,
-          `\n\nFound near: ${v.Exp.trim()}`,
-          `\n            ${' '.repeat(v.Exp.indexOf(v.OName) == -1 ? '' : v.Exp.indexOf(v.OName))}${'^'.repeat(v.OName.length)}`,
+        errors.push(
+          `Error while lexing! \nUnexpected token: \"${v.OName.trim()}\" on line ${v.Line}`
+          +
+          `\n\nFound near: ${v.Exp.trim()}`
+          +
+          `\n            ${' '.repeat(v.Exp.indexOf(v.OName) == -1 ? '' : v.Exp.indexOf(v.OName))}${'^'.repeat(v.OName.length)}`
+          +
           `\nAdvanced Info: Two tokens of the type \"${v.Type}\" were detected adjacent to each other`
         );
-        process.exit(1);
       }
     }
+
+    if (lex[i].Name.startsWith('$return'))
+      //give a warning
+      warnings.push(`Warning while lexing! Did you mean \"return ~\" on line ${lex[i].Line}?`);
   });
 
   return lex;
@@ -188,12 +194,14 @@ var lexer = (file) => {
 var stdinBuffer = fs.readFileSync(0)
 , f = stdinBuffer.toString();
 
+var
+  warnings = [],
+  errors = [];
+
 console.log(
-  JSON.stringify(
-    processes.insert_hashes(
-      lexer(
-        processes.init(f)
-      )
-    )
-  )
+  JSON.stringify({
+    WARNS: warnings,
+    ERRORS: errors,
+    LEX: processes.insert_hashes( lexer( processes.init(f) ) )
+  })
 );

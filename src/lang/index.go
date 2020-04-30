@@ -101,17 +101,37 @@ func lexer(file string) []Lex {
 
   lexCmd.Stdin = strings.NewReader(fileNQ + "\n")
 
-  _lex, _ := lexCmd.CombinedOutput()
-  lex_ := string(_lex)
+  _out, _ := lexCmd.CombinedOutput()
+  out := string(_out)
 
-  if strings.HasPrefix(lex_, "Error") {
-    fmt.Println(lex_)
+  var ret map[string][]interface{}
+
+  json.Unmarshal([]byte(out), &ret)
+
+  for _, v := range ret["ERRORS"] {
+    fmt.Println(v, "\n\n" + strings.Repeat("-", 90) + "\n")
+  }
+
+  for _, v := range ret["WARNS"] {
+    fmt.Println(v, "\n\n" + strings.Repeat("-", 90) + "\n")
+  }
+
+  if len(ret["ERRORS"]) != 0 {
     os.Exit(1)
   }
 
   var lex []Lex
 
-  json.Unmarshal([]byte(lex_), &lex)
+  for _, v := range ret["LEX"] {
+
+    encoded, _ := json.Marshal(v)
+
+    var cur Lex
+
+    json.Unmarshal([]byte(encoded), &cur)
+
+    lex = append(lex, cur)
+  }
 
   return lex
 }
