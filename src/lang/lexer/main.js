@@ -19,6 +19,20 @@ var lexer = (file) => {
   outer:
   for (let i = 0; i < file.length; i++) {
 
+    //detect a comment
+    //single line comments are written as !>
+    if (file.substr(i).startsWith('!>')) {
+
+      var end = file.substr(i).indexOf('\n');
+
+      //if there are no more newlines, the lex is complete
+      if (end == -1) break;
+
+      i+=end;
+      line++;
+      continue;
+    }
+
     while (curExp.length > MAX_CUR_EXP) curExp = curExp.substr(1);
     while (curExp.includes('\n')) curExp = curExp.substr(curExp.indexOf('\n') + 1);
 
@@ -203,5 +217,5 @@ console.log(
     WARNS: warnings,
     ERRORS: errors,
     LEX: processes.insert_hashes( lexer( processes.init(f) ) )
-  })
+  }, null, 2)
 );

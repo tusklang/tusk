@@ -12,6 +12,12 @@
     "type": "id"
   },
   {
+    "name": "local",
+    "remove": "lcl",
+    "pattern": "lcl~",
+    "type": "id"
+  },
+  {
     "name": "->",
     "remove": "->",
     "pattern": "(\\-\\>)",

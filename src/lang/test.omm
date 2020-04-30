@@ -1,1 +1,2 @@
-log ~ 's' + 1
+!>test
+log ~ 's'
