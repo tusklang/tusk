@@ -32,7 +32,7 @@ module.exports.insert_hashes = lex => {
   for (let i = 0; i < lex.length; i++)
     if (lex[i].Name.startsWith('$') && lex[i + 1] && lex[i + 1].Name == '(') {
 
-      if (lex[i - 2] && (lex[i - 2].Name == '#' || lex[i - 2].Name == 'process')) continue;
+      if (lex[i - 2] && (lex[i - 2].Name == '#' || lex[i - 2].Name == '@' || lex[i - 2].Name == 'process')) continue;
 
       if (i - 1 < 0) lex.unshift({
         Name: '#',
