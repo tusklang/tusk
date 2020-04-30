@@ -2565,6 +2565,15 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         actions = append(actions, Action{ "files.isDir", "", []string{}, []Action{}, []string{}, args, []Condition{}, 64, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
       //////////////////////
 
+      case "kill":
+
+        if lex[i + 1].Name == "<-" {
+          actions = append(actions, Action{ "kill_thread", "", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 65, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+          i++
+        } else {
+          actions = append(actions, Action{ "kill", "", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 66, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        }
+
       default:
 
         valPuts := func(lex []Lex, i int) int {

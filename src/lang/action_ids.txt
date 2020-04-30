@@ -60,6 +60,8 @@ files.write: 61
 files.exists: 62
 files.isFile: 63
 files.isDir: 64
+kill_thread: 65
+kill: 66
 
 ++: 4343
 --: 4545

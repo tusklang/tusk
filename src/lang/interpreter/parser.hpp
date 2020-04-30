@@ -8,6 +8,7 @@
 #include <thread>
 #include <windows.h>
 #include <regex>
+#include <exception>
 #include "json.hpp"
 #include "bind.h"
 #include "structs.hpp"
@@ -1596,6 +1597,23 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           break;
         }
         //////////////////////////
+
+        case 65: {
+
+          //kill_thread
+
+          terminate();
+
+          break;
+        }
+        case 66: {
+
+          //kill
+
+          Kill();
+
+          break;
+        }
 
         //assignment operators
         case 4343: {

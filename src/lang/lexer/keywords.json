@@ -18,9 +18,27 @@
     "type": "id"
   },
   {
+    "name": "kill",
+    "remove": "kill",
+    "pattern": "kill\\<-",
+    "type": "id"
+  },
+  {
+    "name": "kill",
+    "remove": "kill",
+    "pattern": "kill\\;",
+    "type": "id"
+  },
+  {
     "name": "->",
     "remove": "->",
     "pattern": "(\\-\\>)",
+    "type": "operation"
+  },
+  {
+    "name": "<-",
+    "remove": "<-",
+    "pattern": "(\\<\\-)",
     "type": "operation"
   },
   {
@@ -351,6 +369,12 @@
     "name": "return",
     "remove": "return",
     "pattern": "(return\\~)",
+    "type": "id"
+  },
+  {
+    "name": "return",
+    "remove": "return",
+    "pattern": "(return\\;)",
     "type": "id"
   },
   {
