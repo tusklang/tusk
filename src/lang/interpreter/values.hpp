@@ -7,7 +7,7 @@ using namespace std;
 const json falseyVal = {
   {"Type", "falsey"},
   {"Name", ""},
-  {"ExpStr", json::parse("[\"undefined\"]")},
+  {"ExpStr", json::parse("[\"undef\"]")},
   {"ExpAct", "[]"_json},
   {"Params", "[]"_json},
   {"Args", "[]"_json},

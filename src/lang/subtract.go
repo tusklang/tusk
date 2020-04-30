@@ -329,7 +329,7 @@ func Subtract(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
       subtracted := subtract(length, "2", calc_params, line)
 
       if isLess(subtracted, _num2P_.ExpStr[0]) || returnInit(subtracted) == _num2P_.ExpStr[0] {
-        finalRet = Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
+        finalRet = Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
       } else {
 
         for i := subtract(length, add(_num2P_.ExpStr[0], "1", calc_params, line), calc_params, line); isLess(i, length); i = add(i, "1", calc_params, line) {
@@ -355,7 +355,7 @@ func Subtract(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
       subtracted := subtract(length, "2", calc_params, line)
 
       if isLess(subtracted, _num1P_.ExpStr[0]) || returnInit(subtracted) == _num1P_.ExpStr[0] {
-        finalRet = Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
+        finalRet = Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
       } else {
 
         for i := "0"; isLess(i, _num1P_.ExpStr[0]) || returnInit(i) == returnInit(_num1P_.ExpStr[0]); i = add(i, "1", calc_params, line) {
@@ -410,7 +410,7 @@ func Subtract(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
       val := subtract(val1, _num2P_.ExpStr[0], calc_params, line)
 
       finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-    default: finalRet = Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
+    default: finalRet = Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
   }
 
   reCalc(&finalRet)

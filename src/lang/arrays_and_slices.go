@@ -236,8 +236,17 @@ func interfaceContainWithProcIndex(inter []interface{}, sub interface{}, indexes
         continue loop
     }
 
-    if k != 0 && arrayContain(CPROCS, inter[k - 1].(Lex).Name) {
-      continue loop
+    if k != 0 {
+
+      //only if inter[k - 1] is a lex
+      switch inter[k - 1].(type) {
+        case Lex:
+
+          //if inter[k - 1] is a cproc continue the loop
+          if arrayContain(CPROCS, inter[k - 1].(Lex).Name) {
+            continue loop
+          }
+      }
     }
 
     if sub.(string) == v.(Lex).Name {
@@ -265,8 +274,17 @@ func interfaceIndexOfWithProcIndex(sub interface{}, inter []interface{}, indexes
         continue loop
     }
 
-    if k != 0 && arrayContain(CPROCS, inter[k - 1].(Lex).Name) {
-      continue loop
+    if k != 0 {
+
+      //only if inter[k - 1] is a lex
+      switch inter[k - 1].(type) {
+        case Lex:
+
+          //if inter[k - 1] is a cproc continue the loop
+          if arrayContain(CPROCS, inter[k - 1].(Lex).Name) {
+            continue loop
+          }
+      }
     }
 
     if sub.(string) == v.(Lex).Name {

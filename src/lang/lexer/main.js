@@ -158,7 +158,7 @@ var lexer = (file) => {
 
   //account for: true, false, undefined, and null
   lex = lex.map(l => {
-    if (/\$true|\$false|\$undefined|\$null/.test(l.Name)) return {
+    if (/\$true|\$false|\$undef|\$null/.test(l.Name)) return {
       ...l,
       Name: l.Name.substr(1)
     };

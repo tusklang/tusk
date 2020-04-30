@@ -68,7 +68,7 @@ func GetType(cVal *C.char) *C.char {
     return C.CString("array")
   } else if val == "true" || val == "false" {
     return C.CString("boolean")
-  } else if val == "undefined" || val == "null" {
+  } else if val == "undef" || val == "null" {
     return C.CString("falsey")
   } else if numMatch(val) {
     return C.CString("number")

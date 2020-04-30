@@ -1328,7 +1328,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
       case "process":
 
         putFalsey := make(map[string][]Action)
-        putFalsey["falsey"] = []Action{ Action{ "falsey", "", []string{ "undefined" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false } }
+        putFalsey["falsey"] = []Action{ Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false } }
 
         logic, params, procName := procCalc(&i, lex, len_lex, dir)
 
@@ -1499,7 +1499,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
           conditions = append(conditions, if_)
 
-          i+=(1 + len(cond_) + len(acts))
+          i+=(1 + len(cond_) + len(actions_))
 
           if i >= len_lex {
             break
@@ -1585,7 +1585,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
             conditions = append(conditions, elseif_)
 
-            i+=(1 + len(cond_) + len(acts))
+            i+=(1 + len(cond_) + len(actions_))
 
             if i >= len_lex {
               break
@@ -2456,11 +2456,14 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
           }
 
           if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && v.Name == "newlineS" {
+
+            //index where the iterator stopped
             stopIterIndex = k
             break
           }
 
           _iterator = append(_iterator, v)
+          stopIterIndex = k
         }
 
         iterator := actionizer(_iterator, true, dir)
@@ -2485,7 +2488,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
         var exp []Lex
 
-        var curlyBraceCond = lex[i + 1 + len(condition_)].Name == "{"
+        var curlyBraceCond = lex[i].Name == "{"
 
         for o := i; o < len_lex; o++ {
           if lex[o].Name == "{" {
@@ -2528,8 +2531,9 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
           }
         }
 
+        i+=len(exp) + 1
         actionized := actionizer(exp, false, dir)
-        actions = append(actions, Action{ "each", "", []string{ var1, var2 }, actionized, []string{}, [][]Action{}, []Condition{}, 59, []Action{}, iterator, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        actions = append(actions, Action{ "each", "", []string{ var1, var2 }, actionized, []string{}, [][]Action{}, []Condition{}, 59, iterator, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
 
       //file system keywords
 
@@ -2585,7 +2589,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
               hashedString := make(map[string][]Action)
 
               //specify the value for the "falsey" case
-              hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
+              hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
 
               cur := "0"
 
@@ -2594,7 +2598,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
               for _, v := range noQ {
 
                 hashedIndex := make(map[string][]Action)
-                hashedIndex["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
+                hashedIndex["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
 
                 hashedString[cur] = []Action{ Action{ "string", "exp_value", []string{ string(v) }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedIndex, isMutable } }
                 cur = add(cur, "1", paramCalcOpts{}, -1)
@@ -2607,7 +2611,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
               hashed := make(map[string][]Action)
 
               //specify the value for the "falsey" case
-              hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
+              hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
 
               actions = append(actions, Action{ "number", "exp_value", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, false })
             case "boolean":
@@ -2636,7 +2640,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
                 hashedString := make(map[string][]Action)
 
                 //specify the value for the "falsey" case
-                hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undefined" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
+                hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
 
                 //get it? 42?
                 actions = append(actions, Action{ "none", "exp_value", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 42, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable })

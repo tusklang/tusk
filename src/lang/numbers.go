@@ -163,8 +163,8 @@ func initAdd(num1 string, num2 string) (string, string) {
 
 func addDec(num string) string {
 
-  if num == "undefined" {
-    return "undefined";
+  if num == "undef" {
+    return "undef";
   }
 
   if !strings.Contains(num, ".") {
@@ -190,7 +190,7 @@ func abs(num []string) []string {
 
 func isLess(num1 string, num2 string) bool {
 
-  if num1 == "undefined" || num2 == "undefined" || num1 == "NaN" || num2 == "NaN" {
+  if num1 == "undef" || num2 == "undef" || num1 == "NaN" || num2 == "NaN" {
     return false
   }
 

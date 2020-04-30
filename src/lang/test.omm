@@ -1,1 +1,1 @@
-log ~ files.isFile('./')
+log ~ [].[0]
