@@ -3,6 +3,7 @@
 
 #include "json.hpp"
 #include "parser.hpp"
+#include "values.hpp"
 using namespace std;
 
 Returner parser(const json actions, const json calc_params, json vars, const string dir, const bool groupReturn, int line, const bool expReturn);
@@ -13,8 +14,10 @@ json indexesCalc(json val, json indexes, json calc_params, json vars, int line, 
 
   string index = parser(indexes[0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
 
-  if (val.find(index) == val.end()) return val["falsey"][0];
-  else {
+  if (val.find(index) == val.end()) {
+    if (val.find("falsey") == val.end()) return falseyVal;
+    else return val["falsey"][0];
+  } else {
 
     json expVal = parser(val[index], calc_params, vars, dir, false, line, true).exp;
 

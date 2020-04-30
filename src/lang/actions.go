@@ -2029,13 +2029,21 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
         var translated = make(map[string][]Action)
 
+        translated["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false } }
+
         for _, v := range _translated {
 
           if len(v[0]) <= 0 {
             break
           }
 
-          translated[v[0][0].Name] = actionizer(v[1], true, dir)
+          var name = v[0][0].Name
+
+          if strings.HasPrefix(v[0][0].Name, "'") {
+            name = name[1:len(name) - 1]
+          }
+
+          translated[name] = actionizer(v[1], true, dir)
         }
 
         if i >= len_lex {
@@ -2225,6 +2233,8 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
         }
 
         hashedArr := make(map[string][]Action)
+
+        hashedArr["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false } }
 
         cur := "0"
 
@@ -2585,15 +2595,13 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
 
             case "string": {
 
-              noQ := []rune(val)[1:len(val) - 1]
+              noQ := val[1:len(val) - 1]
               hashedString := make(map[string][]Action)
 
               //specify the value for the "falsey" case
               hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
 
               cur := "0"
-
-              val = val[1:len(val) - 1]
 
               for _, v := range noQ {
 

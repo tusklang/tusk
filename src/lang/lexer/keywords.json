@@ -159,13 +159,13 @@
     "name": "[:",
     "remove": "[:",
     "pattern": "(\\[\\:)",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": ":]",
     "remove": ":]",
     "pattern": "(\\:\\])",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": ":::",
