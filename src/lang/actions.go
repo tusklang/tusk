@@ -2612,7 +2612,7 @@ func actionizer(lex []Lex, doExpress bool, dir string) []Action {
                 cur = add(cur, "1", paramCalcOpts{}, -1)
               }
 
-              actions = append(actions, Action{ "string", "exp_value", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedString, isMutable })
+              actions = append(actions, Action{ "string", "exp_value", []string{ noQ }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedString, isMutable })
             }
             case "number":
 

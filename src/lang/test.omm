@@ -1,3 +1,1 @@
-,,
-returner
-log ~ 's';
+log ~ 's' + 1
