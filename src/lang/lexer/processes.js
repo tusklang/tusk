@@ -1,5 +1,4 @@
 // this will allow you to write #procName instead of #~procName
-
 module.exports.init = file => {
 
   var nFile = ""
@@ -27,6 +26,7 @@ module.exports.init = file => {
   return nFile;
 }
 
+//this will allow you to write procName() instead of #procName() or #~procName()
 module.exports.insert_hashes = lex => {
 
   for (let i = 0; i < lex.length; i++)
@@ -39,25 +39,29 @@ module.exports.insert_hashes = lex => {
         Exp: '#~' + lex[i].Exp,
         Line: lex[i].Line,
         Type: 'id',
-        OName: '#'
+        OName: '#',
+        Dir: lex[i].Dir
       }, {
         Name: '~',
         Exp: '~' + lex[i].Exp,
         Line: lex[i].Line,
         Type: 'operation',
-        OName: '~'
+        OName: '~',
+        Dir: lex[i].Dir
       }); else lex.splice(i, 0, {
         Name: '#',
         Exp: '#~' + lex[i].Exp,
         Line: lex[i].Line,
         Type: 'id',
-        OName: '#'
+        OName: '#',
+        Dir: lex[i].Dir
       }, {
         Name: '~',
         Exp: '~' + lex[i].Exp,
         Line: lex[i].Line,
         Type: 'operation',
-        OName: '~'
+        OName: '~',
+        Dir: lex[i].Dir
       });
 
       i+=2;

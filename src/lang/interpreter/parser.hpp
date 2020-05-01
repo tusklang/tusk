@@ -420,15 +420,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //eval
 
-            json code = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
-
-            char* codeNQ = NQReplaceC(&(code["ExpStr"][0].get<string>())[0]);
-
-            char* len = CLex(codeNQ);
+            string code = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp.get<string>();
 
             char* sendDir = const_cast<char*>(&dir[0]);
 
-            char* __acts = Cactions(len, sendDir);
+            char* len = CLex(&code[0], sendDir, "eval");
+
+            char* __acts = Cactions(len, sendDir, "eval");
 
             string _acts(__acts);
 

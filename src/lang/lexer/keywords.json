@@ -450,6 +450,12 @@
     "type": "id"
   },
   {
+    "name": "include",
+    "remove": "include",
+    "pattern": "(include\\~)",
+    "type": "id"
+  },
+  {
     "name": "read",
     "remove": "read",
     "pattern": "(read\\~)",

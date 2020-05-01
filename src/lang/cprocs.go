@@ -5,7 +5,7 @@ import "os"
 import "strings"
 
 //this is just a function to actionize c processes in omm
-func cproc(i *int, lex []Lex, PARAM_COUNT uint, name, dir string) [][]Action {
+func cproc(i *int, lex []Lex, PARAM_COUNT uint, name, dir, filename string) [][]Action {
 
   var curLex = lex[(*i)]
   var paramExp []Lex
@@ -86,13 +86,13 @@ func cproc(i *int, lex []Lex, PARAM_COUNT uint, name, dir string) [][]Action {
       continue
     }
 
-    actionSplit = append(actionSplit, actionizer(v, true, dir))
+    actionSplit = append(actionSplit, actionizer(v, true, dir, filename))
   }
 
   if uint(len(splitParams)) != PARAM_COUNT {
 
     //throw an error
-    fmt.Println("Error while actionizing! Expected", PARAM_COUNT, "argument(s), but got", len(splitParams), "instead to call", /* say the process */ name, "\n\nError occured on line", curLex.Line, "\nFound near:", strings.TrimSpace(curLex.Exp))
+    fmt.Println("Error while actionizing in " + curLex.Dir + "! Expected", PARAM_COUNT, "argument(s), but got", len(splitParams), "instead to call", /* say the process */ name, "\n\nError occured on line", curLex.Line, "\nFound near:", strings.TrimSpace(curLex.Exp))
 
     //exit the process
     os.Exit(1)

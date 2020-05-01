@@ -1,12 +1,13 @@
 const
-  testkey = require('./testkey'),
-  processes = require('./processes')
+  testkey = require('./testkey'), //file to test each keyword
+  processes = require('./processes'), //file with process utils
+  include_parser = require('./includes'), //file that will include omm files within other omm files
+  rw = require('./remove_whitespace') //file to remove whitespace from a string
   fs = require('fs');
 
 global.KEYWORDS = require('./keywords.json');
 global.MAX_CUR_EXP = 12;
-
-var lexer = (file) => {
+global.lexer = (file, dir) => {
 
   //current expression
   var curExp = ''
@@ -51,7 +52,8 @@ var lexer = (file) => {
           Exp: curExp,
           Line: line,
           Type: KEYWORDS[o].type,
-          OName: KEYWORDS[o].remove
+          OName: KEYWORDS[o].remove,
+          Dir: dir
         });
 
         if (KEYWORDS[o].name != 'newlineN') i+=KEYWORDS[o].remove.length - 1;
@@ -70,14 +72,14 @@ var lexer = (file) => {
         escaped = false;
 
       for (let o = i + 1; o < file.length; o++, i++) {
-        if (escaped) escaped = false;
 
         //if it is escape character, set escaped to true
-        if (file[o] == '\\') escaped = true;
+        if (!escaped && file[o] == '\\') escaped = true;
 
-        if (file.substr(o)[0] == qType && !escaped) break;
+        if (!escaped && file.substr(o)[0] == qType) break;
 
         value+=file[o];
+        escaped = false;
       }
 
       i++;
@@ -89,7 +91,8 @@ var lexer = (file) => {
         Exp: curExp,
         Line: line,
         Type: 'string',
-        OName: '\'' + value + '\''
+        OName: '\'' + value + '\'',
+        Dir: dir
       });
       continue outer;
     } else if (/^(\d|\+|\-|\.)/.test(file.substr(i))) {
@@ -119,7 +122,8 @@ var lexer = (file) => {
           Exp: curExp,
           Line: line,
           Type: 'number',
-          OName: num
+          OName: num,
+          Dir: dir
         });
         continue outer;
       }
@@ -140,7 +144,8 @@ var lexer = (file) => {
         Exp: curExp,
         Line: line,
         Type: 'number',
-        OName: num
+        OName: num,
+        Dir: dir
       });
     } else {
 
@@ -164,7 +169,8 @@ var lexer = (file) => {
         Exp: curExp,
         Line: line,
         Type: 'Variable',
-        OName: variable.substr(1)
+        OName: variable.substr(1),
+        Dir: dir
       });
     }
 
@@ -186,7 +192,7 @@ var lexer = (file) => {
     if (lex[i - 1] && v.Type[0] != '?' && v.Type != 'newline') {
       if (v.Type == lex[i - 1].Type) {
         errors.push(
-          `Error while lexing! \nUnexpected token: \"${v.OName.trim()}\" on line ${v.Line}`
+          `Error while lexing in ${dir}! \nUnexpected token: \"${v.OName.trim()}\" on line ${v.Line}`
           +
           `\n\nFound near: ${v.Exp.trim()}`
           +
@@ -199,14 +205,14 @@ var lexer = (file) => {
 
     if (lex[i].Name.startsWith('$return'))
       //give a warning
-      warnings.push(`Warning while lexing! Did you mean \"return ~\" on line ${lex[i].Line}?`);
+      warnings.push(`Warning while lexing in ${dir}! Did you mean \"return ~\" on line ${lex[i].Line}?`);
   });
 
-  return lex;
+  return include_parser(dir, processes.insert_hashes(lex));
 }
 
 var stdinBuffer = fs.readFileSync(0)
-, f = stdinBuffer.toString();
+, { f, dir, name } = JSON.parse(stdinBuffer.toString());
 
 var
   warnings = [],
@@ -216,6 +222,6 @@ console.log(
   JSON.stringify({
     WARNS: warnings,
     ERRORS: errors,
-    LEX: processes.insert_hashes( lexer( processes.init(f) ) )
+    LEX: lexer(processes.init(rw(f)), dir + name)
   }, null, 2)
 );

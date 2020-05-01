@@ -17,7 +17,7 @@ func readFileJS(fileName string) []string {
   _file, _ := readCmd.CombinedOutput()
   file_ := strings.TrimSpace(string(_file))
 
-  if strings.HasPrefix(file_, "Error: ") {
+  if strings.HasPrefix(file_, "Error") {
     fmt.Println(file_)
     os.Exit(1)
   }

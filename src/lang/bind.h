@@ -8,12 +8,11 @@ extern "C" {
   extern char* Division(char*, char*, char*, int);
   extern char* Modulo(char*, char*, char*, int);
   extern char* Exponentiate(char*, char*, char*, int);
-  extern char* Cactions(char*, char*);
+  extern char* Cactions(char*, char*, char*);
   extern char* GetType(char*);
   extern char* ReturnInitC(char*);
   extern int IsLessC(char*, char*);
-  extern char* CLex(char*);
-  extern char* NQReplaceC(char*);
+  extern char* CLex(char*, char*, char*);
   extern int GetActNumC(char*);
   extern char* AddC(char*, char*);
   extern char* GetOp(char*);

@@ -23,16 +23,17 @@ type Lex struct {
   Line   uint64
   Type   string
   OName  string
+  Dir    string
 }
 
 //export Cactions
-func Cactions(file *C.char, dir *C.char) *C.char {
+func Cactions(file *C.char, dir *C.char, name *C.char) *C.char {
 
   var lex []Lex
 
   json.Unmarshal([]byte(C.GoString(file)), &lex)
 
-  acts, _ := json.Marshal(actionizer(lex, false, C.GoString(dir)))
+  acts, _ := json.Marshal(actionizer(lex, false, C.GoString(dir), C.GoString(name)))
 
   return C.CString(string(acts))
 }
@@ -78,15 +79,21 @@ func GetType(cVal *C.char) *C.char {
 }
 
 //export CLex
-func CLex(_file *C.char) *C.char {
+func CLex(_file, dir, name *C.char) *C.char {
 
   file := C.GoString(_file)
 
   lexCmd := exec.Command("./lexer/main-win.exe")
 
-  fileNQ, _ := NQReplace(file)
+  var in = map[string]string{
+    "f": file,
+    "dir": C.GoString(dir),
+    "name": C.GoString(name),
+  }
 
-  lexCmd.Stdin = strings.NewReader(fileNQ + "\n")
+  instr, _ := json.Marshal(in)
+
+  lexCmd.Stdin = strings.NewReader(string(instr))
 
   _lex, _ := lexCmd.CombinedOutput()
   lex_ := string(_lex)
@@ -94,12 +101,19 @@ func CLex(_file *C.char) *C.char {
   return C.CString(lex_)
 }
 
-func lexer(file string) []Lex {
-  fileNQ, _ := NQReplace(file)
-
+func lexer(file, dir, name string) []Lex {
   lexCmd := exec.Command("./lexer/main-win.exe")
 
-  lexCmd.Stdin = strings.NewReader(fileNQ + "\n")
+  var in = map[string]string{
+    "f": file,
+    "dir": dir,
+    "name": name,
+  }
+
+  //dont know why, but json.Marshal does not work, so you I used json.MarshalIndent
+  instr, _ := json.MarshalIndent(in, "", "  ")
+
+  lexCmd.Stdin = strings.NewReader(string(instr))
 
   _out, _ := lexCmd.CombinedOutput()
   out := string(_out)
@@ -140,9 +154,9 @@ func index(fileName, dir string, calcParams paramCalcOpts) {
 
   file := readFileJS(dir + fileName)[0]
 
-  lex := lexer(file)
+  lex := lexer(file, dir, fileName)
 
-  var actions = actionizer(lex, false, dir)
+  var actions = actionizer(lex, false, dir, fileName)
 
   var acts, _ = json.Marshal(actions)
 
