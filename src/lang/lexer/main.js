@@ -74,7 +74,11 @@ global.lexer = (file, dir) => {
       for (let o = i + 1; o < file.length; o++, i++) {
 
         //if it is escape character, set escaped to true
-        if (!escaped && file[o] == '\\') escaped = true;
+        if (!escaped && file[o] == '\\') {
+          escaped = true;
+          o--;
+          continue;
+        }
 
         if (!escaped && file.substr(o)[0] == qType) break;
 

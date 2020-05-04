@@ -62,6 +62,8 @@ files.isFile: 63
 files.isDir: 64
 kill_thread: 65
 kill: 66
+regex.match: 68
+regex.substitute: 69
 
 ++: 4343
 --: 4545

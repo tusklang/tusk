@@ -34,6 +34,8 @@ module.exports = str => {
       nStr+=i;
 
     } else nStr+=i; //if it is a string, then add the current char no matter what
+
+    escaped = false;
   }
 
   //just using .trim() for extra precautions

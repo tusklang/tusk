@@ -54,11 +54,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json parsed = parser(acts, calc_params, vars, dir, false, line, true).exp;
 
-            if (parsed.size() == 0) {
-              cout << "There Was An Unidentified Error On Line " << line << endl;
-              Kill();
-            }
-
             json nVar = {
               {"type", "local"},
               {"name", name},
@@ -115,11 +110,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             json acts = actions[i]["ExpAct"];
 
             json parsed = parser(acts, calc_params, vars, dir, false, line, true).exp;
-
-            if (parsed.size() == 0) {
-              cout << "There Was An Unidentified Error On Line " << line << endl;
-              Kill();
-            }
 
             json nVar = {
               {"type", "global"},
@@ -622,11 +612,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json parsed = parser(acts, calc_params, vars, dir, false, line, true).exp;
 
-            if (parsed.size() == 0) {
-              cout << "There Was An Unidentified Error On Line " << line << endl;
-              Kill();
-            }
-
             json nVar;
 
             json var = vars[name];
@@ -675,7 +660,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                json myObj;
                auto ref = std::ref(vars[name]["value"]["Hash_Values"]);
 
-               for (string i : indexes) ref = ref.get()[i];
+               for (string o : indexes) ref = ref.get()[o];
 
                ref.get() = json::parse("[" + nVar["value"].dump() + "]");
             }
@@ -993,154 +978,154 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           break;
         case 48: {
 
-            //notEqual
+          //notEqual
 
-            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+          json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
+          , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
 
-            json val = equals(
-              first,
-              second,
-              calc_params,
-              vars,
-              dir,
-              line
-            );
+          json val = equals(
+            first,
+            second,
+            calc_params,
+            vars,
+            dir,
+            line
+          );
 
-            val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
-            if (first["Type"] != second["Type"]) val = trueRet;
+          val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
+          if (first["Type"] != second["Type"]) val = trueRet;
 
-            if (expReturn) {
-              Returner ret;
+          if (expReturn) {
+            Returner ret;
 
-              vector<string> retNo;
+            vector<string> retNo;
 
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val;
-              ret.type = "expression";
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = val;
+            ret.type = "expression";
 
-              return ret;
-            }
+            return ret;
           }
           break;
+        }
         case 49: {
 
-            //greater
+          //greater
 
-            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+          json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
+          , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
 
-            json val = isGreater(
-              first,
-              second,
-              calc_params,
-              line
-            );
+          json val = isGreater(
+            first,
+            second,
+            calc_params,
+            line
+          );
 
-            if (expReturn) {
-              Returner ret;
+          if (expReturn) {
+            Returner ret;
 
-              vector<string> retNo;
+            vector<string> retNo;
 
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val;
-              ret.type = "expression";
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = val;
+            ret.type = "expression";
 
-              return ret;
-            }
+            return ret;
           }
           break;
+        }
         case 50: {
 
-            //less
+          //less
 
-            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+          json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
+          , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
 
-            json val = isLess(
-              first,
-              second,
-              calc_params,
-              line
-            );
+          json val = isLess(
+            first,
+            second,
+            calc_params,
+            line
+          );
 
-            if (expReturn) {
-              Returner ret;
+          if (expReturn) {
+            Returner ret;
 
-              vector<string> retNo;
+            vector<string> retNo;
 
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val;
-              ret.type = "expression";
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = val;
+            ret.type = "expression";
 
-              return ret;
-            }
+            return ret;
           }
           break;
+        }
         case 51: {
 
-            //greaterOrEqual
+          //greaterOrEqual
 
-            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+          json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
+          , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
 
-            json val = isLess(
-              first,
-              second,
-              calc_params,
-              line
-            );
+          json val = isLess(
+            first,
+            second,
+            calc_params,
+            line
+          );
 
-            val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
+          val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
 
-            if (expReturn) {
-              Returner ret;
+          if (expReturn) {
+            Returner ret;
 
-              vector<string> retNo;
+            vector<string> retNo;
 
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val;
-              ret.type = "expression";
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = val;
+            ret.type = "expression";
 
-              return ret;
-            }
+            return ret;
           }
           break;
+        }
         case 52: {
 
-            //lessOrEqual
+          //lessOrEqual
 
-            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+          json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
+          , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
 
-            json val = isGreater(
-              first,
-              second,
-              calc_params,
-              line
-            );
+          json val = isGreater(
+            first,
+            second,
+            calc_params,
+            line
+          );
 
-            val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
-            if (first["Type"] != second["Type"]) val = trueRet;
+          val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
+          if (first["Type"] != second["Type"]) val = trueRet;
 
-            if (expReturn) {
-              Returner ret;
+          if (expReturn) {
+            Returner ret;
 
-              vector<string> retNo;
+            vector<string> retNo;
 
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val;
-              ret.type = "expression";
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = val;
+            ret.type = "expression";
 
-              return ret;
-            }
+            return ret;
           }
           break;
+        }
         case 53: {
 
             //not
@@ -1298,9 +1283,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             if (IsLessC(&(amt["ExpStr"][0].get<string>())[0], "4294967296")) Sleep((ulong) atoi(&(amt["ExpStr"][0].get<string>())[0]));
             else {
-              for (char* i = "0"; (bool) IsLessC(i, &(amt["ExpStr"][0].get<string>())[0]); i = AddStrings(i, "4294967296", &calc_params.dump()[0], line)) {
+              for (char* o = "0"; (bool) IsLessC(o, &(amt["ExpStr"][0].get<string>())[0]); o = AddStrings(o, "4294967296", &calc_params.dump()[0], line)) {
 
-                char* subtracted = SubtractStrings(&(amt["ExpStr"][0].get<string>())[0], i, &calc_params.dump()[0], line);
+                char* subtracted = SubtractStrings(&(amt["ExpStr"][0].get<string>())[0], o, &calc_params.dump()[0], line);
 
                 if (IsLessC(
                   subtracted,
@@ -1441,14 +1426,14 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               contentJ["ExpStr"] = {content};
 
-              for (ulong i = 0; i < content.length(); i++) {
+              for (ulong o = 0; o < content.length(); o++) {
                 json curChar = strPlaceholder;
 
                 curChar["ExpStr"] = {
-                  to_string(content[i])
+                  to_string(content[o])
                 };
 
-                contentJ["Hash_Values"][to_string(i)] = curChar;
+                contentJ["Hash_Values"][to_string(o)] = curChar;
               }
 
               ret.exp = retNo;
@@ -1594,7 +1579,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           }
           break;
         }
-        //////////////////////////
 
         case 65: {
 
@@ -1612,6 +1596,121 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
           break;
         }
+
+        case 68: {
+
+          //regex.match
+
+          string str = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+          string regstr = parser(actions[i]["Args"][1], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+
+          try {
+            regex reg(regstr);
+
+            smatch matcher;
+
+            vector<ulong long> found_indexes;
+
+            //get all matches
+            for (auto it = sregex_iterator(str.begin(), str.end(), reg); it != sregex_iterator(); it++) {
+              found_indexes.push_back(it->position());
+            }
+
+            json returner = arrayVal;
+
+            char* cur = "0";
+
+            //loop through the indexes found and store them an omm type array
+            for (int i : found_indexes) {
+
+              //store the value of the number 1
+              json indexJ = val1;
+
+              indexJ["ExpStr"][0] = to_string(i);
+
+              returner["Hash_Values"][string(cur)] = { indexJ };
+              cur = AddStrings(cur, "1", &calc_params.dump()[0], line);
+            }
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.exp = retNo;
+              ret.variables = vars;
+              ret.exp = returner;
+              ret.type = "expression";
+
+              return ret;
+            }
+
+          } catch (regex_error& e) {
+
+            //give information about the warning
+            cout << "Warning during interpreting: Invalid Regular Expression: " << regstr << endl;
+            cout << "Error description: " << e.what() << endl;
+            cout << "Error code: " << e.code() << endl;
+            cout << endl << string(90, '-') << "\n\n";
+          }
+
+          break;
+        }
+
+        case 69: {
+
+          //regex.replace
+
+          string str = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+          string regstr = parser(actions[i]["Args"][1], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+          string replace_with = parser(actions[i]["Args"][2], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+
+          try {
+            regex reg(regstr);
+
+            string result = regex_replace(str, reg, replace_with);
+
+            json resultJ = strPlaceholder;
+
+            resultJ["ExpStr"] = json::parse("[\"" + result + "\"]");
+
+            char* cur = "0";
+
+            for (char i : result) {
+
+              json indexJ = strPlaceholder;
+
+              indexJ["ExpStr"] = { to_string(i) };
+
+              resultJ["Hash_Values"][string(cur)] = { indexJ };
+              cur = AddStrings(cur, "1", &calc_params.dump()[0], line);
+            }
+
+            if (expReturn) {
+              Returner ret;
+
+              vector<string> retNo;
+
+              ret.exp = retNo;
+              ret.variables = vars;
+              ret.exp = resultJ;
+              ret.type = "expression";
+
+              return ret;
+            }
+
+          } catch (regex_error& e) {
+
+            //give information about the warning
+            cout << "Warning during interpreting: Invalid Regular Expression: " << regstr << endl;
+            cout << "Error description: " << e.what() << endl;
+            cout << "Error code: " << e.code() << endl;
+            cout << endl << string(90, '-') << "\n\n";
+          }
+
+          break;
+        }
+        //////////////////////////
 
         //assignment operators
         case 4343: {

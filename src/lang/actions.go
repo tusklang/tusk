@@ -7,12 +7,14 @@ import "reflect"
 // #cgo CFLAGS: -std=c99
 import "C"
 
+//export Condition
 type Condition struct {
   Type            string
   Condition     []Action
   Actions       []Action
 }
 
+//export Action
 type Action struct {
   Type            string
   Name            string
@@ -2573,6 +2575,16 @@ func actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         } else {
           actions = append(actions, Action{ "kill", "", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 66, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
         }
+
+      case "regex.match":
+
+        args := cproc(&i, lex, uint(2), "regex.match", dir, name)
+        actions = append(actions, Action{ "regex.match", "", []string{}, []Action{}, []string{}, args, []Condition{}, 68, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+
+      case "regex.replace":
+
+        args := cproc(&i, lex, uint(3), "regex.substitute", dir, name)
+        actions = append(actions, Action{ "regex.substitute", "", []string{}, []Action{}, []string{}, args, []Condition{}, 69, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
 
       default:
 

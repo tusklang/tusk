@@ -129,6 +129,24 @@ const json falseyVal = {
   {"Index_Type", ""},
   {"Hash_Values", "{}"_json},
   {"IsMutable", false}
+}
+, arrayVal = {
+  {"Type", "array"},
+  {"Name", ""},
+  {"ExpStr", json::parse("[]")},
+  {"ExpAct", "[]"_json},
+  {"Params", "[]"_json},
+  {"Args", "[]"_json},
+  {"Condition", "[]"_json},
+  {"ID", 24},
+  {"First", "[]"_json},
+  {"Second", "[]"_json},
+  {"Degree", "[]"_json},
+  {"Value", "[[]]"_json},
+  {"Indexes", "[[]]"_json},
+  {"Index_Type", ""},
+  {"Hash_Values", "{}"_json},
+  {"IsMutable", false}
 };
 
 #endif

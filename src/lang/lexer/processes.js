@@ -6,8 +6,9 @@ module.exports.init = file => {
   , typeOfQ = "";
 
   for (let i = 0; i < file.length; i++) {
-    if (file[i] == '\\') {
+    if (!escaped && file[i] == '\\') {
       escaped = true;
+      i--;
       continue;
     }
 

@@ -204,6 +204,18 @@
     "type": "operation"
   },
   {
+    "name": "regex.match",
+    "remove": "regex.match",
+    "pattern": "regex\\.match\\(",
+    "type": "id"
+  },
+  {
+    "name": "regex.replace",
+    "remove": "regex.replace",
+    "pattern": "regex\\.replace\\(",
+    "type": "id"
+  },
+  {
     "name": "files.read",
     "remove": "files.read",
     "pattern": "files\\.read\\(",
