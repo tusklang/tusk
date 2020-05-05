@@ -83,22 +83,11 @@ func CLex(_file, dir, name *C.char) *C.char {
 
   file := C.GoString(_file)
 
-  lexCmd := exec.Command("./lexer/main-win.exe")
+  _lex := lexer(file, C.GoString(dir), C.GoString(name))
 
-  var in = map[string]string{
-    "f": file,
-    "dir": C.GoString(dir),
-    "name": C.GoString(name),
-  }
+  lex, _ := json.Marshal(_lex)
 
-  instr, _ := json.Marshal(in)
-
-  lexCmd.Stdin = strings.NewReader(string(instr))
-
-  _lex, _ := lexCmd.CombinedOutput()
-  lex_ := string(_lex)
-
-  return C.CString(lex_)
+  return C.CString(string(lex))
 }
 
 func lexer(file, dir, name string) []Lex {
@@ -123,11 +112,15 @@ func lexer(file, dir, name string) []Lex {
   json.Unmarshal([]byte(out), &ret)
 
   for _, v := range ret["ERRORS"] {
-    fmt.Println(v, "\n\n" + strings.Repeat("-", 90) + "\n")
+    C.colorprint(C.CString("Error while lexxing in " + dir + name + "!"), C.int(12))
+    fmt.Print(fmt.Sprint(v), "\n\n" + strings.Repeat("-", 90) + "\n")
+    fmt.Println()
   }
 
   for _, v := range ret["WARNS"] {
-    fmt.Println(v, "\n\n" + strings.Repeat("-", 90) + "\n")
+    C.colorprint(C.CString("Warning while lexxing in " + dir + name + "! "), C.int(14))
+    fmt.Print(fmt.Sprint(v), "\n\n" + strings.Repeat("-", 90) + "\n")
+    fmt.Println()
   }
 
   if len(ret["ERRORS"]) != 0 {

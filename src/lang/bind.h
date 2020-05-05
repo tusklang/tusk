@@ -20,6 +20,7 @@ extern "C" {
   extern char* AddStrings(char*, char*, char*, int);
   extern char* SubtractStrings(char*, char*, char*, int);
   void bindCgo(char* actions, char* calc_params, char* dir);
+  void colorprint(char*, int);
 #ifdef __cplusplus
 }
 #endif

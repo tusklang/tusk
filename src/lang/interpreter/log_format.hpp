@@ -2,8 +2,11 @@
 #define LOG_FORMAT_HPP_
 
 #include <iostream>
+#include <windows.h>
+#include <stdio.h>
 #include "json.hpp"
 #include "parser.hpp"
+#include "../bind.h"
 using namespace std;
 
 Returner parser(const json actions, const json calc_params, json vars, const string dir, const bool groupReturn, int line, const bool expReturn);

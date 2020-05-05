@@ -196,7 +196,7 @@ global.lexer = (file, dir) => {
     if (lex[i - 1] && v.Type[0] != '?' && v.Type != 'newline') {
       if (v.Type == lex[i - 1].Type) {
         errors.push(
-          `Error while lexing in ${dir}! \nUnexpected token: \"${v.OName.trim()}\" on line ${v.Line}`
+          `\nUnexpected token: \"${v.OName.trim()}\" on line ${v.Line}`
           +
           `\n\nFound near: ${v.Exp.trim()}`
           +
@@ -209,7 +209,7 @@ global.lexer = (file, dir) => {
 
     if (lex[i].Name.startsWith('$return'))
       //give a warning
-      warnings.push(`Warning while lexing in ${dir}! Did you mean \"return ~\" on line ${lex[i].Line}?`);
+      warnings.push(`Did you mean \"return ~\" on line ${lex[i].Line}?`);
   });
 
   return include_parser(dir, processes.insert_hashes(lex));
