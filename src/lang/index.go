@@ -1,4 +1,4 @@
-package main
+package lang
 
 import "os"
 import "os/exec"
@@ -12,6 +12,8 @@ import "fmt"
 // #include "bind.h"
 import "C"
 
+var operators = []string{"^", "*", "/", "%", "+", "-", "&", "|", "!", "~", ";"}
+
 //export Kill
 func Kill() {
   os.Exit(1)
@@ -24,18 +26,6 @@ type Lex struct {
   Type   string
   OName  string
   Dir    string
-}
-
-//export Cactions
-func Cactions(file *C.char, dir *C.char, name *C.char) *C.char {
-
-  var lex []Lex
-
-  json.Unmarshal([]byte(C.GoString(file)), &lex)
-
-  acts, _ := json.Marshal(actionizer(lex, false, C.GoString(dir), C.GoString(name)))
-
-  return C.CString(string(acts))
 }
 
 //export GetType
@@ -78,20 +68,9 @@ func GetType(cVal *C.char) *C.char {
   return C.CString("none")
 }
 
-//export CLex
-func CLex(_file, dir, name *C.char) *C.char {
-
-  file := C.GoString(_file)
-
-  _lex := lexer(file, C.GoString(dir), C.GoString(name))
-
-  lex, _ := json.Marshal(_lex)
-
-  return C.CString(string(lex))
-}
-
-func lexer(file, dir, name string) []Lex {
-  lexCmd := exec.Command("./lexer/main-win.exe")
+//export Lexer
+func Lexer(file, dir, name string) []Lex {
+  lexCmd := exec.Command("./lang/lexer/main-win.exe")
 
   var in = map[string]string{
     "f": file,
@@ -143,19 +122,28 @@ func lexer(file, dir, name string) []Lex {
   return lex
 }
 
-func index(fileName, dir string, calcParams paramCalcOpts) {
+//export OatRun
+func OatRun(acts, cli_params string) {
+  C.bindCgo(C.CString(acts), C.CString(cli_params))
+}
 
-  file := readFileJS(dir + fileName)[0]
+//export Run
+func Run(params map[string]map[string]interface{}) {
 
-  lex := lexer(file, dir, fileName)
+  dir := params["Files"]["DIR"].(string)
+  fileName := params["Files"]["NAME"].(string)
 
-  var actions = actionizer(lex, false, dir, fileName)
+  file := ReadFileJS(dir + fileName)[0]
+
+  lex := Lexer(file, dir, fileName)
+
+  var actions = Actionizer(lex, false, dir, fileName)
 
   var acts, _ = json.Marshal(actions)
 
-  cp, _ := json.Marshal(calcParams)
+  cp, _ := json.Marshal(params)
 
   _, _ = acts, cp
 
-  C.bindCgo(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir))
+  C.bindCgo(C.CString(string(acts)), C.CString(string(cp)))
 }

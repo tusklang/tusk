@@ -1,4 +1,4 @@
-package main
+package lang
 
 import "encoding/json"
 import "strings"
@@ -6,7 +6,7 @@ import "strings"
 // #cgo CFLAGS: -std=c99
 import "C"
 
-func exponentiate(_num1 string, _num2 string, calc_params paramCalcOpts, line int) string {
+func exponentiate(_num1 string, _num2 string, cli_params map[string]map[string]interface{}) string {
 
   _num1 = returnInit(_num1)
   _num2 = returnInit(_num2)
@@ -22,17 +22,17 @@ func exponentiate(_num1 string, _num2 string, calc_params paramCalcOpts, line in
     _num2 = _num2[1:]
 
     for ;isLess("0", _num2); {
-      final = multiply(final, _num1, calc_params, line)
-      _num2 = subtract(_num2, "1", calc_params, line)
+      final = multiply(final, _num1, cli_params)
+      _num2 = subtract(_num2, "1", cli_params)
     }
 
-    final = divide("1", final, calc_params, line)
+    final = divide("1", final, cli_params)
   } else {
 
     for ;isLess("0", _num2); {
 
-      final = multiply(final, _num1, calc_params, line)
-      _num2 = subtract(_num2, "1", calc_params, line)
+      final = multiply(final, _num1, cli_params)
+      _num2 = subtract(_num2, "1", cli_params)
     }
   }
 
@@ -40,19 +40,15 @@ func exponentiate(_num1 string, _num2 string, calc_params paramCalcOpts, line in
 }
 
 //export Exponentiate
-func Exponentiate(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.char {
+func Exponentiate(_num1P *C.char, _num2P *C.char, cli_paramsP *C.char) *C.char {
 
   _num1 := C.GoString(_num1P)
   _num2 := C.GoString(_num2P)
-  calc_params_str := C.GoString(calc_paramsP)
+  cli_params_str := C.GoString(cli_paramsP)
 
-  line := int(line_)
+  var cli_params map[string]map[string]interface{}
 
-  _ = line
-
-  var calc_params paramCalcOpts
-
-  _ = json.Unmarshal([]byte(calc_params_str), &calc_params)
+  _ = json.Unmarshal([]byte(cli_params_str), &cli_params)
 
   var _num1P_ Action
   var _num2P_ Action
@@ -72,7 +68,7 @@ func Exponentiate(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.
 
   switch nums {
     case TypeOperations{ "number", "number" }: //detect case "num" ^ "num"
-      val := exponentiate(_num1P_.ExpStr[0], _num2P_.ExpStr[0], calc_params, line)
+      val := exponentiate(_num1P_.ExpStr[0], _num2P_.ExpStr[0], cli_params)
 
       finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
     default: finalRet = Action{ "number", "", []string{ "0" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }

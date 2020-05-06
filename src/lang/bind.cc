@@ -3,6 +3,6 @@
 #include <iostream>
 using namespace std;
 
-void bindCgo(char *actions, char *calc_params, char *dir) {
-  run(actions, calc_params, dir);
+void bindCgo(char *actions, char *cli_params) {
+  run(actions, cli_params);
 }

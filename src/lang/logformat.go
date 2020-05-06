@@ -1,4 +1,4 @@
-package main
+package lang
 
 import "os/exec"
 import "os"

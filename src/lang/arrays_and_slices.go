@@ -1,4 +1,4 @@
-package main
+package lang
 
 import "strings"
 import "reflect"

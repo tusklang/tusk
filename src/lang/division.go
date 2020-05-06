@@ -1,4 +1,4 @@
-package main
+package lang
 
 import "encoding/json"
 import "strings"
@@ -6,7 +6,7 @@ import "strings"
 // #cgo CFLAGS: -std=c99
 import "C"
 
-func divide(_num1 string, _num2 string, calc_params paramCalcOpts, line int) string {
+func divide(_num1 string, _num2 string, cli_params map[string]map[string]interface{}) string {
 
   if returnInit(_num2) == "0" || returnInit(_num2) == "-0" {
     return "undef"
@@ -41,7 +41,7 @@ func divide(_num1 string, _num2 string, calc_params paramCalcOpts, line int) str
     _num1+=strings.Repeat("0", 20)
   }
 
-  _num1+=strings.Repeat("0", calc_params.PREC)
+  _num1+=strings.Repeat("0", cli_params["Calc"]["PREC"].(int))
 
   curVal := ""
   final := ""
@@ -58,12 +58,12 @@ func divide(_num1 string, _num2 string, calc_params paramCalcOpts, line int) str
     curDivisor := _num2
     curQ := "1"
 
-    for ;isLess(add(curDivisor, _num2, calc_params, line), curVal) || returnInit(add(curDivisor, _num2, calc_params, line)) == returnInit(curVal); {
-      curDivisor = add(curDivisor, _num2, calc_params, line)
-      curQ = add(curQ, "1", calc_params, line)
+    for ;isLess(add(curDivisor, _num2, cli_params), curVal) || returnInit(add(curDivisor, _num2, cli_params)) == returnInit(curVal); {
+      curDivisor = add(curDivisor, _num2, cli_params)
+      curQ = add(curQ, "1", cli_params)
     }
 
-    curVal = subtract(curVal, curDivisor, calc_params, line)
+    curVal = subtract(curVal, curDivisor, cli_params)
 
     final+=curQ
   }
@@ -80,19 +80,15 @@ func divide(_num1 string, _num2 string, calc_params paramCalcOpts, line int) str
 }
 
 //export Division
-func Division(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.char {
+func Division(_num1P *C.char, _num2P *C.char, cli_paramsP *C.char) *C.char {
 
   _num1 := C.GoString(_num1P)
   _num2 := C.GoString(_num2P)
-  calc_params_str := C.GoString(calc_paramsP)
+  cli_params_str := C.GoString(cli_paramsP)
 
-  line := int(line_)
+  var cli_params map[string]map[string]interface{}
 
-  _ = line
-
-  var calc_params paramCalcOpts
-
-  _ = json.Unmarshal([]byte(calc_params_str), &calc_params)
+  _ = json.Unmarshal([]byte(cli_params_str), &cli_params)
 
   var _num1P_ Action
   var _num2P_ Action
@@ -113,7 +109,7 @@ func Division(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
 
   switch nums {
     case TypeOperations{ "number", "number" }: //detect case "num" / "num"
-      numRet := returnInit(divide(_num1P_.ExpStr[0], _num2P_.ExpStr[0], calc_params, line))
+      numRet := returnInit(divide(_num1P_.ExpStr[0], _num2P_.ExpStr[0], cli_params))
 
       finalRet = Action{ "number", "", []string{ numRet }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
     case TypeOperations{ "string", "number" }: //detect case "string" / "num"
@@ -122,12 +118,12 @@ func Division(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
 
       var length string
 
-      for length = "1"; str_ != ""; length = add(length, "1", calc_params, line) {
+      for length = "1"; str_ != ""; length = add(length, "1", cli_params) {
         str_ = str_[1:]
       }
       ////////////////////
 
-      subtracted := subtract(length, "2", calc_params, line)
+      subtracted := subtract(length, "2", cli_params)
 
       if isLess(subtracted, _num2P_.ExpStr[0]) || returnInit(subtracted) == _num2P_.ExpStr[0] {
         finalRet = Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
@@ -135,7 +131,7 @@ func Division(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
 
         var _str []string
 
-        for i := subtract(subtract(length, _num2P_.ExpStr[0], calc_params, line), "2", calc_params, line); isLess("0", i); i = subtract(i, "1", calc_params, line) {
+        for i := subtract(subtract(length, _num2P_.ExpStr[0], cli_params), "2", cli_params); isLess("0", i); i = subtract(i, "1", cli_params) {
           _str = append([]string{ getIndex(_num1P_.ExpStr[0], i) }, _str...)
         }
 
@@ -150,12 +146,12 @@ func Division(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
 
       var length string
 
-      for length = "1"; str_ != ""; length = add(length, "1", calc_params, line) {
+      for length = "1"; str_ != ""; length = add(length, "1", cli_params) {
         str_ = str_[1:]
       }
       ////////////////////
 
-      subtracted := subtract(length, "2", calc_params, line)
+      subtracted := subtract(length, "2", cli_params)
 
       if isLess(subtracted, _num1P_.ExpStr[0]) || returnInit(subtracted) == _num1P_.ExpStr[0] {
         finalRet = Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
@@ -164,7 +160,7 @@ func Division(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
         var cur string
         str := _num2P_.ExpStr[0]
 
-        for i := add(_num1P_.ExpStr[0], "2", calc_params, line); isLess(i, length); i = add(i, "1", calc_params, line) {
+        for i := add(_num1P_.ExpStr[0], "2", cli_params); isLess(i, length); i = add(i, "1", cli_params) {
           cur+=getIndex(str, i)
         }
 

@@ -1,4 +1,4 @@
-package main
+package lang
 
 import "encoding/json"
 import "strings"
@@ -9,18 +9,18 @@ import "math"
 import "C"
 
 //export SubtractStrings
-func SubtractStrings(num1, num2, calc_params *C.char, line C.int) *C.char {
+func SubtractStrings(num1, num2, cli_params *C.char) *C.char {
 
-  var cp paramCalcOpts
+  var cp map[string]map[string]interface{}
 
-  _ = json.Unmarshal([]byte(C.GoString(calc_params)), &cp)
+  _ = json.Unmarshal([]byte(C.GoString(cli_params)), &cp)
 
-  sum := subtract(C.GoString(num1), C.GoString(num2), cp, int(line))
+  sum := subtract(C.GoString(num1), C.GoString(num2), cp)
 
   return C.CString(sum)
 }
 
-func subtract(_num1 string, _num2 string, calc_params paramCalcOpts, line int) string {
+func subtract(_num1 string, _num2 string, cli_params map[string]map[string]interface{}) string {
 
   num1_, num2_ := initAdd(_num1, _num2)
 
@@ -273,19 +273,15 @@ func subtract(_num1 string, _num2 string, calc_params paramCalcOpts, line int) s
 }
 
 //export Subtract
-func Subtract(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.char {
+func Subtract(_num1P *C.char, _num2P *C.char, cli_paramsP *C.char) *C.char {
 
   _num1 := C.GoString(_num1P)
   _num2 := C.GoString(_num2P)
-  calc_params_str := C.GoString(calc_paramsP)
+  cli_params_str := C.GoString(cli_paramsP)
 
-  line := int(line_)
+  var cli_params map[string]map[string]interface{}
 
-  _ = line
-
-  var calc_params paramCalcOpts
-
-  _ = json.Unmarshal([]byte(calc_params_str), &calc_params)
+  _ = json.Unmarshal([]byte(cli_params_str), &cli_params)
 
   var _num1P_ Action
   var _num2P_ Action
@@ -309,7 +305,7 @@ func Subtract(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
 
   switch nums {
     case TypeOperations{ "number", "number" }: //detect case "num" - "num"
-      val := subtract(_num1P_.ExpStr[0], _num2P_.ExpStr[0], calc_params, line)
+      val := subtract(_num1P_.ExpStr[0], _num2P_.ExpStr[0], cli_params)
 
       finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
     case TypeOperations{ "string", "number" }: //detect case "string" - "num"
@@ -321,18 +317,18 @@ func Subtract(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
 
       var length string
 
-      for length = "1"; str_ != ""; length = add(length, "1", calc_params, line) {
+      for length = "1"; str_ != ""; length = add(length, "1", cli_params) {
         str_ = str_[1:]
       }
       ////////////////////
 
-      subtracted := subtract(length, "2", calc_params, line)
+      subtracted := subtract(length, "2", cli_params)
 
       if isLess(subtracted, _num2P_.ExpStr[0]) || returnInit(subtracted) == _num2P_.ExpStr[0] {
         finalRet = Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
       } else {
 
-        for i := subtract(length, add(_num2P_.ExpStr[0], "1", calc_params, line), calc_params, line); isLess(i, length); i = add(i, "1", calc_params, line) {
+        for i := subtract(length, add(_num2P_.ExpStr[0], "1", cli_params), cli_params); isLess(i, length); i = add(i, "1", cli_params) {
           val+=getIndex(str, i)
         }
 
@@ -347,18 +343,18 @@ func Subtract(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
 
       var length string
 
-      for length = "1"; str_ != ""; length = add(length, "1", calc_params, line) {
+      for length = "1"; str_ != ""; length = add(length, "1", cli_params) {
         str_ = str_[1:]
       }
       ////////////////////
 
-      subtracted := subtract(length, "2", calc_params, line)
+      subtracted := subtract(length, "2", cli_params)
 
       if isLess(subtracted, _num1P_.ExpStr[0]) || returnInit(subtracted) == _num1P_.ExpStr[0] {
         finalRet = Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
       } else {
 
-        for i := "0"; isLess(i, _num1P_.ExpStr[0]) || returnInit(i) == returnInit(_num1P_.ExpStr[0]); i = add(i, "1", calc_params, line) {
+        for i := "0"; isLess(i, _num1P_.ExpStr[0]) || returnInit(i) == returnInit(_num1P_.ExpStr[0]); i = add(i, "1", cli_params) {
           val+=string(str[0])
           str = str[1:]
         }
@@ -381,7 +377,7 @@ func Subtract(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
         val2 = "0"
       }
 
-      val := subtract(val1, val2, calc_params, line)
+      val := subtract(val1, val2, cli_params)
 
       finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
     case TypeOperations{ "number", "boolean" }: //detect case "number" - "boolean"
@@ -394,7 +390,7 @@ func Subtract(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
         val2 = "0"
       }
 
-      val := subtract(_num1P_.ExpStr[0], val2, calc_params, line)
+      val := subtract(_num1P_.ExpStr[0], val2, cli_params)
 
       finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
     case TypeOperations{ "boolean", "number" }: //detect case "number" - "boolean"
@@ -407,7 +403,7 @@ func Subtract(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
         val1 = "0"
       }
 
-      val := subtract(val1, _num2P_.ExpStr[0], calc_params, line)
+      val := subtract(val1, _num2P_.ExpStr[0], cli_params)
 
       finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
     default: finalRet = Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }

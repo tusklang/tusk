@@ -6,26 +6,26 @@
 #include "values.hpp"
 using namespace std;
 
-Returner parser(const json actions, const json calc_params, json vars, const string dir, const bool groupReturn, int line, const bool expReturn);
+Returner parser(const json actions, const json cli_params, json vars, const bool groupReturn, const bool expReturn);
 
-json indexesCalc(json val, json indexes, json calc_params, json vars, int line, string dir) {
+json indexesCalc(json val, json indexes, json cli_params, json vars) {
 
   if (indexes.size() == 0) return val;
 
-  string index = parser(indexes[0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+  string index = parser(indexes[0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
 
   if (val.find(index) == val.end()) {
     if (val.find("falsey") == val.end()) return falseyVal;
     else return val["falsey"][0];
   } else {
 
-    json expVal = parser(val[index], calc_params, vars, dir, false, line, true).exp;
+    json expVal = parser(val[index], cli_params, vars, false, true).exp;
 
     indexes.erase(indexes.begin());
 
     if (indexes.size() == 0) return expVal;
 
-    return indexesCalc(expVal["Hash_Values"], indexes, calc_params, vars, line, dir);
+    return indexesCalc(expVal["Hash_Values"], indexes, cli_params, vars);
   }
 }
 

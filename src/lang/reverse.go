@@ -1,4 +1,4 @@
-package main
+package lang
 
 func Reverse(s string) string {
   var result = ""

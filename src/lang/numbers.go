@@ -1,4 +1,4 @@
-package main
+package lang
 
 import "strings"
 import "strconv"
@@ -278,7 +278,7 @@ func reCalc(val *Action) {
 
 func getIndex(val, index string) string {
 
-  for i := "1"; isLess(i, index); i = add(i, "1", paramCalcOpts{}, -1) {
+  for i := "1"; isLess(i, index); i = add(i, "1", map[string]map[string]interface{}{}) {
     val = val[1:]
   }
 
@@ -305,6 +305,6 @@ func Chunk(val string, by int) []string {
   if (last != len(val)) {
     nVal = append(nVal, val[last:len(val)])
   }
-  
+
   return nVal;
 }

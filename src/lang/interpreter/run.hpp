@@ -9,15 +9,15 @@
 using namespace std;
 using json = nlohmann::json;
 
-void run(char *acts, char *calc_params, char *dir) {
+void run(char *acts, char *cli_params) {
 
   try {
 
     json actions = json::parse(acts)
-    , cp = json::parse(calc_params)
+    , cp = json::parse(cli_params)
     , vars = json::parse("{}");
 
-    parser(actions, cp, vars, dir, /*group return*/ false, /*line*/ 1, /* expression return */ false);
+    parser(actions, cp, vars, /*group return*/ false, /* expression return */ false);
   } catch (int e) {
     cout << "There Was An Unidentified Error" << endl;
     Kill();

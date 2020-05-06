@@ -1,4 +1,4 @@
-package main
+package lang
 
 import "fmt"
 import "os"
@@ -86,7 +86,7 @@ func cproc(i *int, lex []Lex, PARAM_COUNT uint, name, dir, filename string) [][]
       continue
     }
 
-    actionSplit = append(actionSplit, actionizer(v, true, dir, filename))
+    actionSplit = append(actionSplit, Actionizer(v, true, dir, filename))
   }
 
   if uint(len(splitParams)) != PARAM_COUNT {

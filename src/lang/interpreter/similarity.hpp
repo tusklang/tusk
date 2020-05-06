@@ -4,7 +4,7 @@
 #include "json.hpp"
 using namespace std;
 
-json similarity(json val1, json val2, json degree, const json calc_params, json vars, const string dir, int line) {
+json similarity(json val1, json val2, json degree, const json cli_params, json vars) {
 
   //if the degree is not a number return undefined
   if (degree["Type"] != "number") return falseyVal;
@@ -25,10 +25,10 @@ json similarity(json val1, json val2, json degree, const json calc_params, json 
       for (auto& o : val2["Hash_Values"].items()) {
 
         if (
-          parser(o.value(), calc_params, vars, dir, false, line, true).exp["ExpStr"][0]
+          parser(o.value(), cli_params, vars, false, true).exp["ExpStr"][0]
           !=
-          parser(i.value(), calc_params, vars, dir, false, line, true).exp["ExpStr"][0]
-        ) difcount = AddStrings(difcount, "1", &calc_params.dump()[0], line);
+          parser(i.value(), cli_params, vars, false, true).exp["ExpStr"][0]
+        ) difcount = AddStrings(difcount, "1", &cli_params.dump()[0]);
         else val2["Hash_Values"].erase(o.key());
 
         if ((bool) IsLessC(&(degree["ExpStr"][0].get<string>())[0], difcount)) return falseRet;
@@ -47,8 +47,8 @@ json similarity(json val1, json val2, json degree, const json calc_params, json 
       bool upperLess, lowerGreater;
 
       if (degreeE != "0") {
-        char* upper = AddStrings(&num1E[0], &degreeE[0], &calc_params.dump()[0], line);
-        char* lower = SubtractStrings(&num1E[0], &degreeE[0], &calc_params.dump()[0], line);
+        char* upper = AddStrings(&num1E[0], &degreeE[0], &cli_params.dump()[0]);
+        char* lower = SubtractStrings(&num1E[0], &degreeE[0], &cli_params.dump()[0]);
 
         upperLess = ((bool) IsLessC(&num2E[0], upper)) || strcmp(ReturnInitC(&num2E[0]), ReturnInitC(upper)) == 0;
         lowerGreater = ((bool) IsLessC(lower, &num2E[0])) || strcmp(ReturnInitC(lower), ReturnInitC(&num2E[0])) == 0;
@@ -67,7 +67,7 @@ json similarity(json val1, json val2, json degree, const json calc_params, json 
   return falseyVal;
 }
 
-json strictSimilarity(json val1, json val2, json degree, const json calc_params, json vars, const string dir, int line) {
+json strictSimilarity(json val1, json val2, json degree, const json cli_params, json vars) {
 
   //if the degree is not a number return undefined
   if (degree["Type"] != "number") return falseyVal;
@@ -87,14 +87,14 @@ json strictSimilarity(json val1, json val2, json degree, const json calc_params,
 
       auto find = val2["Hash_Values"].find(i.key());
 
-      if (find == val2["Hash_Values"].end()) difcount = AddStrings(difcount, "1", &calc_params.dump()[0], line);
+      if (find == val2["Hash_Values"].end()) difcount = AddStrings(difcount, "1", &cli_params.dump()[0]);
       else {
 
         if (
-          parser(*find, calc_params, vars, dir, false, line, true).exp["ExpStr"][0]
+          parser(*find, cli_params, vars, false, true).exp["ExpStr"][0]
           !=
-          parser(i.value(), calc_params, vars, dir, false, line, true).exp["ExpStr"][0]
-        ) difcount = AddStrings(difcount, "1", &calc_params.dump()[0], line);
+          parser(i.value(), cli_params, vars, false, true).exp["ExpStr"][0]
+        ) difcount = AddStrings(difcount, "1", &cli_params.dump()[0]);
         else {
           val2["Hash_Values"].erase(i.key());
         }
@@ -115,8 +115,8 @@ json strictSimilarity(json val1, json val2, json degree, const json calc_params,
       bool upperLess, lowerGreater;
 
       if (degreeE != "0") {
-        char* upper = AddStrings(&num1E[0], &degreeE[0], &calc_params.dump()[0], line);
-        char* lower = SubtractStrings(&degreeE[0], &num1E[0], &calc_params.dump()[0], line);
+        char* upper = AddStrings(&num1E[0], &degreeE[0], &cli_params.dump()[0]);
+        char* lower = SubtractStrings(&degreeE[0], &num1E[0], &cli_params.dump()[0]);
 
         //strict similarity for these values is just (+/-)
         upperLess = strcmp(ReturnInitC(&num2E[0]), ReturnInitC(upper)) == 0;

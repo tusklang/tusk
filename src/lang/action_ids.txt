@@ -17,7 +17,6 @@ import: 14
 read: 15
 break: 16
 skip: 17
-eval: 18
 typeof: 19
 loop: 21
 hash: 22

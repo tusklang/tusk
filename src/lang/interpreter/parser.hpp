@@ -28,7 +28,7 @@ using namespace std;
 using json = nlohmann::json;
 using ulong = unsigned long;
 
-Returner parser(const json actions, const json calc_params, json vars, const string dir, const bool groupReturn, int line, const bool expReturn) {
+Returner parser(const json actions, const json cli_params, json vars, const bool groupReturn, const bool expReturn) {
 
   //loop through every action
   for (int i = 0; i < actions.size(); i++) {
@@ -38,12 +38,6 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
     try {
       switch (cur) {
-        case 0:
-
-          //newline
-
-          line++;
-          break;
         case 1: {
 
             //local
@@ -52,7 +46,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json acts = actions[i]["ExpAct"];
 
-            json parsed = parser(acts, calc_params, vars, dir, false, line, true).exp;
+            json parsed = parser(acts, cli_params, vars, false, true).exp;
 
             json nVar = {
               {"type", "local"},
@@ -87,7 +81,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             int o = 0;
 
-            Returner cond = parser(actions[i]["Condition"][0]["Condition"], calc_params, vars, dir, true, line, false);
+            Returner cond = parser(actions[i]["Condition"][0]["Condition"], cli_params, vars, true, false);
 
             //while the alt statement should continue
             while (isTruthy(cond.exp)) {
@@ -95,7 +89,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               //going back to the first block when it reached the last block
               if (o >= actions[i]["Condition"].size()) o = 0;
 
-              parser(actions[i]["Condition"][o]["Actions"], calc_params, vars, dir, true, line, false);
+              parser(actions[i]["Condition"][o]["Actions"], cli_params, vars, true, false);
 
               o++;
             }
@@ -109,7 +103,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json acts = actions[i]["ExpAct"];
 
-            json parsed = parser(acts, calc_params, vars, dir, false, line, true).exp;
+            json parsed = parser(acts, cli_params, vars, false, true).exp;
 
             json nVar = {
               {"type", "global"},
@@ -125,27 +119,27 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //log
 
-            json _val = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
+            json _val = parser(actions[i]["ExpAct"], cli_params, vars, false, true).exp;
 
-            log_format(_val, calc_params, vars, dir, line, 2, "log");
+            log_format(_val, cli_params, vars, 2, "log");
           }
           break;
         case 6: {
 
             //print
 
-            json _val = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
+            json _val = parser(actions[i]["ExpAct"], cli_params, vars, false, true).exp;
 
-            log_format(_val, calc_params, vars, dir, line, 2, "print");
+            log_format(_val, cli_params, vars, 2, "print");
           }
           break;
         case 8: {
 
             //expressionIndex
 
-            json val = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
+            json val = parser(actions[i]["ExpAct"], cli_params, vars, false, true).exp;
 
-            json index = indexesCalc(val["Hash_Values"], actions[i]["Indexes"], calc_params, vars, line, dir);
+            json index = indexesCalc(val["Hash_Values"], actions[i]["Indexes"], cli_params, vars);
 
             if (expReturn) {
               vector<string> returnNone;
@@ -160,7 +154,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json acts = actions[i]["ExpAct"];
 
-            Returner parsed = parser(acts, calc_params, vars, dir, false, line, false);
+            Returner parsed = parser(acts, cli_params, vars, false, false);
 
             json pVars = parsed.variables;
 
@@ -220,7 +214,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               for (json it : actions[i]["Indexes"]) {
 
-                json _index = parser(it, calc_params, vars, dir, false, line, true).exp["ExpStr"][0];
+                json _index = parser(it, cli_params, vars, false, true).exp["ExpStr"][0];
                 string index = _index.dump().substr(1, _index.dump().length() - 2);
 
                 if (var["Hash_Values"].find(index) == var["Hash_Values"].end()) {
@@ -228,7 +222,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                   goto stopIndexing_processes;
                 }
 
-                var = parser(var["Hash_Values"][index], calc_params, vars, dir, false, line, true).exp;
+                var = parser(var["Hash_Values"][index], cli_params, vars, false, true).exp;
               }
 
               if (var["Type"] != "process") {
@@ -246,7 +240,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                 json cur = {
                   {"type", "local"},
                   {"name", (string) params[o]},
-                  {"value", parser(args[o], calc_params, vars, dir, false, line, true).exp},
+                  {"value", parser(args[o], cli_params, vars, false, true).exp},
                   {"valueActs", json::parse("[]")}
                 };
 
@@ -255,7 +249,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               if (vars[name]["type"] == "process") {
 
-                parsed = parser(var["ExpAct"], calc_params, sendVars, dir, true, line, false);
+                parsed = parser(var["ExpAct"], cli_params, sendVars, true, false);
 
                 json pVars = parsed.variables;
 
@@ -284,7 +278,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             vector<string> noRet;
 
-            return Returner{ noRet, vars, parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp, "return" };
+            return Returner{ noRet, vars, parser(actions[i]["ExpAct"], cli_params, vars, false, true).exp, "return" };
           }
           break;
         case 13: {
@@ -293,11 +287,11 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             for (int o = 0; o < actions[i]["Condition"].size(); o++) {
 
-              json val = parser(actions[i]["Condition"][o]["Condition"], calc_params, vars, dir, false, line, true).exp;
+              json val = parser(actions[i]["Condition"][o]["Condition"], cli_params, vars, false, true).exp;
 
               if (isTruthy(val)) {
 
-                Returner parsed = parser(actions[i]["Condition"][o]["Actions"], calc_params, vars, dir, true, line, false);
+                Returner parsed = parser(actions[i]["Condition"][o]["Actions"], cli_params, vars, true, false);
 
                 json pVars = parsed.variables;
 
@@ -325,7 +319,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             //loop through actionized files
             for (json it : files) {
 
-              Returner parsed = parser(it, calc_params, vars, dir, true, 0, false);
+              Returner parsed = parser(it, cli_params, vars, true, false);
 
               json pVars = parsed.variables;
 
@@ -342,7 +336,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             string in;
 
-            cout << ((string) parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp["ExpStr"][0]) << " ";
+            cout << ((string) parser(actions[i]["ExpAct"], cli_params, vars, false, true).exp["ExpStr"][0]) << " ";
 
             cin >> in;
 
@@ -406,37 +400,11 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             return ret;
           }
           break;
-        case 18: {
-
-            //eval
-
-            string code = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp.get<string>();
-
-            char* sendDir = const_cast<char*>(&dir[0]);
-
-            char* len = CLex(&code[0], sendDir, "eval");
-
-            char* __acts = Cactions(len, sendDir, "eval");
-
-            string _acts(__acts);
-
-            json acts = json::parse(_acts);
-
-            Returner parsed = parser(acts, calc_params, vars, dir, false, line, false);
-
-            if (expReturn) {
-
-              vector<string> returnNone;
-
-              return Returner{ returnNone, vars, parsed.exp, "expression" };
-            }
-          }
-          break;
         case 19: {
 
             //typeof
 
-            Returner parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true);
+            Returner parsed = parser(actions[i]["ExpAct"], cli_params, vars, false, true);
 
             json exp = parsed.exp;
             json stringval = strPlaceholder;
@@ -457,11 +425,11 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             Returner parsed;
 
-            json condP = parser(cond, calc_params, vars, dir, false, line, true).exp;
+            json condP = parser(cond, cli_params, vars, false, true).exp;
 
             while (isTruthy(condP)) {
 
-              parsed = parser(acts, calc_params, vars, dir, true, line, false);
+              parsed = parser(acts, cli_params, vars, true, false);
 
               json pVars = parsed.variables;
 
@@ -474,7 +442,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               if (parsed.type == "skip") continue;
               if (parsed.type == "break") break;
 
-              condP = parser(cond, calc_params, vars, dir, false, line, true).exp;
+              condP = parser(cond, cli_params, vars, false, true).exp;
             }
 
           }
@@ -494,7 +462,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               if (!isMutable) {
 
                 for (auto& it : actions[i]["Hash_Values"].items())
-                  val["Hash_Values"][it.key()] = json::parse("[" + parser(it.value(), calc_params, vars, dir, false, line, true).exp.dump() + "]");
+                  val["Hash_Values"][it.key()] = json::parse("[" + parser(it.value(), cli_params, vars, false, true).exp.dump() + "]");
               }
 
               return Returner{ returnNone, vars, val, "expression" };
@@ -507,7 +475,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json val = actions[i]["Hash_Values"];
 
-            json index = indexesCalc(val, actions[i]["Indexes"], calc_params, vars, line, dir);
+            json index = indexesCalc(val, actions[i]["Indexes"], cli_params, vars);
 
             if (expReturn) {
               vector<string> returnNone;
@@ -538,7 +506,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                     continue;
                   }
 
-                  val["Hash_Values"][index] = json::parse("[" + parser(actions[i]["Hash_Values"][index], calc_params, vars, dir, false, line, true).exp.dump() + "]");
+                  val["Hash_Values"][index] = json::parse("[" + parser(actions[i]["Hash_Values"][index], cli_params, vars, false, true).exp.dump() + "]");
                   index = AddC(index, "1");
                 }
               }
@@ -552,7 +520,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             //arrayIndex
 
             json val = actions[i]["Hash_Values"]
-            , index = indexesCalc(val, actions[i]["Indexes"], calc_params, vars, line, dir);
+            , index = indexesCalc(val, actions[i]["Indexes"], cli_params, vars);
 
             if (expReturn) {
               vector<string> returnNone;
@@ -565,7 +533,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //ascii
 
-            json parsed = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
+            json parsed = parser(actions[i]["ExpAct"], cli_params, vars, false, true).exp;
 
             vector<string> returnNone;
 
@@ -610,7 +578,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             json acts = actions[i]["ExpAct"];
 
-            json parsed = parser(acts, calc_params, vars, dir, false, line, true).exp;
+            json parsed = parser(acts, cli_params, vars, false, true).exp;
 
             json nVar;
 
@@ -618,7 +586,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             vector<string> indexes;
 
             for (json it : actions[i]["Indexes"]) {
-              json varP = parser(it, calc_params, vars, dir, false, line, true).exp["ExpStr"][0];
+              json varP = parser(it, cli_params, vars, false, true).exp["ExpStr"][0];
 
               if (var["value"]["Hash_Values"].find(varP.get<string>()) == var["value"]["Hash_Values"].end()) var = {
                   {"type", "local"},
@@ -670,14 +638,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //add
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump(2)
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump(2);
+            string first = parser(actions[i]["First"], cli_params, vars, false, true).exp.dump(2)
+            , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp.dump(2);
 
             string _val(Add(
               &first[0],
               &second[0],
-              &calc_params.dump()[0],
-              line
+              &cli_params.dump()[0]
             ));
 
             json val = json::parse(_val);
@@ -700,14 +667,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //subtract
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump(2)
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump(2);
+            string first = parser(actions[i]["First"], cli_params, vars, false, true).exp.dump(2)
+            , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp.dump(2);
 
             string _val(Subtract(
               &first[0],
               &second[0],
-              &calc_params.dump()[0],
-              line
+              &cli_params.dump()[0]
             ));
 
             json val = json::parse(_val);
@@ -730,14 +696,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //multiply
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump(2)
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump(2);
+            string first = parser(actions[i]["First"], cli_params, vars, false, true).exp.dump(2)
+            , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp.dump(2);
 
             string _val(Multiply(
               &first[0],
               &second[0],
-              &calc_params.dump()[0],
-              line
+              &cli_params.dump()[0]
             ));
 
             json val = json::parse(_val);
@@ -760,14 +725,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //divide
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump(2)
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump(2);
+            string first = parser(actions[i]["First"], cli_params, vars, false, true).exp.dump(2)
+            , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp.dump(2);
 
             string _val(Division(
               &first[0],
               &second[0],
-              &calc_params.dump()[0],
-              line
+              &cli_params.dump()[0]
             ));
 
             json val = json::parse(_val);
@@ -790,14 +754,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //exponentiate
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump(2)
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump(2);
+            string first = parser(actions[i]["First"], cli_params, vars, false, true).exp.dump(2)
+            , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp.dump(2);
 
             string _val(Exponentiate(
               &first[0],
               &second[0],
-              &calc_params.dump()[0],
-              line
+              &cli_params.dump()[0]
             ));
 
             json val = json::parse(_val);
@@ -820,14 +783,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //modulo
 
-            string first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp.dump(2)
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp.dump(2);
+            string first = parser(actions[i]["First"], cli_params, vars, false, true).exp.dump(2)
+            , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp.dump(2);
 
             string _val(Modulo(
               &first[0],
               &second[0],
-              &calc_params.dump()[0],
-              line
+              &cli_params.dump()[0]
             ));
 
             json val = json::parse(_val);
@@ -908,7 +870,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               var["IsMutable"] = isMutable;
 
-              val = parser(json::parse("[" + var.dump() + "]"), calc_params, vars, dir, false, line, true).exp;
+              val = parser(json::parse("[" + var.dump() + "]"), cli_params, vars, false, true).exp;
             }
 
             vector<string> noRet;
@@ -933,9 +895,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //variableIndex
 
-            Returner parsedVal = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true);
+            Returner parsedVal = parser(actions[i]["ExpAct"], cli_params, vars, false, true);
 
-            json index = indexesCalc(parsedVal.exp["Hash_Values"], actions[i]["Indexes"], calc_params, vars, line, dir);
+            json index = indexesCalc(parsedVal.exp["Hash_Values"], actions[i]["Indexes"], cli_params, vars);
 
             if (expReturn) {
               vector<string> returnNone;
@@ -948,16 +910,14 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //equals
 
-            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+            json first = parser(actions[i]["First"], cli_params, vars, false, true).exp
+            , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp;
 
             json val = equals(
               first,
               second,
-              calc_params,
-              vars,
-              dir,
-              line
+              cli_params,
+              vars
             );
 
             if (first["Type"] != second["Type"]) val = falseRet;
@@ -980,16 +940,14 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
           //notEqual
 
-          json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-          , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+          json first = parser(actions[i]["First"], cli_params, vars, false, true).exp
+          , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp;
 
           json val = equals(
             first,
             second,
-            calc_params,
-            vars,
-            dir,
-            line
+            cli_params,
+            vars
           );
 
           val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
@@ -1013,14 +971,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
           //greater
 
-          json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-          , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+          json first = parser(actions[i]["First"], cli_params, vars, false, true).exp
+          , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp;
 
           json val = isGreater(
             first,
             second,
-            calc_params,
-            line
+            cli_params
           );
 
           if (expReturn) {
@@ -1041,14 +998,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
           //less
 
-          json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-          , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+          json first = parser(actions[i]["First"], cli_params, vars, false, true).exp
+          , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp;
 
           json val = isLess(
             first,
             second,
-            calc_params,
-            line
+            cli_params
           );
 
           if (expReturn) {
@@ -1069,14 +1025,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
           //greaterOrEqual
 
-          json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-          , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+          json first = parser(actions[i]["First"], cli_params, vars, false, true).exp
+          , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp;
 
           json val = isLess(
             first,
             second,
-            calc_params,
-            line
+            cli_params
           );
 
           val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
@@ -1099,14 +1054,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
           //lessOrEqual
 
-          json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-          , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+          json first = parser(actions[i]["First"], cli_params, vars, false, true).exp
+          , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp;
 
           json val = isGreater(
             first,
             second,
-            calc_params,
-            line
+            cli_params
           );
 
           val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
@@ -1130,7 +1084,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //not
 
-            json val = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp
+            json val = parser(actions[i]["Second"], cli_params, vars, false, true).exp
             , expstr = val["ExpStr"][0]
             , retval;
 
@@ -1155,13 +1109,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //similar
 
-            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+            json first = parser(actions[i]["First"], cli_params, vars, false, true).exp
+            , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp;
 
             json retval;
 
-            if (actions[i]["Degree"].size() == 0) retval = similarity(first, second, zero, calc_params, vars, dir, line);
-            else retval = similarity(first, second, parser(actions[i]["Degree"], calc_params, vars, dir, false, line, true).exp, calc_params, vars, dir, line);
+            if (actions[i]["Degree"].size() == 0) retval = similarity(first, second, zero, cli_params, vars);
+            else retval = similarity(first, second, parser(actions[i]["Degree"], cli_params, vars, false, true).exp, cli_params, vars);
 
             if (expReturn) {
               Returner ret;
@@ -1181,13 +1135,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //strictSimilar
 
-            json first = parser(actions[i]["First"], calc_params, vars, dir, false, line, true).exp
-            , second = parser(actions[i]["Second"], calc_params, vars, dir, false, line, true).exp;
+            json first = parser(actions[i]["First"], cli_params, vars, false, true).exp
+            , second = parser(actions[i]["Second"], cli_params, vars, false, true).exp;
 
             json retval;
 
-            if (actions[i]["Degree"].size() == 0) retval = strictSimilarity(first, second, zero, calc_params, vars, dir, line);
-            else retval = strictSimilarity(first, second, parser(actions[i]["Degree"], calc_params, vars, dir, false, line, true).exp, calc_params, vars, dir, line);
+            if (actions[i]["Degree"].size() == 0) retval = strictSimilarity(first, second, zero, cli_params, vars);
+            else retval = strictSimilarity(first, second, parser(actions[i]["Degree"], cli_params, vars, false, true).exp, cli_params, vars);
 
             if (expReturn) {
               Returner ret;
@@ -1224,7 +1178,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               for (json it : actions[i]["Indexes"]) {
 
-                json _index = parser(it, calc_params, vars, dir, false, line, true).exp["ExpStr"][0];
+                json _index = parser(it, cli_params, vars, false, true).exp["ExpStr"][0];
                 string index = _index.dump().substr(1, _index.dump().length() - 2);
 
                 if (var["Hash_Values"].find(index) == var["Hash_Values"].end()) {
@@ -1232,7 +1186,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                   goto stopIndexing_threads;
                 }
 
-                var = parser(var["Hash_Values"][index], calc_params, vars, dir, false, line, true).exp;
+                var = parser(var["Hash_Values"][index], cli_params, vars, false, true).exp;
               }
 
               if (var["Type"] != "process") {
@@ -1250,7 +1204,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
                 json cur = {
                   {"type", "local"},
                   {"name", (string) params[o]},
-                  {"value", parser(args[o], calc_params, vars, dir, false, line, true).exp},
+                  {"value", parser(args[o], cli_params, vars, false, true).exp},
                   {"valueActs", json::parse("[]")}
                 };
 
@@ -1258,7 +1212,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               }
 
               if (vars[name]["type"] == "process") {
-                thread _(parser, var["ExpAct"], calc_params, sendVars, dir, true, line, false);
+                thread _(parser, var["ExpAct"], cli_params, sendVars, true, false);
 
                 _.join();
               }
@@ -1279,13 +1233,13 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
             //wait
 
-            json amt = parser(actions[i]["ExpAct"], &calc_params.dump()[0], vars, dir, false, line, true).exp;
+            json amt = parser(actions[i]["ExpAct"], &cli_params.dump()[0], vars, false, true).exp;
 
             if (IsLessC(&(amt["ExpStr"][0].get<string>())[0], "4294967296")) Sleep((ulong) atoi(&(amt["ExpStr"][0].get<string>())[0]));
             else {
-              for (char* o = "0"; (bool) IsLessC(o, &(amt["ExpStr"][0].get<string>())[0]); o = AddStrings(o, "4294967296", &calc_params.dump()[0], line)) {
+              for (char* o = "0"; (bool) IsLessC(o, &(amt["ExpStr"][0].get<string>())[0]); o = AddStrings(o, "4294967296", &cli_params.dump()[0])) {
 
-                char* subtracted = SubtractStrings(&(amt["ExpStr"][0].get<string>())[0], o, &calc_params.dump()[0], line);
+                char* subtracted = SubtractStrings(&(amt["ExpStr"][0].get<string>())[0], o, &cli_params.dump()[0]);
 
                 if (IsLessC(
                   subtracted,
@@ -1305,7 +1259,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               vector<string> retNo;
 
-              json cur = parser(actions[i]["ExpAct"], calc_params, vars, dir, false, line, true).exp;
+              json cur = parser(actions[i]["ExpAct"], cli_params, vars, false, true).exp;
               cur["Type"] = actions[i]["Name"];
               cur["Name"] = actions[i]["ExpStr"][0];
 
@@ -1327,7 +1281,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             , var2 = putterVars[1];
 
             //parse the iterator value
-            json iterator = parser(actions[i]["First"] /* actions[i]["First"] is where the iterator is stored */, calc_params, vars, dir, false, line, true).exp["Hash_Values"];
+            json iterator = parser(actions[i]["First"] /* actions[i]["First"] is where the iterator is stored */, cli_params, vars, false, true).exp["Hash_Values"];
 
             iterator.erase("falsey");
 
@@ -1364,11 +1318,11 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               sendVars[var2] = {
                 {"type", "local"},
                 {"name", var2},
-                {"value", parser(it.value(), calc_params, vars, dir, false, line, true).exp},
+                {"value", parser(it.value(), cli_params, vars, false, true).exp},
                 {"valueActs", json::parse("[]")}
               };
 
-              Returner parsed = parser(actions[i]["ExpAct"], calc_params, sendVars, dir, true, line, false);
+              Returner parsed = parser(actions[i]["ExpAct"], cli_params, sendVars, true, false);
 
               json pVars = parsed.variables;
 
@@ -1391,7 +1345,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
           //written as files.read(dir)
 
-          string filename = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+          string filename = parser(actions[i]["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
 
           smatch match;
 
@@ -1399,7 +1353,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           regex pat("^[a-zA-Z]:");
           bool isOnDrive = regex_search(filename, match, pat);
 
-          string nDir = isOnDrive ? "" : dir;
+          string nDir = isOnDrive ? "" : cli_params["Files"]["Dir"];
 
           if (!isFile(nDir + filename) && expReturn) {
 
@@ -1453,8 +1407,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
           //written as files.write(dir, content)
 
-          string filename = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
-          json content = parser(actions[i]["Args"][1], calc_params, vars, dir, false, line, true).exp;
+          string filename = parser(actions[i]["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
+          json content = parser(actions[i]["Args"][1], cli_params, vars, false, true).exp;
 
           string contentstr = content["ExpStr"][0].get<string>();
 
@@ -1464,7 +1418,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           regex pat("^[a-zA-Z]:");
           bool isOnDrive = regex_search(filename, match, pat);
 
-          string nDir = isOnDrive ? "" : dir;
+          string nDir = isOnDrive ? "" : cli_params["Files"]["Dir"];
 
           writefile(&(nDir + filename)[0], &contentstr[0]);
 
@@ -1488,7 +1442,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
           //written as file.exists(dir)
 
-          string filename = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+          string filename = parser(actions[i]["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
 
           smatch match;
 
@@ -1496,7 +1450,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           regex pat("^[a-zA-Z]:");
           bool isOnDrive = regex_search(filename, match, pat);
 
-          string nDir = isOnDrive ? "" : dir;
+          string nDir = isOnDrive ? "" : cli_params["Files"]["Dir"];
 
           //if it is not a directory and not a file, it does not exist
           bool exists = !(!isDir(nDir + filename) && !isFile(nDir + filename));
@@ -1521,7 +1475,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
           //written as file.isFile(dir)
 
-          string filename = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+          string filename = parser(actions[i]["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
 
           smatch match;
 
@@ -1529,7 +1483,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           regex pat("^[a-zA-Z]:");
           bool isOnDrive = regex_search(filename, match, pat);
 
-          string nDir = isOnDrive ? "" : dir;
+          string nDir = isOnDrive ? "" : cli_params["Files"]["Dir"];
 
           bool isFileVal = isFile(nDir + filename);
 
@@ -1553,7 +1507,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
           //written as file.isDir(dir)
 
-          string filename = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+          string filename = parser(actions[i]["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
 
           smatch match;
 
@@ -1561,7 +1515,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           regex pat("^[a-zA-Z]:");
           bool isOnDrive = regex_search(filename, match, pat);
 
-          string nDir = isOnDrive ? "" : dir;
+          string nDir = isOnDrive ? "" : cli_params["Files"]["Dir"];
 
           bool isDirVal = isDir(nDir + filename);
 
@@ -1601,8 +1555,8 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
           //regex.match
 
-          string str = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
-          string regstr = parser(actions[i]["Args"][1], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+          string str = parser(actions[i]["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
+          string regstr = parser(actions[i]["Args"][1], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
 
           try {
             regex reg(regstr);
@@ -1629,7 +1583,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               indexJ["ExpStr"][0] = to_string(i);
 
               returner["Hash_Values"][string(cur)] = { indexJ };
-              cur = AddStrings(cur, "1", &calc_params.dump()[0], line);
+              cur = AddStrings(cur, "1", &cli_params.dump()[0]);
             }
 
             if (expReturn) {
@@ -1661,9 +1615,9 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
           //regex.replace
 
-          string str = parser(actions[i]["Args"][0], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
-          string regstr = parser(actions[i]["Args"][1], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
-          string replace_with = parser(actions[i]["Args"][2], calc_params, vars, dir, false, line, true).exp["ExpStr"][0].get<string>();
+          string str = parser(actions[i]["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
+          string regstr = parser(actions[i]["Args"][1], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
+          string replace_with = parser(actions[i]["Args"][2], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
 
           try {
             regex reg(regstr);
@@ -1683,7 +1637,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
               indexJ["ExpStr"] = { to_string(i) };
 
               resultJ["Hash_Values"][string(cur)] = { indexJ };
-              cur = AddStrings(cur, "1", &calc_params.dump()[0], line);
+              cur = AddStrings(cur, "1", &cli_params.dump()[0]);
             }
 
             if (expReturn) {
@@ -1727,7 +1681,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
               json _val = vars[name]["value"];
 
-              char* _added = Add(&(_val.dump())[0], &val1.dump()[0], &calc_params.dump()[0], line);
+              char* _added = Add(&(_val.dump())[0], &val1.dump()[0], &cli_params.dump()[0]);
               string added(_added);
 
               nVar = {
@@ -1774,7 +1728,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 json _val = vars[name]["value"];
 
-                char* _added = Subtract(&(_val.dump())[0], &val1.dump()[0], &calc_params.dump()[0], line);
+                char* _added = Subtract(&(_val.dump())[0], &val1.dump()[0], &cli_params.dump()[0]);
                 string added(_added);
 
                 nVar = {
@@ -1814,7 +1768,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string name = actions[i]["Name"];
 
             json __inc = actions[i]["ExpAct"]
-            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp;
+            , _inc = parser(__inc, cli_params, vars, false, true).exp;
 
             json nVar;
 
@@ -1824,7 +1778,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 json _val = vars[name]["value"];
 
-                char* _added = Add(&(_val.dump())[0], &(_inc.dump())[0], &calc_params.dump()[0], line);
+                char* _added = Add(&(_val.dump())[0], &(_inc.dump())[0], &cli_params.dump()[0]);
                 string added(_added);
 
                 nVar = {
@@ -1864,7 +1818,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string name = actions[i]["Name"];
 
             json __inc = actions[i]["ExpAct"]
-            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp;
+            , _inc = parser(__inc, cli_params, vars, false, true).exp;
 
             json nVar;
 
@@ -1874,7 +1828,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 json _val = vars[name]["value"];
 
-                char* _added = Subtract(&(_val.dump())[0], &(_inc.dump())[0], &calc_params.dump()[0], line);
+                char* _added = Subtract(&(_val.dump())[0], &(_inc.dump())[0], &cli_params.dump()[0]);
                 string added(_added);
 
                 nVar = {
@@ -1914,7 +1868,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string name = actions[i]["Name"];
 
             json __inc = actions[i]["ExpAct"]
-            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp;
+            , _inc = parser(__inc, cli_params, vars, false, true).exp;
 
             json nVar;
 
@@ -1924,7 +1878,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 json _val = vars[name]["value"];
 
-                char* _added = Multiply(&(_val.dump())[0], &(_inc.dump())[0], &calc_params.dump()[0], line);
+                char* _added = Multiply(&(_val.dump())[0], &(_inc.dump())[0], &cli_params.dump()[0]);
                 string added(_added);
 
                 nVar = {
@@ -1964,7 +1918,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string name = actions[i]["Name"];
 
             json __inc = actions[i]["ExpAct"]
-            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp;
+            , _inc = parser(__inc, cli_params, vars, false, true).exp;
 
             json nVar;
 
@@ -1974,7 +1928,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 json _val = vars[name]["value"];
 
-                char* _added = Division(&(_val.dump())[0], &(_inc.dump())[0], &calc_params.dump()[0], line);
+                char* _added = Division(&(_val.dump())[0], &(_inc.dump())[0], &cli_params.dump()[0]);
                 string added(_added);
 
                 nVar = {
@@ -2014,7 +1968,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string name = actions[i]["Name"];
 
             json __inc = actions[i]["ExpAct"]
-            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp;
+            , _inc = parser(__inc, cli_params, vars, false, true).exp;
 
             json nVar;
 
@@ -2024,7 +1978,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 json _val = vars[name]["value"];
 
-                char* _added = Exponentiate(&(_val.dump())[0], &(_inc.dump())[0], &calc_params.dump()[0], line);
+                char* _added = Exponentiate(&(_val.dump())[0], &(_inc.dump())[0], &cli_params.dump()[0]);
                 string added(_added);
 
                 nVar = {
@@ -2064,7 +2018,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
             string name = actions[i]["Name"];
 
             json __inc = actions[i]["ExpAct"]
-            , _inc = parser(__inc, calc_params, vars, dir, false, line, true).exp;
+            , _inc = parser(__inc, cli_params, vars, false, true).exp;
 
             json nVar;
 
@@ -2074,7 +2028,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
 
                 json _val = vars[name]["value"];
 
-                char* _added = Modulo(&(_val.dump())[0], &(_inc.dump())[0], &calc_params.dump()[0], line);
+                char* _added = Modulo(&(_val.dump())[0], &(_inc.dump())[0], &cli_params.dump()[0]);
                 string added(_added);
 
                 nVar = {
@@ -2109,7 +2063,7 @@ Returner parser(const json actions, const json calc_params, json vars, const str
           break;
       }
     } catch (int e) {
-      cout << "There Was An Unidentified Error On Line " << line << endl;
+      cout << "There Was An Unidentified Error" << endl;
       Kill();
     }
   }

@@ -5,7 +5,7 @@
 #include "values.hpp"
 using namespace std;
 
-json equals(json val1, json val2, json calc_params, json vars, string dir, int line) {
+json equals(json val1, json val2, json cli_params, json vars) {
 
   if (val1["Name"] == "hashed_value" && val2["Name"] == "hashed_values") {
 
@@ -21,7 +21,7 @@ json equals(json val1, json val2, json calc_params, json vars, string dir, int l
       auto secondPart = val2["Hash_Values"].find(i.key());
 
       if (secondPart == val2["Hash_Values"].end()) return falseRet;
-      if (parser(*secondPart, calc_params, vars, dir, false, line, true).exp["ExpStr"][0] != parser(i.value(), calc_params, vars, dir, false, line, true).exp["ExpStr"][0]) return falseRet;
+      if (parser(*secondPart, cli_params, vars, false, true).exp["ExpStr"][0] != parser(i.value(), cli_params, vars, false, true).exp["ExpStr"][0]) return falseRet;
     }
 
     return trueRet;
@@ -33,7 +33,7 @@ json equals(json val1, json val2, json calc_params, json vars, string dir, int l
   return falseRet;
 }
 
-json isGreater(json val1, json val2, json calc_params, int line) {
+json isGreater(json val1, json val2, json cli_params) {
   if (val1["Type"] != "number" || val2["Type"] != "number") return falseRet;
 
   string num1 = val1["ExpStr"][0]
@@ -45,7 +45,7 @@ json isGreater(json val1, json val2, json calc_params, int line) {
 
 }
 
-json isLess(json val1, json val2, json calc_params, int line) {
+json isLess(json val1, json val2, json cli_params) {
   if (val1["Type"] != "number" || val2["Type"] != "number") return falseRet;
 
   string num1 = val1["ExpStr"][0]

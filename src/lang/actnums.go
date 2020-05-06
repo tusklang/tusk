@@ -1,4 +1,4 @@
-package main
+package lang
 
 // #cgo CFLAGS: -std=c99
 import "C"

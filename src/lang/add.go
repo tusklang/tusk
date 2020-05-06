@@ -1,4 +1,4 @@
-package main
+package lang
 
 import "strconv"
 import "encoding/json"
@@ -9,18 +9,18 @@ import "math"
 import "C"
 
 //export AddStrings
-func AddStrings(num1, num2, calc_params *C.char, line C.int) *C.char {
+func AddStrings(num1, num2, cli_params *C.char) *C.char {
 
-  var cp paramCalcOpts
+  var cp map[string]map[string]interface{}
 
-  _ = json.Unmarshal([]byte(C.GoString(calc_params)), &cp)
+  _ = json.Unmarshal([]byte(C.GoString(cli_params)), &cp)
 
-  sum := add(C.GoString(num1), C.GoString(num2), cp, int(line))
+  sum := add(C.GoString(num1), C.GoString(num2), cp)
 
   return C.CString(sum)
 }
 
-func add(_num1 string, _num2 string, calc_params paramCalcOpts, line int) string {
+func add(_num1 string, _num2 string, cli_params map[string]map[string]interface{}) string {
 
   num1_, num2_ := initAdd(_num1, _num2)
 
@@ -258,23 +258,19 @@ func add(_num1 string, _num2 string, calc_params paramCalcOpts, line int) string
 
 //export AddC
 func AddC(num1, num2 *C.char) *C.char {
-  return C.CString(add(C.GoString(num1), C.GoString(num2), paramCalcOpts{}, -1))
+  return C.CString(add(C.GoString(num1), C.GoString(num2), map[string]map[string]interface{}{}))
 }
 
 //export Add
-func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.char {
+func Add(_num1P *C.char, _num2P *C.char, cli_paramsP *C.char) *C.char {
 
   __num1 := C.GoString(_num1P)
   __num2 := C.GoString(_num2P)
-  calc_params_str := C.GoString(calc_paramsP)
+  cli_params_str := C.GoString(cli_paramsP)
 
-  line := int(line_)
+  var cli_params map[string]map[string]interface{}
 
-  _ = line
-
-  var calc_params paramCalcOpts
-
-  _ = json.Unmarshal([]byte(calc_params_str), &calc_params)
+  _ = json.Unmarshal([]byte(cli_params_str), &cli_params)
 
   var _num1P_ Action
   var _num2P_ Action
@@ -303,7 +299,7 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
   switch nums {
     case TypeOperations{ "number", "number" }: { //detect case "num" + "num"
 
-      numRet := returnInit(add(_num1P_.ExpStr[0], _num2P_.ExpStr[0], calc_params, line))
+      numRet := returnInit(add(_num1P_.ExpStr[0], _num2P_.ExpStr[0], cli_params))
 
       finalRet = Action{ "number", "", []string{ numRet }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
     }
@@ -338,7 +334,7 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
       var final_ string
 
       if val2 == "true" {
-        final_ = add(val1, "1", calc_params, line)
+        final_ = add(val1, "1", cli_params)
       } else {
         final_ = val1
       }
@@ -355,7 +351,7 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
       var final_ string
 
       if val1 == "true" {
-        final_ = add(val2, "1", calc_params, line)
+        final_ = add(val2, "1", cli_params)
       } else {
         final_ = val2
       }
@@ -386,7 +382,7 @@ func Add(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.c
           nMap := make(map[string][]Action)
 
           for k, v := range val1.Hash_Values {
-            nMap[add(k, "1", calc_params, line)] = v
+            nMap[add(k, "1", cli_params)] = v
           }
 
           nMap["0"] = []Action{ val2 }

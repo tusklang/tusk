@@ -1,4 +1,4 @@
-package main
+package lang
 
 import "encoding/json"
 import "strings"
@@ -6,7 +6,7 @@ import "strings"
 // #cgo CFLAGS: -std=c99
 import "C"
 
-func multiply(_num1 string, _num2 string, calc_params paramCalcOpts, line int) string {
+func multiply(_num1 string, _num2 string, cli_params map[string]map[string]interface{}) string {
 
   if returnInit(_num1) == "0" || returnInit(_num2) == "0" {
     return "0"
@@ -45,13 +45,13 @@ func multiply(_num1 string, _num2 string, calc_params paramCalcOpts, line int) s
     _num1, _num2 = _num2, _num1
   }
 
-  if len(_num1) >= calc_params.LONG_MULT_THRESH && len(_num2) >= calc_params.LONG_MULT_THRESH {
+  if len(_num1) >= cli_params["Calc"]["LONG_MULT_THRESH"].(int) && len(_num2) >= cli_params["Calc"]["LONG_MULT_THRESH"].(int) {
 
     final := "0"
 
     for i := len(_num2) - 1; i >= 0; i-- {
-      mult := multiply(_num1, _num2[i:i + 1], calc_params, line) + strings.Repeat("0", len(_num2) - i - 1)
-      final = add(final, mult, calc_params, line)
+      mult := multiply(_num1, _num2[i:i + 1], cli_params) + strings.Repeat("0", len(_num2) - i - 1)
+      final = add(final, mult, cli_params)
     }
 
     nNum = final
@@ -60,8 +60,8 @@ func multiply(_num1 string, _num2 string, calc_params paramCalcOpts, line int) s
     nNum = "0"
 
     for ;returnInit(_num2) != "0"; {
-      nNum = add(nNum, _num1, calc_params, line)
-      _num2 = subtract(_num2, "1", calc_params, line)
+      nNum = add(nNum, _num1, cli_params)
+      _num2 = subtract(_num2, "1", cli_params)
     }
   }
 
@@ -82,19 +82,15 @@ func multiply(_num1 string, _num2 string, calc_params paramCalcOpts, line int) s
 }
 
 //export Multiply
-func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int) *C.char {
+func Multiply(_num1P *C.char, _num2P *C.char, cli_paramsP *C.char) *C.char {
 
   _num1 := returnInit(C.GoString(_num1P))
   _num2 := returnInit(C.GoString(_num2P))
-  calc_params_str := C.GoString(calc_paramsP)
+  cli_params_str := C.GoString(cli_paramsP)
 
-  line := int(line_)
+  var cli_params map[string]map[string]interface{}
 
-  _ = line
-
-  var calc_params paramCalcOpts
-
-  _ = json.Unmarshal([]byte(calc_params_str), &calc_params)
+  _ = json.Unmarshal([]byte(cli_params_str), &cli_params)
 
   var _num1P_ Action
   var _num2P_ Action
@@ -116,7 +112,7 @@ func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
 
   switch nums {
     case TypeOperations{ "number", "number" }: //detect case "num" * "num"
-      val := multiply(_num1P_.ExpStr[0], _num2P_.ExpStr[0], calc_params, line)
+      val := multiply(_num1P_.ExpStr[0], _num2P_.ExpStr[0], cli_params)
 
       finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
     case TypeOperations{ "string", "number" }: //detect case "string" * "num"
@@ -125,7 +121,7 @@ func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
 
       var val string
 
-      for i := "0"; isLess(i, _num2P_.ExpStr[0]); i = add(i, "1", calc_params, line) {
+      for i := "0"; isLess(i, _num2P_.ExpStr[0]); i = add(i, "1", cli_params) {
         val+=str
       }
 
@@ -137,7 +133,7 @@ func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
 
       var val string
 
-      for i := "0"; isLess(i, _num1P_.ExpStr[0]); i = add(i, "1", calc_params, line) {
+      for i := "0"; isLess(i, _num1P_.ExpStr[0]); i = add(i, "1", cli_params) {
         val+=str
       }
 
@@ -150,14 +146,14 @@ func Multiply(_num1P *C.char, _num2P *C.char, calc_paramsP *C.char, line_ C.int)
       length := "0"
 
       for _, _ = range _num1P_.Hash_Values {
-        length = add(length, "1", calc_params, line)
+        length = add(length, "1", cli_params)
       }
       ///////////////////////////
 
       nMap := make(map[string][]Action)
 
       for k, v := range _num2P_.Hash_Values {
-        nMap[add(length, k, calc_params, line)] = v
+        nMap[add(length, k, cli_params)] = v
       }
 
       //merge the two maps
