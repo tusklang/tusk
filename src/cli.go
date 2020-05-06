@@ -5,10 +5,12 @@ import "strings"
 import "fmt"
 import "strconv"
 
+//omm addons
 import "lang" //omm language
 
 import oatcompile "oat/compile" //compile omm to oat
 import oatrun "oat/run" //run an oat file
+////////////
 
 func defaults(params *map[string]map[string]interface{}, name string) {
 
@@ -55,6 +57,10 @@ func main() {
 
       switch strings.ToUpper(v[1:]) {
 
+        case "C":
+          params["Package"]["PACKAGE"] = "compile"
+        case "R":
+          params["Package"]["PACKAGE"] = "run"
         case "PREC":
           params["Calc"]["PREC"], _ = strconv.Atoi(args[i + 1])
           i++
@@ -71,7 +77,7 @@ func main() {
     }
   }
 
-  switch params["Package"]["PACKAGE"] {
+  switch strings.ToLower(params["Package"]["PACKAGE"].(string)) {
 
     case "lang":
       lang.Run(params)

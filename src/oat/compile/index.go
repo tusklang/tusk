@@ -1,12 +1,9 @@
 package compile
 
-import "encoding/json"
+import "encoding/gob"
+import "os"
 
 import "lang" //omm language
-
-// #cgo CFLAGS: -std=c99
-// #include "bind.h"
-import "C"
 
 //export Compile
 func Compile(params map[string]map[string]interface{}) {
@@ -19,11 +16,21 @@ func Compile(params map[string]map[string]interface{}) {
   lex := lang.Lexer(file, dir, fileName)
   acts := lang.Actionizer(lex, false, dir, fileName)
 
-  var encoding string
+  if (IsAbsolute(params["Calc"]["O"].(string))) {
 
-  _encoding, _ := json.Marshal(acts)
-  encoding = string(_encoding)
+    writefile, _ := os.Create(params["Calc"]["O"].(string))
 
-  //write oat file
-  C.write(C.CString(dir), C.CString(params["Calc"]["O"].(string)), C.CString(encoding))
+    defer writefile.Close()
+
+    encoder := gob.NewEncoder(writefile)
+    encoder.Encode(acts)
+  } else {
+
+    writefile, _ := os.Create(dir + params["Calc"]["O"].(string))
+
+    defer writefile.Close()
+
+    encoder := gob.NewEncoder(writefile)
+    encoder.Encode(acts)
+  }
 }

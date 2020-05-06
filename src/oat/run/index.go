@@ -1,9 +1,9 @@
 package run
 
 import "encoding/json"
-import "strings"
-import "fmt"
+import "encoding/gob"
 import "os"
+import "fmt"
 
 import "lang" //omm language
 
@@ -12,23 +12,35 @@ func Run(params map[string]map[string]interface{}) {
   dir := params["Files"]["DIR"].(string)
   fileName := params["Files"]["NAME"].(string)
 
-  //read the oat
-  file := strings.TrimSpace(lang.ReadFileJS(dir + fileName)[0])
+  paramsJ, _ := json.Marshal(params) //marhsal the cli_params
 
-  paramsJ, _ := json.Marshal(params)
+  readfile, e := os.Open(dir + fileName)
 
-  //determine if the given file is an oat
-  var testoat map[string]interface{}
-  err := json.Unmarshal([]byte(file), &testoat)
-
-  _ = testoat
-
-  //if there is an error display that there is an error with the oat
-  if err == nil {
-    fmt.Println("Error, the given file is not in an oat format")
+  if e != nil {
+    fmt.Println("Error, could not access given oat file")
     os.Exit(1)
   }
-  ///////////////////////////////////////
 
-  lang.OatRun(file, string(paramsJ))
+  var decoded []lang.Action
+
+  decoder := gob.NewDecoder(readfile)
+  e = decoder.Decode(&decoded)
+
+  if e != nil {
+    fmt.Println("Error, the given file is not oat compatible")
+    os.Exit(1)
+  }
+
+  readfile.Close()
+
+  //convert the decoded value into json
+  var jsondata, err = json.Marshal(decoded)
+
+  if err != nil {
+    fmt.Println("Error, given file cannot be read as oat")
+    os.Exit(1)
+  }
+
+  //run the oat
+  lang.OatRun(string(jsondata), string(paramsJ))
 }
