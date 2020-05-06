@@ -21,6 +21,7 @@
 //file i/o
 #include "../files/readfile.hpp"
 #include "../files/writefile.h"
+#include "../files/delete.h"
 #include "../files/isDir.hpp"
 #include "../files/isFile.hpp"
 
@@ -1353,7 +1354,7 @@ Returner parser(const json actions, const json cli_params, json vars, const bool
           regex pat("^[a-zA-Z]:");
           bool isOnDrive = regex_search(filename, match, pat);
 
-          string nDir = isOnDrive ? "" : cli_params["Files"]["Dir"];
+          string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
 
           if (!isFile(nDir + filename) && expReturn) {
 
@@ -1410,17 +1411,23 @@ Returner parser(const json actions, const json cli_params, json vars, const bool
           string filename = parser(actions[i]["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
           json content = parser(actions[i]["Args"][1], cli_params, vars, false, true).exp;
 
-          string contentstr = content["ExpStr"][0].get<string>();
-
           smatch match;
 
           //see if the filename is absolute
           regex pat("^[a-zA-Z]:");
           bool isOnDrive = regex_search(filename, match, pat);
 
-          string nDir = isOnDrive ? "" : cli_params["Files"]["Dir"];
+          string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
 
-          writefile(&(nDir + filename)[0], &contentstr[0]);
+          if (content["Type"] == "falsey") {
+
+            deletefile(&(nDir + filename)[0]);
+
+          } else {
+
+            string contentstr = content["ExpStr"][0].get<string>();
+            writefile(&(nDir + filename)[0], &contentstr[0]);
+          }
 
           if (expReturn) {
             Returner ret;
@@ -1450,7 +1457,7 @@ Returner parser(const json actions, const json cli_params, json vars, const bool
           regex pat("^[a-zA-Z]:");
           bool isOnDrive = regex_search(filename, match, pat);
 
-          string nDir = isOnDrive ? "" : cli_params["Files"]["Dir"];
+          string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
 
           //if it is not a directory and not a file, it does not exist
           bool exists = !(!isDir(nDir + filename) && !isFile(nDir + filename));
@@ -1483,7 +1490,7 @@ Returner parser(const json actions, const json cli_params, json vars, const bool
           regex pat("^[a-zA-Z]:");
           bool isOnDrive = regex_search(filename, match, pat);
 
-          string nDir = isOnDrive ? "" : cli_params["Files"]["Dir"];
+          string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
 
           bool isFileVal = isFile(nDir + filename);
 
@@ -1515,7 +1522,7 @@ Returner parser(const json actions, const json cli_params, json vars, const bool
           regex pat("^[a-zA-Z]:");
           bool isOnDrive = regex_search(filename, match, pat);
 
-          string nDir = isOnDrive ? "" : cli_params["Files"]["Dir"];
+          string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
 
           bool isDirVal = isDir(nDir + filename);
 
