@@ -5,6 +5,7 @@ import "strconv"
 import "reflect"
 import "fmt"
 import "os"
+import "encoding/gob"
 
 // #cgo CFLAGS: -std=c99
 // #include "bind.h"
@@ -1671,7 +1672,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         //remove the quotes
         fileDir = fileDir[1:len(fileDir) - 1]
 
-        var files []string
+        var files = []map[string]string{}
 
         //see if user wants to import a fire from the basedir
         if strings.HasPrefix(fileDir, "?~") {
@@ -1686,21 +1687,51 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           files = ReadFileJS(dir + fileDir)
         }
 
-        var lexxed [][]Lex
+        var lexxed = []map[string]interface{}{}
 
         for _, v := range files {
-          lexxed = append(lexxed, Lexer(v, dir, name))
+          curlex := Lexer(v["Content"], dir, name)
+
+          curmap := map[string]interface{}{
+            "FileName": v["FileName"],
+            "Content": curlex,
+          }
+
+          lexxed = append(lexxed, curmap)
         }
 
         var actionizedFiles [][]Action
 
         for _, v := range lexxed {
-          actionizedFiles = append(actionizedFiles, Actionizer(v, false, dir, name))
+
+          if strings.HasSuffix(v["FileName"].(string), ".oat") {
+
+            readfile, _ := os.Open(v["FileName"].(string))
+
+            var decoded []Action
+
+            decoder := gob.NewDecoder(readfile)
+            e := decoder.Decode(&decoded)
+
+            if e != nil {
+              C.colorprint(C.CString("Error while actionizing " + dir + name + ", "), C.int(12))
+              fmt.Println(v["FileName"], "was detected as an oat, but is not oat compatible.")
+              os.Exit(1)
+            }
+
+            readfile.Close()
+
+            actionizedFiles = append(actionizedFiles, decoded)
+
+          } else {
+
+            actionizedFiles = append(actionizedFiles, Actionizer(v["Content"].([]Lex), false, dir, name))
+          }
         }
 
         i+=3
 
-        if lex[i].Name == "~" {
+        if i < len(lex) && lex[i].Name == "~" {
 
           as := lex[i + 1].Name
 

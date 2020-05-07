@@ -17,7 +17,12 @@ module.exports = dir => {
         return [...dirs, ...files];
       }
 
-      var files = getAll(dir.slice(0, -3)).flat(Infinity).map(f => fs.readFileSync(f, 'utf8'));
+      var files = getAll(dir.slice(0, -3)).flat(Infinity).map(f => {
+        return {
+          Content: fs.readFileSync(f, 'utf8'),
+          FileName: f
+        }
+      });
 
       return JSON.stringify(files);
     } catch (e) {
@@ -29,9 +34,14 @@ module.exports = dir => {
     try {
       var files = fs.readdirSync(dir.slice(0, -1))
 
-      files = files.filter(f => f.endsWith('.omm') && fs.lstatSync(dir.slice(0, -1) + f).isFile());
+      files = files.filter(f => (f.endsWith('.omm') || f.endsWith('.oat')) && fs.lstatSync(dir.slice(0, -1) + f).isFile());
 
-      return JSON.stringify(files.map(f => fs.readFileSync(dir.slice(0, -1) + f, 'utf8')));
+      return JSON.stringify(files.map(f => {
+        return {
+          Content: fs.readFileSync(dir.slice(0, -1) + f, 'utf8'),
+          FileName: dir.slice(0, -1) + f
+        }
+      }));
     } catch {
 
       return 'Error: cannot import directory ' + dir.slice(0, -1);
@@ -40,7 +50,10 @@ module.exports = dir => {
 
     try {
       return JSON.stringify(
-        [fs.readFileSync(dir, 'utf8')]
+        [{
+          Content: fs.readFileSync(dir, 'utf8'),
+          FileName: dir
+        }]
       );
     } catch (e) {
 

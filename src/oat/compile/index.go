@@ -11,7 +11,7 @@ func Compile(params map[string]map[string]interface{}) {
   dir := params["Files"]["DIR"].(string)
   fileName := params["Files"]["NAME"].(string)
 
-  file := lang.ReadFileJS(dir + fileName)[0]
+  file := lang.ReadFileJS(dir + fileName)[0]["Content"]
 
   lex := lang.Lexer(file, dir, fileName)
   acts := lang.Actionizer(lex, false, dir, fileName)

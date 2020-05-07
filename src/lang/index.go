@@ -133,7 +133,7 @@ func Run(params map[string]map[string]interface{}) {
   dir := params["Files"]["DIR"].(string)
   fileName := params["Files"]["NAME"].(string)
 
-  file := ReadFileJS(dir + fileName)[0]
+  file := ReadFileJS(dir + fileName)[0]["Content"]
 
   lex := Lexer(file, dir, fileName)
 

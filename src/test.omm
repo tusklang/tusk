@@ -1,1 +1,1 @@
-files.read('s', 's')
+import ~ "test.oat";

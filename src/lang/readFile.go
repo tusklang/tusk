@@ -10,7 +10,7 @@ import "os/exec"
 import "C"
 
 //export ReadFileJS
-func ReadFileJS(fileName string) []string {
+func ReadFileJS(fileName string) []map[string]string {
   readCmd := exec.Command("./lang/files/imports/index-win.exe")
 
   readCmd.Stdin = strings.NewReader(fileName)
@@ -23,7 +23,7 @@ func ReadFileJS(fileName string) []string {
     os.Exit(1)
   }
 
-  var files []string
+  var files []map[string]string
 
   json.Unmarshal([]byte(file_), &files)
 
