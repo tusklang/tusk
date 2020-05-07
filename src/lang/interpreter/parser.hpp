@@ -327,7 +327,7 @@ Returner parser(const json actions, const json cli_params, json vars, const bool
               //filter the variables that are not global
               for (auto& o : pVars.items())
                 if (o.value()["type"] == "global" || o.value()["type"] == "process")
-                  vars[o.key()] = o.value();
+                  vars[actions[i]["Name"].get<string>() + "." + o.key().substr(1)] = o.value();
             }
           }
           break;

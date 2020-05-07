@@ -4,6 +4,10 @@ import "fmt"
 import "os"
 import "strings"
 
+// #cgo CFLAGS: -std=c99
+// #include "bind.h"
+import "C"
+
 //this is just a function to actionize c processes in omm
 func cproc(i *int, lex []Lex, PARAM_COUNT uint, name, dir, filename string) [][]Action {
 
@@ -89,10 +93,11 @@ func cproc(i *int, lex []Lex, PARAM_COUNT uint, name, dir, filename string) [][]
     actionSplit = append(actionSplit, Actionizer(v, true, dir, filename))
   }
 
-  if uint(len(splitParams)) != PARAM_COUNT {
+  if uint(len(actionSplit)) != PARAM_COUNT {
 
     //throw an error
-    fmt.Println("Error while actionizing in " + curLex.Dir + "! Expected", PARAM_COUNT, "argument(s), but got", len(splitParams), "instead to call", /* say the process */ name, "\n\nError occured on line", curLex.Line, "\nFound near:", strings.TrimSpace(curLex.Exp))
+    C.colorprint(C.CString("Error while actionizing in " + curLex.Dir + "!"), C.int(12))
+    fmt.Println(" Expected", PARAM_COUNT, "argument(s), but got", len(splitParams), "instead to call", /* say the process */ name, "\n\nError occured on line", curLex.Line, "\nFound near:", strings.TrimSpace(curLex.Exp))
 
     //exit the process
     os.Exit(1)

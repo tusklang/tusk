@@ -3,8 +3,11 @@ package lang
 import "strings"
 import "strconv"
 import "reflect"
+import "fmt"
+import "os"
 
 // #cgo CFLAGS: -std=c99
+// #include "bind.h"
 import "C"
 
 //export Condition
@@ -1695,8 +1698,25 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           actionizedFiles = append(actionizedFiles, Actionizer(v, false, dir, name))
         }
 
-        actions = append(actions, Action{ "import", "", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 14, []Action{}, []Action{}, []Action{}, actionizedFiles, [][]Action{}, make(map[string][]Action), false })
         i+=3
+
+        if lex[i].Name == "~" {
+
+          as := lex[i + 1].Name
+
+          if !strings.HasPrefix(as, "$") {
+            C.colorprint(C.CString("Error while actionizing in " + lex[i + 1].Dir + "!"), C.int(12))
+            fmt.Println(" Expected a variable name but instead got", as, "\n\nError occured on line", lex[i + 1].Line, "\nFound near:", strings.TrimSpace(lex[i + 1].Exp))
+            os.Exit(1)
+          }
+
+          i+=2
+
+          actions = append(actions, Action{ "import", as, []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 14, []Action{}, []Action{}, []Action{}, actionizedFiles, [][]Action{}, make(map[string][]Action), false })
+        } else {
+
+          actions = append(actions, Action{ "import", "$", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 14, []Action{}, []Action{}, []Action{}, actionizedFiles, [][]Action{}, make(map[string][]Action), false })
+        }
       case "read":
         var phrase = []Lex{}
 

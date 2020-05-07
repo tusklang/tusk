@@ -1,1 +1,1 @@
-files.write("test.oat", "undef")
+files.read('s', 's')
