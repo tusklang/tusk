@@ -51,49 +51,49 @@
     "name": "++",
     "remove": "++",
     "pattern": "((?<!\\d)\\+\\+)",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": "+=",
     "remove": "+=",
     "pattern": "((?<!\\d)\\+\\=)",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": "--",
     "remove": "--",
     "pattern": "((?<!\\d)\\-\\-)",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": "-=",
     "remove": "-=",
     "pattern": "((?<!\\d)\\-\\-)",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": "*=",
     "remove": "*=",
     "pattern": "((?<!\\d)\\*\\=)",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": "/=",
     "remove": "/=",
     "pattern": "((?<!\\d)\\/\\=)",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": "^=",
     "remove": "^=",
     "pattern": "((?<!\\d)\\^\\=)",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": "%=",
     "remove": "%=",
     "pattern": "((?<!\\d)\\%\\=)",
-    "type": "operation"
+    "type": "?operation"
   },
   {
     "name": "each",

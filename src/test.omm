@@ -1,1 +1,6 @@
-import ~ "test.oat";
+i: 0;
+
+loop (true) {
+  i: i + 1;
+  log ~ i;
+}
