@@ -1,152 +1,24 @@
-#ifndef FALSEY_VAL_HPP_
-#define FALSEY_VAL_HPP_
+#ifndef VALUES_HPP_
+#define VALUES_HPP_
 
-#include "json.hpp"
+#include <vector>
+#include <map>
+#include "structs.hpp"
 using namespace std;
 
-const json falseyVal = {
-  {"Type", "falsey"},
-  {"Name", ""},
-  {"ExpStr", json::parse("[\"undef\"]")},
-  {"ExpAct", "[]"_json},
-  {"Params", "[]"_json},
-  {"Args", "[]"_json},
-  {"Condition", "[]"_json},
-  {"ID", 41},
-  {"First", "[]"_json},
-  {"Second", "[]"_json},
-  {"Degree", "[]"_json},
-  {"Value", "[[]]"_json},
-  {"Indexes", "[[]]"_json},
-  {"Index_Type", ""},
-  {"Hash_Values", "{}"_json},
-  {"IsMutable", false}
-}
-, trueRet = {
-  {"Type", "boolean"},
-  {"Name", ""},
-  {"ExpStr", json::parse("[\"true\"]")},
-  {"ExpAct", "[]"_json},
-  {"Params", "[]"_json},
-  {"Args", "[]"_json},
-  {"Condition", "[]"_json},
-  {"ID", 41},
-  {"First", "[]"_json},
-  {"Second", "[]"_json},
-  {"Degree", "[]"_json},
-  {"Value", "[[]]"_json},
-  {"Indexes", "[[]]"_json},
-  {"Index_Type", ""},
-  {"Hash_Values", "{}"_json},
-  {"IsMutable", false}
-}
-, falseRet = {
-  {"Type", "boolean"},
-  {"Name", ""},
-  {"ExpStr", json::parse("[\"false\"]")},
-  {"ExpAct", "[]"_json},
-  {"Params", "[]"_json},
-  {"Args", "[]"_json},
-  {"Condition", "[]"_json},
-  {"ID", 41},
-  {"First", "[]"_json},
-  {"Second", "[]"_json},
-  {"Degree", "[]"_json},
-  {"Value", "[[]]"_json},
-  {"Indexes", "[[]]"_json},
-  {"Index_Type", ""},
-  {"Hash_Values", "{}"_json},
-  {"IsMutable", false}
-}
-, zero = {
-  {"Type", "number"},
-  {"Name", ""},
-  {"ExpStr", json::parse("[\"0\"]")},
-  {"ExpAct", "[]"_json},
-  {"Params", "[]"_json},
-  {"Args", "[]"_json},
-  {"Condition", "[]"_json},
-  {"ID", 39},
-  {"First", "[]"_json},
-  {"Second", "[]"_json},
-  {"Degree", "[]"_json},
-  {"Value", "[[]]"_json},
-  {"Indexes", "[[]]"_json},
-  {"Index_Type", ""},
-  {"Hash_Values", "{}"_json},
-  {"IsMutable", false}
-}
-, val1 = {
-  {"Type", "number"},
-  {"Name", ""},
-  {"ExpStr", json::parse("[\"1\"]")},
-  {"ExpAct", "[]"_json},
-  {"Params", "[]"_json},
-  {"Args", "[]"_json},
-  {"Condition", "[]"_json},
-  {"ID", 39},
-  {"First", "[]"_json},
-  {"Second", "[]"_json},
-  {"Degree", "[]"_json},
-  {"Value", "[[]]"_json},
-  {"Indexes", "[[]]"_json},
-  {"Index_Type", ""},
-  {"Hash_Values", "{}"_json},
-  {"IsMutable", false}
-}
-, valn1 = {
-  {"Type", "number"},
-  {"Name", ""},
-  {"ExpStr", json::parse("[\"-1\"]")},
-  {"ExpAct", "[]"_json},
-  {"Params", "[]"_json},
-  {"Args", "[]"_json},
-  {"Condition", "[]"_json},
-  {"ID", 39},
-  {"First", "[]"_json},
-  {"Second", "[]"_json},
-  {"Degree", "[]"_json},
-  {"Value", "[[]]"_json},
-  {"Indexes", "[[]]"_json},
-  {"Index_Type", ""},
-  {"Hash_Values", "{}"_json},
-  {"IsMutable", false}
-}
-, strPlaceholder = {
-  {"Type", "string"},
-  {"Name", ""},
-  {"ExpStr", json::parse("[\"\"]")},
-  {"ExpAct", "[]"_json},
-  {"Params", "[]"_json},
-  {"Args", "[]"_json},
-  {"Condition", "[]"_json},
-  {"ID", 38},
-  {"First", "[]"_json},
-  {"Second", "[]"_json},
-  {"Degree", "[]"_json},
-  {"Value", "[[]]"_json},
-  {"Indexes", "[[]]"_json},
-  {"Index_Type", ""},
-  {"Hash_Values", "{}"_json},
-  {"IsMutable", false}
-}
-, arrayVal = {
-  {"Type", "array"},
-  {"Name", ""},
-  {"ExpStr", json::parse("[]")},
-  {"ExpAct", "[]"_json},
-  {"Params", "[]"_json},
-  {"Args", "[]"_json},
-  {"Condition", "[]"_json},
-  {"ID", 24},
-  {"First", "[]"_json},
-  {"Second", "[]"_json},
-  {"Degree", "[]"_json},
-  {"Value", "[[]]"_json},
-  {"Indexes", "[[]]"_json},
-  {"Index_Type", ""},
-  {"Hash_Values", "{}"_json},
-  {"IsMutable", false}
-};
+vector<Action> emptyActVec;
+vector<vector<Action>> emptyActVec2D;
+map<string, vector<Action>> noneMap;
+
+//a bunch of commonly used values
+Action
+  falseyVal = { "falsey", "", { "undef" }, emptyActVec, {}, emptyActVec2D, {}, 41, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false },
+  trueRet = { "boolean", "", { "true" }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false },
+  falseRet = { "boolean", "", { "false" }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false },
+  zero = { "number", "", { "0" }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false },
+  val1 = { "number", "", { "1" }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false },
+  valn1 = { "number", "", { "-1" }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false },
+  strPlaceholder = { "string", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false },
+  arrayVal = { "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false };
 
 #endif

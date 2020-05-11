@@ -2239,7 +2239,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         for _, v := range arr {
           hashedArr[cur] = v
-          cur = add(cur, "1", map[string]map[string]interface{}{})
+          cur = C.GoString(AddC(C.CString(cur), C.CString("1"), C.CString("{}")))
         }
 
         if i >= len_lex {
@@ -2627,7 +2627,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
                 hashedIndex["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable } }
 
                 hashedString[cur] = []Action{ Action{ "string", "exp_value", []string{ string(v) }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedIndex, isMutable } }
-                cur = add(cur, "1", map[string]map[string]interface{}{})
+                cur = C.GoString(AddC(C.CString(cur), C.CString("1"), C.CString("{}")))
               }
 
               actions = append(actions, Action{ "string", "exp_value", []string{ noQ }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedString, isMutable })

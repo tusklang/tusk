@@ -4,62 +4,63 @@
 #include <iostream>
 #include <windows.h>
 #include <stdio.h>
+#include <vector>
+#include <map>
 #include "json.hpp"
 #include "parser.hpp"
 #include "../bind.h"
 using namespace std;
+using json = nlohmann::json;
 
-Returner parser(const json actions, const json cli_params, json vars, const bool groupReturn, const bool expReturn);
+Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn);
 
-void log_format(json in, const json cli_params, json vars, int hash_spacing, string doPrint) {
+void log_format(Action in, const json cli_params, map<string, Variable> vars, int hash_spacing, string doPrint) {
 
-  if (in["Type"].dump() == "\"hash\"") {
-    json hashvals = in["Hash_Values"];
+  if (in.Type == "hash") {
+    map<string, vector<Action>> hashvals = in.Hash_Values;
 
     if (hashvals.size() == 0) cout << "[::]" << (doPrint == "print" ? "" : "\n");
     else {
       cout << "[:" << endl;
 
-      for (json::iterator it = hashvals.begin(); it != hashvals.end(); it++) {
-        json key = it.key()
-        , _value = it.value();
+      for (pair<string, vector<Action>> it : hashvals) {
+        string key = it.first;
+        vector<Action> _value = it.second;
 
-        cout << string(hash_spacing, ' ') << key.dump().substr(1, key.dump().length() - 2) << ": ";
+        cout << string(hash_spacing, ' ') << key << ": ";
         log_format(_value[0], cli_params, vars, hash_spacing + 2, "log");
       }
 
       cout << string(hash_spacing - 2, ' ') << ":]" << (doPrint == "print" ? "" : "\n");
     }
-  } else if (in["Type"].dump() == "\"array\"") {
-    json hashvals = in["Hash_Values"];
+  } else if (in.Type == "array") {
+    map<string, vector<Action>> hashvals = in.Hash_Values;
 
     if (hashvals.size() == 0) cout << "[]" << (doPrint == "print" ? "" : "\n");
     else {
-
       cout << "[" << endl;
 
-      for (json::iterator it = hashvals.begin(); it != hashvals.end(); it++) {
-        json key = it.key()
-        , _value = it.value();
+      for (pair<string, vector<Action>> it : hashvals) {
+        string key = it.first;
+        vector<Action> _value = it.second;
 
-        cout << string(hash_spacing, ' ') << key.dump().substr(1, key.dump().length() - 2) << ": ";
-
+        cout << string(hash_spacing, ' ') << key << ": ";
         log_format(_value[0], cli_params, vars, hash_spacing + 2, "log");
       }
 
-      cout << "]" << (doPrint == "print" ? "" : "\n");
+      cout << string(hash_spacing - 2, ' ') << "]" << (doPrint == "print" ? "" : "\n");
     }
-  } else if (in["Type"].dump() == "\"process\"" || in["Type"].dump() == "\"group\"") cout << "{PROCESS~ | GROUP~}" << (doPrint == "print" ? "" : "\n");
-  else if (in["Name"].dump() == "\"operation\"") {
-    log_format(in["First"][0], cli_params, vars, hash_spacing, "print");
+  } else if (in.Type == "process" || in.Type == "group") cout << "{PROCESS~ | GROUP~}" << (doPrint == "print" ? "" : "\n");
+  else if (in.Name == "operation") {
+    log_format(in.First[0], cli_params, vars, hash_spacing, "print");
 
-    string op = in["Type"].get<string>();
-
+    string op = in.Type;
     cout << " " << GetOp(&op[0]) << " ";
-    log_format(in["Second"][0], cli_params, vars, hash_spacing, "print");
+    log_format(in.Second[0], cli_params, vars, hash_spacing, "print");
+
   } else {
 
-    string val = in["ExpStr"][0];
+    string val = in.ExpStr[0];
 
     cout << val << (doPrint == "print" ? "" : "\n");
   }

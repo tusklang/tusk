@@ -124,7 +124,8 @@ func Lexer(file, dir, name string) []Lex {
 
 //export OatRun
 func OatRun(acts, cli_params string) {
-  C.bindCgo(C.CString(acts), C.CString(cli_params))
+
+  C.bindParser(C.CString(acts), C.CString(cli_params))
 }
 
 //export Run
@@ -139,11 +140,8 @@ func Run(params map[string]map[string]interface{}) {
 
   var actions = Actionizer(lex, false, dir, fileName)
 
-  var acts, _ = json.Marshal(actions)
-
   cp, _ := json.Marshal(params)
+  acts, _ := json.Marshal(actions)
 
-  _, _ = acts, cp
-
-  C.bindCgo(C.CString(string(acts)), C.CString(string(cp)))
+  C.bindParser(C.CString(string(acts)), C.CString(string(cp)))
 }

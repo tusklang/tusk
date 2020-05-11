@@ -32,14 +32,6 @@ multiply: 34
 divide: 35
 exponentiate: 36
 modulo: 37
-string: 38
-number: 39
-boolean: 40
-falsey: 41
-none: 42
-variable: 43
-type: 44
-index_key: 45
 variableIndex: 46
 equals: 47
 notEqual: 48
@@ -63,6 +55,15 @@ kill_thread: 65
 kill: 66
 regex.match: 68
 regex.substitute: 69
+
+DATATYPES:
+
+string: 38
+number: 39
+boolean: 40
+falsey: 41
+none: 42
+variable: 43
 
 ++: 4343
 --: 4545

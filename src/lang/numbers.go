@@ -278,7 +278,7 @@ func reCalc(val *Action) {
 
 func getIndex(val, index string) string {
 
-  for i := "1"; isLess(i, index); i = add(i, "1", map[string]map[string]interface{}{}) {
+  for i := "1"; isLess(i, index); i = C.GoString(AddC(C.CString(i), C.CString("1"), C.CString("{}"))) {
     val = val[1:]
   }
 

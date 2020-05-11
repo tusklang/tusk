@@ -8,19 +8,20 @@ import "math"
 // #cgo CFLAGS: -std=c99
 import "C"
 
-//export SubtractStrings
-func SubtractStrings(num1, num2, cli_params *C.char) *C.char {
+//export SubtractC
+func SubtractC(_num1C *C.char, _num2C *C.char, cli_paramsP *C.char) *C.char {
 
-  var cp map[string]map[string]interface{}
+  cli_params_str := C.GoString(cli_paramsP)
 
-  _ = json.Unmarshal([]byte(C.GoString(cli_params)), &cp)
+  var cli_params map[string]map[string]interface{}
 
-  sum := subtract(C.GoString(num1), C.GoString(num2), cp)
+  _ = json.Unmarshal([]byte(cli_params_str), &cli_params)
 
-  return C.CString(sum)
-}
+  _num1, _num2 := C.GoString(_num1C), C.GoString(_num2C)
 
-func subtract(_num1 string, _num2 string, cli_params map[string]map[string]interface{}) string {
+  if _num1 == "undef" || _num2 == "undef" {
+    return C.CString("undef")
+  }
 
   num1_, num2_ := initAdd(_num1, _num2)
 
@@ -269,149 +270,5 @@ func subtract(_num1 string, _num2 string, cli_params map[string]map[string]inter
     }
   }
 
-  return returnInit(final)
-}
-
-//export Subtract
-func Subtract(_num1P *C.char, _num2P *C.char, cli_paramsP *C.char) *C.char {
-
-  _num1 := C.GoString(_num1P)
-  _num2 := C.GoString(_num2P)
-  cli_params_str := C.GoString(cli_paramsP)
-
-  var cli_params map[string]map[string]interface{}
-
-  _ = json.Unmarshal([]byte(cli_params_str), &cli_params)
-
-  var _num1P_ Action
-  var _num2P_ Action
-
-  _ = json.Unmarshal([]byte(_num1), &_num1P_)
-  _ = json.Unmarshal([]byte(_num2), &_num2P_)
-
-  /* TABLE OF TYPES:
-
-    num - num = num
-    string - num = string | falsey (if the number is greater than string length, return falsey)
-    boolean - boolean = num
-    array - num = array
-    num - boolean = num
-    default = falsey
-  */
-
-  nums := TypeOperations{ _num1P_.Type, _num2P_.Type }
-
-  var finalRet Action
-
-  switch nums {
-    case TypeOperations{ "number", "number" }: //detect case "num" - "num"
-      val := subtract(_num1P_.ExpStr[0], _num2P_.ExpStr[0], cli_params)
-
-      finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-    case TypeOperations{ "string", "number" }: //detect case "string" - "num"
-      var val string
-      str := _num1P_.ExpStr[0]
-
-      //get string length
-      str_ := str
-
-      var length string
-
-      for length = "1"; str_ != ""; length = add(length, "1", cli_params) {
-        str_ = str_[1:]
-      }
-      ////////////////////
-
-      subtracted := subtract(length, "2", cli_params)
-
-      if isLess(subtracted, _num2P_.ExpStr[0]) || returnInit(subtracted) == _num2P_.ExpStr[0] {
-        finalRet = Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-      } else {
-
-        for i := subtract(length, add(_num2P_.ExpStr[0], "1", cli_params), cli_params); isLess(i, length); i = add(i, "1", cli_params) {
-          val+=getIndex(str, i)
-        }
-
-        finalRet = Action{ "string", "", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-      }
-    case TypeOperations{ "number", "string" }: //detect case "string" - "num"
-      var val string
-      str := _num2P_.ExpStr[0]
-
-      //get string length
-      str_ := str
-
-      var length string
-
-      for length = "1"; str_ != ""; length = add(length, "1", cli_params) {
-        str_ = str_[1:]
-      }
-      ////////////////////
-
-      subtracted := subtract(length, "2", cli_params)
-
-      if isLess(subtracted, _num1P_.ExpStr[0]) || returnInit(subtracted) == _num1P_.ExpStr[0] {
-        finalRet = Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-      } else {
-
-        for i := "0"; isLess(i, _num1P_.ExpStr[0]) || returnInit(i) == returnInit(_num1P_.ExpStr[0]); i = add(i, "1", cli_params) {
-          val+=string(str[0])
-          str = str[1:]
-        }
-
-        finalRet = Action{ "string", "", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-      }
-    case TypeOperations{ "boolean", "boolean" }: //detect case "boolean" - "boolean"
-
-      var val1, val2 string
-
-      if _num1P_.ExpStr[0] == "true" {
-        val1 = "1"
-      } else {
-        val1 = "0"
-      }
-
-      if _num2P_.ExpStr[0] == "true" {
-        val2 = "1"
-      } else {
-        val2 = "0"
-      }
-
-      val := subtract(val1, val2, cli_params)
-
-      finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-    case TypeOperations{ "number", "boolean" }: //detect case "number" - "boolean"
-
-      var val2 string
-
-      if _num2P_.ExpStr[0] == "true" {
-        val2 = "1"
-      } else {
-        val2 = "0"
-      }
-
-      val := subtract(_num1P_.ExpStr[0], val2, cli_params)
-
-      finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-    case TypeOperations{ "boolean", "number" }: //detect case "number" - "boolean"
-
-      var val1 string
-
-      if _num1P_.ExpStr[0] == "true" {
-        val1 = "1"
-      } else {
-        val1 = "0"
-      }
-
-      val := subtract(val1, _num2P_.ExpStr[0], cli_params)
-
-      finalRet = Action{ "number", "", []string{ val }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-    default: finalRet = Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-  }
-
-  reCalc(&finalRet)
-
-  jsonNum, _ := json.Marshal(finalRet)
-
-  return C.CString(string(jsonNum))
+  return C.CString(returnInit(final))
 }

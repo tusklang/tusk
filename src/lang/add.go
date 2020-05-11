@@ -8,19 +8,20 @@ import "math"
 // #cgo CFLAGS: -std=c99
 import "C"
 
-//export AddStrings
-func AddStrings(num1, num2, cli_params *C.char) *C.char {
+//export AddC
+func AddC(_num1C *C.char, _num2C *C.char, cli_paramsP *C.char) *C.char {
 
-  var cp map[string]map[string]interface{}
+  cli_params_str := C.GoString(cli_paramsP)
 
-  _ = json.Unmarshal([]byte(C.GoString(cli_params)), &cp)
+  var cli_params map[string]map[string]interface{}
 
-  sum := add(C.GoString(num1), C.GoString(num2), cp)
+  _ = json.Unmarshal([]byte(cli_params_str), &cli_params)
 
-  return C.CString(sum)
-}
+  _num1, _num2 := C.GoString(_num1C), C.GoString(_num2C)
 
-func add(_num1 string, _num2 string, cli_params map[string]map[string]interface{}) string {
+  if _num1 == "undef" || _num2 == "undef" {
+    return C.CString("undef")
+  }
 
   num1_, num2_ := initAdd(_num1, _num2)
 
@@ -253,187 +254,5 @@ func add(_num1 string, _num2 string, cli_params map[string]map[string]interface{
     final = "-" + final[:decPlace] + "." + final[decPlace:]
   }
 
-  return returnInit(final)
-}
-
-//export AddC
-func AddC(num1, num2 *C.char) *C.char {
-  return C.CString(add(C.GoString(num1), C.GoString(num2), map[string]map[string]interface{}{}))
-}
-
-//export Add
-func Add(_num1P *C.char, _num2P *C.char, cli_paramsP *C.char) *C.char {
-
-  __num1 := C.GoString(_num1P)
-  __num2 := C.GoString(_num2P)
-  cli_params_str := C.GoString(cli_paramsP)
-
-  var cli_params map[string]map[string]interface{}
-
-  _ = json.Unmarshal([]byte(cli_params_str), &cli_params)
-
-  var _num1P_ Action
-  var _num2P_ Action
-
-  _ = json.Unmarshal([]byte(__num1), &_num1P_)
-  _ = json.Unmarshal([]byte(__num2), &_num2P_)
-
-  nums := TypeOperations{ _num1P_.Type, _num2P_.Type }
-
-  /* TABLE OF TYPES:
-
-    string + (* - array - none - hash) = string
-    array + (* - none) = array
-    none + * = falsey
-    hash + (* - hash) = none
-    type + (* - hash - none) = type
-    num + num = num
-    hash + hash = hash
-    boolean + boolean = boolean
-    num + boolean = num
-    default = falsey
-  */
-
-  var finalRet Action
-
-  switch nums {
-    case TypeOperations{ "number", "number" }: { //detect case "num" + "num"
-
-      numRet := returnInit(add(_num1P_.ExpStr[0], _num2P_.ExpStr[0], cli_params))
-
-      finalRet = Action{ "number", "", []string{ numRet }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-    }
-    case TypeOperations{ "boolean", "boolean" }: { //detect case "boolean" + "boolean"
-
-      val1 := _num1P_.ExpStr[0]
-      val2 := _num2P_.ExpStr[0]
-
-      boolSwitch := BoolSwitch{ val1, val2 }
-
-      var final_ string
-
-      switch (boolSwitch) {
-        case BoolSwitch{ "true", "true" }:
-          final_ = "1"
-        case BoolSwitch{ "true", "false"}:
-          final_ = "1"
-        case BoolSwitch{ "false", "true" }:
-          final_ = "1"
-        case BoolSwitch{ "false", "false" }:
-          final_ = "0"
-        default: final_ = "0"
-      }
-
-      finalRet = Action{ "boolean", "", []string{ final_ }, []Action{}, []string{}, [][]Action{}, []Condition{}, 40, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-    }
-    case TypeOperations{ "number", "boolean" }: { //detect case "num" + "boolean"
-
-      val1 := _num1P_.ExpStr[0]
-      val2 := _num2P_.ExpStr[0]
-
-      var final_ string
-
-      if val2 == "true" {
-        final_ = add(val1, "1", cli_params)
-      } else {
-        final_ = val1
-      }
-
-      final_ = returnInit(final_)
-
-      finalRet = Action{ "number", "", []string{ final_ }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-    }
-    case TypeOperations{ "boolean", "number" }: { //detect case "num" + "boolean"
-
-      val1 := _num1P_.ExpStr[0]
-      val2 := _num2P_.ExpStr[0]
-
-      var final_ string
-
-      if val1 == "true" {
-        final_ = add(val2, "1", cli_params)
-      } else {
-        final_ = val2
-      }
-
-      final_ = returnInit(final_)
-
-      finalRet = Action{ "number", "", []string{ final_ }, []Action{}, []string{}, [][]Action{}, []Condition{}, 39, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-    }
-    default:
-
-      if (nums.First == "string" && nums.Second != "array" && nums.Second != "none" && nums.Second != "hash") || (nums.First != "array" && nums.First != "none" && nums.First != "hash" && nums.Second == "string") { //detect case "string" + (* - "array" - "none" - "hash") = "string"
-        val1 := _num1P_.ExpStr[0]
-        val2 := _num2P_.ExpStr[0]
-
-        final := val1 + val2
-
-        finalRet = Action{ "string", "", []string{ final }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-      } else if (nums.First == "array" && nums.Second != "none") || (nums.First != "none" && nums.Second == "array") { //detect case "array" + (* - "none") = "array"
-
-        val1 := _num1P_
-        val2 := _num2P_
-
-        if nums.First == "array" {
-          val1.Hash_Values[strconv.Itoa(len(val1.Hash_Values))] = []Action{ val2 }
-        } else {
-          val2, val1 = val1, val2
-
-          nMap := make(map[string][]Action)
-
-          for k, v := range val1.Hash_Values {
-            nMap[add(k, "1", cli_params)] = v
-          }
-
-          nMap["0"] = []Action{ val2 }
-
-          val1.Hash_Values = nMap
-        }
-
-        finalRet = val1
-
-      } else if nums.First == "none" || nums.Second == "none" { //detect case "none" + * = "falsey"
-
-        //if it is none + none, just return undef
-        finalRet = Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-      } else if (nums.First == "hash" && nums.Second != "none") || (nums.First != "none" && nums.Second == "hash") { //detect case "hash" + (* - "hash") = "none"
-
-        //get hash values of both values
-        val1 := _num1P_.Hash_Values
-        val2 := _num2P_.Hash_Values
-
-        var final = make(map[string][]Action)
-
-        //combine both hashes
-        for k, v := range val1 {
-          final[k] = v
-        }
-
-        for k, v := range val2 {
-          final[k] = v
-        }
-
-        //return the combined hash
-        finalRet = Action{ "hash", "", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 22, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, final, false }
-      } else if (nums.First == "type" && nums.Second != "hash" && nums.Second != "none") || (nums.First != "hash" && nums.First != "none" && nums.Second == "type") { //detect case "type" + (* - "hash" - "none") = "type"
-
-        val1 := _num1P_.ExpStr[0]
-        val2 := _num2P_.ExpStr[0]
-
-        final := val1 + val2
-
-        finalRet = Action{ "string", "", []string{ final }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-
-      } else {
-
-        //if nothing was detected just return undef
-        finalRet = Action{ "falsey", "", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
-      }
-  }
-
-  reCalc(&finalRet)
-
-  jsonNum, _ := json.Marshal(finalRet)
-
-  return C.CString(string(jsonNum))
+  return C.CString(returnInit(final))
 }

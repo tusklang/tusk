@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 #include <string>
 #include <algorithm>
 #include <thread>
@@ -10,7 +11,7 @@
 #include <regex>
 #include <exception>
 #include "json.hpp"
-#include "bind.h"
+#include "../bind.h"
 #include "structs.hpp"
 #include "indexes.hpp"
 #include "log_format.hpp"
@@ -25,934 +26,808 @@
 #include "../files/isDir.hpp"
 #include "../files/isFile.hpp"
 
+//operations
+#include "operations/add/add.hpp"
+#include "operations/divide/divide.hpp"
+#include "operations/exponentiate/exponentiate.hpp"
+#include "operations/modulo/modulo.hpp"
+#include "operations/multiply/multiply.hpp"
+#include "operations/subtract/subtract.hpp"
+
 using namespace std;
 using json = nlohmann::json;
 using ulong = unsigned long;
 
-Returner parser(const json actions, const json cli_params, json vars, const bool groupReturn, const bool expReturn) {
+Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn) {
 
   //loop through every action
-  for (json v : actions) {
+  for (Action v : actions) {
 
     //get current action id
-    int cur = v["ID"];
+    int cur = v.ID;
 
-    try {
-      switch (cur) {
-        case 1: {
+    switch (cur) {
+      case 1: {
 
-            //local
+          //local
 
-            string name = v["Name"];
+          string name = v.Name;
 
-            json acts = v["ExpAct"];
+          vector<Action> acts = v.ExpAct
+          , parsed = { parser(acts, cli_params, vars, false, true).exp };
 
-            json parsed = parser(acts, cli_params, vars, false, true).exp;
+          Variable nVar = Variable{
+            "local",
+            name,
+            parsed
+          };
 
-            json nVar = {
-              {"type", "local"},
-              {"name", name},
-              {"value", parsed},
-              {"valueActs", json::parse("[]")}
+          vars[name] = nVar;
+        }
+        break;
+      case 2: {
+
+          //dynamic
+
+          string name = v.Name;
+
+          vector<Action> acts = v.ExpAct;
+
+          Variable nVar = Variable{
+            "dynamic",
+            name,
+            acts
+          };
+
+          vars[name] = nVar;
+        }
+        break;
+      case 3: {
+
+          //alt
+
+          int o = 0;
+
+          Returner cond = parser(v.Condition[0].Condition, cli_params, vars, true, false);
+
+          //while the alt statement should continue
+          while (isTruthy(cond.exp)) {
+
+            //going back to the first block when it reached the last block
+            if (o >= v.Condition.size()) o = 0;
+
+            parser(v.Condition[o].Actions, cli_params, vars, true, false);
+
+            o++;
+          }
+        }
+        break;
+      case 4: {
+
+          //global
+
+          string name = v.Name;
+
+          vector<Action> acts = v.ExpAct
+          , parsed = { parser(acts, cli_params, vars, false, true).exp };
+
+          Variable nVar = Variable{
+            "global",
+            name,
+            parsed
+          };
+
+          vars[name] = nVar;
+        }
+        break;
+      case 5: {
+
+          //log
+
+          Action _val = parser(v.ExpAct, cli_params, vars, false, true).exp;
+
+          log_format(_val, cli_params, vars, 2, "log");
+        }
+        break;
+      case 6: {
+
+          //print
+
+          Action _val = parser(v.ExpAct, cli_params, vars, false, true).exp;
+
+          log_format(_val, cli_params, vars, 2, "print");
+        }
+        break;
+      case 8: {
+
+          //expressionIndex
+
+          Action val = parser(v.ExpAct, cli_params, vars, false, true).exp;
+
+          Action index = indexesCalc(val.Hash_Values, v.Indexes, cli_params, vars);
+
+          if (expReturn) {
+            vector<string> returnNone;
+
+            return Returner{ returnNone, vars, index, "expression" };
+          }
+        }
+        break;
+      case 9: {
+
+          //group
+
+          vector<Action> acts = v.ExpAct;
+
+          Returner parsed = parser(acts, cli_params, vars, false, false);
+
+          map<string, Variable> pVars = parsed.variables;
+
+          //filter the variables that are not global
+          for (pair<string, Variable> o : pVars)
+            if (o.second.type == "global" || o.second.type == "process" || vars.find(o.second.name) != vars.end())
+              vars[o.first] = o.second;
+
+          if (groupReturn) return Returner{ parsed.value, vars, parsed.exp, parsed.type };
+        }
+        break;
+      case 10: {
+
+          //process
+                                 /* process overloading */
+          string name = v.Name + to_string(v.Params.size());
+
+          if (name != "") {
+            Variable nVar = Variable{
+              "process",
+              name,
+              { v }
             };
 
             vars[name] = nVar;
           }
-          break;
-        case 2: {
 
-            //dynamic
-
-            string name = v["Name"];
-
-            json acts = v["ExpAct"];
-
-            json nVar = {
-              {"type", "dynamic"},
-              {"name", name},
-              {"value", json::parse("[]")},
-              {"valueActs", acts}
-            };
-            vars[name] = nVar;
-          }
-          break;
-        case 3: {
-
-            //alt
-
-            int o = 0;
-
-            Returner cond = parser(v["Condition"][0]["Condition"], cli_params, vars, true, false);
-
-            //while the alt statement should continue
-            while (isTruthy(cond.exp)) {
-
-              //going back to the first block when it reached the last block
-              if (o >= v["Condition"].size()) o = 0;
-
-              parser(v["Condition"][o]["Actions"], cli_params, vars, true, false);
-
-              o++;
-            }
-          }
-          break;
-        case 4: {
-
-            //global
-
-            string name = v["Name"];
-
-            json acts = v["ExpAct"];
-
-            json parsed = parser(acts, cli_params, vars, false, true).exp;
-
-            json nVar = {
-              {"type", "global"},
-              {"name", name},
-              {"value", parsed},
-              {"valueActs", json::parse("[]")}
-            };
-
-            vars[name] = nVar;
-          }
-          break;
-        case 5: {
-
-            //log
-
-            json _val = parser(v["ExpAct"], cli_params, vars, false, true).exp;
-
-            log_format(_val, cli_params, vars, 2, "log");
-          }
-          break;
-        case 6: {
-
-            //print
-
-            json _val = parser(v["ExpAct"], cli_params, vars, false, true).exp;
-
-            log_format(_val, cli_params, vars, 2, "print");
-          }
-          break;
-        case 8: {
-
-            //expressionIndex
-
-            json val = parser(v["ExpAct"], cli_params, vars, false, true).exp;
-
-            json index = indexesCalc(val["Hash_Values"], v["Indexes"], cli_params, vars);
-
-            if (expReturn) {
-              vector<string> returnNone;
-
-              return Returner{ returnNone, vars, index, "expression" };
-            }
-          }
-          break;
-        case 9: {
-
-            //group
-
-            json acts = v["ExpAct"];
-
-            Returner parsed = parser(acts, cli_params, vars, false, false);
-
-            json pVars = parsed.variables;
-
-            //filter the variables that are not global
-            for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-              if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
-                vars[o.value()["name"].get<string>()] = o.value();
-
-            if (groupReturn) return Returner{ parsed.value, vars, parsed.exp, parsed.type };
-          }
-          break;
-        case 10: {
-
-            //process
-                                                             /* process overloading */
-            string name = v["Name"].get<string>() + to_string(v["Params"].size());
-
-            if (name != "") {
-              json acts = v["ExpAct"];
-
-              json nVar = {
-                {"type", "process"},
-                {"name", name},
-                {"value", v},
-                {"valueActs", json::parse("[]")}
-              };
-
-              vars[name] = nVar;
-            }
-
-            if (expReturn) {
-              vector<string> noRet;
-
-              return Returner{ noRet, vars, v, "expression" };
-            }
-          }
-          break;
-        case 11: {
-
-            //# (call process)
-
-                                                             /* process overloading */
-            string name = v["Name"].get<string>() + to_string(v["Args"].size());
-
-            Returner parsed;
-
+          if (expReturn) {
             vector<string> noRet;
 
-            Returner fparsed = Returner{ noRet, vars, falseyVal, "none" };
+            return Returner{ noRet, vars, v, "expression" };
+          }
+        }
+        break;
+      case 11: {
 
-            parsed = fparsed;
+          //# (call process)
 
-            if (vars.find(name) == vars.end()) goto stopIndexing_processes;
-            else {
+                                 /* process overloading */
+          string name = v.Name + to_string(v.Args.size());
 
-              json var = vars[name]["value"];
+          Returner parsed;
 
-              for (json it : v["Indexes"]) {
+          vector<string> noRet;
 
-                json _index = parser(it, cli_params, vars, false, true).exp["ExpStr"][0];
-                string index = _index.dump().substr(1, _index.dump().length() - 2);
+          Returner fparsed = Returner{ noRet, vars, falseyVal, "none" };
 
-                if (var["Hash_Values"].find(index) == var["Hash_Values"].end()) {
-                  parsed = fparsed;
-                  goto stopIndexing_processes;
-                }
+          parsed = fparsed;
 
-                var = parser(var["Hash_Values"][index], cli_params, vars, false, true).exp;
-              }
+          if (vars.find(name) == vars.end()) goto stopIndexing_processes;
+          else {
 
-              if (var["Type"] != "process") {
+            Action var = vars[name].value[0];
+
+            for (vector<Action> it : v.Indexes) {
+
+              string index = parser(it, cli_params, vars, false, true).exp.ExpStr[0];
+
+              if ((var.Hash_Values).find(index) == var.Hash_Values.end()) {
                 parsed = fparsed;
                 goto stopIndexing_processes;
               }
 
-              json params = var["Params"]
-              , args = v["Args"];
-
-              json sendVars = vars;
-
-              for (int o = 0; o < params.size() || o < args.size(); o++) {
-
-                json cur = {
-                  {"type", "local"},
-                  {"name", (string) params[o]},
-                  {"value", parser(args[o], cli_params, vars, false, true).exp},
-                  {"valueActs", json::parse("[]")}
-                };
-
-                sendVars[(string) params[o]] = cur;
-              }
-
-              if (vars[name]["type"] == "process") {
-
-                parsed = parser(var["ExpAct"], cli_params, sendVars, true, false);
-
-                json pVars = parsed.variables;
-
-                //filter the variables that are not global
-                for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-                  if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
-                    vars[o.value()["name"].get<string>()] = o.value();
-
-              }
+              var = parser(var.Hash_Values[index], cli_params, vars, false, true).exp;
             }
 
-            stopIndexing_processes:
-            if (expReturn) {
-
-              json val = parsed.exp;
-
-              vector<string> noRet;
-
-              return Returner{ noRet, vars, val, "expression" };
+            if (var.Type != "process") {
+              parsed = fparsed;
+              goto stopIndexing_processes;
             }
-          }
-          break;
-        case 12: {
 
-            //return
+            vector<string> params = var.Params;
+            vector<vector<Action>> args = v.Args;
 
-            vector<string> noRet;
+            map<string, Variable> sendVars = vars;
 
-            return Returner{ noRet, vars, parser(v["ExpAct"], cli_params, vars, false, true).exp, "return" };
-          }
-          break;
-        case 13: {
+            for (int o = 0; o < params.size() || o < args.size(); o++) {
 
-            //conditional
-
-            for (int o = 0; o < v["Condition"].size(); o++) {
-
-              json val = parser(v["Condition"][o]["Condition"], cli_params, vars, false, true).exp;
-
-              if (isTruthy(val)) {
-
-                Returner parsed = parser(v["Condition"][o]["Actions"], cli_params, vars, true, false);
-
-                json pVars = parsed.variables;
-
-                //filter the variables that are not global
-                for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-                  if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
-                    vars[o.value()["name"].get<string>()] = o.value();
-
-                if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
-                if (parsed.type == "skip") return Returner{ parsed.value, vars, parsed.exp, "skip" };
-                if (parsed.type == "break") return Returner{ parsed.value, vars, parsed.exp, "break" };
-
-                break;
-              }
-
-            }
-          }
-          break;
-        case 14: {
-
-            //import
-
-            json files = v["Value"]; //get all actionized files imported
-
-            //loop through actionized files
-            for (json it : files) {
-
-              Returner parsed = parser(it, cli_params, vars, true, false);
-
-              json pVars = parsed.variables;
-
-              //filter the variables that are not global
-              for (auto& o : pVars.items())
-                if (o.value()["type"] == "global" || o.value()["type"] == "process")
-                  vars[v["Name"].get<string>() + "." + o.key().substr(1)] = o.value();
-            }
-          }
-          break;
-        case 15: {
-
-            //read
-
-            string in;
-
-            cout << ((string) parser(v["ExpAct"], cli_params, vars, false, true).exp["ExpStr"][0]) << " ";
-
-            cin >> in;
-
-            if (expReturn) {
-              vector<string> retNo;
-
-              json expRet = {
-                {"Type", "string"},
-                {"Name", ""},
-                {"ExpStr", json::parse("[\"\'" + in + "\'\"]")},
-                {"ExpAct", "[]"_json},
-                {"Params", "[]"_json},
-                {"Args", "[]"_json},
-                {"Condition", "[]"_json},
-                {"ID", 38},
-                {"First", "[]"_json},
-                {"Second", "[]"_json},
-                {"Degree", "[]"_json},
-                {"Value", "[[]]"_json},
-                {"Indexes", "[[]]"_json},
-                {"Index_Type", ""},
-                {"Hash_Values", {
-                  {"falsey", falseyVal}
-                }},
-                {"IsMutable", false}
+              Variable cur = Variable{
+                "local",
+                params[o],
+                { parser(args[o], cli_params, vars, false, true).exp }
               };
 
-              return Returner{ retNo, vars, expRet, "expression" };
+              sendVars[params[o]] = cur;
+            }
+
+            if (vars[name].type == "process") {
+
+              parsed = parser(var.ExpAct, cli_params, sendVars, true, false);
+
+              map<string, Variable> pVars = parsed.variables;
+
+              //filter the variables that are not global
+              for (pair<string, Variable> o : pVars)
+                if (o.second.type == "global" || o.second.type == "process" || vars.find(o.second.name) != vars.end())
+                  vars[o.first] = o.second;
+
             }
           }
-          break;
-        case 16: {
 
-            //break
+          stopIndexing_processes:
+          if (expReturn) {
 
-            Returner ret;
-
-            vector<string> returnNone;
-
-            ret.value = returnNone;
-            ret.variables = vars;
-            ret.exp = "{}"_json;
-            ret.type = "break";
-
-            return ret;
-          }
-          break;
-        case 17: {
-
-            //skip
-
-            Returner ret;
-
-            vector<string> returnNone;
-
-            ret.value = returnNone;
-            ret.variables = vars;
-            ret.exp = "{}"_json;
-            ret.type = "skip";
-
-            return ret;
-          }
-          break;
-        case 19: {
-
-            //typeof
-
-            Returner parsed = parser(v["ExpAct"], cli_params, vars, false, true);
-
-            json exp = parsed.exp;
-            json stringval = strPlaceholder;
-
-            stringval["ExpStr"] = json::parse("[\"" + exp["Type"].get<string>() + "\"]");
+            Action val = parsed.exp;
 
             vector<string> noRet;
 
-            if (expReturn) return Returner{ noRet, vars, stringval, "expression" };
+            return Returner{ noRet, vars, val, "expression" };
           }
-          break;
-        case 21: {
+        }
+        break;
+      case 12: {
 
-            //loop
+          //return
 
-            json cond = v["Condition"][0]["Condition"]
-            , acts = v["Condition"][0]["Actions"];
+          vector<string> noRet;
 
-            Returner parsed;
+          return Returner{ noRet, vars, parser(v.ExpAct, cli_params, vars, false, true).exp, "return" };
+        }
+        break;
+      case 13: {
 
-            json condP = parser(cond, cli_params, vars, false, true).exp;
+          //conditional
 
-            while (isTruthy(condP)) {
+          for (int o = 0; o < v.Condition.size(); o++) {
 
-              parsed = parser(acts, cli_params, vars, true, false);
+            Action val = parser(v.Condition[o].Condition, cli_params, vars, false, true).exp;
 
-              json pVars = parsed.variables;
+            if (isTruthy(val)) {
+
+              Returner parsed = parser(v.Condition[o].Actions, cli_params, vars, true, false);
+
+              map<string, Variable> pVars = parsed.variables;
 
               //filter the variables that are not global
-              for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-                if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
-                  vars[o.value()["name"].get<string>()] = o.value();
+              for (pair<string, Variable> o : pVars)
+                if (o.second.type == "global" || o.second.type == "process" || vars.find(o.second.name) != vars.end())
+                  vars[o.first] = o.second;
 
               if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
-              if (parsed.type == "skip") continue;
-              if (parsed.type == "break") break;
+              if (parsed.type == "skip") return Returner{ parsed.value, vars, parsed.exp, "skip" };
+              if (parsed.type == "break") return Returner{ parsed.value, vars, parsed.exp, "break" };
 
-              condP = parser(cond, cli_params, vars, false, true).exp;
+              break;
             }
 
           }
-          break;
-        case 22: {
+        }
+        break;
+      case 14: {
 
-            //hash
+          //import
 
-            if (expReturn) {
+          vector<vector<Action>> files = v.Value; //get all actionized files imported
 
-              vector<string> returnNone;
+          //loop through actionized files
+          for (vector<Action> it : files) {
 
-              bool isMutable = v["IsMutable"].get<bool>();
+            Returner parsed = parser(it, cli_params, vars, true, false);
 
-              json val = v;
+            map<string, Variable> pVars = parsed.variables;
 
-              if (!isMutable) {
-
-                for (auto& it : v["Hash_Values"].items())
-                  val["Hash_Values"][it.key()] = json::parse("[" + parser(it.value(), cli_params, vars, false, true).exp.dump() + "]");
-              }
-
-              return Returner{ returnNone, vars, val, "expression" };
-            }
+            //filter the variables that are not global
+            for (pair<string, Variable> o : pVars)
+              if (o.second.type == "global" || o.second.type == "process")
+                vars[v.Name + "." + o.first.substr(1)] = o.second;
           }
-          break;
-        case 23: {
+        }
+        break;
+      case 15: {
 
-            //hashIndex
+          //read
 
-            json val = v["Hash_Values"];
+          string in;
 
-            json index = indexesCalc(val, v["Indexes"], cli_params, vars);
+          cout << ((string) parser(v.ExpAct, cli_params, vars, false, true).exp.ExpStr[0]) << " ";
 
-            if (expReturn) {
-              vector<string> returnNone;
+          cin >> in;
 
-              return Returner{ returnNone, vars, index, "expression" };
+          if (expReturn) {
+            vector<string> retNo;
+
+            Action expRet = strPlaceholder;
+
+            expRet.ExpStr[0] = in;
+
+            for (char c : in) {
+
+              Action cPlaceholder = strPlaceholder;
+
+              cPlaceholder.ExpStr[0] = to_string(c);
             }
+
+            return Returner{ retNo, vars, expRet, "expression" };
           }
-          break;
-        case 24: {
+        }
+        break;
+      case 16: {
 
-            //array
+          //break
 
-            if (expReturn) {
-              vector<string> returnNone;
+          Returner ret;
 
-              bool isMutable = v["IsMutable"].get<bool>();
+          vector<string> returnNone;
+          Action expNone;
 
-              json val = v;
+          ret.value = returnNone;
+          ret.variables = vars;
+          ret.exp = expNone;
+          ret.type = "break";
 
-              if (!isMutable) {
+          return ret;
+        }
+        break;
+      case 17: {
 
-                char* index = "0";
+          //skip
 
-                for (json o : v["Hash_Values"]) {
+          Returner ret;
 
-                  if (val["Hash_Values"].find(index) == val["Hash_Values"].end()) {
-                    index = AddC(index, "1");
-                    continue;
-                  }
+          vector<string> returnNone;
+          Action expNone;
 
-                  val["Hash_Values"][index] = json::parse("[" + parser(v["Hash_Values"][index], cli_params, vars, false, true).exp.dump() + "]");
-                  index = AddC(index, "1");
-                }
-              }
+          ret.value = returnNone;
+          ret.variables = vars;
+          ret.exp = expNone;
+          ret.type = "skip";
 
-              return Returner{ returnNone, vars, val, "expression"};
-            }
+          return ret;
+        }
+        break;
+      case 19: {
+
+          //typeof
+
+          Returner parsed = parser(v.ExpAct, cli_params, vars, false, true);
+
+          Action exp = parsed.exp;
+          Action stringval = strPlaceholder;
+
+          stringval.ExpStr = { exp.Type };
+
+          vector<string> noRet;
+
+          if (expReturn) return Returner{ noRet, vars, stringval, "expression" };
+        }
+        break;
+      case 21: {
+
+          //loop
+
+          vector<Action> cond = v.Condition[0].Condition
+          , acts = v.Condition[0].Actions;
+
+          Returner parsed;
+
+          Action condP = parser(cond, cli_params, vars, false, true).exp;
+
+          while (isTruthy(condP)) {
+
+            parsed = parser(acts, cli_params, vars, true, false);
+
+            map<string, Variable> pVars = parsed.variables;
+
+            //filter the variables that are not global
+            for (pair<string, Variable> o : pVars)
+              if (o.second.type == "global" || o.second.type == "process" || vars.find(o.second.name) != vars.end())
+                vars[o.first] = o.second;
+
+            if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
+            if (parsed.type == "skip") continue;
+            if (parsed.type == "break") break;
+
+            condP = parser(cond, cli_params, vars, false, true).exp;
           }
-          break;
-        case 25: {
 
-            //arrayIndex
+        }
+        break;
+      case 22: {
 
-            json val = v["Hash_Values"]
-            , index = indexesCalc(val, v["Indexes"], cli_params, vars);
+          //hash
 
-            if (expReturn) {
-              vector<string> returnNone;
-
-              return Returner{ returnNone, vars, index, "expression" };
-            }
-          }
-          break;
-        case 26: {
-
-            //ascii
-
-            json parsed = parser(v["ExpAct"], cli_params, vars, false, true).exp;
+          if (expReturn) {
 
             vector<string> returnNone;
 
-            if (parsed["Type"] != "string" && expReturn) return Returner{ returnNone, vars, falseyVal, "expression" };
-            else {
-              string val = parsed["ExpStr"][0].get<string>().substr(1, parsed["ExpStr"][0].get<string>().length() - 2);
-              int first = (int) val[0];
+            bool isMutable = v.IsMutable;
 
-              if (expReturn) {
+            Action val = v;
 
-                json ascVal = {
-                  {"Type", "number"},
-                  {"Name", ""},
-                  {"ExpStr", json::parse("[\"" + to_string(first) + "\"]")},
-                  {"ExpAct", "[]"_json},
-                  {"Params", "[]"_json},
-                  {"Args", "[]"_json},
-                  {"Condition", "[]"_json},
-                  {"ID", 39},
-                  {"First", "[]"_json},
-                  {"Second", "[]"_json},
-                  {"Degree", "[]"_json},
-                  {"Value", "[[]]"_json},
-                  {"Indexes", "[[]]"_json},
-                  {"Index_Type", ""},
-                  {"Hash_Values", {
-                    {"falsey", falseyVal}
-                  }},
-                  {"IsMutable", false}
-                };
+            if (!isMutable) {
 
-                return Returner{returnNone, vars, ascVal, "expression"};
+              for (pair<string, vector<Action>> it : v.Hash_Values)
+                val.Hash_Values[it.first] = { parser(it.second, cli_params, vars, false, true).exp };
+            }
+
+            return Returner{ returnNone, vars, val, "expression" };
+          }
+        }
+        break;
+      case 23: {
+
+          //hashIndex
+
+          map<string, vector<Action>> val = v.Hash_Values;
+
+          Action index = indexesCalc(val, v.Indexes, cli_params, vars);
+
+          if (expReturn) {
+            vector<string> returnNone;
+
+            return Returner{ returnNone, vars, index, "expression" };
+          }
+        }
+        break;
+      case 24: {
+
+          //array
+
+          if (expReturn) {
+            vector<string> returnNone;
+
+            bool isMutable = v.IsMutable;
+
+            Action val = v;
+
+            if (!isMutable) {
+
+              char* index = "0";
+
+              for (pair<string, vector<Action>> o : v.Hash_Values) {
+
+                if (val.Hash_Values.find(index) == val.Hash_Values.end()) {
+                  index = AddC(index, "1", &cli_params.dump()[0]);
+                  continue;
+                }
+
+                val.Hash_Values[index] = { parser(v.Hash_Values[index], cli_params, vars, false, true).exp };
+                index = AddC(index, "1", &cli_params.dump()[0]);
               }
             }
+
+            return Returner{ returnNone, vars, val, "expression"};
           }
-          break;
-        case 28: {
+        }
+        break;
+      case 25: {
 
-            //let
+          //arrayIndex
 
-            string name = v["Name"];
+          map<string, vector<Action>> val = v.Hash_Values;
+          Action index = indexesCalc(val, v.Indexes, cli_params, vars);
 
-            json acts = v["ExpAct"];
+          if (expReturn) {
+            vector<string> returnNone;
 
-            json parsed = parser(acts, cli_params, vars, false, true).exp;
+            return Returner{ returnNone, vars, index, "expression" };
+          }
+        }
+        break;
+      case 26: {
 
-            json nVar;
+          //ascii
 
-            json var = vars[name];
-            vector<string> indexes;
+          Action parsed = parser(v.ExpAct, cli_params, vars, false, true).exp;
 
-            for (json it : v["Indexes"]) {
-              json varP = parser(it, cli_params, vars, false, true).exp["ExpStr"][0];
+          vector<string> returnNone;
 
-              if (var["value"]["Hash_Values"].find(varP.get<string>()) == var["value"]["Hash_Values"].end()) var = {
-                  {"type", "local"},
-                  {"name", var["name"].get<string>() + varP.get<string>()},
-                  {"value", {
-                    {varP.get<string>(), {
-                      {"falsey", falseyVal}
-                    }}
-                  }},
-                  {"valueActs", json::parse("[]")}
-                };
-              else var = {
-                {"type", "local"},
-                {"name", var["name"].get<string>() + varP.get<string>()},
-                {"value", var["value"]["Hash_Values"][varP.get<string>()]},
-                {"valueActs", json::parse("[]")}
-              };
+          if (parsed.Type != "string" && expReturn) return Returner{ returnNone, vars, falseyVal, "expression" };
+          else {
+            string val = parsed.ExpStr[0];
+            int first = (int) val[0];
 
-              indexes.push_back(varP.get<string>());
+            if (expReturn) {
+
+              Action ascVal = val1;
+
+              ascVal.ExpStr[0] = to_string(first);
+
+              return Returner{returnNone, vars, ascVal, "expression"};
             }
+          }
+        }
+        break;
+      case 28: {
 
-            if (var.find("type") != var.end())
-              nVar = {
-                {"type", vars[name]["type"]},
-                {"name", name},
-                {"value", parsed},
-                {"valueActs", json::parse("[]")}
+          //let
+
+          string name = v.Name;
+
+          vector<Action> acts = v.ExpAct;
+
+          vector<Action> parsed = { parser(acts, cli_params, vars, false, true).exp };
+
+          Variable nVar;
+
+          Variable var = vars[name];
+          vector<string> indexes;
+
+          if (v.Indexes.size() == 0) {
+
+            if (vars.find(name) != vars.end())
+              vars[name] = Variable{
+                vars[name].type,
+                name,
+                parsed
               };
             else
-              nVar = {
-                {"type", "local"},
-                {"name", name},
-                {"value", parsed},
-                {"valueActs", json::parse("[]")}
+              vars[name] = Variable{
+                "local",
+                name,
+                parsed
               };
+          } else {
 
-            if (v["Indexes"].size() == 0) vars[name] = nVar;
-            else {
-               json myObj;
-               auto ref = std::ref(vars[name]["value"]["Hash_Values"]);
+            Action* map = &vars[name].value[0];
 
-               for (string o : indexes) ref = ref.get()[o];
+            for (vector<Action> it : v.Indexes) {
 
-               ref.get() = json::parse("[" + nVar["value"].dump() + "]");
-            }
-          }
-          break;
-        case 32: {
+              string varP = parser(it, cli_params, vars, false, true).exp.ExpStr[0];
 
-            //add
-
-            string first = parser(v["First"], cli_params, vars, false, true).exp.dump(2)
-            , second = parser(v["Second"], cli_params, vars, false, true).exp.dump(2);
-
-            string _val(Add(
-              &first[0],
-              &second[0],
-              &cli_params.dump()[0]
-            ));
-
-            json val = json::parse(_val);
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val;
-              ret.type = "expression";
-
-              return ret;
-            }
-          }
-          break;
-        case 33: {
-
-            //subtract
-
-            string first = parser(v["First"], cli_params, vars, false, true).exp.dump(2)
-            , second = parser(v["Second"], cli_params, vars, false, true).exp.dump(2);
-
-            string _val(Subtract(
-              &first[0],
-              &second[0],
-              &cli_params.dump()[0]
-            ));
-
-            json val = json::parse(_val);
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val;
-              ret.type = "expression";
-
-              return ret;
-            }
-          }
-          break;
-        case 34: {
-
-            //multiply
-
-            string first = parser(v["First"], cli_params, vars, false, true).exp.dump(2)
-            , second = parser(v["Second"], cli_params, vars, false, true).exp.dump(2);
-
-            string _val(Multiply(
-              &first[0],
-              &second[0],
-              &cli_params.dump()[0]
-            ));
-
-            json val = json::parse(_val);
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val;
-              ret.type = "expression";
-
-              return ret;
-            }
-          }
-          break;
-        case 35: {
-
-            //divide
-
-            string first = parser(v["First"], cli_params, vars, false, true).exp.dump(2)
-            , second = parser(v["Second"], cli_params, vars, false, true).exp.dump(2);
-
-            string _val(Division(
-              &first[0],
-              &second[0],
-              &cli_params.dump()[0]
-            ));
-
-            json val = json::parse(_val);
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val;
-              ret.type = "expression";
-
-              return ret;
-            }
-          }
-          break;
-        case 36: {
-
-            //exponentiate
-
-            string first = parser(v["First"], cli_params, vars, false, true).exp.dump(2)
-            , second = parser(v["Second"], cli_params, vars, false, true).exp.dump(2);
-
-            string _val(Exponentiate(
-              &first[0],
-              &second[0],
-              &cli_params.dump()[0]
-            ));
-
-            json val = json::parse(_val);
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val;
-              ret.type = "expression";
-
-              return ret;
-            }
-          }
-          break;
-        case 37: {
-
-            //modulo
-
-            string first = parser(v["First"], cli_params, vars, false, true).exp.dump(2)
-            , second = parser(v["Second"], cli_params, vars, false, true).exp.dump(2);
-
-            string _val(Modulo(
-              &first[0],
-              &second[0],
-              &cli_params.dump()[0]
-            ));
-
-            json val = json::parse(_val);
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val;
-              ret.type = "expression";
-
-              return ret;
-            }
-          }
-          break;
-        case 38: {
-
-            //string
-
-            vector<string> noRet;
-
-            if (expReturn) return Returner{ noRet, vars, v, "expression" };
-          }
-          break;
-        case 39: {
-
-            //number
-
-            vector<string> noRet;
-
-            if (expReturn) return Returner{ noRet, vars, v, "expression" };
-          }
-          break;
-        case 40: {
-
-            //boolean
-
-            vector<string> noRet;
-
-            if (expReturn) return Returner{ noRet, vars, v, "expression" };
-          }
-          break;
-        case 41: {
-
-            //falsey
-
-            vector<string> noRet;
-
-            if (expReturn) return Returner{ noRet, vars, v, "expression" };
-          }
-          break;
-        case 42: {
-
-            //none
-
-            vector<string> noRet;
-
-            if (expReturn) return Returner{ noRet, vars, v, "expression" };
-          }
-          break;
-        case 43: {
-
-            //variable
-
-            json val;
-
-            if (vars.find(v["Name"].get<string>()) == vars.end()) val = falseyVal;
-            else {
-
-              json var = vars[v["Name"].get<string>()]["value"];
-
-              bool varIsMutable = var["IsMutable"].get<bool>()
-              , actIsMutable = v["IsMutable"].get<bool>()
-              , isMutable = varIsMutable ^ actIsMutable;
-
-              var["IsMutable"] = isMutable;
-
-              val = parser(json::parse("[" + var.dump() + "]"), cli_params, vars, false, true).exp;
+              map = &(map->Hash_Values[varP][0]);
             }
 
-            vector<string> noRet;
+            *map = parsed[0];
 
-            if (expReturn) return Returner{ noRet, vars, val, "expression" };
           }
-          break;
-        case 44: {
+        }
+        break;
+      case 32: {
 
-            //type
+          //add
 
-            vector<string> noRet;
+          Action first = parser(v.First, cli_params, vars, false, true).exp
+          , second = parser(v.Second, cli_params, vars, false, true).exp;
 
-            if (expReturn) return Returner{ noRet, vars, json::parse(
-              R"(
-                {"Args":[],"Condition":[],"Degree":[],"ExpAct":[],"ExpStr":["type"],"First":[],"Hash_Values":{},"ID":44,"Index_Type":"","Indexes":[],"Name":"","Params":[],"Second":[],"Type":"type","Value":[],"ValueType":[]}
-              )"
-            ), "expression" };
+          Action val = add(first, second, cli_params);
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = val;
+            ret.type = "expression";
+
+            return ret;
           }
-          break;
-        case 46: {
+        }
+        break;
+      case 33: {
 
-            //variableIndex
+          //subtract
 
-            Returner parsedVal = parser(v["ExpAct"], cli_params, vars, false, true);
+          Action first = parser(v.First, cli_params, vars, false, true).exp
+          , second = parser(v.Second, cli_params, vars, false, true).exp;
 
-            json index = indexesCalc(parsedVal.exp["Hash_Values"], v["Indexes"], cli_params, vars);
+          Action val = subtract(first, second, cli_params);
 
-            if (expReturn) {
-              vector<string> returnNone;
+          if (expReturn) {
+            Returner ret;
 
-              return Returner{ returnNone, vars, index, "expression" };
-            }
+            vector<string> retNo;
+
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = val;
+            ret.type = "expression";
+
+            return ret;
           }
-          break;
-        case 47: {
+        }
+        break;
+      case 34: {
 
-            //equals
+          //multiply
 
-            json first = parser(v["First"], cli_params, vars, false, true).exp
-            , second = parser(v["Second"], cli_params, vars, false, true).exp;
+          Action first = parser(v.First, cli_params, vars, false, true).exp
+          , second = parser(v.Second, cli_params, vars, false, true).exp;
 
-            json val = equals(
-              first,
-              second,
-              cli_params,
-              vars
-            );
+          Action val = multiply(first, second, cli_params);
 
-            if (first["Type"] != second["Type"]) val = falseRet;
+          if (expReturn) {
+            Returner ret;
 
-            if (expReturn) {
-              Returner ret;
+            vector<string> retNo;
 
-              vector<string> retNo;
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = val;
+            ret.type = "expression";
 
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val;
-              ret.type = "expression";
-
-              return ret;
-            }
+            return ret;
           }
-          break;
-        case 48: {
+        }
+        break;
+      case 35: {
 
-          //notEqual
+          //divide
 
-          json first = parser(v["First"], cli_params, vars, false, true).exp
-          , second = parser(v["Second"], cli_params, vars, false, true).exp;
+          Action first = parser(v.First, cli_params, vars, false, true).exp
+          , second = parser(v.Second, cli_params, vars, false, true).exp;
 
-          json val = equals(
+          Action val = divide(first, second, cli_params);
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = val;
+            ret.type = "expression";
+
+            return ret;
+          }
+        }
+        break;
+      case 36: {
+
+          //exponentiate
+
+          Action first = parser(v.First, cli_params, vars, false, true).exp
+          , second = parser(v.Second, cli_params, vars, false, true).exp;
+
+          Action val = exponentiate(first, second, cli_params);
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = val;
+            ret.type = "expression";
+
+            return ret;
+          }
+        }
+        break;
+      case 37: {
+
+          //modulo
+
+          Action first = parser(v.First, cli_params, vars, false, true).exp
+          , second = parser(v.Second, cli_params, vars, false, true).exp;
+
+          Action val = modulo(first, second, cli_params);
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = val;
+            ret.type = "expression";
+
+            return ret;
+          }
+        }
+        break;
+      case 38: {
+
+          //string
+
+          vector<string> noRet;
+
+          if (expReturn) return Returner{ noRet, vars, v, "expression" };
+        }
+        break;
+      case 39: {
+
+          //number
+
+          vector<string> noRet;
+
+          if (expReturn) return Returner{ noRet, vars, v, "expression" };
+        }
+        break;
+      case 40: {
+
+          //boolean
+
+          vector<string> noRet;
+
+          if (expReturn) return Returner{ noRet, vars, v, "expression" };
+        }
+        break;
+      case 41: {
+
+          //falsey
+
+          vector<string> noRet;
+
+          if (expReturn) return Returner{ noRet, vars, v, "expression" };
+        }
+        break;
+      case 42: {
+
+          //none
+
+          vector<string> noRet;
+
+          if (expReturn) return Returner{ noRet, vars, v, "expression" };
+        }
+        break;
+      case 43: {
+
+          //variable
+
+          Action val;
+
+          if (vars.find(v.Name) == vars.end()) val = falseyVal;
+          else {
+
+            Action var = vars[v.Name].value[0];
+
+            bool varIsMutable = var.IsMutable
+            , actIsMutable = v.IsMutable
+            , isMutable = varIsMutable ^ actIsMutable;
+
+            var.IsMutable = isMutable;
+
+            val = parser({ var }, cli_params, vars, false, true).exp;
+          }
+
+          vector<string> noRet;
+
+          if (expReturn) return Returner{ noRet, vars, val, "expression" };
+        }
+        break;
+      case 46: {
+
+          //variableIndex
+
+          Returner parsedVal = parser(v.ExpAct, cli_params, vars, false, true);
+
+          Action index = indexesCalc(parsedVal.exp.Hash_Values, v.Indexes, cli_params, vars);
+
+          if (expReturn) {
+            vector<string> returnNone;
+
+            return Returner{ returnNone, vars, index, "expression" };
+          }
+        }
+        break;
+      case 47: {
+
+          //equals
+
+          Action first = parser(v.First, cli_params, vars, false, true).exp
+          , second = parser(v.Second, cli_params, vars, false, true).exp;
+
+          Action val = equals(
             first,
             second,
             cli_params,
             vars
           );
 
-          val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
-          if (first["Type"] != second["Type"]) val = trueRet;
+          if (first.Type != second.Type) val = falseRet;
 
           if (expReturn) {
             Returner ret;
@@ -966,20 +841,163 @@ Returner parser(const json actions, const json cli_params, json vars, const bool
 
             return ret;
           }
-          break;
         }
-        case 49: {
+        break;
+      case 48: {
 
-          //greater
+        //notEqual
 
-          json first = parser(v["First"], cli_params, vars, false, true).exp
-          , second = parser(v["Second"], cli_params, vars, false, true).exp;
+        Action first = parser(v.First, cli_params, vars, false, true).exp
+        , second = parser(v.Second, cli_params, vars, false, true).exp;
 
-          json val = isGreater(
-            first,
-            second,
-            cli_params
-          );
+        Action val = equals(
+          first,
+          second,
+          cli_params,
+          vars
+        );
+
+        val = val.ExpStr[0] == "true" ? falseRet : trueRet;
+        if (first.Type != second.Type) val = trueRet;
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = val;
+          ret.type = "expression";
+
+          return ret;
+        }
+        break;
+      }
+      case 49: {
+
+        //greater
+
+        Action first = parser(v.First, cli_params, vars, false, true).exp
+        , second = parser(v.Second, cli_params, vars, false, true).exp;
+
+        Action val = isGreater(
+          first,
+          second,
+          cli_params
+        );
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = val;
+          ret.type = "expression";
+
+          return ret;
+        }
+        break;
+      }
+      case 50: {
+
+        //less
+
+        Action first = parser(v.First, cli_params, vars, false, true).exp
+        , second = parser(v.Second, cli_params, vars, false, true).exp;
+
+        Action val = isLess(
+          first,
+          second,
+          cli_params
+        );
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = val;
+          ret.type = "expression";
+
+          return ret;
+        }
+        break;
+      }
+      case 51: {
+
+        //greaterOrEqual
+
+        Action first = parser(v.First, cli_params, vars, false, true).exp
+        , second = parser(v.Second, cli_params, vars, false, true).exp;
+
+        Action val = isLess(
+          first,
+          second,
+          cli_params
+        );
+
+        val = val.ExpStr[0] == "true" ? falseRet : trueRet;
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = val;
+          ret.type = "expression";
+
+          return ret;
+        }
+        break;
+      }
+      case 52: {
+
+        //lessOrEqual
+
+        Action first = parser(v.First, cli_params, vars, false, true).exp
+        , second = parser(v.Second, cli_params, vars, false, true).exp;
+
+        Action val = isGreater(
+          first,
+          second,
+          cli_params
+        );
+
+        val = val.ExpStr[0] == "true" ? falseRet : trueRet;
+        if (first.Type != second.Type) val = trueRet;
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = val;
+          ret.type = "expression";
+
+          return ret;
+        }
+        break;
+      }
+      case 53: {
+
+          //not
+
+          Action val = parser(v.Second, cli_params, vars, false, true).exp
+          , retval;
+
+          string expstr = val.ExpStr[0];
+
+          if (expstr == "false" || val.Type == "falsey") retval = trueRet;
+          else retval = falseRet;
 
           if (expReturn) {
             Returner ret;
@@ -988,25 +1006,24 @@ Returner parser(const json actions, const json cli_params, json vars, const bool
 
             ret.value = retNo;
             ret.variables = vars;
-            ret.exp = val;
+            ret.exp = retval;
             ret.type = "expression";
 
             return ret;
           }
-          break;
         }
-        case 50: {
+        break;
+      case 54: {
 
-          //less
+          //similar
 
-          json first = parser(v["First"], cli_params, vars, false, true).exp
-          , second = parser(v["Second"], cli_params, vars, false, true).exp;
+          Action first = parser(v.First, cli_params, vars, false, true).exp
+          , second = parser(v.Second, cli_params, vars, false, true).exp;
 
-          json val = isLess(
-            first,
-            second,
-            cli_params
-          );
+          Action retval;
+
+          if ((v.Degree).size() == 0) retval = similarity(first, second, zero, cli_params, vars);
+          else retval = similarity(first, second, parser(v.Degree, cli_params, vars, false, true).exp, cli_params, vars);
 
           if (expReturn) {
             Returner ret;
@@ -1015,27 +1032,24 @@ Returner parser(const json actions, const json cli_params, json vars, const bool
 
             ret.value = retNo;
             ret.variables = vars;
-            ret.exp = val;
+            ret.exp = retval;
             ret.type = "expression";
 
             return ret;
           }
-          break;
         }
-        case 51: {
+        break;
+      case 55: {
 
-          //greaterOrEqual
+          //strictSimilar
 
-          json first = parser(v["First"], cli_params, vars, false, true).exp
-          , second = parser(v["Second"], cli_params, vars, false, true).exp;
+          Action first = parser(v.First, cli_params, vars, false, true).exp
+          , second = parser(v.Second, cli_params, vars, false, true).exp;
 
-          json val = isLess(
-            first,
-            second,
-            cli_params
-          );
+          Action retval;
 
-          val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
+          if ((v.Degree).size() == 0) retval = strictSimilarity(first, second, zero, cli_params, vars);
+          else retval = strictSimilarity(first, second, parser(v.Degree, cli_params, vars, false, true).exp, cli_params, vars);
 
           if (expReturn) {
             Returner ret;
@@ -1044,389 +1058,425 @@ Returner parser(const json actions, const json cli_params, json vars, const bool
 
             ret.value = retNo;
             ret.variables = vars;
-            ret.exp = val;
+            ret.exp = retval;
             ret.type = "expression";
 
             return ret;
           }
-          break;
         }
-        case 52: {
+        break;
+      case 56:  {
 
-          //lessOrEqual
+          //@ (call thread)
 
-          json first = parser(v["First"], cli_params, vars, false, true).exp
-          , second = parser(v["Second"], cli_params, vars, false, true).exp;
+          string name = v.Name + to_string(v.Args.size());
 
-          json val = isGreater(
-            first,
-            second,
-            cli_params
-          );
+          Returner parsed;
 
-          val = val["ExpStr"][0] == "true" ? falseRet : trueRet;
-          if (first["Type"] != second["Type"]) val = trueRet;
+          vector<string> noRet;
 
-          if (expReturn) {
-            Returner ret;
+          Returner fparsed = Returner{ noRet, vars, falseyVal, "none" };
 
-            vector<string> retNo;
+          parsed = fparsed;
 
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = val;
-            ret.type = "expression";
+          if (vars.find(name) == vars.end()) goto stopIndexing_threads;
+          else {
 
-            return ret;
-          }
-          break;
-        }
-        case 53: {
+            Action var = vars[name].value[0];
 
-            //not
+            for (vector<Action> it : v.Indexes) {
 
-            json val = parser(v["Second"], cli_params, vars, false, true).exp
-            , expstr = val["ExpStr"][0]
-            , retval;
+              string index = parser(it, cli_params, vars, false, true).exp.ExpStr[0];
 
-            if (expstr == "false" || val["Type"] == "falsey") retval = trueRet;
-            else retval = falseRet;
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = retval;
-              ret.type = "expression";
-
-              return ret;
-            }
-          }
-          break;
-        case 54: {
-
-            //similar
-
-            json first = parser(v["First"], cli_params, vars, false, true).exp
-            , second = parser(v["Second"], cli_params, vars, false, true).exp;
-
-            json retval;
-
-            if (v["Degree"].size() == 0) retval = similarity(first, second, zero, cli_params, vars);
-            else retval = similarity(first, second, parser(v["Degree"], cli_params, vars, false, true).exp, cli_params, vars);
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = retval;
-              ret.type = "expression";
-
-              return ret;
-            }
-          }
-          break;
-        case 55: {
-
-            //strictSimilar
-
-            json first = parser(v["First"], cli_params, vars, false, true).exp
-            , second = parser(v["Second"], cli_params, vars, false, true).exp;
-
-            json retval;
-
-            if (v["Degree"].size() == 0) retval = strictSimilarity(first, second, zero, cli_params, vars);
-            else retval = strictSimilarity(first, second, parser(v["Degree"], cli_params, vars, false, true).exp, cli_params, vars);
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = retval;
-              ret.type = "expression";
-
-              return ret;
-            }
-          }
-          break;
-        case 56:  {
-
-            //@ (call thread)
-
-            string name = v["Name"].get<string>() + to_string(v["Args"].size());
-
-            Returner parsed;
-
-            vector<string> noRet;
-
-            Returner fparsed = Returner{ noRet, vars, falseyVal, "none" };
-
-            parsed = fparsed;
-
-            if (vars.find(name) == vars.end()) goto stopIndexing_threads;
-            else {
-
-              json var = vars[name]["value"];
-
-              for (json it : v["Indexes"]) {
-
-                json _index = parser(it, cli_params, vars, false, true).exp["ExpStr"][0];
-                string index = _index.dump().substr(1, _index.dump().length() - 2);
-
-                if (var["Hash_Values"].find(index) == var["Hash_Values"].end()) {
-                  parsed = fparsed;
-                  goto stopIndexing_threads;
-                }
-
-                var = parser(var["Hash_Values"][index], cli_params, vars, false, true).exp;
-              }
-
-              if (var["Type"] != "process") {
+              if (var.Hash_Values.find(index) == var.Hash_Values.end()) {
                 parsed = fparsed;
                 goto stopIndexing_threads;
               }
 
-              json params = var["Params"]
-              , args = v["Args"];
-
-              json sendVars = vars;
-
-              for (int o = 0; o < params.size() || o < args.size(); o++) {
-
-                json cur = {
-                  {"type", "local"},
-                  {"name", (string) params[o]},
-                  {"value", parser(args[o], cli_params, vars, false, true).exp},
-                  {"valueActs", json::parse("[]")}
-                };
-
-                sendVars[(string) params[o]] = cur;
-              }
-
-              if (vars[name]["type"] == "process") {
-                thread _(parser, var["ExpAct"], cli_params, sendVars, true, false);
-
-                _.join();
-              }
+              var = parser(var.Hash_Values[index], cli_params, vars, false, true).exp;
             }
 
-            stopIndexing_threads:
-            if (expReturn) {
-
-              json val = parsed.exp;
-
-              vector<string> noRet;
-
-              return Returner{ noRet, vars, val, "expression" };
+            if (var.Type != "process") {
+              parsed = fparsed;
+              goto stopIndexing_threads;
             }
-          }
-          break;
-        case 57: {
 
-            //wait
+            vector<string> params = var.Params;
+            vector<vector<Action>> args = v.Args;
 
-            json amt = parser(v["ExpAct"], &cli_params.dump()[0], vars, false, true).exp;
+            map<string, Variable> sendVars = vars;
 
-            if (IsLessC(&(amt["ExpStr"][0].get<string>())[0], "4294967296")) Sleep((ulong) atoi(&(amt["ExpStr"][0].get<string>())[0]));
-            else {
-              for (char* o = "0"; (bool) IsLessC(o, &(amt["ExpStr"][0].get<string>())[0]); o = AddStrings(o, "4294967296", &cli_params.dump()[0])) {
+            for (int o = 0; o < params.size() || o < args.size(); o++) {
 
-                char* subtracted = SubtractStrings(&(amt["ExpStr"][0].get<string>())[0], o, &cli_params.dump()[0]);
-
-                if (IsLessC(
-                  subtracted,
-                  "4294967296"
-                )) Sleep((ulong) atoi(subtracted));
-                else Sleep((ulong) 4294967296);
-              }
-            }
-          }
-          break;
-        case 58: {
-
-            //cast
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              json cur = parser(v["ExpAct"], cli_params, vars, false, true).exp;
-              cur["Type"] = v["Name"];
-              cur["Name"] = v["ExpStr"][0];
-
-              ret.exp = retNo;
-              ret.variables = vars;
-              ret.exp = cur;
-              ret.type = "expression";
-
-              return ret;
-            }
-          }
-          break;
-        case 59: {
-
-            //each
-
-            json putterVars = v["ExpStr"];
-            string var1 = putterVars[0]
-            , var2 = putterVars[1];
-
-            //parse the iterator value
-            json iterator = parser(v["First"] /* v["First"] is where the iterator is stored */, cli_params, vars, false, true).exp["Hash_Values"];
-
-            iterator.erase("falsey");
-
-            for (auto& it : iterator.items()) {
-              json sendVars = vars;
-
-              json key = {
-                {"Type", "string"},
-                {"Name", ""},
-                {"ExpStr", json::parse("[\"" + it.key() + "\"]")},
-                {"ExpAct", "[]"_json},
-                {"Params", "[]"_json},
-                {"Args", "[]"_json},
-                {"Condition", "[]"_json},
-                {"ID", 38},
-                {"First", "[]"_json},
-                {"Second", "[]"_json},
-                {"Degree", "[]"_json},
-                {"Value", "[[]]"_json},
-                {"Indexes", "[[]]"_json},
-                {"Index_Type", ""},
-                {"Hash_Values", {
-                  {"falsey", falseyVal}
-                }},
-                {"IsMutable", false}
+              Variable cur = Variable{
+                "local",
+                params[o],
+                { parser(args[o], cli_params, vars, false, true).exp }
               };
 
-              sendVars[var1] = {
-                {"type", "local"},
-                {"name", var1},
-                {"value", key},
-                {"valueActs", json::parse("[]")}
+              sendVars[params[o]] = cur;
+            }
+
+            if (vars[name].type == "process") {
+              thread _(parser, var.ExpAct, cli_params, sendVars, true, false);
+
+              _.detach();
+            }
+          }
+
+          stopIndexing_threads:
+          if (expReturn) {
+
+            Action val = parsed.exp;
+
+            vector<string> noRet;
+
+            return Returner{ noRet, vars, val, "expression" };
+          }
+        }
+        break;
+      case 57: {
+
+          //wait
+
+          Action amt = parser(v.ExpAct, &cli_params.dump()[0], vars, false, true).exp;
+
+          if (IsLessC(&(amt.ExpStr[0])[0], "4294967296")) Sleep((ulong) atoi(&(amt.ExpStr[0])[0]));
+          else {
+            for (char* o = "0"; (bool) IsLessC(o, &(amt.ExpStr[0])[0]); o = AddC(o, "4294967296", &cli_params.dump()[0])) {
+
+              char* subtracted = SubtractC(&(amt.ExpStr[0])[0], o, &cli_params.dump()[0]);
+
+              if (IsLessC(
+                subtracted,
+                "4294967296"
+              )) Sleep((ulong) atoi(subtracted));
+              else Sleep((ulong) 4294967296);
+            }
+          }
+        }
+        break;
+      case 58: {
+
+          //cast
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            Action cur = parser(v.ExpAct, cli_params, vars, false, true).exp;
+            cur.Type = v.Name;
+            cur.Name = v.ExpStr[0];
+
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = cur;
+            ret.type = "expression";
+
+            return ret;
+          }
+        }
+        break;
+      case 59: {
+
+          //each
+
+          vector<string> putterVars = v.ExpStr;
+          string var1 = putterVars[0]
+          , var2 = putterVars[1];
+
+          //parse the iterator value
+          map<string, vector<Action>> iterator = parser(v.First /* v.First is where the iterator is stored */, cli_params, vars, false, true).exp.Hash_Values;
+
+          iterator.erase("falsey");
+
+          for (pair<string, vector<Action>> it : iterator) {
+            map<string, Variable> sendVars = vars;
+
+            Action key = strPlaceholder;
+
+            sendVars[var1] = Variable{
+              "local",
+              var1,
+              { key }
+            };
+            sendVars[var2] = Variable{
+              "local",
+              var2,
+              { parser(it.second, cli_params, vars, false, true).exp }
+            };
+
+            Returner parsed = parser(v.ExpAct, cli_params, sendVars, true, false);
+
+            map<string, Variable> pVars = parsed.variables;
+
+            //filter the variables that are not global
+            for (pair<string, Variable> o : pVars)
+              if (o.second.type == "global" || o.second.type == "process" || vars.find(o.second.name) != vars.end())
+                vars[o.first] = o.second;
+
+            if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
+            if (parsed.type == "skip") continue;
+            if (parsed.type == "break") break;
+          }
+        }
+        break;
+
+      //all of the omm cprocs
+      case 60: {
+
+        //files.read
+
+        //written as files.read(dir)
+
+        string filename = parser(v.Args[0], cli_params, vars, false, true).exp.ExpStr[0];
+
+        smatch match;
+
+        //see if the filename is absolute
+        regex pat("^[a-zA-Z]:");
+        bool isOnDrive = regex_search(filename, match, pat);
+
+        string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
+
+        if (!isFile(nDir + filename) && expReturn) {
+
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = falseyVal;
+          ret.type = "expression";
+
+          return ret;
+
+        } else {
+          string content = readfile(&(nDir + filename)[0]);
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            Action contentJ = strPlaceholder;
+
+            contentJ.ExpStr = {content};
+
+            //make the hash values of the string
+            for (ulong o = 0; o < content.length(); o++) {
+              Action curChar = strPlaceholder;
+
+              curChar.ExpStr = {
+                to_string(content[o])
               };
-              sendVars[var2] = {
-                {"type", "local"},
-                {"name", var2},
-                {"value", parser(it.value(), cli_params, vars, false, true).exp},
-                {"valueActs", json::parse("[]")}
-              };
 
-              Returner parsed = parser(v["ExpAct"], cli_params, sendVars, true, false);
-
-              json pVars = parsed.variables;
-
-              //filter the variables that are not global
-              for (json::iterator o = pVars.begin(); o != pVars.end(); o++)
-                if (o.value()["type"] != "global" && o.value()["type"] != "process" && vars.find(o.value()["name"]) != vars.end())
-                  vars[o.value()["name"].get<string>()] = o.value();
-
-              if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
-              if (parsed.type == "skip") continue;
-              if (parsed.type == "break") break;
+              contentJ.Hash_Values[to_string(o)] = { curChar };
             }
-          }
-          break;
 
-        //all of the omm cprocs
-        case 60: {
-
-          //files.read
-
-          //written as files.read(dir)
-
-          string filename = parser(v["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
-
-          smatch match;
-
-          //see if the filename is absolute
-          regex pat("^[a-zA-Z]:");
-          bool isOnDrive = regex_search(filename, match, pat);
-
-          string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
-
-          if (!isFile(nDir + filename) && expReturn) {
-
-            Returner ret;
-
-            vector<string> retNo;
-
-            ret.exp = retNo;
+            ret.value = retNo;
             ret.variables = vars;
-            ret.exp = falseyVal;
+            ret.exp = contentJ;
             ret.type = "expression";
 
             return ret;
+          }
+        }
 
-          } else {
-            string content = readfile(&(nDir + filename)[0]);
+        break;
+      }
+      case 61: {
 
-            if (expReturn) {
-              Returner ret;
+        //files.write
 
-              vector<string> retNo;
+        //written as files.write(dir, content)
 
-              json contentJ = strPlaceholder;
+        //get both arguments and parse them
+        string filename = parser(v.Args[0], cli_params, vars, false, true).exp.ExpStr[0];
+        Action content = parser(v.Args[1], cli_params, vars, false, true).exp;
 
-              contentJ["ExpStr"] = {content};
+        smatch match;
 
-              for (ulong o = 0; o < content.length(); o++) {
-                json curChar = strPlaceholder;
+        //see if the filename is absolute
+        regex pat("^[a-zA-Z]:");
+        bool isOnDrive = regex_search(filename, match, pat);
 
-                curChar["ExpStr"] = {
-                  to_string(content[o])
-                };
+        string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
 
-                contentJ["Hash_Values"][to_string(o)] = curChar;
-              }
+        if (content.Type == "falsey") {
 
-              ret.exp = retNo;
-              ret.variables = vars;
-              ret.exp = contentJ;
-              ret.type = "expression";
+          deletefile(&(nDir + filename)[0]);
 
-              return ret;
-            }
+        } else {
+
+          string contentstr = content.ExpStr[0];
+          writefile(&(nDir + filename)[0], &contentstr[0]);
+        }
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = content;
+          ret.type = "expression";
+
+          return ret;
+        }
+        break;
+      }
+      case 62: {
+
+        //files.exists
+
+        //written as file.exists(dir)
+
+        string filename = parser(v.Args[0], cli_params, vars, false, true).exp.ExpStr[0];
+
+        smatch match;
+
+        //see if the filename is absolute
+        regex pat("^[a-zA-Z]:");
+        bool isOnDrive = regex_search(filename, match, pat);
+
+        string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
+
+        //if it is not a directory and not a file, it does not exist
+        bool exists = !(!isDir(nDir + filename) && !isFile(nDir + filename));
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = exists ? trueRet : falseRet;
+          ret.type = "expression";
+
+          return ret;
+        }
+        break;
+      }
+      case 63: {
+
+        //files.isFile
+
+        //written as file.isFile(dir)
+
+        string filename = parser(v.Args[0], cli_params, vars, false, true).exp.ExpStr[0];
+
+        smatch match;
+
+        //see if the filename is absolute
+        regex pat("^[a-zA-Z]:");
+        bool isOnDrive = regex_search(filename, match, pat);
+
+        string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
+
+        bool isFileVal = isFile(nDir + filename);
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = isFileVal ? trueRet : falseRet;
+          ret.type = "expression";
+
+          return ret;
+        }
+        break;
+      }
+      case 64: {
+
+        //files.isDir
+
+        //written as file.isDir(dir)
+
+        string filename = parser(v.Args[0], cli_params, vars, false, true).exp.ExpStr[0];
+
+        smatch match;
+
+        //see if the filename is absolute
+        regex pat("^[a-zA-Z]:");
+        bool isOnDrive = regex_search(filename, match, pat);
+
+        string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
+
+        bool isDirVal = isDir(nDir + filename);
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = isDirVal ? trueRet : falseRet;
+          ret.type = "expression";
+
+          return ret;
+        }
+        break;
+      }
+
+      case 65: {
+
+        //kill_thread
+
+        terminate();
+
+        break;
+      }
+      case 66: {
+
+        //kill
+
+        Kill();
+
+        break;
+      }
+
+      case 68: {
+
+        //regex.match
+
+        string str = parser(v.Args[0], cli_params, vars, false, true).exp.ExpStr[0];
+        string regstr = parser(v.Args[1], cli_params, vars, false, true).exp.ExpStr[0];
+
+        try {
+          regex reg(regstr);
+
+          smatch matcher;
+
+          vector<ulong long> found_indexes;
+
+          //get all matches
+          for (auto it = sregex_iterator(str.begin(), str.end(), reg); it != sregex_iterator(); it++) {
+            found_indexes.push_back(it->position());
           }
 
-          break;
-        }
-        case 61: {
+          Action returner = arrayVal;
 
-          //files.write
+          char* cur = "0";
 
-          //written as files.write(dir, content)
+          //loop through the indexes found and store them an omm type array
+          for (int i : found_indexes) {
 
-          string filename = parser(v["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
-          json content = parser(v["Args"][1], cli_params, vars, false, true).exp;
+            //store the value of the number 1
+            Action indexJ = val1;
 
-          smatch match;
+            indexJ.ExpStr[0] = to_string(i);
 
-          //see if the filename is absolute
-          regex pat("^[a-zA-Z]:");
-          bool isOnDrive = regex_search(filename, match, pat);
-
-          string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
-
-          if (content["Type"] == "falsey") {
-
-            deletefile(&(nDir + filename)[0]);
-
-          } else {
-
-            string contentstr = content["ExpStr"][0].get<string>();
-            writefile(&(nDir + filename)[0], &contentstr[0]);
+            returner.Hash_Values[string(cur)] = { indexJ };
+            cur = AddC(cur, "1", &cli_params.dump()[0]);
           }
 
           if (expReturn) {
@@ -1434,274 +1484,155 @@ Returner parser(const json actions, const json cli_params, json vars, const bool
 
             vector<string> retNo;
 
-            ret.exp = retNo;
+            ret.value = retNo;
             ret.variables = vars;
-            ret.exp = content;
+            ret.exp = returner;
             ret.type = "expression";
 
             return ret;
           }
-          break;
+
+        } catch (regex_error& e) {
+
+          //give information about the warning
+          cout << "Warning during interpreting: Invalid Regular Expression: " << regstr << endl;
+          cout << "Error description: " << e.what() << endl;
+          cout << "Error code: " << e.code() << endl;
+          cout << endl << string(90, '-') << "\n\n";
         }
-        case 62: {
 
-          //files.exists
+        break;
+      }
 
-          //written as file.exists(dir)
+      case 69: {
 
-          string filename = parser(v["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
+        //regex.replace
 
-          smatch match;
+        string str = parser(v.Args[0], cli_params, vars, false, true).exp.ExpStr[0];
+        string regstr = parser(v.Args[1], cli_params, vars, false, true).exp.ExpStr[0];
+        string replace_with = parser(v.Args[2], cli_params, vars, false, true).exp.ExpStr[0];
 
-          //see if the filename is absolute
-          regex pat("^[a-zA-Z]:");
-          bool isOnDrive = regex_search(filename, match, pat);
+        try {
+          regex reg(regstr);
 
-          string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
+          string result = regex_replace(str, reg, replace_with);
 
-          //if it is not a directory and not a file, it does not exist
-          bool exists = !(!isDir(nDir + filename) && !isFile(nDir + filename));
+          Action resultJ = strPlaceholder;
+
+          resultJ.ExpStr[0] = result;
+
+          char* cur = "0";
+
+          for (char i : result) {
+
+            Action indexJ = strPlaceholder;
+
+            indexJ.ExpStr = { to_string(i) };
+
+            resultJ.Hash_Values[string(cur)] = { indexJ };
+            cur = AddC(cur, "1", &cli_params.dump()[0]);
+          }
 
           if (expReturn) {
             Returner ret;
 
             vector<string> retNo;
 
-            ret.exp = retNo;
+            ret.value = retNo;
             ret.variables = vars;
-            ret.exp = exists ? trueRet : falseRet;
+            ret.exp = resultJ;
             ret.type = "expression";
 
             return ret;
           }
-          break;
-        }
-        case 63: {
 
-          //files.isFile
+        } catch (regex_error& e) {
 
-          //written as file.isFile(dir)
-
-          string filename = parser(v["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
-
-          smatch match;
-
-          //see if the filename is absolute
-          regex pat("^[a-zA-Z]:");
-          bool isOnDrive = regex_search(filename, match, pat);
-
-          string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
-
-          bool isFileVal = isFile(nDir + filename);
-
-          if (expReturn) {
-            Returner ret;
-
-            vector<string> retNo;
-
-            ret.exp = retNo;
-            ret.variables = vars;
-            ret.exp = isFileVal ? trueRet : falseRet;
-            ret.type = "expression";
-
-            return ret;
-          }
-          break;
-        }
-        case 64: {
-
-          //files.isDir
-
-          //written as file.isDir(dir)
-
-          string filename = parser(v["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
-
-          smatch match;
-
-          //see if the filename is absolute
-          regex pat("^[a-zA-Z]:");
-          bool isOnDrive = regex_search(filename, match, pat);
-
-          string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
-
-          bool isDirVal = isDir(nDir + filename);
-
-          if (expReturn) {
-            Returner ret;
-
-            vector<string> retNo;
-
-            ret.exp = retNo;
-            ret.variables = vars;
-            ret.exp = isDirVal ? trueRet : falseRet;
-            ret.type = "expression";
-
-            return ret;
-          }
-          break;
+          //give information about the warning
+          cout << "Warning during interpreting: Invalid Regular Expression: " << regstr << endl;
+          cout << "Error description: " << e.what() << endl;
+          cout << "Error code: " << e.code() << endl;
+          cout << endl << string(90, '-') << "\n\n";
         }
 
-        case 65: {
+        break;
+      }
+      //////////////////////////
 
-          //kill_thread
+      //assignment operators
+      case 4343: {
 
-          terminate();
+        //++
 
-          break;
-        }
-        case 66: {
+        string name = v.Name;
 
-          //kill
+        Variable nVar;
 
-          Kill();
+        if (vars.find(name) != vars.end()) {
 
-          break;
-        }
+          if (vars[name].type != "dynamic" && vars[name].type != "process") {
 
-        case 68: {
+            vector<Action> __val = vars[name].value;
 
-          //regex.match
+            Action _val = parser(__val, cli_params, vars, false, true).exp;
 
-          string str = parser(v["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
-          string regstr = parser(v["Args"][1], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
+            Action val = add(_val, val1, cli_params);
 
-          try {
-            regex reg(regstr);
-
-            smatch matcher;
-
-            vector<ulong long> found_indexes;
-
-            //get all matches
-            for (auto it = sregex_iterator(str.begin(), str.end(), reg); it != sregex_iterator(); it++) {
-              found_indexes.push_back(it->position());
-            }
-
-            json returner = arrayVal;
-
-            char* cur = "0";
-
-            //loop through the indexes found and store them an omm type array
-            for (int i : found_indexes) {
-
-              //store the value of the number 1
-              json indexJ = val1;
-
-              indexJ["ExpStr"][0] = to_string(i);
-
-              returner["Hash_Values"][string(cur)] = { indexJ };
-              cur = AddStrings(cur, "1", &cli_params.dump()[0]);
-            }
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.exp = retNo;
-              ret.variables = vars;
-              ret.exp = returner;
-              ret.type = "expression";
-
-              return ret;
-            }
-
-          } catch (regex_error& e) {
-
-            //give information about the warning
-            cout << "Warning during interpreting: Invalid Regular Expression: " << regstr << endl;
-            cout << "Error description: " << e.what() << endl;
-            cout << "Error code: " << e.code() << endl;
-            cout << endl << string(90, '-') << "\n\n";
-          }
-
-          break;
+            nVar = Variable{
+              vars[name].type,
+              name,
+              { val }
+            };
+          } else nVar = {
+              "local",
+              name,
+              { val1 }
+            };
         }
 
-        case 69: {
+        vars[name] = nVar;
 
-          //regex.replace
+        if (expReturn) {
+          Returner ret;
 
-          string str = parser(v["Args"][0], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
-          string regstr = parser(v["Args"][1], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
-          string replace_with = parser(v["Args"][2], cli_params, vars, false, true).exp["ExpStr"][0].get<string>();
+          vector<string> retNo;
 
-          try {
-            regex reg(regstr);
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = val1;
+          ret.type = "expression";
 
-            string result = regex_replace(str, reg, replace_with);
-
-            json resultJ = strPlaceholder;
-
-            resultJ["ExpStr"] = json::parse("[\"" + result + "\"]");
-
-            char* cur = "0";
-
-            for (char i : result) {
-
-              json indexJ = strPlaceholder;
-
-              indexJ["ExpStr"] = { to_string(i) };
-
-              resultJ["Hash_Values"][string(cur)] = { indexJ };
-              cur = AddStrings(cur, "1", &cli_params.dump()[0]);
-            }
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.exp = retNo;
-              ret.variables = vars;
-              ret.exp = resultJ;
-              ret.type = "expression";
-
-              return ret;
-            }
-
-          } catch (regex_error& e) {
-
-            //give information about the warning
-            cout << "Warning during interpreting: Invalid Regular Expression: " << regstr << endl;
-            cout << "Error description: " << e.what() << endl;
-            cout << "Error code: " << e.code() << endl;
-            cout << endl << string(90, '-') << "\n\n";
-          }
-
-          break;
+          return ret;
         }
-        //////////////////////////
+        break;
+      }
+      case 4545: {
 
-        //assignment operators
-        case 4343: {
+          //--
 
-          //++
+          string name = v.Name;
 
-          string name = v["Name"];
+          Variable nVar;
 
-          json nVar;
+          if (vars.find(name) != vars.end()) {
 
-          if (vars[name]["type"] != "dynamic") {
+            if (vars[name].type != "dynamic" && vars[name].type != "process") {
 
-            if (vars[name].find("value") != vars[name].end()) {
+              vector<Action> __val = vars[name].value;
 
-              json _val = vars[name]["value"];
+              Action _val = parser(__val, cli_params, vars, false, true).exp;
 
-              char* _added = Add(&(_val.dump())[0], &val1.dump()[0], &cli_params.dump()[0]);
-              string added(_added);
+              Action val = subtract(_val, val1, cli_params);
 
-              nVar = {
-                {"type", vars[name]["type"]},
-                {"name", name},
-                {"value", json::parse(added)},
-                {"valueActs", json::parse("[]")}
+              nVar = Variable{
+                vars[name].type,
+                name,
+                { val }
               };
             } else nVar = {
-                {"type", "local"},
-                {"name", name},
-                {"value", val1},
-                {"valueActs", json::parse("[]")}
+                "local",
+                name,
+                { val1 }
               };
           }
 
@@ -1719,359 +1650,302 @@ Returner parser(const json actions, const json cli_params, json vars, const bool
 
             return ret;
           }
-          break;
         }
-        case 4545: {
+        break;
+      case 4361: {
 
-            //--
+          //+=
 
-            string name = v["Name"];
+          string name = v.Name;
 
-            json nVar;
+          vector<Action> __inc = v.ExpAct;
+          Action _inc = parser(__inc, cli_params, vars, false, true).exp;
 
-            if (vars[name]["type"] != "dynamic") {
+          Variable nVar;
 
-              if (vars[name].find("value") != vars[name].end()) {
+          if (vars.find(name) != vars.end()) {
 
-                json _val = vars[name]["value"];
+            if (vars[name].type != "dynamic" && vars[name].type != "process") {
 
-                char* _added = Subtract(&(_val.dump())[0], &val1.dump()[0], &cli_params.dump()[0]);
-                string added(_added);
+              vector<Action> __val = vars[name].value;
 
-                nVar = {
-                  {"type", vars[name]["type"]},
-                  {"name", name},
-                  {"value", json::parse(added)},
-                  {"valueActs", json::parse("[]")}
-                };
-              } else nVar = {
-                  {"type", "local"},
-                  {"name", name},
-                  {"value", valn1},
-                  {"valueActs", json::parse("[]")}
-                };
-            }
+              Action _val = parser(__val, cli_params, vars, false, true).exp;
 
-            vars[name] = nVar;
+              Action val = add(_val, _inc, cli_params);
 
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val1;
-              ret.type = "expression";
-
-              return ret;
-            }
+              nVar = {
+                vars[name].type,
+                name,
+                { val }
+              };
+            } else nVar = {
+                "local",
+                name,
+                { val1 }
+              };
           }
-          break;
-        case 4361: {
 
-            //+=
+          vars[name] = nVar;
 
-            string name = v["Name"];
+          if (expReturn) {
+            Returner ret;
 
-            json __inc = v["ExpAct"]
-            , _inc = parser(__inc, cli_params, vars, false, true).exp;
+            vector<string> retNo;
 
-            json nVar;
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = _inc;
+            ret.type = "expression";
 
-            if (vars[name]["type"] != "dynamic") {
-
-              if (vars[name].find("value") != vars[name].end()) {
-
-                json _val = vars[name]["value"];
-
-                char* _added = Add(&(_val.dump())[0], &(_inc.dump())[0], &cli_params.dump()[0]);
-                string added(_added);
-
-                nVar = {
-                  {"type", vars[name]["type"]},
-                  {"name", name},
-                  {"value", json::parse(added)},
-                  {"valueActs", json::parse("[]")}
-                };
-              } else nVar = {
-                  {"type", "local"},
-                  {"name", name},
-                  {"value", _inc},
-                  {"valueActs", json::parse("[]")}
-                };
-            }
-
-            vars[name] = nVar;
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = _inc;
-              ret.type = "expression";
-
-              return ret;
-            }
+            return ret;
           }
-          break;
-        case 4561: {
+        }
+        break;
+      case 4561: {
 
-            //-=
+          //-=
 
-            string name = v["Name"];
+          string name = v.Name;
 
-            json __inc = v["ExpAct"]
-            , _inc = parser(__inc, cli_params, vars, false, true).exp;
+          vector<Action> __inc = v.ExpAct;
+          Action _inc = parser(__inc, cli_params, vars, false, true).exp;
 
-            json nVar;
+          Variable nVar;
 
-            if (vars[name]["type"] != "dynamic") {
+          if (vars.find(name) != vars.end()) {
 
-              if (vars[name].find("value") != vars[name].end()) {
+            if (vars[name].type != "dynamic" && vars[name].type != "process") {
 
-                json _val = vars[name]["value"];
+              vector<Action> __val = vars[name].value;
 
-                char* _added = Subtract(&(_val.dump())[0], &(_inc.dump())[0], &cli_params.dump()[0]);
-                string added(_added);
+              Action _val = parser(__val, cli_params, vars, false, true).exp;
 
-                nVar = {
-                  {"type", vars[name]["type"]},
-                  {"name", name},
-                  {"value", json::parse(added)},
-                  {"valueActs", json::parse("[]")}
-                };
-              } else nVar = {
-                  {"type", "local"},
-                  {"name", name},
-                  {"value", _inc},
-                  {"valueActs", json::parse("[]")}
-                };
-            }
+              Action val = subtract(_val, _inc, cli_params);
 
-            vars[name] = nVar;
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = _inc;
-              ret.type = "expression";
-
-              return ret;
-            }
+              nVar = {
+                vars[name].type,
+                name,
+                { val }
+              };
+            } else nVar = {
+                "local",
+                name,
+                { val1 }
+              };
           }
-          break;
-        case 4261: {
 
-            //*=
+          vars[name] = nVar;
 
-            string name = v["Name"];
+          if (expReturn) {
+            Returner ret;
 
-            json __inc = v["ExpAct"]
-            , _inc = parser(__inc, cli_params, vars, false, true).exp;
+            vector<string> retNo;
 
-            json nVar;
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = _inc;
+            ret.type = "expression";
 
-            if (vars[name]["type"] != "dynamic") {
-
-              if (vars[name].find("value") != vars[name].end()) {
-
-                json _val = vars[name]["value"];
-
-                char* _added = Multiply(&(_val.dump())[0], &(_inc.dump())[0], &cli_params.dump()[0]);
-                string added(_added);
-
-                nVar = {
-                  {"type", vars[name]["type"]},
-                  {"name", name},
-                  {"value", json::parse(added)},
-                  {"valueActs", json::parse("[]")}
-                };
-              } else nVar = {
-                  {"type", "local"},
-                  {"name", name},
-                  {"value", _inc},
-                  {"valueActs", json::parse("[]")}
-                };
-            }
-
-            vars[name] = nVar;
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = _inc;
-              ret.type = "expression";
-
-              return ret;
-            }
+            return ret;
           }
-          break;
-        case 4761: {
+        }
+        break;
+      case 4261: {
 
-            ///=
+          //*=
 
-            string name = v["Name"];
+          string name = v.Name;
 
-            json __inc = v["ExpAct"]
-            , _inc = parser(__inc, cli_params, vars, false, true).exp;
+          vector<Action> __inc = v.ExpAct;
+          Action _inc = parser(__inc, cli_params, vars, false, true).exp;
 
-            json nVar;
+          Variable nVar;
 
-            if (vars[name]["type"] != "dynamic") {
+          if (vars.find(name) != vars.end()) {
 
-              if (vars[name].find("value") != vars[name].end()) {
+            if (vars[name].type != "dynamic" && vars[name].type != "process") {
 
-                json _val = vars[name]["value"];
+              vector<Action> __val = vars[name].value;
 
-                char* _added = Division(&(_val.dump())[0], &(_inc.dump())[0], &cli_params.dump()[0]);
-                string added(_added);
+              Action _val = parser(__val, cli_params, vars, false, true).exp;
 
-                nVar = {
-                  {"type", vars[name]["type"]},
-                  {"name", name},
-                  {"value", json::parse(added)},
-                  {"valueActs", json::parse("[]")}
-                };
-              } else nVar = {
-                  {"type", "local"},
-                  {"name", name},
-                  {"value", _inc},
-                  {"valueActs", json::parse("[]")}
-                };
-            }
+              Action val = multiply(_val, _inc, cli_params);
 
-            vars[name] = nVar;
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = _inc;
-              ret.type = "expression";
-
-              return ret;
-            }
+              nVar = {
+                vars[name].type,
+                name,
+                { val }
+              };
+            } else nVar = {
+                "local",
+                name,
+                { val1 }
+              };
           }
-          break;
-        case 9461: {
 
-            //^=
+          vars[name] = nVar;
 
-            string name = v["Name"];
+          if (expReturn) {
+            Returner ret;
 
-            json __inc = v["ExpAct"]
-            , _inc = parser(__inc, cli_params, vars, false, true).exp;
+            vector<string> retNo;
 
-            json nVar;
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = _inc;
+            ret.type = "expression";
 
-            if (vars[name]["type"] != "dynamic") {
-
-              if (vars[name].find("value") != vars[name].end()) {
-
-                json _val = vars[name]["value"];
-
-                char* _added = Exponentiate(&(_val.dump())[0], &(_inc.dump())[0], &cli_params.dump()[0]);
-                string added(_added);
-
-                nVar = {
-                  {"type", vars[name]["type"]},
-                  {"name", name},
-                  {"value", json::parse(added)},
-                  {"valueActs", json::parse("[]")}
-                };
-              } else nVar = {
-                  {"type", "local"},
-                  {"name", name},
-                  {"value", _inc},
-                  {"valueActs", json::parse("[]")}
-                };
-            }
-
-            vars[name] = nVar;
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = _inc;
-              ret.type = "expression";
-
-              return ret;
-            }
+            return ret;
           }
-          break;
-        case 3761: {
+        }
+        break;
+      case 4761: {
 
-            //%=
+          ///=
 
-            string name = v["Name"];
+          string name = v.Name;
 
-            json __inc = v["ExpAct"]
-            , _inc = parser(__inc, cli_params, vars, false, true).exp;
+          vector<Action> __inc = v.ExpAct;
+          Action _inc = parser(__inc, cli_params, vars, false, true).exp;
 
-            json nVar;
+          Variable nVar;
 
-            if (vars[name]["type"] != "dynamic") {
+          if (vars.find(name) != vars.end()) {
 
-              if (vars[name].find("value") != vars[name].end()) {
+            if (vars[name].type != "dynamic" && vars[name].type != "process") {
 
-                json _val = vars[name]["value"];
+              vector<Action> __val = vars[name].value;
 
-                char* _added = Modulo(&(_val.dump())[0], &(_inc.dump())[0], &cli_params.dump()[0]);
-                string added(_added);
+              Action _val = parser(__val, cli_params, vars, false, true).exp;
 
-                nVar = {
-                  {"type", vars[name]["type"]},
-                  {"name", name},
-                  {"value", json::parse(added)},
-                  {"valueActs", json::parse("[]")}
-                };
-              } else nVar = {
-                  {"type", "local"},
-                  {"name", name},
-                  {"value", _inc},
-                  {"valueActs", json::parse("[]")}
-                };
-            }
+              Action val = divide(_val, _inc, cli_params);
 
-            vars[name] = nVar;
-
-            if (expReturn) {
-              Returner ret;
-
-              vector<string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = _inc;
-              ret.type = "expression";
-
-              return ret;
-            }
+              nVar = {
+                vars[name].type,
+                name,
+                { val }
+              };
+            } else nVar = {
+                "local",
+                name,
+                { val1 }
+              };
           }
-          break;
-      }
-    } catch (int e) {
-      cout << "There Was An Unidentified Error" << endl;
-      Kill();
+
+          vars[name] = nVar;
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = _inc;
+            ret.type = "expression";
+
+            return ret;
+          }
+        }
+        break;
+      case 9461: {
+
+          //^=
+
+          string name = v.Name;
+
+          vector<Action> __inc = v.ExpAct;
+          Action _inc = parser(__inc, cli_params, vars, false, true).exp;
+
+          Variable nVar;
+
+          if (vars.find(name) != vars.end()) {
+
+            if (vars[name].type != "dynamic" && vars[name].type != "process") {
+
+              vector<Action> __val = vars[name].value;
+
+              Action _val = parser(__val, cli_params, vars, false, true).exp;
+
+              Action val = exponentiate(_val, _inc, cli_params);
+
+              nVar = {
+                vars[name].type,
+                name,
+                { val }
+              };
+            } else nVar = {
+                "local",
+                name,
+                { val1 }
+              };
+          }
+
+          vars[name] = nVar;
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = _inc;
+            ret.type = "expression";
+
+            return ret;
+          }
+        }
+        break;
+      case 3761: {
+
+          //%=
+
+          string name = v.Name;
+
+          vector<Action> __inc = v.ExpAct;
+          Action _inc = parser(__inc, cli_params, vars, false, true).exp;
+
+          Variable nVar;
+
+          if (vars.find(name) != vars.end()) {
+
+            if (vars[name].type != "dynamic" && vars[name].type != "process") {
+
+              vector<Action> __val = vars[name].value;
+
+              Action _val = parser(__val, cli_params, vars, false, true).exp;
+
+              Action val = modulo(_val, _inc, cli_params);
+
+              nVar = {
+                vars[name].type,
+                name,
+                { val }
+              };
+            } else nVar = {
+                "local",
+                name,
+                { val1 }
+              };
+          }
+
+          vars[name] = nVar;
+
+          if (expReturn) {
+            Returner ret;
+
+            vector<string> retNo;
+
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = _inc;
+            ret.type = "expression";
+
+            return ret;
+          }
+        }
+        break;
     }
   }
 
