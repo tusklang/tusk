@@ -9,7 +9,7 @@ import "strings"
 import "C"
 
 //this is just a function to actionize c processes in omm
-func cproc(i *int, lex []Lex, PARAM_COUNT uint, name, dir, filename string) [][]Action {
+func cproc(i *int, lex []Lex, PARAM_COUNT uint, name, dir, filename string, id int) Action {
 
   var curLex = lex[(*i)]
   var paramExp []Lex
@@ -103,5 +103,83 @@ func cproc(i *int, lex []Lex, PARAM_COUNT uint, name, dir, filename string) [][]
     os.Exit(1)
   }
 
-  return actionSplit
+  len_lex := len(lex)
+
+  var actPut Action = Action{ name, "", []string{}, []Action{}, []string{}, actionSplit, []Condition{}, id, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
+
+  if *i + 1 < len_lex && lex[*i + 1].Name == "." {
+
+    cbCnt := 0
+    glCnt := 0
+    bCnt := 0
+    pCnt := 0
+
+    indexes := [][]Lex{ []Lex{} }
+
+    cbCnt = 0
+    glCnt = 0
+    bCnt = 0
+    pCnt = 0
+
+    for o := *i + 2; o < len_lex; o++ {
+      if lex[o].Name == "{" {
+        cbCnt++
+      }
+      if lex[o].Name == "[:" {
+        glCnt++
+      }
+      if lex[o].Name == "[" {
+        bCnt++
+      }
+      if lex[o].Name == "(" {
+        pCnt++
+      }
+
+      if lex[o].Name == "}" {
+        cbCnt--
+      }
+      if lex[o].Name == ":]" {
+        glCnt--
+      }
+      if lex[o].Name == "]" {
+        bCnt--
+      }
+      if lex[o].Name == ")" {
+        pCnt--
+      }
+
+      if lex[o].Name == "." {
+        indexes = append(indexes, []Lex{})
+      } else {
+
+        (*i)++
+
+        indexes[len(indexes) - 1] = append(indexes[len(indexes) - 1], lex[o])
+
+        if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+
+          if o < len_lex - 1 && lex[o + 1].Name == "." {
+            continue
+          } else {
+            break
+          }
+
+        }
+      }
+    }
+
+    var putIndexes [][]Action
+
+    for _, v := range indexes {
+
+      v = v[1:len(v) - 1]
+      putIndexes = append(putIndexes, Actionizer(v, true, dir, name))
+    }
+
+    (*i)+=3
+
+    actPut = Action{ "expressionIndex", "", []string{}, []Action{ actPut }, []string{}, [][]Action{}, []Condition{}, 8, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false }
+  }
+
+  return actPut
 }

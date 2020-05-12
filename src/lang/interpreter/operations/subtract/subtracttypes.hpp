@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <deque>
 #include "../../values.hpp"
 #include "../../json.hpp"
 #include "../../structs.hpp"
@@ -11,9 +12,9 @@
 using namespace std;
 using json = nlohmann::json;
 
-Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn);
+Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn, deque<map<string, vector<Action>>> this_vals);
 
-Action subtractstrings(Action num1, Action num2, json cli_params) {
+Action subtractstrings(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
 
   map<string, vector<Action>> finalMap;
 
@@ -54,12 +55,12 @@ Action subtractstrings(Action num1, Action num2, json cli_params) {
   map<string, Variable> emptyVars;
 
   for (pair<string, vector<Action>> it : finalMap)
-    str+=parser(it.second, cli_params, emptyVars, false, true).exp.ExpStr[0];
+    str+=parser(it.second, cli_params, emptyVars, false, true, this_vals).exp.ExpStr[0];
 
   return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false };
 }
 
-Action subtractbools(Action num1, Action num2, json cli_params) {
+Action subtractbools(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
 
   bool num1Bool = num1.ExpStr[0] == "true";
   bool num2Bool = num2.ExpStr[0] == "true";
@@ -68,9 +69,9 @@ Action subtractbools(Action num1, Action num2, json cli_params) {
   return Action{ "boolean", "", { calc }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false };
 }
 
-Action subtractarrays(Action num1, Action num2, json cli_params) {
+Action subtractarrays(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
 
-  map<string, vector<Action>> hash = subtractstrings(num1, num2, cli_params).Hash_Values;
+  map<string, vector<Action>> hash = subtractstrings(num1, num2, cli_params, this_vals).Hash_Values;
 
   return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false };
 }

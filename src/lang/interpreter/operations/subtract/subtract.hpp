@@ -10,7 +10,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-Action subtract(Action num1, Action num2, json cli_params) {
+Action subtract(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
 
   /* TABLE OF TYPES:
 
@@ -31,15 +31,15 @@ Action subtract(Action num1, Action num2, json cli_params) {
 
   } else if ((num1.Type == "number" && num2.Type != "string") || (num2.Type == "string" && num1.Type != "number")) { //detect case string - num = string
 
-    finalRet = subtractstrings(num1, num2, cli_params);
+    finalRet = subtractstrings(num1, num2, cli_params, this_vals);
 
   } else if (num1.Type == "boolean" && num2.Type == "bolean") { //detect case boolean - boolean = num
 
-    finalRet = subtractbools(num1, num2, cli_params);
+    finalRet = subtractbools(num1, num2, cli_params, this_vals);
 
   } else if ((num1.Type == "number" && num2.Type != "array") || (num2.Type == "array" && num1.Type != "number")) { //detect case array - num = array
 
-    finalRet = subtractarrays(num1, num2, cli_params);
+    finalRet = subtractarrays(num1, num2, cli_params, this_vals);
 
   } else { //detect default case
 

@@ -16,7 +16,7 @@ func arrayContain(arr []string, sub string) bool {
 
 //the list of cprocs goes here
 //just add to the slice if you add a new cproc
-var CPROCS = []string{ "files.read", "files.write", "files.exists", "files.isFile", "files.isDir", "regex.match", "regex.replace" }
+var CPROCS = []string{ "files.read", "files.write", "files.exists", "files.isFile", "files.isDir", "regex.match", "regex.replace", "this" }
 
 func arrayContainInterface(arr []string, sub interface{}) bool {
 
@@ -242,8 +242,8 @@ func interfaceContainWithProcIndex(inter []interface{}, sub interface{}, indexes
       switch inter[k - 1].(type) {
         case Lex:
 
-          //if inter[k - 1] is a cproc continue the loop
-          if arrayContain(CPROCS, inter[k - 1].(Lex).Name) {
+          //if inter[k - 1] is a process or a variable, continue the loop
+          if arrayContain(CPROCS, inter[k - 1].(Lex).Name) || inter[k - 1].(Lex).Name == "process" || strings.HasPrefix(inter[k - 1].(Lex).Name, "$") || inter[k - 1].(Lex).Name == "]" {
             continue loop
           }
       }

@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <deque>
 #include "json.hpp"
 #include "parser.hpp"
 #include "values.hpp"
@@ -10,13 +11,13 @@
 using namespace std;
 using json = nlohmann::json;
 
-Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn);
+Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn, deque<map<string, vector<Action>>> this_vals);
 
-Action indexesCalc(map<string, vector<Action>> val, vector<vector<Action>> indexes, json cli_params, map<string, Variable> vars) {
+Action indexesCalc(map<string, vector<Action>> val, vector<vector<Action>> indexes, json cli_params, map<string, Variable> vars, deque<map<string, vector<Action>>> this_vals) {
 
   if (indexes.size() == 0) return falseyVal;
 
-  string index = parser(indexes[0], cli_params, vars, false, true).exp.ExpStr[0];
+  string index = parser(indexes[0], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
 
   if (val.find(index) == val.end()) {
 
@@ -25,13 +26,13 @@ Action indexesCalc(map<string, vector<Action>> val, vector<vector<Action>> index
 
   } else {
 
-    Action expVal = parser(val[index], cli_params, vars, false, true).exp;
+    Action expVal = parser(val[index], cli_params, vars, false, true, this_vals).exp;
 
     indexes.erase(indexes.begin());
 
     if (indexes.size() == 0) return expVal;
 
-    return indexesCalc(expVal.Hash_Values, indexes, cli_params, vars);
+    return indexesCalc(expVal.Hash_Values, indexes, cli_params, vars, this_vals);
   }
 }
 

@@ -7,12 +7,9 @@
 #include <vector>
 #include <map>
 #include "json.hpp"
-#include "parser.hpp"
 #include "../bind.h"
 using namespace std;
 using json = nlohmann::json;
-
-Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn);
 
 void log_format(Action in, const json cli_params, map<string, Variable> vars, int hash_spacing, string doPrint) {
 

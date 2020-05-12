@@ -2,6 +2,7 @@
 #define ADDTYPES_HPP_
 
 #include <map>
+#include <deque>
 #include <vector>
 #include "../../json.hpp"
 #include "../../structs.hpp"
@@ -11,7 +12,7 @@ using json = nlohmann::json;
 
 //file with all the functions to add different datatypes
 
-Action addstrings(Action num1, Action num2, json cli_params) {
+Action addstrings(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
 
   string str = num1.ExpStr[0] + num2.ExpStr[0];
 
@@ -32,7 +33,7 @@ Action addstrings(Action num1, Action num2, json cli_params) {
   return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false };
 }
 
-Action addarrays(Action num1, Action num2, json cli_params) {
+Action addarrays(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
 
   map<string, vector<Action>> finalMap;
 
@@ -48,7 +49,7 @@ Action addarrays(Action num1, Action num2, json cli_params) {
   return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false };
 }
 
-Action addbools(Action num1, Action num2, json cli_params) {
+Action addbools(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
 
   bool num1b = num1.ExpStr[0] == "true";
   bool num2b = num2.ExpStr[0] == "true";
@@ -57,7 +58,7 @@ Action addbools(Action num1, Action num2, json cli_params) {
   return Action{ "boolean", "", { final }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false };
 }
 
-Action addhashes(Action num1, Action num2, json cli_params) {
+Action addhashes(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
 
   map<string, vector<Action>> final = num1.Hash_Values;
 

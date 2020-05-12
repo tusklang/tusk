@@ -175,9 +175,7 @@ func callCalc(i *int, lex []Lex, len_lex int, dir, filename string) ([][]Action,
     }
 
     for _, v := range indexes {
-
-      v = v[1:len(v) - 1]
-      putIndexes = append(putIndexes, Actionizer(v, true, dir, filename))
+      putIndexes = append(putIndexes, Actionizer(v[1:len(v) - 1], true, dir, filename))
     }
 
     (*i)+=3
@@ -223,7 +221,7 @@ func callCalc(i *int, lex []Lex, len_lex int, dir, filename string) ([][]Action,
       continue
     }
 
-    if lex[o].Name == ")" {
+    if lex[o].Name == ")" || lex[o].Name == ";" {
       break
     }
 
@@ -237,13 +235,13 @@ func callCalc(i *int, lex []Lex, len_lex int, dir, filename string) ([][]Action,
 
   var params_ = [][]Action{}
 
-  for o := 0; o < len(params); o++ {
+  for _, v := range params {
 
-    if len(params[o]) == 0 {
+    if len(v) == 0 {
       continue
     }
 
-    params_ = append(params_, Actionizer(params[o], true, dir, filename))
+    params_ = append(params_, Actionizer(v, true, dir, filename))
   }
 
   pCnt_ := 0
@@ -903,6 +901,10 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         }
 
         exp = append([]interface{}{ pExpAct[0] }, exp...)
+      }
+
+      if len(exp) == 0 {
+        break
       }
 
       if reflect.TypeOf(exp[0]).String() == "lang.Lex" {
@@ -2042,6 +2044,12 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             name_ = name_[1:len(name_) - 1]
           }
 
+          if strings.Contains(v[0][0].Name, "�") {
+            C.colorprint(C.CString("Error while actionizing " + dir + name + ", "), C.int(12))
+            fmt.Println(" A hash key is not allowed to be the character � as that is used as a delimeter", "\n\nError occured on line", lex[i + 1].Line, "\nFound near:", strings.TrimSpace(lex[i + 1].Exp))
+            os.Exit(1)
+          }
+
           translated[name_] = Actionizer(v[1], true, dir, name)
         }
 
@@ -2548,28 +2556,28 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
       case "files.read":
 
-        args := cproc(&i, lex, uint(1), "files.read", dir, name)
-        actions = append(actions, Action{ "files.read", "", []string{}, []Action{}, []string{}, args, []Condition{}, 60, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        act := cproc(&i, lex, uint(1), "files.read", dir, name, 60)
+        actions = append(actions, act)
 
       case "files.write":
 
-        args := cproc(&i, lex, uint(2), "files.write", dir, name)
-        actions = append(actions, Action{ "files.write", "", []string{}, []Action{}, []string{}, args, []Condition{}, 61, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        act := cproc(&i, lex, uint(2), "files.write", dir, name, 61)
+        actions = append(actions, act)
 
       case "files.exists":
 
-        args := cproc(&i, lex, uint(1), "files.exists", dir, name)
-        actions = append(actions, Action{ "files.exists", "", []string{}, []Action{}, []string{}, args, []Condition{}, 62, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        act := cproc(&i, lex, uint(1), "files.exists", dir, name, 62)
+        actions = append(actions, act)
 
       case "files.isFile":
 
-        args := cproc(&i, lex, uint(1), "files.isFile", dir, name)
-        actions = append(actions, Action{ "files.isFile", "", []string{}, []Action{}, []string{}, args, []Condition{}, 63, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        act := cproc(&i, lex, uint(1), "files.isFile", dir, name, 63)
+        actions = append(actions, act)
 
       case "files.isDir":
 
-        args := cproc(&i, lex, uint(1), "files.isDir", dir, name)
-        actions = append(actions, Action{ "files.isDir", "", []string{}, []Action{}, []string{}, args, []Condition{}, 64, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        act := cproc(&i, lex, uint(1), "files.isDir", dir, name, 64)
+        actions = append(actions, act)
       //////////////////////
 
       case "kill":
@@ -2583,13 +2591,30 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
       case "regex.match":
 
-        args := cproc(&i, lex, uint(2), "regex.match", dir, name)
-        actions = append(actions, Action{ "regex.match", "", []string{}, []Action{}, []string{}, args, []Condition{}, 68, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        act := cproc(&i, lex, uint(2), "regex.match", dir, name, 68)
+        actions = append(actions, act)
 
       case "regex.replace":
 
-        args := cproc(&i, lex, uint(3), "regex.substitute", dir, name)
-        actions = append(actions, Action{ "regex.substitute", "", []string{}, []Action{}, []string{}, args, []Condition{}, 69, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false })
+        act := cproc(&i, lex, uint(3), "regex.substitute", dir, name, 69)
+        actions = append(actions, act)
+
+      case "this":
+
+        act := cproc(&i, lex, uint(1), "this", dir, name, 70)
+
+        i++
+
+        isMutable := false
+
+        //checks for a runtime value
+        for ;i < len_lex && lex[i].Name == ":::"; i++ {
+          isMutable = !isMutable
+        }
+
+        act.IsMutable = isMutable
+
+        actions = append(actions, act)
 
       default:
 
@@ -2979,7 +3004,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             exp := Actionizer(exp_, true, dir, name)
 
             actions = append(actions, Action{ "let", varname, []string{}, exp, []string{}, [][]Action{}, []Condition{}, 28, []Action{}, []Action{}, []Action{}, [][]Action{}, indexes, make(map[string][]Action), false })
-            i+=(len(exp))
+            i+=(len(exp_))
             continue
           }
 

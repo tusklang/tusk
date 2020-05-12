@@ -2,6 +2,7 @@
 #define MULTIPLYTYPES_HPP_
 
 #include <map>
+#include <deque>
 #include <vector>
 #include "../../values.hpp"
 #include "../../json.hpp"
@@ -9,7 +10,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-Action multiplystrings(Action num1, Action num2, json cli_params) {
+Action multiplystrings(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
 
   string fin = "";
 
@@ -44,7 +45,7 @@ Action multiplystrings(Action num1, Action num2, json cli_params) {
   return str;
 }
 
-Action multiplyarrays(Action num1, Action num2, json cli_params) {
+Action multiplyarrays(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
 
   char* length = "0";
 

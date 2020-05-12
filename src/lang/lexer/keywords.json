@@ -144,6 +144,12 @@
     "type": "id"
   },
   {
+    "name": "this",
+    "remove": "this",
+    "pattern": "(this\\()",
+    "type": "id"
+  },
+  {
     "name": "^",
     "remove": "**",
     "pattern": "(\\*\\*)",

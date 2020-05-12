@@ -2,6 +2,7 @@
 #define COMPARISONS_HPP_
 
 #include <map>
+#include <deque>
 
 #include "json.hpp"
 #include "values.hpp"
@@ -9,7 +10,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-Action equals(Action val1, Action val2, json cli_params, map<string, Variable> vars) {
+Action equals(Action val1, Action val2, json cli_params, map<string, Variable> vars, deque<map<string, vector<Action>>> this_vals) {
 
   if (val1.Name == "hashed_value" && val2.Name == "hashed_values") {
 
@@ -26,7 +27,7 @@ Action equals(Action val1, Action val2, json cli_params, map<string, Variable> v
       auto finder = val2.Hash_Values.find(i.first);
 
       if (finder == val2.Hash_Values.end()) return falseRet;
-      if (parser(val2.Hash_Values[i.first], cli_params, vars, false, true).exp.ExpStr[0] != parser(i.second, cli_params, vars, false, true).exp.ExpStr[0]) return falseRet;
+      if (parser(val2.Hash_Values[i.first], cli_params, vars, false, true, this_vals).exp.ExpStr[0] != parser(i.second, cli_params, vars, false, true, this_vals).exp.ExpStr[0]) return falseRet;
     }
 
     return trueRet;

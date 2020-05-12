@@ -2,6 +2,7 @@
 #define MULTIPLY_HPP_
 
 #include <map>
+#include <deque>
 #include <vector>
 #include "../../json.hpp"
 #include "../../structs.hpp"
@@ -10,7 +11,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-Action multiply(Action num1, Action num2, json cli_params) {
+Action multiply(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
 
   /* TABLE OF TYPES:
 
@@ -30,11 +31,11 @@ Action multiply(Action num1, Action num2, json cli_params) {
 
   } else if ((num1.Type == "string" && num2.Type == "number") || (num1.Type == "number" && num2.Type == "string")) { //detect case string * num = string
 
-    finalRet = multiplystrings(num1, num2, cli_params);
+    finalRet = multiplystrings(num1, num2, cli_params, this_vals);
 
   } else if (num1.Type == "array" && num2.Type == "array") { //detect case array * array = array
 
-    finalRet = multiplyarrays(num1, num2, cli_params);
+    finalRet = multiplyarrays(num1, num2, cli_params, this_vals);
 
   } else { //detect default case
 

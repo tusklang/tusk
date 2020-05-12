@@ -20,7 +20,7 @@ void run(char* actions, char* cli_params) {
 
   map<string, Variable> vars;
 
-  parser(acts, cpJ, vars, /*group return*/ false, /* expression return */ false);
+  parser(acts, cpJ, vars, /*group return*/ false, /* expression return */ false, {});
 }
 
 #endif
