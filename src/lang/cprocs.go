@@ -178,7 +178,7 @@ func cproc(i *int, lex []Lex, PARAM_COUNT uint, name, dir, filename string, id i
 
     (*i)+=3
 
-    actPut = Action{ "expressionIndex", "", []string{}, []Action{ actPut }, []string{}, [][]Action{}, []Condition{}, 8, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false }
+    actPut = Action{ "expressionIndex", name, []string{}, []Action{ actPut }, []string{}, [][]Action{}, []Condition{}, 8, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), false }
   }
 
   return actPut

@@ -66,6 +66,39 @@ module.exports.insert_hashes = lex => {
       });
 
       i+=2;
+    } else if (lex[i].Name == ']' && lex[i + 1] && lex[i + 1].Name == '(') {
+
+      var o;
+
+      var bCnt = 0;
+
+      for (o = i; o >= 0; o--) {
+
+        if (lex[o].Name == '[') bCnt++;
+        if (lex[o].Name == ']') bCnt--;
+
+        if (bCnt == 0 && lex[o - 1].Name == '.' && lex[o].Name == '[') break;
+      }
+
+      if (lex[o - 3] && lex[o - 3].Name == "~" && lex[o - 4].Name && lex[o - 4].Name == "#") continue;
+
+      lex.splice(o - 2, 0, {
+        Name: '#',
+        Exp: '#~' + lex[o].Exp,
+        Line: lex[o].Line,
+        Type: 'id',
+        OName: '#',
+        Dir: lex[o].Dir
+      }, {
+        Name: '~',
+        Exp: '~' + lex[o].Exp,
+        Line: lex[o].Line,
+        Type: 'operation',
+        OName: '~',
+        Dir: lex[o].Dir
+      });
+
+      i+=2;
     }
 
   return lex;

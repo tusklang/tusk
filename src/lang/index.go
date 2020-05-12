@@ -124,10 +124,7 @@ func Lexer(file, dir, name string) []Lex {
 
 //export OatRun
 func OatRun(acts, cli_params string) {
-
-  _, _ = acts, cli_params
-
-  //C.bindParser(C.CString(acts), C.CString(cli_params))
+  C.bindParser(C.CString(acts), C.CString(cli_params))
 }
 
 //export Run

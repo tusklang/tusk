@@ -220,7 +220,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
               string index = parser(*it, cli_params, vars, false, true, this_vals).exp.ExpStr[0];
 
-              if ((var.Hash_Values).find(index) == var.Hash_Values.end()) {
+              if (var.Hash_Values.find(index) == var.Hash_Values.end()) {
                 parsed = fparsed;
                 goto stopIndexing_processes;
               }

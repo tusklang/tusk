@@ -1,1 +1,8 @@
-log ~ true & false;
+t: [:
+  "A": proc() {
+    log ~ this(0).['a'];
+  },
+  "a": true
+:];
+
+log ~ t.["A"]();
