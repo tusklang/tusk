@@ -407,6 +407,101 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         i++
       }
 
+      for ;interfaceContainOperations(exp, "|") || interfaceContainOperations(exp, "&") || interfaceContainOperations(exp, "!|") || interfaceContainOperations(exp, "!&") || interfaceContainOperations(exp, "$|") || interfaceContainOperations(exp, "!$|"); {
+        indexes := map[string]int{
+          "|": interfaceIndexOfOperations("|", exp),
+          "&": interfaceIndexOfOperations("&", exp),
+          "!|": interfaceIndexOfOperations("!|", exp),
+          "!&": interfaceIndexOfOperations("!&", exp),
+          "$|": interfaceIndexOfOperations("$|", exp),
+          "!$|": interfaceIndexOfOperations("!$|", exp),
+        }
+
+        //get max index
+        var min = [2]interface{}{}
+
+        for k, v := range indexes {
+          if v != -1 {
+            min = [2]interface{}{ k, v }
+          }
+        }
+
+        for k, v := range indexes {
+          if (v != -1 && v > min[1].(int)) || min[1].(int) == -1 {
+            min = [2]interface{}{ k, v }
+          }
+        }
+
+        switch min[0].(string) {
+          case "|":
+            index := min[1].(int)
+
+            num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
+
+            var act_exp = Action{ "or", "operation", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 71, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
+
+            exp_ := append(exp[:index - len(_num1)], act_exp)
+            exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
+
+            exp = exp_
+          case "&":
+            index := min[1].(int)
+
+            num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
+
+            var act_exp = Action{ "and", "operation", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 72, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
+
+            exp_ := append(exp[:index - len(_num1)], act_exp)
+            exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
+
+            exp = exp_
+          case "!|":
+            index := min[1].(int)
+
+            num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
+
+            var act_exp = Action{ "nor", "operation", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 73, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
+
+            exp_ := append(exp[:index - len(_num1)], act_exp)
+            exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
+
+            exp = exp_
+          case "!&":
+            index := min[1].(int)
+
+            num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
+
+            var act_exp = Action{ "nand", "operation", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 74, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
+
+            exp_ := append(exp[:index - len(_num1)], act_exp)
+            exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
+
+            exp = exp_
+          case "$|":
+            index := min[1].(int)
+
+            num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
+
+            var act_exp = Action{ "xor", "operation", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 75, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
+
+            exp_ := append(exp[:index - len(_num1)], act_exp)
+            exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
+
+            exp = exp_
+          case "!$|":
+            index := min[1].(int)
+
+            num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
+
+            var act_exp = Action{ "xnor", "operation", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 76, num1, num2, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false }
+
+            exp_ := append(exp[:index - len(_num1)], act_exp)
+            exp_ = append(exp_, exp[index + len(_num2) + 1:]...)
+
+            exp = exp_
+        }
+      }
+
       for ;interfaceContainOperations(exp, "=") || interfaceContainOperations(exp, "!=") || interfaceContainOperations(exp, ">") || interfaceContainOperations(exp, "<") || interfaceContainOperations(exp, ">=") || interfaceContainOperations(exp, "<=") || interfaceContainOperations(exp, "~~") || interfaceContainOperations(exp, "~~~"); {
         indexes := map[string]int{
           "=": interfaceIndexOfOperations("=", exp),

@@ -56,6 +56,12 @@ kill: 66
 regex.match: 68
 regex.substitute: 69
 this: 70
+or: 71
+and: 72
+nor: 73
+nand: 74
+xor: 75
+xnor: 76
 
 DATATYPES:
 

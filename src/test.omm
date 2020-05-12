@@ -1,8 +1,1 @@
-i: [:
-  "t": proc() {
-    log ~ #this(0).["t"]();
-  }
-
-:];
-
-#i.["t"]()
+log ~ true & false;

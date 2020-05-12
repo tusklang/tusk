@@ -1080,6 +1080,138 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           }
         }
         break;
+      case 71: {
+
+        //or
+
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = isTruthy(first) || isTruthy(second) ? trueRet : falseRet;
+          ret.type = "expression";
+
+          return ret;
+        }
+
+        break;
+      }
+      case 72: {
+
+        //and
+
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = isTruthy(first) && isTruthy(second) ? trueRet : falseRet;
+          ret.type = "expression";
+
+          return ret;
+        }
+
+        break;
+      }
+      case 73: {
+
+        //nor
+
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = isTruthy(first) || isTruthy(second) ? falseRet : trueRet;
+          ret.type = "expression";
+
+          return ret;
+        }
+
+        break;
+      }
+      case 74: {
+
+        //nand
+
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = isTruthy(first) && isTruthy(second) ? falseRet : trueRet;
+          ret.type = "expression";
+
+          return ret;
+        }
+
+        break;
+      }
+      case 75: {
+
+        //xor
+
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = (isTruthy(first) || isTruthy(second)) && !(isTruthy(first) && isTruthy(second)) ? trueRet : falseRet;
+          ret.type = "expression";
+
+          return ret;
+        }
+
+        break;
+      }
+      case 76: {
+
+        //xnor
+
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+
+        if (expReturn) {
+          Returner ret;
+
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = (isTruthy(first) || isTruthy(second)) && !(isTruthy(first) && isTruthy(second)) ? falseRet : trueRet;
+          ret.type = "expression";
+
+          return ret;
+        }
+
+        break;
+      }
       case 56:  {
 
           //@ (call thread)
