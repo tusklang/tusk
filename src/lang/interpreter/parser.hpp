@@ -90,7 +90,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           int o = 0;
 
-          Returner cond = parser(v.Condition[0].Condition, cli_params, vars, true, false, this_vals);
+          Returner cond = parser(v.Condition[0].Condition, cli_params, vars, false, true, this_vals);
 
           //while the alt statement should continue
           while (isTruthy(cond.exp)) {
@@ -98,8 +98,20 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             //going back to the first block when it reached the last block
             if (o >= v.Condition.size()) o = 0;
 
-            parser(v.Condition[o].Actions, cli_params, vars, true, false, this_vals);
+            Returner parsed = parser(v.Condition[o].Actions, cli_params, vars, true, false, this_vals);
 
+            map<string, Variable> pVars = parsed.variables;
+
+            //filter the variables that are not global
+            for (pair<string, Variable> o : pVars)
+              if (o.second.type == "global" || o.second.type == "process" || vars.find(o.second.name) != vars.end())
+                vars[o.first] = o.second;
+
+            if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
+            if (parsed.type == "skip") continue;
+            if (parsed.type == "break") break;
+
+            cond = parser(v.Condition[o].Condition, cli_params, vars, false, true, this_vals);
             o++;
           }
         }
@@ -170,7 +182,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             if (o.second.type == "global" || o.second.type == "process" || vars.find(o.second.name) != vars.end())
               vars[o.first] = o.second;
 
-          if (groupReturn) return Returner{ parsed.value, vars, parsed.exp, parsed.type };
+          if (groupReturn || expReturn) return Returner{ parsed.value, vars, parsed.exp, parsed.type };
         }
         break;
       case 10: {
