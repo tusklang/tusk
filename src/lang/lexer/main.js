@@ -2,7 +2,8 @@ const
   testkey = require('./testkey'), //file to test each keyword
   processes = require('./processes'), //file with process utils
   include_parser = require('./includes'), //file that will include omm files within other omm files
-  rw = require('./remove_whitespace') //file to remove whitespace from a string
+  rw = require('./remove_whitespace'), //file to remove whitespace from a string
+  indexes = require('./indexes'), //file to allow user to write :: instead of .['name']
   fs = require('fs');
 
 global.KEYWORDS = require('./keywords.json');
@@ -212,7 +213,7 @@ global.lexer = (file, dir) => {
       warnings.push(`Did you mean \"return ~\" on line ${lex[i].Line}?`);
   });
 
-  return include_parser(dir, lex);
+  return indexes(include_parser(dir, lex));
 }
 
 var stdinBuffer = fs.readFileSync(0)

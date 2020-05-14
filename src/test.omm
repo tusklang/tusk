@@ -1,12 +1,6 @@
 t: [:
-  "S": proc() {
-    log ~ this(0);
-  },
-  "n": proc() {
-    log ~ 's';
 
-    return ~ "SS";
-  }
+  "T": 1
 :];
 
-#t.['S']();
+log ~ t.["T"];
