@@ -35,7 +35,7 @@ Action exponentiatenumbers(Action num1, Action num2, json cli_params, deque<map<
 
   if (neg) finStr = "-" + finStr;
 
-  return Action{ "number", "", { finStr }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false };
+  return Action{ "number", "", { finStr }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
 }
 
 #endif

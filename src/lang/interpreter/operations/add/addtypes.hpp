@@ -30,7 +30,7 @@ Action addstrings(Action num1, Action num2, json cli_params, deque<map<string, v
     i = AddC(i, "1", &cli_params.dump()[0]);
   }
 
-  return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false };
+  return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false, "private" };
 }
 
 Action addarrays(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
@@ -46,7 +46,7 @@ Action addarrays(Action num1, Action num2, json cli_params, deque<map<string, ve
     finalMap["0"] = { num1 };
   }
 
-  return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false };
+  return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false, "private" };
 }
 
 Action addbools(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
@@ -55,7 +55,7 @@ Action addbools(Action num1, Action num2, json cli_params, deque<map<string, vec
   bool num2b = num2.ExpStr[0] == "true";
   string final = to_string(num1b || num2b);
 
-  return Action{ "boolean", "", { final }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false };
+  return Action{ "boolean", "", { final }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
 }
 
 Action addhashes(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {

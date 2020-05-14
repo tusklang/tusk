@@ -27,7 +27,7 @@ Action multiply(Action num1, Action num2, json cli_params, deque<map<string, vec
 
     string val(MultiplyC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]));
 
-    finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false };
+    finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
 
   } else if ((num1.Type == "string" && num2.Type == "number") || (num1.Type == "number" && num2.Type == "string")) { //detect case string * num = string
 

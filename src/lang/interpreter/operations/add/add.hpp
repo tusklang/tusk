@@ -38,7 +38,7 @@ Action add(Action num1, Action num2, json cli_params, deque<map<string, vector<A
 
     string val(AddC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]));
 
-    finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false };
+    finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
 
   } else if ((num1.Type == "hash" || num2.Type == "hash") && (num1.Type == "hash" || num2.Type == "hash")) { //detect case hash + hash = hash
 

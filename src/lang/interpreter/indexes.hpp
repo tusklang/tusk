@@ -19,12 +19,17 @@ Action indexesCalc(map<string, vector<Action>> val, vector<vector<Action>> index
 
   string index = parser(indexes[0], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
 
-  if (val.find(index) == val.end()) {
+  if (val.find(index) == val.end()) { //the second boolean is determining if the value is public
 
     if (val.find("falsey") == val.end()) return falseyVal;
     else return val["falsey"][0];
 
   } else {
+
+    //if it is a private variable return undef
+    if (islower(index[0]) && val[index][0].Access != "public")
+      if (val.find("falsey") == val.end()) return falseyVal;
+      else return val["falsey"][0];
 
     Action expVal = parser(val[index], cli_params, vars, false, true, this_vals).exp;
 

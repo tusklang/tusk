@@ -70,6 +70,26 @@ namespace DecodeJSON {
 
     return ret;
   }
+  std::vector<SubCaller> subcall(json j) {
+
+    if (j.size() == 0) return {};
+
+    std::vector<SubCaller> ret;
+
+    for (json it : j) {
+
+      SubCaller s;
+
+      s.Indexes = vector2D(it["Indexes"]);
+      s.Args = vector2D(it["Args"]);
+      s.IsProc = boolean(it["IsProc"]);
+
+      ret.push_back(s);
+
+    }
+
+    return ret;
+  }
   std::map<std::string, std::vector<Action> > map(json j) {
 
     std::map<std::string, std::vector<Action>> ret;
@@ -97,7 +117,9 @@ namespace DecodeJSON {
     {"Value", [](Action* act, json j) { act->Value = vector2D(j); } },
     {"Indexes", [](Action* act, json j) { act->Indexes = vector2D(j); } },
     {"Hash_Values", [](Action* act, json j) { act->Hash_Values = map(j); } },
-    {"IsMutable", [](Action* act, json j) { act->IsMutable = boolean(j); } }
+    {"IsMutable", [](Action* act, json j) { act->IsMutable = boolean(j); } },
+    {"Access", [](Action* act, json j) { act->Access = string(j); } },
+    {"SubCall", [](Action* act, json j) { act->SubCall = subcall(j); } }
   };
 
   Action action(json j) {

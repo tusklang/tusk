@@ -142,5 +142,7 @@ func Run(params map[string]map[string]interface{}) {
   cp, _ := json.Marshal(params)
   acts, _ := json.MarshalIndent(actions, "", "  ")
 
+  _, _ = acts, cp
+
   C.bindParser(C.CString(string(acts)), C.CString(string(cp)))
 }

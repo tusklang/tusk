@@ -212,7 +212,7 @@ global.lexer = (file, dir) => {
       warnings.push(`Did you mean \"return ~\" on line ${lex[i].Line}?`);
   });
 
-  return include_parser(dir, processes.insert_hashes(lex));
+  return include_parser(dir, lex);
 }
 
 var stdinBuffer = fs.readFileSync(0)

@@ -19,6 +19,7 @@
 #include "values.hpp"
 #include "comparisons.hpp"
 #include "similarity.hpp"
+#include "processes.hpp"
 
 //file i/o
 #include "../files/readfile.hpp"
@@ -205,7 +206,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           vector<string> noRet;
 
-          Returner fparsed = Returner{ noRet, vars, falseyVal, "none" };
+          Returner fparsed = Returner{ noRet, vars, falseyVal, "expression" };
 
           parsed = fparsed;
 
@@ -214,56 +215,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
             Action var = vars[name].value[0];
 
-            deque<map<string, vector<Action>>> send_this = this_vals;
-
-            for (auto it = v.Indexes.begin(); it != v.Indexes.end(); ++it) {
-
-              string index = parser(*it, cli_params, vars, false, true, this_vals).exp.ExpStr[0];
-
-              if (var.Hash_Values.find(index) == var.Hash_Values.end()) {
-                parsed = fparsed;
-                goto stopIndexing_processes;
-              }
-
-              send_this.push_front(var.Hash_Values);
-              var = parser(var.Hash_Values[index], cli_params, vars, false, true, this_vals).exp;
-            }
-
-            if (var.Type != "process") {
-              parsed = fparsed;
-              goto stopIndexing_processes;
-            }
-
-            vector<string> params = var.Params;
-            vector<vector<Action>> args = v.Args;
-
-            if (params.size() != args.size()) {
-              parsed = fparsed;
-              goto stopIndexing_processes;
-            }
-
-            map<string, Variable> sendVars = vars;
-
-            for (int o = 0; o < params.size() || o < args.size(); o++) {
-
-              Variable cur = Variable{
-                "local",
-                params[o],
-                { parser(args[o], cli_params, vars, false, true, this_vals).exp }
-              };
-
-              sendVars[params[o]] = cur;
-            }
-
-            parsed = parser(var.ExpAct, cli_params, sendVars, true, false, send_this);
-
-            map<string, Variable> pVars = parsed.variables;
-
-            //filter the variables that are not global
-            for (pair<string, Variable> o : pVars)
-              if (o.second.type == "global" || o.second.type == "process" || vars.find(o.second.name) != vars.end())
-                vars[o.first] = o.second;
-
+            parsed = processParser(var, v, cli_params, &vars, this_vals, true);
           }
 
           stopIndexing_processes:
@@ -1392,16 +1344,34 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         if (!isFile(nDir + filename) && expReturn) {
 
-          Returner ret;
+          Action returner = falseyVal;
 
-          vector<string> retNo;
+          if (v.SubCall.size() > 0) {
 
-          ret.value = retNo;
-          ret.variables = vars;
-          ret.exp = falseyVal;
-          ret.type = "expression";
+            Action callProcessParser = v;
 
-          return ret;
+            bool isProc = v.SubCall[0].IsProc;
+
+            callProcessParser.Indexes = v.SubCall[0].Indexes;
+            callProcessParser.Args = v.SubCall[0].Args;
+            callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
+
+            returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+
+          }
+
+          if (expReturn) {
+
+            Returner ret;
+            vector<string> retNo;
+
+            ret.value = retNo;
+            ret.variables = vars;
+            ret.exp = returner;
+            ret.type = "expression";
+
+            return ret;
+          }
 
         } else {
           string content = readfile(&(nDir + filename)[0]);
@@ -1420,18 +1390,40 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
               Action curChar = strPlaceholder;
 
               curChar.ExpStr = {
-                to_string(content[o])
+                string(1, content[o])
               };
 
               contentJ.Hash_Values[to_string(o)] = { curChar };
             }
 
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = contentJ;
-            ret.type = "expression";
+            Action returner = contentJ;
 
-            return ret;
+            if (v.SubCall.size() > 0) {
+
+              Action callProcessParser = v;
+
+              bool isProc = v.SubCall[0].IsProc;
+
+              callProcessParser.Indexes = v.SubCall[0].Indexes;
+              callProcessParser.Args = v.SubCall[0].Args;
+              callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
+
+              returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+
+            }
+
+            if (expReturn) {
+
+              Returner ret;
+              vector<string> retNo;
+
+              ret.value = retNo;
+              ret.variables = vars;
+              ret.exp = returner;
+              ret.type = "expression";
+
+              return ret;
+            }
           }
         }
 
@@ -1465,14 +1457,30 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           writefile(&(nDir + filename)[0], &contentstr[0]);
         }
 
-        if (expReturn) {
-          Returner ret;
+        Action returner = content;
 
+        if (v.SubCall.size() > 0) {
+
+          Action callProcessParser = v;
+
+          bool isProc = v.SubCall[0].IsProc;
+
+          callProcessParser.Indexes = v.SubCall[0].Indexes;
+          callProcessParser.Args = v.SubCall[0].Args;
+          callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
+
+          returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+
+        }
+
+        if (expReturn) {
+
+          Returner ret;
           vector<string> retNo;
 
           ret.value = retNo;
           ret.variables = vars;
-          ret.exp = content;
+          ret.exp = returner;
           ret.type = "expression";
 
           return ret;
@@ -1498,14 +1506,30 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
         //if it is not a directory and not a file, it does not exist
         bool exists = !(!isDir(nDir + filename) && !isFile(nDir + filename));
 
-        if (expReturn) {
-          Returner ret;
+        Action returner = exists ? trueRet : falseRet;
 
+        if (v.SubCall.size() > 0) {
+
+          Action callProcessParser = v;
+
+          bool isProc = v.SubCall[0].IsProc;
+
+          callProcessParser.Indexes = v.SubCall[0].Indexes;
+          callProcessParser.Args = v.SubCall[0].Args;
+          callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
+
+          returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+
+        }
+
+        if (expReturn) {
+
+          Returner ret;
           vector<string> retNo;
 
           ret.value = retNo;
           ret.variables = vars;
-          ret.exp = exists ? trueRet : falseRet;
+          ret.exp = returner;
           ret.type = "expression";
 
           return ret;
@@ -1530,14 +1554,30 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         bool isFileVal = isFile(nDir + filename);
 
-        if (expReturn) {
-          Returner ret;
+        Action returner = isFileVal ? trueRet : falseRet;
 
+        if (v.SubCall.size() > 0) {
+
+          Action callProcessParser = v;
+
+          bool isProc = v.SubCall[0].IsProc;
+
+          callProcessParser.Indexes = v.SubCall[0].Indexes;
+          callProcessParser.Args = v.SubCall[0].Args;
+          callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
+
+          returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+
+        }
+
+        if (expReturn) {
+
+          Returner ret;
           vector<string> retNo;
 
           ret.value = retNo;
           ret.variables = vars;
-          ret.exp = isFileVal ? trueRet : falseRet;
+          ret.exp = returner;
           ret.type = "expression";
 
           return ret;
@@ -1562,14 +1602,30 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         bool isDirVal = isDir(nDir + filename);
 
-        if (expReturn) {
-          Returner ret;
+        Action returner = isDirVal ? trueRet : falseRet;
 
+        if (v.SubCall.size() > 0) {
+
+          Action callProcessParser = v;
+
+          bool isProc = v.SubCall[0].IsProc;
+
+          callProcessParser.Indexes = v.SubCall[0].Indexes;
+          callProcessParser.Args = v.SubCall[0].Args;
+          callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
+
+          returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+
+        }
+
+        if (expReturn) {
+
+          Returner ret;
           vector<string> retNo;
 
           ret.value = retNo;
           ret.variables = vars;
-          ret.exp = isDirVal ? trueRet : falseRet;
+          ret.exp = returner;
           ret.type = "expression";
 
           return ret;
@@ -1613,7 +1669,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             found_indexes.push_back(it->position());
           }
 
-          Action returner = arrayVal;
+          Action returnerArr = arrayVal;
 
           char* cur = "0";
 
@@ -1625,18 +1681,34 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
             indexJ.ExpStr[0] = to_string(i);
 
-            returner.Hash_Values[string(cur)] = { indexJ };
+            returnerArr.Hash_Values[string(cur)] = { indexJ };
             cur = AddC(cur, "1", &cli_params.dump()[0]);
           }
 
-          if (expReturn) {
-            Returner ret;
+          Action returnerVal = hashVal;
 
+          if (v.SubCall.size() > 0) {
+
+            Action callProcessParser = v;
+
+            bool isProc = v.SubCall[0].IsProc;
+
+            callProcessParser.Indexes = v.SubCall[0].Indexes;
+            callProcessParser.Args = v.SubCall[0].Args;
+            callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
+
+            returnerVal = processParser(returnerArr, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+
+          }
+
+          if (expReturn) {
+
+            Returner ret;
             vector<string> retNo;
 
             ret.value = retNo;
             ret.variables = vars;
-            ret.exp = returner;
+            ret.exp = returnerVal;
             ret.type = "expression";
 
             return ret;
@@ -1683,14 +1755,30 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             cur = AddC(cur, "1", &cli_params.dump()[0]);
           }
 
-          if (expReturn) {
-            Returner ret;
+          Action retExp = resultJ;
 
+          if (v.SubCall.size() > 0) {
+
+            Action callProcessParser = v;
+
+            bool isProc = v.SubCall[0].IsProc;
+
+            callProcessParser.Indexes = v.SubCall[0].Indexes;
+            callProcessParser.Args = v.SubCall[0].Args;
+            callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
+
+            retExp = processParser(resultJ, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+
+          }
+
+          if (expReturn) {
+
+            Returner ret;
             vector<string> retNo;
 
             ret.value = retNo;
             ret.variables = vars;
-            ret.exp = resultJ;
+            ret.exp = retExp;
             ret.type = "expression";
 
             return ret;
@@ -1714,49 +1802,76 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         string level = parser(v.Args[0], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
 
-        if (expReturn) {
-
-          //if it is negative, return undef
-          if ((bool) IsLessC(&level[0], "0")) {
-            Returner ret;
-
-            vector<string> retNo;
-
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = falseyVal;
-            ret.type = "expression";
-
-            return ret;
-          }
-
-          //convert level string to ulonglong
-          unsigned long long level_number = stoull(level);
-
-          //if the this level is too high, return undef
-          if (level_number >= this_vals.size()) {
-            Returner ret;
-
-            vector<string> retNo;
-
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = falseyVal;
-            ret.type = "expression";
-
-            return ret;
-          }
-
+        //if it is negative, return undef
+        if ((bool) IsLessC(&level[0], "0")) {
           Returner ret;
 
           vector<string> retNo;
 
-          Action hashPlaceholder = hashVal;
-          hashPlaceholder.Hash_Values = this_vals[level_number];
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = falseyVal;
+          ret.type = "expression";
+
+          return ret;
+        }
+
+        //convert level string to ulonglong
+        unsigned long long level_number = stoull(level);
+
+        //if the this level is too high, return undef
+        if (level_number >= this_vals.size()) {
+          Returner ret;
+
+          vector<string> retNo;
 
           ret.value = retNo;
           ret.variables = vars;
-          ret.exp = hashPlaceholder;
+          ret.exp = falseyVal;
+          ret.type = "expression";
+
+          return ret;
+        }
+
+        map<string, vector<Action>> hash_level = this_vals[level_number];
+
+        //force all indexes in the hash to be public
+        for (map<string, vector<Action>>::iterator it = hash_level.begin(); it != hash_level.end(); ++it)
+          hash_level[it->first][0].Access = "public";
+
+        Returner ret;
+
+        vector<string> retNo;
+
+        Action hashPlaceholder = hashVal;
+        hashPlaceholder.Hash_Values = hash_level;
+
+        for (auto it = v.Indexes.begin(); it != v.Indexes.end(); ++it) {
+          string index = parser(*it, cli_params, vars, false, true, this_vals).exp.ExpStr[0];
+          hashPlaceholder = hashPlaceholder.Hash_Values[index][0];
+        }
+
+        Action retExp = hashPlaceholder;
+
+        if (v.SubCall.size() > 0) {
+
+          Action callProcessParser = v;
+
+          bool isProc = v.SubCall[0].IsProc;
+
+          callProcessParser.Indexes = v.SubCall[0].Indexes;
+          callProcessParser.Args = v.SubCall[0].Args;
+          callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
+
+          retExp = processParser(hashPlaceholder, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+
+        }
+
+        if (expReturn) {
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = retExp;
           ret.type = "expression";
 
           return ret;

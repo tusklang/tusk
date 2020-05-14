@@ -243,7 +243,7 @@ func interfaceContainWithProcIndex(inter []interface{}, sub interface{}, indexes
         case Lex:
 
           //if inter[k - 1] is a process or a variable, continue the loop
-          if arrayContain(CPROCS, inter[k - 1].(Lex).Name) || inter[k - 1].(Lex).Name == "process" || strings.HasPrefix(inter[k - 1].(Lex).Name, "$") || inter[k - 1].(Lex).Name == "]" {
+          if arrayContain(CPROCS, inter[k - 1].(Lex).Name) || inter[k - 1].(Lex).Name == "process" || strings.HasPrefix(inter[k - 1].(Lex).Name, "$") || inter[k - 1].(Lex).Name == "]" || inter[k - 1].(Lex).Name == ")" {
             continue loop
           }
       }
@@ -324,7 +324,7 @@ func interfaceContainForExp(inter []interface{}, _sub []string) bool {
     }
 
     //prevent parenthesis after process declarations from being counted as expression parenthesis
-    if o > 0 && !(strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "process" || arrayContain(CPROCS, inter[o - 1].(Lex).Name) ) && v.(Lex).Name == "(" {
+    if o > 0 && !(strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "process" || arrayContain(CPROCS, inter[o - 1].(Lex).Name) || v.(Lex).Name == ")" ) && v.(Lex).Name == "(" {
 
       scbCnt := 0
       sglCnt := 0

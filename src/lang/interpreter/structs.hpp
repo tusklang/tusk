@@ -20,6 +20,14 @@ typedef struct Condition {
 
 } Condition;
 
+typedef struct SubCaller {
+
+  vector<vector<Action>>        Indexes;
+  vector<vector<Action>>        Args;
+  bool                          IsProc;
+
+} SubCaller;
+
 typedef struct Action {
 
   string                        Type;
@@ -45,6 +53,8 @@ typedef struct Action {
   map<string, vector<Action>>   Hash_Values;
 
   bool                          IsMutable;
+  string                        Access;
+  vector<SubCaller>             SubCall;
 
 } Action;
 

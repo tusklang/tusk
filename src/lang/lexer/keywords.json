@@ -147,7 +147,7 @@
     "name": "this",
     "remove": "this",
     "pattern": "(this\\()",
-    "type": "id"
+    "type": "cproc"
   },
   {
     "name": "^",
@@ -213,43 +213,43 @@
     "name": "regex.match",
     "remove": "regex.match",
     "pattern": "regex\\.match\\(",
-    "type": "id"
+    "type": "cproc"
   },
   {
     "name": "regex.replace",
     "remove": "regex.replace",
     "pattern": "regex\\.replace\\(",
-    "type": "id"
+    "type": "cproc"
   },
   {
     "name": "files.read",
     "remove": "files.read",
     "pattern": "files\\.read\\(",
-    "type": "id"
+    "type": "cproc"
   },
   {
     "name": "files.write",
     "remove": "files.write",
     "pattern": "files\\.write\\(",
-    "type": "id"
+    "type": "cproc"
   },
   {
     "name": "files.exists",
     "remove": "files.exists",
     "pattern": "files\\.exists\\(",
-    "type": "id"
+    "type": "cproc"
   },
   {
     "name": "files.isFile",
     "remove": "files.isFile",
     "pattern": "files\\.isFile\\(",
-    "type": "id"
+    "type": "cproc"
   },
   {
     "name": "files.isDir",
     "remove": "files.isDir",
     "pattern": "files\\.isDir\\(",
-    "type": "id"
+    "type": "cproc"
   },
   {
     "name": ":",
