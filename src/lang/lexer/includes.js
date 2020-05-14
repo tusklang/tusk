@@ -1,5 +1,4 @@
-var readfile = require('../files/imports/read')
-, rw = require('./remove_whitespace');
+var readfile = require('../files/imports/read');
 
 module.exports = (dir, lex) => {
 
@@ -20,11 +19,17 @@ module.exports = (dir, lex) => {
       } else file = readfile(dir + include_name);
 
       if (file.startsWith('Error')) {
-        console.log(file);
+        console.log(
+          JSON.stringify({
+            WARNS: [],
+            ERRORS: [file],
+            LEX: []
+          }, null, 2)
+        );
         process.exit(1);
       }
 
-      var lexxed = lexer(rw(JSON.parse(file)[0]), sendDir);
+      var lexxed = lexer(JSON.parse(file)[0], sendDir);
 
       let _lex = lex.slice(0, i)
       , lex_ = lex.slice(i + 3);

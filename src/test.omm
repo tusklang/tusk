@@ -1,5 +1,1 @@
-alt (true) => {
-  log ~ "h";
-} => {
-  log ~ 'S';
-}
+log ~ 'ex';

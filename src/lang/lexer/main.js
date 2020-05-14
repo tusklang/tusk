@@ -2,8 +2,8 @@ const
   testkey = require('./testkey'), //file to test each keyword
   processes = require('./processes'), //file with process utils
   include_parser = require('./includes'), //file that will include omm files within other omm files
-  rw = require('./remove_whitespace'), //file to remove whitespace from a string
   indexes = require('./indexes'), //file to allow user to write :: instead of .['name']
+  id_init = require('./id_init'), //file to add ~ after every id
   fs = require('fs');
 
 global.KEYWORDS = require('./keywords.json');
@@ -57,12 +57,15 @@ global.lexer = (file, dir) => {
           Dir: dir
         });
 
-        if (KEYWORDS[o].name != 'newlineN') i+=KEYWORDS[o].remove.length - 1;
+        if (KEYWORDS[o].name != 'newlineN') i+=KEYWORDS[o].remove.length;
+
+        while (file[i] == ' ') i++;
+
         continue outer;
       }
     }
 
-    var substrfile = file.substr(i);
+    var substrfile = file.substr(i).trim();
 
     //detect a string
     if (substrfile.startsWith('\"') || substrfile.startsWith('\'') || substrfile.startsWith('\`')) {
@@ -72,22 +75,22 @@ global.lexer = (file, dir) => {
         value = '',
         escaped = false;
 
-      for (let o = i + 1; o < file.length; o++, i++) {
+      for (let o = 1; o < substrfile.length; o++, i++) {
 
         //if it is escape character, set escaped to true
-        if (!escaped && file[o] == '\\') {
+        if (!escaped && substrfile[o] == '\\') {
           escaped = true;
           o--;
           continue;
         }
 
-        if (!escaped && file.substr(o)[0] == qType) break;
+        if (!escaped && substrfile[o] == qType) break;
 
-        value+=file[o];
+        value+=substrfile[o];
         escaped = false;
       }
 
-      i++;
+      i+=2;
       curExp+=value;
       line+=value.match(/\n/g) == null ? 0 : value.match(/\n/g).length;
 
@@ -100,13 +103,13 @@ global.lexer = (file, dir) => {
         Dir: dir
       });
       continue outer;
-    } else if (/^(\d|\+|\-|\.)/.test(file.substr(i))) {
+    } else if (/^(\d|\+|\-|\.)/.test(substrfile)) {
 
       var sign = true;
 
       //detect positive and negative
-      while (file.substr(i)[0] == '+' || file.substr(i)[0] == '-')
-        if (file.substr(i) == '+') i++;
+      while (substrfile[0] == '+' || substrfile[0] == '-')
+        if (substrfile == '+') i++;
         else {
           sign = !sign;
           i++;
@@ -114,7 +117,7 @@ global.lexer = (file, dir) => {
 
       var num = '';
 
-      if (!(/^(\d|\.)/.test(file.substr(i)))) {
+      if (!(/^(\d|\.)/.test(substrfile))) {
         if (sign) num = '1';
         else num = '-1';
 
@@ -133,7 +136,13 @@ global.lexer = (file, dir) => {
         continue outer;
       }
 
-      while (/^(\d|\.)/.test(file.substr(i))) {
+      while (/^(\d|\.)/.test(file.substr(i).trim())) {
+
+        if (file[i] == ' ') {
+          i++;
+          continue;
+        }
+
         num+=file[i];
         i++;
 
@@ -154,23 +163,25 @@ global.lexer = (file, dir) => {
       });
     } else {
 
-      var variable = '$';
+      var variable = '';
 
       var_loop:
-        for (let o = i; o < file.length; o++) {
+      for (let o = i; o < file.length; o++) {
 
-          for (let j = 0; j < KEYWORDS.length; j++)
-            if (testkey(KEYWORDS[j], file, o)) break var_loop;
+        for (let j = 0; j < KEYWORDS.length; j++)
+          if (testkey(KEYWORDS[j], file, o)) break var_loop;
 
-          variable+=file[o];
-          i++;
-        }
+        variable+=file[o];
+        i++;
+      }
 
-      curExp+=variable.substr(1);
+      curExp+=variable;
+
+      variable = variable.trim();
 
       i--;
       lex.push({
-        Name: variable,
+        Name: '$' + variable,
         Exp: curExp,
         Line: line,
         Type: 'Variable',
@@ -196,7 +207,7 @@ global.lexer = (file, dir) => {
 
     if (lex[i - 1] && v.Type[0] != '?' && v.Type != 'newline') {
       if (v.Type == lex[i - 1].Type) {
-        errors.push(
+        global.errors.push(
           `\nUnexpected token: \"${v.OName.trim()}\" on line ${v.Line}`
           +
           `\n\nFound near: ${v.Exp.trim()}`
@@ -208,25 +219,21 @@ global.lexer = (file, dir) => {
       }
     }
 
-    if (lex[i].Name.startsWith('$return'))
-      //give a warning
-      warnings.push(`Did you mean \"return ~\" on line ${lex[i].Line}?`);
   });
 
-  return indexes(include_parser(dir, lex));
+  return id_init(indexes(include_parser(dir, lex)));
 }
 
 var stdinBuffer = fs.readFileSync(0)
 , { f, dir, name } = JSON.parse(stdinBuffer.toString());
 
-var
-  warnings = [],
-  errors = [];
+global.warnings = [],
+global.errors = [];
 
 console.log(
   JSON.stringify({
     WARNS: warnings,
     ERRORS: errors,
-    LEX: lexer(processes.init(rw(f)), dir + name)
+    LEX: lexer(processes.init(f), dir + name)
   }, null, 2)
 );

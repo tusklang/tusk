@@ -2,7 +2,7 @@ module.exports = (key, file, i) => {
 
   var matches = [];
 
-  var re = new RegExp(key.pattern, 'g');
+  var re = new RegExp('\\b' + key.pattern + '\\b', 'g');
 
   while ((match = re.exec(file)) != null) matches.push(match.index);
 
