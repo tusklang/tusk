@@ -12,7 +12,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-Action similarity(Action val1, Action val2, Action degree, const json cli_params, map<string, Variable> vars, deque<map<string, vector<Action>>> this_vals) {
+Action similarity(Action val1, Action val2, Action degree, const json cli_params, map<string, Variable> vars, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   //if the degree is not a number return undef
   if (degree.Type != "number") return falseyVal;
@@ -35,9 +35,9 @@ Action similarity(Action val1, Action val2, Action degree, const json cli_params
       for (pair<string, vector<Action>> o : val2.Hash_Values) {
 
         if (
-          parser(o.second, cli_params, vars, false, true, this_vals).exp.ExpStr[0]
+          parser(o.second, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]
           !=
-          parser(i.second, cli_params, vars, false, true, this_vals).exp.ExpStr[0]
+          parser(i.second, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]
         ) difcount = AddC(difcount, "1", &cli_params.dump()[0]);
         else val2.Hash_Values.erase(o.first);
 
@@ -77,7 +77,7 @@ Action similarity(Action val1, Action val2, Action degree, const json cli_params
   return falseyVal;
 }
 
-Action strictSimilarity(Action val1, Action val2, Action degree, const json cli_params, map<string, Variable> vars, deque<map<string, vector<Action>>> this_vals) {
+Action strictSimilarity(Action val1, Action val2, Action degree, const json cli_params, map<string, Variable> vars, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   //if the degree is not a number return undefined
   if (degree.Type != "number") return falseyVal;
@@ -101,9 +101,9 @@ Action strictSimilarity(Action val1, Action val2, Action degree, const json cli_
       else {
 
         if (
-          parser(val2.Hash_Values[i.first], cli_params, vars, false, true, this_vals).exp.ExpStr[0]
+          parser(val2.Hash_Values[i.first], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]
           !=
-          parser(i.second, cli_params, vars, false, true, this_vals).exp.ExpStr[0]
+          parser(i.second, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]
         ) difcount = AddC(difcount, "1", &cli_params.dump()[0]);
         else {
           val2.Hash_Values.erase(i.first);

@@ -10,7 +10,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-Action exponentiatenumbers(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
+Action exponentiatenumbers(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   string n1 = num1.ExpStr[0], n2 = num2.ExpStr[0];
 

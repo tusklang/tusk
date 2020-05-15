@@ -11,7 +11,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-Action add(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
+Action add(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   /* TABLE OF TYPES:
 
@@ -28,11 +28,11 @@ Action add(Action num1, Action num2, json cli_params, deque<map<string, vector<A
 
   if ((num1.Type == "string" || num2.Type == "string") && ((num1.Type != "array" && num2.Type != "array") && (num1.Type != "none" && num2.Type != "none") && (num1.Type != "hash" && num2.Type != "hash"))) { //detect case string + (* - array - none - hash) = string
 
-    finalRet = addstrings(num1, num2, cli_params, this_vals);
+    finalRet = addstrings(num1, num2, cli_params, this_vals, dir);
 
   } else if ((num1.Type == "array" || num2.Type == "array") && (num1.Type != "none" && num2.Type != "none")) { //detect case array + (* - none) = array
 
-    finalRet = addarrays(num1, num2, cli_params, this_vals);
+    finalRet = addarrays(num1, num2, cli_params, this_vals, dir);
 
   } else if ((num1.Type == "number" || num2.Type == "number") && (num1.Type == "number" || num2.Type == "number")) { //detect case num + num = num
 
@@ -42,11 +42,11 @@ Action add(Action num1, Action num2, json cli_params, deque<map<string, vector<A
 
   } else if ((num1.Type == "hash" || num2.Type == "hash") && (num1.Type == "hash" || num2.Type == "hash")) { //detect case hash + hash = hash
 
-    finalRet = addhashes(num1, num2, cli_params, this_vals);
+    finalRet = addhashes(num1, num2, cli_params, this_vals, dir);
 
   } else if ((num1.Type == "boolean" || num2.Type == "boolean") && (num1.Type == "boolean" || num2.Type == "boolean")) { //detect case boolean + boolean = boolean
 
-    finalRet = addbools(num1, num2, cli_params, this_vals);
+    finalRet = addbools(num1, num2, cli_params, this_vals, dir);
 
   } else { //detect default case
 

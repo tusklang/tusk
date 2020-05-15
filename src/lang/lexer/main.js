@@ -93,7 +93,7 @@ global.lexer = (file, dir) => {
       curExp+=value;
       line+=value.match(/\n/g) == null ? 0 : value.match(/\n/g).length;
 
-      i+=2;
+      i++;
       lex.push({
         Name: '\'' + value + '\'',
         Exp: curExp,

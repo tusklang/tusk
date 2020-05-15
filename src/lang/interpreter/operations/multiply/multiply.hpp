@@ -11,7 +11,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-Action multiply(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
+Action multiply(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   /* TABLE OF TYPES:
 
@@ -31,11 +31,11 @@ Action multiply(Action num1, Action num2, json cli_params, deque<map<string, vec
 
   } else if ((num1.Type == "string" && num2.Type == "number") || (num1.Type == "number" && num2.Type == "string")) { //detect case string * num = string
 
-    finalRet = multiplystrings(num1, num2, cli_params, this_vals);
+    finalRet = multiplystrings(num1, num2, cli_params, this_vals, dir);
 
   } else if (num1.Type == "array" && num2.Type == "array") { //detect case array * array = array
 
-    finalRet = multiplyarrays(num1, num2, cli_params, this_vals);
+    finalRet = multiplyarrays(num1, num2, cli_params, this_vals, dir);
 
   } else { //detect default case
 

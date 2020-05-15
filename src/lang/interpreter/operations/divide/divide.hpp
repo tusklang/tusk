@@ -10,7 +10,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-Action divide(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
+Action divide(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   /* TABLE OF TYPES:
 

@@ -138,12 +138,6 @@
     "type": "id"
   },
   {
-    "name": "this",
-    "remove": "this",
-    "pattern": "(this\\()",
-    "type": "cproc"
-  },
-  {
     "name": "^",
     "remove": "**",
     "pattern": "(\\*\\*)",
@@ -196,6 +190,18 @@
     "remove": ":::",
     "pattern": ":::",
     "type": "operation"
+  },
+  {
+    "name": "exec",
+    "remove": "exec",
+    "pattern": "(exec\\()",
+    "type": "cproc"
+  },
+  {
+    "name": "this",
+    "remove": "this",
+    "pattern": "(this\\()",
+    "type": "cproc"
   },
   {
     "name": "regex.match",

@@ -40,7 +40,7 @@ using namespace std;
 using json = nlohmann::json;
 using ulong = unsigned long;
 
-Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn, deque<map<string, vector<Action>>> this_vals) {
+Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   //loop through every action
   for (Action v : actions) {
@@ -56,7 +56,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           string name = v.Name;
 
           vector<Action> acts = v.ExpAct
-          , parsed = { parser(acts, cli_params, vars, false, true, this_vals).exp };
+          , parsed = { parser(acts, cli_params, vars, false, true, this_vals, dir).exp };
 
           Variable nVar = Variable{
             "local",
@@ -90,7 +90,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           int o = 0;
 
-          Returner cond = parser(v.Condition[0].Condition, cli_params, vars, false, true, this_vals);
+          Returner cond = parser(v.Condition[0].Condition, cli_params, vars, false, true, this_vals, dir);
 
           //while the alt statement should continue
           while (isTruthy(cond.exp)) {
@@ -98,7 +98,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             //going back to the first block when it reached the last block
             if (o >= v.Condition.size()) o = 0;
 
-            Returner parsed = parser(v.Condition[o].Actions, cli_params, vars, true, false, this_vals);
+            Returner parsed = parser(v.Condition[o].Actions, cli_params, vars, true, false, this_vals, dir);
 
             map<string, Variable> pVars = parsed.variables;
 
@@ -111,7 +111,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             if (parsed.type == "skip") continue;
             if (parsed.type == "break") break;
 
-            cond = parser(v.Condition[o].Condition, cli_params, vars, false, true, this_vals);
+            cond = parser(v.Condition[o].Condition, cli_params, vars, false, true, this_vals, dir);
             o++;
           }
         }
@@ -123,7 +123,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           string name = v.Name;
 
           vector<Action> acts = v.ExpAct
-          , parsed = { parser(acts, cli_params, vars, false, true, this_vals).exp };
+          , parsed = { parser(acts, cli_params, vars, false, true, this_vals, dir).exp };
 
           Variable nVar = Variable{
             "global",
@@ -138,7 +138,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //log
 
-          Action _val = parser(v.ExpAct, cli_params, vars, false, true, this_vals).exp;
+          Action _val = parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir).exp;
 
           log_format(_val, cli_params, vars, 2, "log");
         }
@@ -147,7 +147,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //print
 
-          Action _val = parser(v.ExpAct, cli_params, vars, false, true, this_vals).exp;
+          Action _val = parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir).exp;
 
           log_format(_val, cli_params, vars, 2, "print");
         }
@@ -156,9 +156,9 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //expressionIndex
 
-          Action val = parser(v.ExpAct, cli_params, vars, false, true, this_vals).exp;
+          Action val = parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir).exp;
 
-          Action index = indexesCalc(val.Hash_Values, v.Indexes, cli_params, vars, this_vals);
+          Action index = indexesCalc(val.Hash_Values, v.Indexes, cli_params, vars, this_vals, dir);
 
           if (expReturn) {
             vector<string> returnNone;
@@ -173,7 +173,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           vector<Action> acts = v.ExpAct;
 
-          Returner parsed = parser(acts, cli_params, vars, false, false, this_vals);
+          Returner parsed = parser(acts, cli_params, vars, false, false, this_vals, dir);
 
           map<string, Variable> pVars = parsed.variables;
 
@@ -227,7 +227,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
             Action var = vars[name].value[0];
 
-            parsed = processParser(var, v, cli_params, &vars, this_vals, true);
+            parsed = processParser(var, v, cli_params, &vars, this_vals, true, dir);
           }
 
           stopIndexing_processes:
@@ -247,7 +247,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           vector<string> noRet;
 
-          return Returner{ noRet, vars, parser(v.ExpAct, cli_params, vars, false, true, this_vals).exp, "return" };
+          return Returner{ noRet, vars, parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir).exp, "return" };
         }
         break;
       case 13: {
@@ -256,11 +256,11 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           for (int o = 0; o < v.Condition.size(); o++) {
 
-            Action val = parser(v.Condition[o].Condition, cli_params, vars, false, true, this_vals).exp;
+            Action val = parser(v.Condition[o].Condition, cli_params, vars, false, true, this_vals, dir).exp;
 
             if (isTruthy(val)) {
 
-              Returner parsed = parser(v.Condition[o].Actions, cli_params, vars, true, false, this_vals);
+              Returner parsed = parser(v.Condition[o].Actions, cli_params, vars, true, false, this_vals, dir);
 
               map<string, Variable> pVars = parsed.variables;
 
@@ -288,7 +288,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           //loop through actionized files
           for (vector<Action> it : files) {
 
-            Returner parsed = parser(it, cli_params, vars, true, false, this_vals);
+            Returner parsed = parser(it, cli_params, vars, true, false, this_vals, dir);
 
             map<string, Variable> pVars = parsed.variables;
 
@@ -305,7 +305,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           string in;
 
-          cout << ((string) parser(v.ExpAct, cli_params, vars, false, true, this_vals).exp.ExpStr[0]) << " ";
+          cout << ((string) parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]) << " ";
 
           cin >> in;
 
@@ -365,7 +365,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //typeof
 
-          Returner parsed = parser(v.ExpAct, cli_params, vars, false, true, this_vals);
+          Returner parsed = parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir);
 
           Action exp = parsed.exp;
           Action stringval = strPlaceholder;
@@ -386,11 +386,11 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           Returner parsed;
 
-          Action condP = parser(cond, cli_params, vars, false, true, this_vals).exp;
+          Action condP = parser(cond, cli_params, vars, false, true, this_vals, dir).exp;
 
           while (isTruthy(condP)) {
 
-            parsed = parser(acts, cli_params, vars, true, false, this_vals);
+            parsed = parser(acts, cli_params, vars, true, false, this_vals, dir);
 
             map<string, Variable> pVars = parsed.variables;
 
@@ -403,7 +403,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             if (parsed.type == "skip") continue;
             if (parsed.type == "break") break;
 
-            condP = parser(cond, cli_params, vars, false, true, this_vals).exp;
+            condP = parser(cond, cli_params, vars, false, true, this_vals, dir).exp;
           }
 
         }
@@ -425,7 +425,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
               for (pair<string, vector<Action>> it : v.Hash_Values) {
 
                 string paramCount = "";
-                Action exp = parser(it.second, cli_params, vars, false, true, this_vals).exp;
+                Action exp = parser(it.second, cli_params, vars, false, true, this_vals, dir).exp;
 
                 val.Hash_Values[it.first] = { exp };
               }
@@ -441,7 +441,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           map<string, vector<Action>> val = v.Hash_Values;
 
-          Action index = indexesCalc(val, v.Indexes, cli_params, vars, this_vals);
+          Action index = indexesCalc(val, v.Indexes, cli_params, vars, this_vals, dir);
 
           if (expReturn) {
             vector<string> returnNone;
@@ -473,7 +473,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
                 }
 
                 string paramCount = "";
-                Action exp = parser(o.second, cli_params, vars, false, true, this_vals).exp;
+                Action exp = parser(o.second, cli_params, vars, false, true, this_vals, dir).exp;
 
                 val.Hash_Values[index] = { exp };
                 index = AddC(index, "1", &cli_params.dump()[0]);
@@ -489,7 +489,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           //arrayIndex
 
           map<string, vector<Action>> val = v.Hash_Values;
-          Action index = indexesCalc(val, v.Indexes, cli_params, vars, this_vals);
+          Action index = indexesCalc(val, v.Indexes, cli_params, vars, this_vals, dir);
 
           if (expReturn) {
             vector<string> returnNone;
@@ -502,7 +502,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //ascii
 
-          Action parsed = parser(v.ExpAct, cli_params, vars, false, true, this_vals).exp;
+          Action parsed = parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir).exp;
 
           vector<string> returnNone;
 
@@ -530,7 +530,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           vector<Action> acts = v.ExpAct;
 
-          vector<Action> parsed = { parser(acts, cli_params, vars, false, true, this_vals).exp };
+          vector<Action> parsed = { parser(acts, cli_params, vars, false, true, this_vals, dir).exp };
 
           Variable nVar;
 
@@ -557,7 +557,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
             for (vector<Action> it : v.Indexes) {
 
-              string varP = parser(it, cli_params, vars, false, true, this_vals).exp.ExpStr[0];
+              string varP = parser(it, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
               map = &(map->Hash_Values[varP][0]);
             }
@@ -571,10 +571,10 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //add
 
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
-          Action val = add(first, second, cli_params, this_vals);
+          Action val = add(first, second, cli_params, this_vals, dir);
 
           if (expReturn) {
             Returner ret;
@@ -594,10 +594,10 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //subtract
 
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
-          Action val = subtract(first, second, cli_params, this_vals);
+          Action val = subtract(first, second, cli_params, this_vals, dir);
 
           if (expReturn) {
             Returner ret;
@@ -617,10 +617,10 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //multiply
 
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
-          Action val = multiply(first, second, cli_params, this_vals);
+          Action val = multiply(first, second, cli_params, this_vals, dir);
 
           if (expReturn) {
             Returner ret;
@@ -640,10 +640,10 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //divide
 
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
-          Action val = divide(first, second, cli_params, this_vals);
+          Action val = divide(first, second, cli_params, this_vals, dir);
 
           if (expReturn) {
             Returner ret;
@@ -663,10 +663,10 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //exponentiate
 
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
-          Action val = exponentiate(first, second, cli_params, this_vals);
+          Action val = exponentiate(first, second, cli_params, this_vals, dir);
 
           if (expReturn) {
             Returner ret;
@@ -686,10 +686,10 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //modulo
 
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
-          Action val = modulo(first, second, cli_params, this_vals);
+          Action val = modulo(first, second, cli_params, this_vals, dir);
 
           if (expReturn) {
             Returner ret;
@@ -767,7 +767,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
             var.IsMutable = isMutable;
 
-            val = parser({ var }, cli_params, vars, false, true, this_vals).exp;
+            val = parser({ var }, cli_params, vars, false, true, this_vals, dir).exp;
           }
 
           vector<string> noRet;
@@ -779,9 +779,9 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //variableIndex
 
-          Returner parsedVal = parser(v.ExpAct, cli_params, vars, false, true, this_vals);
+          Returner parsedVal = parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir);
 
-          Action index = indexesCalc(parsedVal.exp.Hash_Values, v.Indexes, cli_params, vars, this_vals);
+          Action index = indexesCalc(parsedVal.exp.Hash_Values, v.Indexes, cli_params, vars, this_vals, dir);
 
           if (expReturn) {
             vector<string> returnNone;
@@ -794,15 +794,16 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //equals
 
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
           Action val = equals(
             first,
             second,
             cli_params,
             vars,
-            this_vals
+            this_vals,
+            dir
           );
 
           if (first.Type != second.Type) val = falseRet;
@@ -825,15 +826,16 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //notEqual
 
-        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
         Action val = equals(
           first,
           second,
           cli_params,
           vars,
-          this_vals
+          this_vals,
+          dir
         );
 
         val = val.ExpStr[0] == "true" ? falseRet : trueRet;
@@ -857,8 +859,8 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //greater
 
-        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
         Action val = isGreater(
           first,
@@ -884,8 +886,8 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //less
 
-        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
         Action val = isLess(
           first,
@@ -911,8 +913,8 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //greaterOrEqual
 
-        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
         Action val = isLess(
           first,
@@ -940,8 +942,8 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //lessOrEqual
 
-        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
         Action val = isGreater(
           first,
@@ -970,7 +972,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //not
 
-          Action val = parser(v.Second, cli_params, vars, false, true, this_vals).exp
+          Action val = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp
           , retval;
 
           string expstr = val.ExpStr[0];
@@ -996,13 +998,13 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //similar
 
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
           Action retval;
 
-          if ((v.Degree).size() == 0) retval = similarity(first, second, zero, cli_params, vars, this_vals);
-          else retval = similarity(first, second, parser(v.Degree, cli_params, vars, false, true, this_vals).exp, cli_params, vars, this_vals);
+          if ((v.Degree).size() == 0) retval = similarity(first, second, zero, cli_params, vars, this_vals, dir);
+          else retval = similarity(first, second, parser(v.Degree, cli_params, vars, false, true, this_vals, dir).exp, cli_params, vars, this_vals, dir);
 
           if (expReturn) {
             Returner ret;
@@ -1022,13 +1024,13 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //strictSimilar
 
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
           Action retval;
 
-          if ((v.Degree).size() == 0) retval = strictSimilarity(first, second, zero, cli_params, vars, this_vals);
-          else retval = strictSimilarity(first, second, parser(v.Degree, cli_params, vars, false, true, this_vals).exp, cli_params, vars, this_vals);
+          if ((v.Degree).size() == 0) retval = strictSimilarity(first, second, zero, cli_params, vars, this_vals, dir);
+          else retval = strictSimilarity(first, second, parser(v.Degree, cli_params, vars, false, true, this_vals, dir).exp, cli_params, vars, this_vals, dir);
 
           if (expReturn) {
             Returner ret;
@@ -1048,8 +1050,8 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //or
 
-        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
         if (expReturn) {
           Returner ret;
@@ -1070,8 +1072,8 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //and
 
-        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
         if (expReturn) {
           Returner ret;
@@ -1092,8 +1094,8 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //nor
 
-        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
         if (expReturn) {
           Returner ret;
@@ -1114,8 +1116,8 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //nand
 
-        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
         if (expReturn) {
           Returner ret;
@@ -1136,8 +1138,8 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //xor
 
-        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
         if (expReturn) {
           Returner ret;
@@ -1158,8 +1160,8 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //xnor
 
-        Action first = parser(v.First, cli_params, vars, false, true, this_vals).exp
-        , second = parser(v.Second, cli_params, vars, false, true, this_vals).exp;
+        Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+        , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
 
         if (expReturn) {
           Returner ret;
@@ -1197,14 +1199,14 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
             for (vector<Action> it : v.Indexes) {
 
-              string index = parser(it, cli_params, vars, false, true, this_vals).exp.ExpStr[0];
+              string index = parser(it, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
               if (var.Hash_Values.find(index) == var.Hash_Values.end()) {
                 parsed = fparsed;
                 goto stopIndexing_threads;
               }
 
-              var = parser(var.Hash_Values[index], cli_params, vars, false, true, this_vals).exp;
+              var = parser(var.Hash_Values[index], cli_params, vars, false, true, this_vals, dir).exp;
             }
 
             if (var.Type != "process") {
@@ -1227,13 +1229,13 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
               Variable cur = Variable{
                 "local",
                 params[o],
-                { parser(args[o], cli_params, vars, false, true, this_vals).exp }
+                { parser(args[o], cli_params, vars, false, true, this_vals, dir).exp }
               };
 
               sendVars[params[o]] = cur;
             }
 
-            thread _(parser, var.ExpAct, cli_params, sendVars, true, false, this_vals);
+            thread _(parser, var.ExpAct, cli_params, sendVars, true, false, this_vals, dir);
 
             _.detach();
           }
@@ -1253,7 +1255,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
           //wait
 
-          Action amt = parser(v.ExpAct, &cli_params.dump()[0], vars, false, true, this_vals).exp;
+          Action amt = parser(v.ExpAct, &cli_params.dump()[0], vars, false, true, this_vals, dir).exp;
 
           if (IsLessC(&(amt.ExpStr[0])[0], "4294967296")) Sleep((ulong) atoi(&(amt.ExpStr[0])[0]));
           else {
@@ -1279,7 +1281,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
             vector<string> retNo;
 
-            Action cur = parser(v.ExpAct, cli_params, vars, false, true, this_vals).exp;
+            Action cur = parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir).exp;
             cur.Type = v.Name;
             cur.Name = v.ExpStr[0];
 
@@ -1301,7 +1303,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           , var2 = putterVars[1];
 
           //parse the iterator value
-          map<string, vector<Action>> iterator = parser(v.First /* v.First is where the iterator is stored */, cli_params, vars, false, true, this_vals).exp.Hash_Values;
+          map<string, vector<Action>> iterator = parser(v.First /* v.First is where the iterator is stored */, cli_params, vars, false, true, this_vals, dir).exp.Hash_Values;
 
           iterator.erase("falsey");
 
@@ -1318,10 +1320,10 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             sendVars[var2] = Variable{
               "local",
               var2,
-              { parser(it.second, cli_params, vars, false, true, this_vals).exp }
+              { parser(it.second, cli_params, vars, false, true, this_vals, dir).exp }
             };
 
-            Returner parsed = parser(v.ExpAct, cli_params, sendVars, true, false, this_vals);
+            Returner parsed = parser(v.ExpAct, cli_params, sendVars, true, false, this_vals, dir);
 
             map<string, Variable> pVars = parsed.variables;
 
@@ -1344,7 +1346,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //written as files.read(dir)
 
-        string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
+        string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
         smatch match;
 
@@ -1368,7 +1370,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             callProcessParser.Args = v.SubCall[0].Args;
             callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
 
-            returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+            returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
 
           }
 
@@ -1420,7 +1422,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
               callProcessParser.Args = v.SubCall[0].Args;
               callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
 
-              returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+              returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
 
             }
 
@@ -1448,8 +1450,8 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
         //written as files.write(dir, content)
 
         //get both arguments and parse them
-        string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
-        Action content = parser(v.Args[1], cli_params, vars, false, true, this_vals).exp;
+        string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
+        Action content = parser(v.Args[1], cli_params, vars, false, true, this_vals, dir).exp;
 
         smatch match;
 
@@ -1481,7 +1483,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           callProcessParser.Args = v.SubCall[0].Args;
           callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
 
-          returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+          returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
 
         }
 
@@ -1505,7 +1507,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //written as file.exists(dir)
 
-        string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
+        string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
         smatch match;
 
@@ -1530,7 +1532,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           callProcessParser.Args = v.SubCall[0].Args;
           callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
 
-          returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+          returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
 
         }
 
@@ -1554,7 +1556,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //written as file.isFile(dir)
 
-        string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
+        string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
         smatch match;
 
@@ -1578,7 +1580,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           callProcessParser.Args = v.SubCall[0].Args;
           callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
 
-          returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+          returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
 
         }
 
@@ -1602,7 +1604,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //written as file.isDir(dir)
 
-        string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
+        string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
         smatch match;
 
@@ -1626,7 +1628,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           callProcessParser.Args = v.SubCall[0].Args;
           callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
 
-          returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+          returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
 
         }
 
@@ -1666,8 +1668,8 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //regex.match
 
-        string str = parser(v.Args[0], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
-        string regstr = parser(v.Args[1], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
+        string str = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
+        string regstr = parser(v.Args[1], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
         try {
           regex reg(regstr);
@@ -1709,7 +1711,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             callProcessParser.Args = v.SubCall[0].Args;
             callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
 
-            returnerVal = processParser(returnerArr, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+            returnerVal = processParser(returnerArr, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
 
           }
 
@@ -1742,9 +1744,9 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //regex.replace
 
-        string str = parser(v.Args[0], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
-        string regstr = parser(v.Args[1], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
-        string replace_with = parser(v.Args[2], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
+        string str = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
+        string regstr = parser(v.Args[1], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
+        string replace_with = parser(v.Args[2], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
         try {
           regex reg(regstr);
@@ -1779,7 +1781,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             callProcessParser.Args = v.SubCall[0].Args;
             callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
 
-            retExp = processParser(resultJ, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+            retExp = processParser(resultJ, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
 
           }
 
@@ -1812,7 +1814,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
         //this
         //"this" will be used to access the levels of the hash
 
-        string level = parser(v.Args[0], cli_params, vars, false, true, this_vals).exp.ExpStr[0];
+        string level = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
         //if it is negative, return undef
         if ((bool) IsLessC(&level[0], "0")) {
@@ -1859,7 +1861,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
         hashPlaceholder.Hash_Values = hash_level;
 
         for (auto it = v.Indexes.begin(); it != v.Indexes.end(); ++it) {
-          string index = parser(*it, cli_params, vars, false, true, this_vals).exp.ExpStr[0];
+          string index = parser(*it, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
           hashPlaceholder = hashPlaceholder.Hash_Values[index][0];
         }
 
@@ -1875,7 +1877,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           callProcessParser.Args = v.SubCall[0].Args;
           callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
 
-          retExp = processParser(hashPlaceholder, callProcessParser, cli_params, &vars, this_vals, isProc).exp;
+          retExp = processParser(hashPlaceholder, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
 
         }
 
@@ -1884,6 +1886,38 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           ret.value = retNo;
           ret.variables = vars;
           ret.exp = retExp;
+          ret.type = "expression";
+
+          return ret;
+        }
+
+        break;
+      }
+      case 77: {
+
+        //exec
+
+        string cmd = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]; //get the command
+        string put_stdin = parser(v.Args[1], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]; //get the stdin
+
+        char* cmdC = &cmd[0];
+        char* stdinC = &put_stdin[0];
+
+        //get stdout from the cmd
+        char* get_stdout = ExecCmd(cmdC, stdinC, &dir[0]);
+
+        if (expReturn) {
+
+          Returner ret;
+          vector<string> retNo;
+
+          Action stdout_str = strPlaceholder;
+
+          stdout_str.ExpStr = { string(get_stdout) };
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = stdout_str;
           ret.type = "expression";
 
           return ret;
@@ -1908,9 +1942,9 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
             vector<Action> __val = vars[name].value;
 
-            Action _val = parser(__val, cli_params, vars, false, true, this_vals).exp;
+            Action _val = parser(__val, cli_params, vars, false, true, this_vals, dir).exp;
 
-            Action val = add(_val, val1, cli_params, this_vals);
+            Action val = add(_val, val1, cli_params, this_vals, dir);
 
             nVar = Variable{
               vars[name].type,
@@ -1954,9 +1988,9 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
               vector<Action> __val = vars[name].value;
 
-              Action _val = parser(__val, cli_params, vars, false, true, this_vals).exp;
+              Action _val = parser(__val, cli_params, vars, false, true, this_vals, dir).exp;
 
-              Action val = subtract(_val, val1, cli_params, this_vals);
+              Action val = subtract(_val, val1, cli_params, this_vals, dir);
 
               nVar = Variable{
                 vars[name].type,
@@ -1993,7 +2027,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           string name = v.Name;
 
           vector<Action> __inc = v.ExpAct;
-          Action _inc = parser(__inc, cli_params, vars, false, true, this_vals).exp;
+          Action _inc = parser(__inc, cli_params, vars, false, true, this_vals, dir).exp;
 
           Variable nVar;
 
@@ -2003,9 +2037,9 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
               vector<Action> __val = vars[name].value;
 
-              Action _val = parser(__val, cli_params, vars, false, true, this_vals).exp;
+              Action _val = parser(__val, cli_params, vars, false, true, this_vals, dir).exp;
 
-              Action val = add(_val, _inc, cli_params, this_vals);
+              Action val = add(_val, _inc, cli_params, this_vals, dir);
 
               nVar = {
                 vars[name].type,
@@ -2042,7 +2076,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           string name = v.Name;
 
           vector<Action> __inc = v.ExpAct;
-          Action _inc = parser(__inc, cli_params, vars, false, true, this_vals).exp;
+          Action _inc = parser(__inc, cli_params, vars, false, true, this_vals, dir).exp;
 
           Variable nVar;
 
@@ -2052,9 +2086,9 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
               vector<Action> __val = vars[name].value;
 
-              Action _val = parser(__val, cli_params, vars, false, true, this_vals).exp;
+              Action _val = parser(__val, cli_params, vars, false, true, this_vals, dir).exp;
 
-              Action val = subtract(_val, _inc, cli_params, this_vals);
+              Action val = subtract(_val, _inc, cli_params, this_vals, dir);
 
               nVar = {
                 vars[name].type,
@@ -2091,7 +2125,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           string name = v.Name;
 
           vector<Action> __inc = v.ExpAct;
-          Action _inc = parser(__inc, cli_params, vars, false, true, this_vals).exp;
+          Action _inc = parser(__inc, cli_params, vars, false, true, this_vals, dir).exp;
 
           Variable nVar;
 
@@ -2101,9 +2135,9 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
               vector<Action> __val = vars[name].value;
 
-              Action _val = parser(__val, cli_params, vars, false, true, this_vals).exp;
+              Action _val = parser(__val, cli_params, vars, false, true, this_vals, dir).exp;
 
-              Action val = multiply(_val, _inc, cli_params, this_vals);
+              Action val = multiply(_val, _inc, cli_params, this_vals, dir);
 
               nVar = {
                 vars[name].type,
@@ -2140,7 +2174,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           string name = v.Name;
 
           vector<Action> __inc = v.ExpAct;
-          Action _inc = parser(__inc, cli_params, vars, false, true, this_vals).exp;
+          Action _inc = parser(__inc, cli_params, vars, false, true, this_vals, dir).exp;
 
           Variable nVar;
 
@@ -2150,9 +2184,9 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
               vector<Action> __val = vars[name].value;
 
-              Action _val = parser(__val, cli_params, vars, false, true, this_vals).exp;
+              Action _val = parser(__val, cli_params, vars, false, true, this_vals, dir).exp;
 
-              Action val = divide(_val, _inc, cli_params, this_vals);
+              Action val = divide(_val, _inc, cli_params, this_vals, dir);
 
               nVar = {
                 vars[name].type,
@@ -2189,7 +2223,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           string name = v.Name;
 
           vector<Action> __inc = v.ExpAct;
-          Action _inc = parser(__inc, cli_params, vars, false, true, this_vals).exp;
+          Action _inc = parser(__inc, cli_params, vars, false, true, this_vals, dir).exp;
 
           Variable nVar;
 
@@ -2199,9 +2233,9 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
               vector<Action> __val = vars[name].value;
 
-              Action _val = parser(__val, cli_params, vars, false, true, this_vals).exp;
+              Action _val = parser(__val, cli_params, vars, false, true, this_vals, dir).exp;
 
-              Action val = exponentiate(_val, _inc, cli_params, this_vals);
+              Action val = exponentiate(_val, _inc, cli_params, this_vals, dir);
 
               nVar = {
                 vars[name].type,
@@ -2238,7 +2272,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           string name = v.Name;
 
           vector<Action> __inc = v.ExpAct;
-          Action _inc = parser(__inc, cli_params, vars, false, true, this_vals).exp;
+          Action _inc = parser(__inc, cli_params, vars, false, true, this_vals, dir).exp;
 
           Variable nVar;
 
@@ -2248,9 +2282,9 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
               vector<Action> __val = vars[name].value;
 
-              Action _val = parser(__val, cli_params, vars, false, true, this_vals).exp;
+              Action _val = parser(__val, cli_params, vars, false, true, this_vals, dir).exp;
 
-              Action val = modulo(_val, _inc, cli_params, this_vals);
+              Action val = modulo(_val, _inc, cli_params, this_vals, dir);
 
               nVar = {
                 vars[name].type,

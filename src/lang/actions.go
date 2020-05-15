@@ -2722,6 +2722,11 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         act := cproc(&i, lex, uint(3), "regex.substitute", dir, name, 69)
         actions = append(actions, act)
 
+      case "exec":
+
+        act := cproc(&i, lex, uint(2), "exec", dir, name, 77)
+        actions = append(actions, act)
+
       case "this":
 
         act := cproc(&i, lex, uint(1), "this", dir, name, 70)

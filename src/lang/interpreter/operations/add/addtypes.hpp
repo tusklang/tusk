@@ -12,7 +12,7 @@ using json = nlohmann::json;
 
 //file with all the functions to add different datatypes
 
-Action addstrings(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
+Action addstrings(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   string str = num1.ExpStr[0] + num2.ExpStr[0];
 
@@ -33,7 +33,7 @@ Action addstrings(Action num1, Action num2, json cli_params, deque<map<string, v
   return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false, "private" };
 }
 
-Action addarrays(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
+Action addarrays(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   map<string, vector<Action>> finalMap;
 
@@ -49,7 +49,7 @@ Action addarrays(Action num1, Action num2, json cli_params, deque<map<string, ve
   return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false, "private" };
 }
 
-Action addbools(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
+Action addbools(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   bool num1b = num1.ExpStr[0] == "true";
   bool num2b = num2.ExpStr[0] == "true";
@@ -58,7 +58,7 @@ Action addbools(Action num1, Action num2, json cli_params, deque<map<string, vec
   return Action{ "boolean", "", { final }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
 }
 
-Action addhashes(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
+Action addhashes(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   map<string, vector<Action>> final = num1.Hash_Values;
 

@@ -11,7 +11,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-void run(char* actions, char* cli_params) {
+void run(char* actions, char* cli_params, char* dir) {
 
   const json cpJ = json::parse(string(cli_params));
 
@@ -20,7 +20,7 @@ void run(char* actions, char* cli_params) {
 
   map<string, Variable> vars;
 
-  parser(acts, cpJ, vars, /*group return*/ false, /* expression return */ false, {});
+  parser(acts, cpJ, vars, /*group return*/ false, /* expression return */ false, {}, string(dir));
 }
 
 #endif

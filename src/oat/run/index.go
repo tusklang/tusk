@@ -42,5 +42,5 @@ func Run(params map[string]map[string]interface{}) {
   }
 
   //run the oat
-  lang.OatRun(string(jsondata), string(paramsJ))
+  lang.OatRun(string(jsondata), string(paramsJ), dir)
 }

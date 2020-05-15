@@ -11,8 +11,9 @@ extern "C" {
   extern char* ReturnInitC(char*);
   extern int IsLessC(char*, char*);
   extern char* GetOp(char*);
+  extern char* ExecCmd(char*, char*, char*);
 
-  void bindParser(char* actions, char* cli_params);
+  void bindParser(char* actions, char* cli_params, char* dir);
   void colorprint(char*, int);
 
 #ifdef __cplusplus

@@ -10,7 +10,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-Action multiplystrings(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
+Action multiplystrings(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   string fin = "";
 
@@ -45,7 +45,7 @@ Action multiplystrings(Action num1, Action num2, json cli_params, deque<map<stri
   return str;
 }
 
-Action multiplyarrays(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals) {
+Action multiplyarrays(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   char* length = "0";
 

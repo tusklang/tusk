@@ -10,9 +10,9 @@
 #include "values.hpp"
 using namespace std;
 
-Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn, deque<map<string, vector<Action>>> this_vals);
+Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn, deque<map<string, vector<Action>>> this_vals, string dir);
 
-Returner processParser(Action var, const Action v, const json cli_params, map<string, Variable>* vars, deque<map<string, vector<Action>>> this_vals, bool isProc) {
+Returner processParser(Action var, const Action v, const json cli_params, map<string, Variable>* vars, deque<map<string, vector<Action>>> this_vals, bool isProc, string dir) {
 
   vector<string> noRet;
 
@@ -26,7 +26,7 @@ Returner processParser(Action var, const Action v, const json cli_params, map<st
 
   for (auto it = v.Indexes.begin(); it != v.Indexes.end(); ++it) {
 
-    string index = parser(*it, cli_params, *vars, false, true, this_vals).exp.ExpStr[0];
+    string index = parser(*it, cli_params, *vars, false, true, this_vals, dir).exp.ExpStr[0];
 
     if (var.Hash_Values.find(index) == var.Hash_Values.end() || (islower(index[0]) && var.Hash_Values[index][0].Access != "public")) {
       parsed = fparsed;
@@ -34,7 +34,7 @@ Returner processParser(Action var, const Action v, const json cli_params, map<st
     }
 
     send_this.push_front(var.Hash_Values);
-    var = parser(var.Hash_Values[index], cli_params, *vars, false, true, this_vals).exp;
+    var = parser(var.Hash_Values[index], cli_params, *vars, false, true, this_vals, dir).exp;
   }
 
   if (!isProc) return Returner{ noRet, *vars, var, "expression" };
@@ -59,7 +59,7 @@ Returner processParser(Action var, const Action v, const json cli_params, map<st
     Variable cur = Variable{
       "local",
       params[o],
-      { parser(args[o], cli_params, *vars, false, true, this_vals).exp }
+      { parser(args[o], cli_params, *vars, false, true, this_vals, dir).exp }
     };
 
     sendVars[params[o]] = cur;
@@ -81,7 +81,7 @@ Returner processParser(Action var, const Action v, const json cli_params, map<st
     curVar.Indexes = it.Indexes;
     curVar.Args = it.Args;
 
-    parsed = processParser(curVar, curVar, cli_params, vars, this_vals, it.IsProc);
+    parsed = processParser(curVar, curVar, cli_params, vars, this_vals, it.IsProc, dir);
   }
 
   Action val = parsed.exp;
