@@ -14,13 +14,13 @@
   {
     "name": "kill",
     "remove": "kill",
-    "pattern": "kill\\<-",
+    "pattern": "kill\\b\\<-",
     "type": "kill"
   },
   {
     "name": "kill",
     "remove": "kill",
-    "pattern": "kill\\;",
+    "pattern": "kill\\b\\;",
     "type": "kill"
   },
   {
@@ -128,13 +128,13 @@
   {
     "name": "log",
     "remove": "log",
-    "pattern": "(log\\b(~?))",
+    "pattern": "(log(\\s*)(~?))",
     "type": "id"
   },
   {
     "name": "print",
     "remove": "print",
-    "pattern": "(print\\b(~?))",
+    "pattern": "(print(\\s*)(~?))",
     "type": "id"
   },
   {
@@ -170,7 +170,7 @@
   {
     "name": "newlineS",
     "remove": ";",
-    "pattern": "\\;",
+    "pattern": "(\\;)",
     "type": "operation"
   },
   {
@@ -332,7 +332,7 @@
   {
     "name": "wait",
     "remove": "wait",
-    "pattern": "(wait\\()",
+    "pattern": "(wait(\\s*)\\()",
     "type": "id_non_tilde"
   },
   {
@@ -344,31 +344,31 @@
   {
     "name": "process",
     "remove": "proc",
-    "pattern": "(proc\\b\\()",
+    "pattern": "(proc(\\s*)\\()",
     "type": "id"
   },
   {
     "name": "process",
     "remove": "proc",
-    "pattern": "(proc\\b(~?))",
+    "pattern": "(proc(\\s*)(~?))",
     "type": "id"
   },
   {
     "name": "global",
     "remove": "gbl",
-    "pattern": "(gbl\\b(~?))",
+    "pattern": "(gbl(\\s*)(~?))",
     "type": "id"
   },
   {
     "name": "global",
     "remove": "global",
-    "pattern": "(global\\b(~?))",
+    "pattern": "(global(\\s*)(~?))",
     "type": "id"
   },
   {
     "name": "#",
     "remove": "#",
-    "pattern": "(\\#\\b(~))",
+    "pattern": "(\\#(~))",
     "type": "caller"
   },
   {
@@ -380,37 +380,37 @@
   {
     "name": "return",
     "remove": "return",
-    "pattern": "(return\\b(~?))",
+    "pattern": "(return(\\s*)(~?))",
     "type": "id"
   },
   {
     "name": "return",
     "remove": "return",
-    "pattern": "(return\\b;)",
+    "pattern": "(return(\\s*);)",
     "type": "id_non_tilde"
   },
   {
     "name": "if",
     "remove": "if",
-    "pattern": "(if\\()",
+    "pattern": "(if(\\s*)\\()",
     "type": "cond"
   },
   {
     "name": "elseif",
     "remove": "elseif",
-    "pattern": "(elseif\\()",
+    "pattern": "(elseif(\\s*)\\()",
     "type": "cond"
   },
   {
     "name": "else",
     "remove": "else",
-    "pattern": "(else(\\{|\\~))",
+    "pattern": "(else(\\s*)(\\{|\\~))",
     "type": "cond"
   },
   {
     "name": "loop",
     "remove": "loop",
-    "pattern": "(loop\\()",
+    "pattern": "(loop(\\s*)\\()",
     "type": "cond"
   },
   {
@@ -458,19 +458,19 @@
   {
     "name": "import",
     "remove": "import",
-    "pattern": "(import\\b(~?))",
+    "pattern": "(import(\\s*)(~?))",
     "type": "id"
   },
   {
     "name": "include",
     "remove": "include",
-    "pattern": "(include\\b(~?))",
+    "pattern": "(include(\\s*)(~?))",
     "type": "id"
   },
   {
     "name": "read",
     "remove": "read",
-    "pattern": "(read\\b(~?))",
+    "pattern": "(read(\\s*)(~?))",
     "type": "id"
   },
   {
@@ -536,19 +536,19 @@
   {
     "name": "break",
     "remove": "break",
-    "pattern": "(break\\;)",
+    "pattern": "(break(\\s*)\\;)",
     "type": "id_non_tilde"
   },
   {
     "name": "skip",
     "remove": "skip",
-    "pattern": "(skip\\;)",
+    "pattern": "(skip(\\s*)\\;)",
     "type": "id_non_tilde"
   },
   {
     "name": "typeof",
     "remove": "typeof",
-    "pattern": "(typeof\\b(~?))",
+    "pattern": "(typeof(\\s*)(~?))",
     "type": "id"
   },
   {
@@ -560,7 +560,7 @@
   {
     "name": "ascii",
     "remove": "ascii",
-    "pattern": "(ascii\\b(~?))",
+    "pattern": "(ascii(\\s*)(~?))",
     "type": "id"
   },
   {

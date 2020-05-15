@@ -23,7 +23,7 @@ global.lexer = (file, dir) => {
 
     //detect a comment
     //single line comments are written as !>
-    if (file.substr(i).startsWith('!>')) {
+    if (file.substr(i).trim().startsWith('!>')) {
 
       var end = file.substr(i).indexOf('\n');
 
@@ -37,6 +37,8 @@ global.lexer = (file, dir) => {
 
     while (curExp.length > MAX_CUR_EXP) curExp = curExp.substr(1);
     while (curExp.includes('\n')) curExp = curExp.substr(curExp.indexOf('\n') + 1);
+
+    while (/ |\t/.test(file[i])) i++;
 
     for (let o = 0; o < KEYWORDS.length; o++) {
 
@@ -57,9 +59,7 @@ global.lexer = (file, dir) => {
           Dir: dir
         });
 
-        if (KEYWORDS[o].name != 'newlineN') i+=KEYWORDS[o].remove.length;
-
-        while (file[i] == ' ') i++;
+        if (KEYWORDS[o].name != 'newlineN') i+=KEYWORDS[o].remove.length - 1;
 
         continue outer;
       }
@@ -90,10 +90,10 @@ global.lexer = (file, dir) => {
         escaped = false;
       }
 
-      i+=2;
       curExp+=value;
       line+=value.match(/\n/g) == null ? 0 : value.match(/\n/g).length;
 
+      i+=2;
       lex.push({
         Name: '\'' + value + '\'',
         Exp: curExp,
@@ -108,8 +108,8 @@ global.lexer = (file, dir) => {
       var sign = true;
 
       //detect positive and negative
-      while (substrfile[0] == '+' || substrfile[0] == '-')
-        if (substrfile == '+') i++;
+      while (file.substr(i).trim()[0] == '+' || file.substr(i).trim()[0] == '-')
+        if (file.substr(i).trim() == '+') i++;
         else {
           sign = !sign;
           i++;
@@ -117,7 +117,7 @@ global.lexer = (file, dir) => {
 
       var num = '';
 
-      if (!(/^(\d|\.)/.test(substrfile))) {
+      if (!(/^(\d|\.)/.test(file.substr(i).trim()))) {
         if (sign) num = '1';
         else num = '-1';
 
@@ -136,7 +136,9 @@ global.lexer = (file, dir) => {
         continue outer;
       }
 
-      while (/^(\d|\.)/.test(file.substr(i).trim())) {
+      var substrf = file.substr(i).trim();
+
+      while (/^(\d|\.)/.test(substrf)) {
 
         if (file[i] == ' ') {
           i++;
@@ -145,6 +147,8 @@ global.lexer = (file, dir) => {
 
         num+=file[i];
         i++;
+
+        substrf = file.substr(i);
 
         if (i > file.length) break;
       }
@@ -163,13 +167,15 @@ global.lexer = (file, dir) => {
       });
     } else {
 
+      if (/\s/.test(file[i])) continue;
+
       var variable = '';
 
       var_loop:
       for (let o = i; o < file.length; o++) {
 
         for (let j = 0; j < KEYWORDS.length; j++)
-          if (testkey(KEYWORDS[j], file, o)) break var_loop;
+          if (testkey(KEYWORDS[j], file, o) || /\s/.test(file[o])) break var_loop;
 
         variable+=file[o];
         i++;
@@ -184,8 +190,8 @@ global.lexer = (file, dir) => {
         Name: '$' + variable,
         Exp: curExp,
         Line: line,
-        Type: 'Variable',
-        OName: variable.substr(1),
+        Type: 'variable',
+        OName: variable,
         Dir: dir
       });
     }
