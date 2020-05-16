@@ -48,6 +48,8 @@ cast: 58
 each: 59
 files.read: 60
 files.write: 61
+files.remove: 78
+files.readdir: 79
 files.exists: 62
 files.isFile: 63
 files.isDir: 64

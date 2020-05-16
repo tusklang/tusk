@@ -20,13 +20,15 @@
 #include "comparisons.hpp"
 #include "similarity.hpp"
 #include "processes.hpp"
+#include "ommtypes.hpp"
 
 //file i/o
 #include "../files/readfile.hpp"
 #include "../files/writefile.h"
-#include "../files/delete.h"
+#include "../files/delete.hpp"
 #include "../files/isDir.hpp"
 #include "../files/isFile.hpp"
+#include "../files/readdir.hpp"
 
 //operations
 #include "operations/add/add.hpp"
@@ -1356,22 +1358,19 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
 
-        if (!isFile(nDir + filename) && expReturn) {
+        if (isDir(nDir + filename)) {
 
-          Action returner = falseyVal;
+          vector<string> dirs = read_dir(nDir + filename);
 
-          if (v.SubCall.size() > 0) {
+          Action dir_arr = arrayVal;
 
-            Action callProcessParser = v;
+          unsigned long long i = 0;
+          for (string curD : dirs) {
 
-            bool isProc = v.SubCall[0].IsProc;
+            Action curDirOmm = ommtypes::to_string(curD);
+            dir_arr.Hash_Values[to_string(i)] = { curDirOmm };
 
-            callProcessParser.Indexes = v.SubCall[0].Indexes;
-            callProcessParser.Args = v.SubCall[0].Args;
-            callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
-
-            returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
-
+            ++i;
           }
 
           if (expReturn) {
@@ -1381,7 +1380,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
             ret.value = retNo;
             ret.variables = vars;
-            ret.exp = returner;
+            ret.exp = dir_arr;
             ret.type = "expression";
 
             return ret;
@@ -1461,15 +1460,8 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
 
-        if (content.Type == "falsey") {
-
-          deletefile(&(nDir + filename)[0]);
-
-        } else {
-
-          string contentstr = content.ExpStr[0];
-          writefile(&(nDir + filename)[0], &contentstr[0]);
-        }
+        string contentstr = content.ExpStr[0];
+        writefile(&(nDir + filename)[0], &contentstr[0]);
 
         Action returner = content;
 
@@ -1501,11 +1493,31 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
         }
         break;
       }
+      case 78: {
+
+        //files.remove
+
+        //written as files.remove(dir)
+
+        string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
+
+        smatch match;
+
+        //see if the filename is absolute
+        regex pat("^[a-zA-Z]:");
+        bool isOnDrive = regex_search(filename, match, pat);
+
+        string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
+
+        deletefile(nDir + filename);
+
+        break;
+      }
       case 62: {
 
         //files.exists
 
-        //written as file.exists(dir)
+        //written as files.exists(dir)
 
         string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
@@ -1554,7 +1566,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //files.isFile
 
-        //written as file.isFile(dir)
+        //written as files.isFile(dir)
 
         string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
@@ -1602,7 +1614,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         //files.isDir
 
-        //written as file.isDir(dir)
+        //written as files.isDir(dir)
 
         string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 

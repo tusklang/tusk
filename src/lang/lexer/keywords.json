@@ -228,6 +228,12 @@
     "type": "cproc"
   },
   {
+    "name": "files.remove",
+    "remove": "files.remove",
+    "pattern": "files\\.remove\\(",
+    "type": "cproc"
+  },
+  {
     "name": "files.exists",
     "remove": "files.exists",
     "pattern": "files\\.exists\\(",

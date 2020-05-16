@@ -124,7 +124,15 @@ func Lexer(file, dir, name string) []Lex {
 
 //export OatRun
 func OatRun(acts, cli_params, dir string) {
-  C.bindParser(C.CString(acts), C.CString(cli_params), C.CString(dir))
+
+  argv := make([]*C.char, len(os.Args[1:]))
+
+  for k, v := range os.Args[1:] {
+    cstring := C.CString(v)
+    argv[k] = cstring
+  }
+
+  C.bindParser(C.CString(acts), C.CString(cli_params), C.CString(dir), C.int(len(os.Args[1:])), &argv[0])
 }
 
 //export Run
@@ -144,5 +152,12 @@ func Run(params map[string]map[string]interface{}) {
 
   _, _ = acts, cp
 
-  C.bindParser(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir))
+  argv := make([]*C.char, len(os.Args[1:]))
+
+  for k, v := range os.Args[1:] {
+    cstring := C.CString(v)
+    argv[k] = cstring
+  }
+
+  C.bindParser(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir), C.int(len(os.Args[1:])), &argv[0])
 }

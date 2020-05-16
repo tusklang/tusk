@@ -13,7 +13,7 @@ extern "C" {
   extern char* GetOp(char*);
   extern char* ExecCmd(char*, char*, char*);
 
-  void bindParser(char* actions, char* cli_params, char* dir);
+  void bindParser(char* actions, char* cli_params, char* dir, int argc, char ** argv);
   void colorprint(char*, int);
 
 #ifdef __cplusplus

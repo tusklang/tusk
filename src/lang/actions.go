@@ -2687,6 +2687,11 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         act := cproc(&i, lex, uint(2), "files.write", dir, name, 61)
         actions = append(actions, act)
 
+      case "files.remove":
+
+        act := cproc(&i, lex, uint(1), "files.remove", dir, name, 78)
+        actions = append(actions, act)
+
       case "files.exists":
 
         act := cproc(&i, lex, uint(1), "files.exists", dir, name, 62)
