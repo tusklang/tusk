@@ -13,7 +13,10 @@ import oatrun "oat/run" //run an oat file
 
 //mango
 import "mango/cli/install"
+import "mango/cli/remove"
+import "mango/cli/wipe"
 ///////
+
 ////////////
 
 func defaults(params *map[string]map[string]interface{}, name string) {
@@ -99,7 +102,9 @@ func main() {
     case "mango-get":
       mango_get.Get()
     case "mango-rm":
+      mango_rm.Remove()
     case "mango-wipe":
+      mango_wipe.Wipe()
     default:
       fmt.Println("Error: cannot use omm addon", params["Package"]["PACKAGE"])
   }

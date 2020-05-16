@@ -29,7 +29,7 @@ func save(args Args, dir string) {
     lex := lang.Lexer(string(file), dir, v)
     acts := lang.Actionizer(lex, false, dir, v)
 
-    writefile, _ := os.Create(dir + "/mango/" + v)
+    writefile, _ := os.Create(dir + "/mango/" + v + ".oat")
 
     defer writefile.Close()
 

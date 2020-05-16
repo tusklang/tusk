@@ -4,9 +4,30 @@ $basedir = Split-Path $MyInvocation.MyCommand.Definition -Parent
 $calldir = $PSScriptRoot
 
 if ($args[0] -eq "get") {
-  & "$basedir/omm.exe" "$calldir" $args "--mango-get"
+
+  $_, $args_pop = $args
+
+  if ($calldir -notmatch "\\$") {
+    $calldir+="\"
+  }
+
+  & "$basedir/omm.exe" "$calldir" $args_pop "--mango-get"
 } elseif ($args[0] -eq "rm" -or $args[0] -eq "remove") {
-  & "$basedir/omm.exe" "$calldir" $args "--mango-rm"
+
+  $_, $args_pop = $args
+
+  if ($calldir -notmatch "\\$") {
+    $calldir+="\"
+  }
+
+  & "$basedir/omm.exe" "$calldir" $args_pop "--mango-rm"
 } elseif ($args[0] -eq "wipe") {
-  & "$basedir/omm.exe" "$calldir" $args "--mango-wipe"
+
+  $_, $args_pop = $args
+
+  if ($calldir -notmatch "\\$") {
+    $calldir+="\"
+  }
+
+  & "$basedir/omm.exe" "$calldir" $args_pop "--mango-wipe"
 }
