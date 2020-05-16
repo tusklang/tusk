@@ -80,7 +80,6 @@ global.lexer = (file, dir) => {
         //if it is escape character, set escaped to true
         if (!escaped && substrfile[o] == '\\') {
           escaped = true;
-          o--;
           continue;
         }
 
