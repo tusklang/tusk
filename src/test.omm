@@ -1,1 +1,5 @@
-log '\\\\s'
+proc ~ test() {
+  return ~ 'ss';
+}
+
+log test()

@@ -8,7 +8,7 @@ module.exports = (lex) => {
       Name: '.',
       Exp: lex[i].Exp,
       Line: lex[i].line,
-      Type: 'id',
+      Type: 'operation',
       OName: '.',
       Dir: lex[i].Dir
     }, {

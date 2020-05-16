@@ -241,6 +241,6 @@ console.log(
   JSON.stringify({
     WARNS: warnings,
     ERRORS: errors,
-    LEX: lexer(processes.init(f), dir + name)
+    LEX: processes.hash_inserter(lexer(processes.init(f), dir + name))
   }, null, 2)
 );

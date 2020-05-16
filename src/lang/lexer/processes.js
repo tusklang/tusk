@@ -8,7 +8,6 @@ module.exports.init = file => {
   for (let i = 0; i < file.length; i++) {
     if (!escaped && file[i] == '\\') {
       escaped = true;
-      i--;
       continue;
     }
 
@@ -25,4 +24,74 @@ module.exports.init = file => {
   }
 
   return nFile;
+}
+
+module.exports.hash_inserter = lex => {
+
+  for (let i = 0; i < lex.length; i++) {
+
+    if (lex[i].Name.startsWith('$')) {
+
+      if (lex[i - 2] && lex[i - 2].Name == "process") continue;
+
+      var insert_hash = false;
+
+      var
+        glCnt = 0,
+        cbCnt = 0,
+        bCnt = 0,
+        pCnt = 0;
+
+      for (let o = i + 1; o < lex.length; o++) {
+
+        if (lex[o].Name == '[:') glCnt++;
+        if (lex[o].Name == ':]') glCnt--;
+
+        if (lex[o].Name == '{') cbCnt++;
+        if (lex[o].Name == '}') cbCnt--;
+
+        if (lex[o].Name == '[') bCnt++;
+        if (lex[o].Name == ']') bCnt--;
+
+        if (glCnt != 0 || cbCnt != 0 || bCnt != 0 || pCnt != 0) continue;
+
+        if (lex[o].Name == '(') {
+          insert_hash = true;
+          break;
+        }
+
+        if (lex[o].Name != '.' && lex[o].Name != '[' && lex[o].Name != ']') break;
+      }
+
+      if (insert_hash) {
+
+        let inserter = [
+          {
+            Name: '#',
+            Exp: lex[i].Exp,
+            Line: lex[i].Line,
+            Type: 'caller',
+            OName: '#',
+            Dir: lex[i].Dir
+          },
+          {
+            Name: '~',
+            Exp: lex[i].Exp,
+            Line: lex[i].Line,
+            Type: 'operation',
+            OName: '~',
+            Dir: lex[i].Dir
+          }
+        ];
+
+        if (i == 0) lex.unshift(...inserter)
+        else lex.splice(i, 0, ...inserter);
+
+        i+=2
+      }
+
+    }
+  }
+
+  return lex;
 }
