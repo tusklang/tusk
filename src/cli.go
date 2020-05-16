@@ -10,13 +10,24 @@ import "lang" //omm language
 
 import oatcompile "oat/compile" //compile omm to oat
 import oatrun "oat/run" //run an oat file
+
+//mango
+import "mango/cli/install"
+///////
 ////////////
 
 func defaults(params *map[string]map[string]interface{}, name string) {
 
   (*params)["Calc"]["PREC"] = 1000
   (*params)["Calc"]["LONG_MULT_THRESH"] = 7
-  (*params)["Calc"]["O"] = name[:strings.LastIndex(name, ".")] + ".oat"
+
+  if strings.LastIndex(name, ".") == -1 {
+    (*params)["Calc"]["O"] = name + ".oat"
+  } else {
+    (*params)["Calc"]["O"] = name[:strings.LastIndex(name, ".")] + ".oat"
+  }
+
+
   (*params)["Package"]["PACKAGE"] = "lang"
   (*params)["Files"]["NAME"] = ""
   (*params)["Files"]["DIR"] = "C:"
@@ -32,7 +43,7 @@ func main() {
   params["Calc"] = make(map[string]interface{})
 
   if len(args) <= 2 {
-    fmt.Println("Error, no input file was given")
+    fmt.Println("Error, no input was given")
     os.Exit(1)
   }
 
@@ -85,7 +96,11 @@ func main() {
       oatcompile.Compile(params)
     case "run":
       oatrun.Run(params)
+    case "mango-get":
+      mango_get.Get()
+    case "mango-rm":
+    case "mango-wipe":
     default:
-      fmt.Println("Error, cannot use omm addon", params["Package"]["PACKAGE"])
+      fmt.Println("Error: cannot use omm addon", params["Package"]["PACKAGE"])
   }
 }

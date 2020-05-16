@@ -65,7 +65,7 @@ Returner processParser(Action var, const Action v, const json cli_params, map<st
     sendVars[params[o]] = cur;
   }
 
-  parsed = parser(var.ExpAct, cli_params, sendVars, true, false, send_this);
+  parsed = parser(var.ExpAct, cli_params, sendVars, true, false, send_this, dir);
 
   map<string, Variable> pVars = parsed.variables;
 
