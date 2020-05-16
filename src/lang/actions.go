@@ -1883,104 +1883,10 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
           actions = append(actions, Action{ "import", "$", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 14, []Action{}, []Action{}, []Action{}, actionizedFiles, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
         }
-      case "read":
-        var phrase = []Lex{}
-
-        cbCnt := 0
-        glCnt := 0
-        bCnt := 0
-        pCnt := 0
-
-        for o := i + 2; o < len_lex; o++ {
-          if lex[o].Name == "{" {
-            cbCnt++
-          }
-          if lex[o].Name == "}" {
-            cbCnt--
-          }
-
-          if lex[o].Name == "[:" {
-            glCnt++
-          }
-          if lex[o].Name == ":]" {
-            glCnt--
-          }
-
-          if lex[o].Name == "[" {
-            bCnt++
-          }
-          if lex[o].Name == "]" {
-            bCnt--
-          }
-
-          if lex[o].Name == "(" {
-            pCnt++
-          }
-          if lex[o].Name == ")" {
-            pCnt--
-          }
-
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
-            break
-          }
-
-          phrase = append(phrase, lex[o])
-        }
-
-        actionizedPhrase := Actionizer(phrase, true, dir, name)
-        actions = append(actions, Action{ "read", "", []string{}, actionizedPhrase, []string{}, [][]Action{}, []Condition{}, 15, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
-        i+=(2 + len(phrase))
       case "break":
         actions = append(actions, Action{ "break", "", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 16, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
       case "skip":
         actions = append(actions, Action{ "skip", "", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 17, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
-      case "typeof":
-        var phrase = []Lex{}
-
-        cbCnt := 0
-        glCnt := 0
-        bCnt := 0
-        pCnt := 0
-
-        for o := i + 2; o < len_lex; o++ {
-          if lex[o].Name == "{" {
-            cbCnt++
-          }
-          if lex[o].Name == "}" {
-            cbCnt--
-          }
-
-          if lex[o].Name == "[:" {
-            glCnt++
-          }
-          if lex[o].Name == ":]" {
-            glCnt--
-          }
-
-          if lex[o].Name == "[" {
-            bCnt++
-          }
-          if lex[o].Name == "]" {
-            bCnt--
-          }
-
-          if lex[o].Name == "(" {
-            pCnt++
-          }
-          if lex[o].Name == ")" {
-            pCnt--
-          }
-
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
-            break
-          }
-
-          phrase = append(phrase, lex[o])
-        }
-
-        actionizedPhrase := Actionizer(phrase, true, dir, name)
-        actions = append(actions, Action{ "typeof", "", []string{}, actionizedPhrase, []string{}, [][]Action{}, []Condition{}, 19, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
-        i+=(2 + len(phrase))
       case "loop":
 
         var condition_ = []Lex{}
@@ -2463,79 +2369,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         } else {
           actions = append(actions, Action{ "array", "hashed_value", []string{""}, []Action{}, []string{}, [][]Action{}, []Condition{}, 24, []Action{}, []Action{}, []Action{}, arr, [][]Action{}, hashedArr, isMutable, "private", []SubCaller{} })
         }
-      case "ascii":
-        var phrase = []Lex{}
-
-        cbCnt := 0
-        glCnt := 0
-        bCnt := 0
-        pCnt := 0
-
-        for o := i + 2; o < len_lex; o++ {
-          if lex[o].Name == "{" {
-            cbCnt++
-          }
-          if lex[o].Name == "}" {
-            cbCnt--
-          }
-
-          if lex[o].Name == "[:" {
-            glCnt++
-          }
-          if lex[o].Name == ":]" {
-            glCnt--
-          }
-
-          if lex[o].Name == "[" {
-            bCnt++
-          }
-          if lex[o].Name == "]" {
-            bCnt--
-          }
-
-          if lex[o].Name == "(" {
-            pCnt++
-          }
-          if lex[o].Name == ")" {
-            pCnt--
-          }
-
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
-            break
-          }
-
-          phrase = append(phrase, lex[o])
-        }
-
-        actionizedPhrase := Actionizer(phrase, true, dir, name)
-        actions = append(actions, Action{ "ascii", "", []string{}, actionizedPhrase, []string{}, [][]Action{}, []Condition{}, 26, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
-        i+=(2 + len(phrase))
-      case "len":
-
-        var exp []Lex
-        pCnt := 0
-
-        for o := i + 1; o < len_lex; o++ {
-          if lex[o].Name == "(" {
-            pCnt++
-            continue
-          }
-          if lex[o].Name == ")" {
-            pCnt--
-            continue
-          }
-
-          if pCnt == 0 {
-            break
-          }
-
-          exp = append(exp, lex[o])
-        }
-
-        actionized := Actionizer(exp, true, dir, name)
-
-        actions = append(actions, Action{ "len", "", []string{}, actionized, []string{}, [][]Action{}, []Condition{}, 31, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
-        i+=3 + len(exp)
       case "each":
         var condition_ = []Lex{}
 
@@ -2752,6 +2585,21 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         act.IsMutable = isMutable
 
         actions = append(actions, act)
+
+        case "read":
+
+          act := cproc(&i, lex, uint(1), "read", dir, name, 15)
+          actions = append(actions, act)
+
+        case "ascii":
+
+          act := cproc(&i, lex, uint(1), "ascii", dir, name, 26)
+          actions = append(actions, act)
+
+        case "typeof":
+
+          act := cproc(&i, lex, uint(1), "typeof", dir, name, 19)
+          actions = append(actions, act)
 
       default:
 

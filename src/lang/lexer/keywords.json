@@ -194,61 +194,79 @@
   {
     "name": "exec",
     "remove": "exec",
-    "pattern": "(exec\\()",
+    "pattern": "(exec\\s*\\()",
     "type": "cproc"
   },
   {
     "name": "this",
     "remove": "this",
-    "pattern": "(this\\()",
+    "pattern": "(this\\s*\\()",
+    "type": "cproc"
+  },
+  {
+    "name": "read",
+    "remove": "read",
+    "pattern": "(read\\s*\\()",
+    "type": "cproc"
+  },
+  {
+    "name": "typeof",
+    "remove": "typeof",
+    "pattern": "(typeof\\s*\\()",
+    "type": "cproc"
+  },
+  {
+    "name": "ascii",
+    "remove": "ascii",
+    "pattern": "(ascii\\s*\\()",
     "type": "cproc"
   },
   {
     "name": "regex.match",
     "remove": "regex.match",
-    "pattern": "regex\\.match\\(",
+    "pattern": "regex\\.match\\s*\\(",
     "type": "cproc"
   },
   {
     "name": "regex.replace",
     "remove": "regex.replace",
-    "pattern": "regex\\.replace\\(",
+    "pattern": "regex\\.replace\\s*\\(",
     "type": "cproc"
   },
   {
     "name": "files.read",
     "remove": "files.read",
-    "pattern": "files\\.read\\(",
+    "pattern": "files\\.read\\s*\\(",
     "type": "cproc"
   },
   {
     "name": "files.write",
     "remove": "files.write",
-    "pattern": "files\\.write\\(",
+    "pattern": "files\\.write\\s*\\(",
     "type": "cproc"
   },
   {
     "name": "files.remove",
     "remove": "files.remove",
-    "pattern": "files\\.remove\\(",
+    "pattern": "files\\.remove\\s*\\(",
     "type": "cproc"
   },
   {
     "name": "files.exists",
     "remove": "files.exists",
-    "pattern": "files\\.exists\\(",
+    "pattern": "files\\.exists\\s*\\(",
     "type": "cproc"
   },
   {
     "name": "files.isFile",
     "remove": "files.isFile",
-    "pattern": "files\\.isFile\\(",
+    "pattern": "files\\.isFile\\s*\\(",
     "type": "cproc"
   },
   {
     "name": "files.isDir",
     "remove": "files.isDir",
-    "pattern": "files\\.isDir\\(",
+    "pattern": "files\\.isDir\\s*\\(",
     "type": "cproc"
   },
   {
@@ -480,12 +498,6 @@
     "type": "id"
   },
   {
-    "name": "read",
-    "remove": "read",
-    "pattern": "(read(\\s*)(~?))",
-    "type": "id"
-  },
-  {
     "name": "&",
     "remove": "&&",
     "pattern": "(\\&\\&)",
@@ -558,22 +570,10 @@
     "type": "id_non_tilde"
   },
   {
-    "name": "typeof",
-    "remove": "typeof",
-    "pattern": "(typeof(\\s*)(~?))",
-    "type": "id"
-  },
-  {
     "name": "loop",
     "remove": "while",
     "pattern": "(while\\()",
     "type": "cond"
-  },
-  {
-    "name": "ascii",
-    "remove": "ascii",
-    "pattern": "(ascii(\\s*)(~?))",
-    "type": "id"
   },
   {
     "name": "number",

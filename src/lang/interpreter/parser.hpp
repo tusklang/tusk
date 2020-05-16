@@ -301,34 +301,6 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           }
         }
         break;
-      case 15: {
-
-          //read
-
-          string in;
-
-          cout << ((string) parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]) << " ";
-
-          cin >> in;
-
-          if (expReturn) {
-            vector<string> retNo;
-
-            Action expRet = strPlaceholder;
-
-            expRet.ExpStr[0] = in;
-
-            for (char c : in) {
-
-              Action cPlaceholder = strPlaceholder;
-
-              cPlaceholder.ExpStr[0] = to_string(c);
-            }
-
-            return Returner{ retNo, vars, expRet, "expression" };
-          }
-        }
-        break;
       case 16: {
 
           //break
@@ -361,22 +333,6 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
           ret.type = "skip";
 
           return ret;
-        }
-        break;
-      case 19: {
-
-          //typeof
-
-          Returner parsed = parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir);
-
-          Action exp = parsed.exp;
-          Action stringval = strPlaceholder;
-
-          stringval.ExpStr = { exp.Type };
-
-          vector<string> noRet;
-
-          if (expReturn) return Returner{ noRet, vars, stringval, "expression" };
         }
         break;
       case 21: {
@@ -497,30 +453,6 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             vector<string> returnNone;
 
             return Returner{ returnNone, vars, index, "expression" };
-          }
-        }
-        break;
-      case 26: {
-
-          //ascii
-
-          Action parsed = parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir).exp;
-
-          vector<string> returnNone;
-
-          if (parsed.Type != "string" && expReturn) return Returner{ returnNone, vars, falseyVal, "expression" };
-          else {
-            string val = parsed.ExpStr[0];
-            int first = (int) val[0];
-
-            if (expReturn) {
-
-              Action ascVal = val1;
-
-              ascVal.ExpStr[0] = to_string(first);
-
-              return Returner{returnNone, vars, ascVal, "expression"};
-            }
           }
         }
         break;
@@ -1937,6 +1869,74 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         break;
       }
+      case 15: {
+
+        //read
+
+        string output = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
+
+        cout << output;
+
+        string val;
+        cin >> val;
+
+        Action omm_str = ommtypes::to_string(val);
+
+        if (expReturn) {
+
+          Returner ret;
+          vector<string> retNo;
+
+          ret.value = retNo;
+          ret.variables = vars;
+          ret.exp = omm_str;
+          ret.type = "expression";
+
+          return ret;
+        }
+
+        break;
+      }
+      case 19: {
+
+        //typeof
+
+        Returner parsed = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir);
+
+        Action exp = parsed.exp;
+        Action stringval = strPlaceholder;
+
+        stringval.ExpStr = { exp.Type };
+
+        vector<string> noRet;
+
+        if (expReturn) return Returner{ noRet, vars, stringval, "expression" };
+        break;
+      }
+      case 26: {
+
+        //ascii
+
+        Action parsed = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp;
+
+        vector<string> returnNone;
+
+        if (parsed.Type != "string" && expReturn) return Returner{ returnNone, vars, falseyVal, "expression" };
+        else {
+          string val = parsed.ExpStr[0];
+          int first = (int) val[0];
+
+          if (expReturn) {
+
+            Action ascVal = val1;
+
+            ascVal.ExpStr[0] = to_string(first);
+
+            return Returner{returnNone, vars, ascVal, "expression"};
+          }
+        }
+      }
+      break;
       //////////////////////////
 
       //assignment operators
