@@ -23,6 +23,9 @@ namespace DecodeJSON {
     return j.get<int>();
   }
   std::vector<std::string> vectorStr(json j) {
+
+    if (j.size() == 0 || j.is_null()) return {};
+
     return j.get<std::vector<std::string>>();
   }
   std::vector<Action> vector(json j) {
@@ -72,7 +75,7 @@ namespace DecodeJSON {
   }
   std::vector<SubCaller> subcall(json j) {
 
-    if (j.size() == 0) return {};
+    if (j.size() == 0 || j.is_null()) return {};
 
     std::vector<SubCaller> ret;
 

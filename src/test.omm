@@ -1,1 +1,7 @@
-log ~ argv
+proc ~ t(e) {
+  log #e();
+}
+
+#t(proc () {
+  return ~ 12;
+});

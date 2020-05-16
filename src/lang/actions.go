@@ -197,7 +197,12 @@ func callCalcParams(i *int, lex []Lex, len_lex int, dir, filename string) ([][]A
 
     params := [][]Lex{[]Lex{}}
 
-    for o := *i + 1; o < len_lex; o++ {
+    cbCnt = 0
+    glCnt = 0
+    bCnt = 0
+    pCnt = 0
+
+    for o := *i; o < len_lex; o++ {
       if lex[o].Name == "{" {
         cbCnt++;
       }
@@ -226,13 +231,12 @@ func callCalcParams(i *int, lex []Lex, len_lex int, dir, filename string) ([][]A
         pCnt--;
       }
 
-      if cbCnt != 0 && glCnt != 0 && bCnt != 0 && pCnt != 0 {
-        params = append(params, []Lex{})
-        continue
+      if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+        break
       }
 
-      if lex[o].Name == ")" {
-        break
+      if o == *i {
+        continue
       }
 
       if lex[o].Name == "," {

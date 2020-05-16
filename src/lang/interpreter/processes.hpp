@@ -16,8 +16,6 @@ Returner processParser(Action var, const Action v, const json cli_params, map<st
 
   vector<string> noRet;
 
-  if (v.Indexes.size() == 0 && v.Args.size() == 0) return Returner{ noRet, *vars, var, "expression" };
-
   Returner fparsed = Returner{ noRet, *vars, falseyVal, "expression" };
 
   Returner parsed = fparsed;
@@ -41,7 +39,7 @@ Returner processParser(Action var, const Action v, const json cli_params, map<st
 
   if (var.Type != "process") {
     parsed = fparsed;
-    return Returner{ noRet, *vars, falseyVal, "expression" };
+    return Returner{ noRet, *vars, var, "expression" };
   }
 
   vector<string> params = var.Params;
@@ -65,7 +63,7 @@ Returner processParser(Action var, const Action v, const json cli_params, map<st
     sendVars[params[o]] = cur;
   }
 
-  parsed = parser(var.ExpAct, cli_params, sendVars, true, false, send_this, dir);
+  parsed = parser(var.ExpAct, cli_params, sendVars, true, true, send_this, dir);
 
   map<string, Variable> pVars = parsed.variables;
 

@@ -132,6 +132,8 @@ func OatRun(acts, cli_params, dir string) {
     argv[k] = cstring
   }
 
+  _ = argv
+
   C.bindParser(C.CString(acts), C.CString(cli_params), C.CString(dir), C.int(len(os.Args[1:])), &argv[0])
 }
 
@@ -158,6 +160,8 @@ func Run(params map[string]map[string]interface{}) {
     cstring := C.CString(v)
     argv[k] = cstring
   }
+
+  _ = argv
 
   C.bindParser(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir), C.int(len(os.Args[1:])), &argv[0])
 }

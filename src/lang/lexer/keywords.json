@@ -357,7 +357,7 @@
     "name": "process",
     "remove": "proc",
     "pattern": "(proc(\\s*)\\()",
-    "type": "id"
+    "type": "id_non_tilde"
   },
   {
     "name": "process",

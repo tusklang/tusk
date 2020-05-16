@@ -227,6 +227,8 @@ global.lexer = (file, dir) => {
 
   });
 
+  lex = lex.filter(l => l.Type != "newline");
+
   return id_init(indexes(include_parser(dir, lex)));
 }
 
