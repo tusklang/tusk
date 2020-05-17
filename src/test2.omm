@@ -1,0 +1,3 @@
+include ~ "test.omm";
+
+t: 1;

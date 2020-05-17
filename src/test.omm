@@ -1,5 +1,3 @@
-proc ~ test() {
-  return ~ 'ss';
-}
+include ~ "test2.omm";
 
-log test()
+log ~ t;

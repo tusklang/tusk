@@ -1825,6 +1825,13 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         var lexxed = []map[string]interface{}{}
 
         for _, v := range files {
+
+          if arrayContain(imported, v["FileName"]) {
+            continue
+          }
+
+          imported = append(imported, v["FileName"])
+
           curlex := Lexer(v["Content"], dir, name)
 
           curmap := map[string]interface{}{
@@ -1962,7 +1969,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         action := Actionizer(action_, false, dir, name)
 
         actions = append(actions, Action{ "loop", "", []string{}, action, []string{}, [][]Action{}, []Condition{ { "loop", condition, action } }, 21, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
-        i+=(1 + len(condition_) + len(action_))
+        i+=len(condition_) + len(action_)
       case "[:":
         var phrase = []Lex{}
 

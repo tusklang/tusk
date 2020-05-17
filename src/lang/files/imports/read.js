@@ -7,7 +7,7 @@ module.exports = dir => {
 
     try {
 
-      var fileGet = (dir) => fs.readdirSync(dir).filter(f =>  f.endsWith('.omm')).map(f => dir + (dir.endsWith('/') ? '' : '/') + f).filter(f => fs.lstatSync(f).isFile());
+      var fileGet = (dir) => fs.readdirSync(dir).filter(f =>  f.endsWith('.omm') || f.endsWith('.oat')).map(f => dir + (dir.endsWith('/') ? '' : '/') + f).filter(f => fs.lstatSync(f).isFile());
       var dirGet = (dir) => fs.readdirSync(dir).map(d => dir + (dir.endsWith('/') ? '' : '/') + d).filter(d => fs.lstatSync(d).isDirectory()).map(getAll);
 
       function getAll(dir) {

@@ -1,10 +1,19 @@
+fs = require('fs');
+
+var stdinBuffer = fs.readFileSync(0)
+, { f, dir, name } = JSON.parse(stdinBuffer.toString());
+
+global.DIRNAME = dir;
+global.NAME = name;
+global.warnings = [],
+global.errors = [];
+
 const
   testkey = require('./testkey'), //file to test each keyword
   processes = require('./processes'), //file with process utils
   include_parser = require('./includes'), //file that will include omm files within other omm files
   indexes = require('./indexes'), //file to allow user to write :: instead of .['name']
-  id_init = require('./id_init'), //file to add ~ after every id
-  fs = require('fs');
+  id_init = require('./id_init'); //file to add ~ after every id
 
 global.KEYWORDS = require('./keywords.json');
 global.MAX_CUR_EXP = 12;
@@ -22,8 +31,8 @@ global.lexer = (file, dir) => {
   for (let i = 0; i < file.length; i++) {
 
     //detect a comment
-    //single line comments are written as !>
-    if (file.substr(i).trim().startsWith('!>')) {
+    //single line comments are written as //
+    if (file.substr(i).trim().startsWith('//')) {
 
       var end = file.substr(i).indexOf('\n');
 
@@ -228,14 +237,8 @@ global.lexer = (file, dir) => {
 
   lex = lex.filter(l => l.Type != "newline");
 
-  return id_init(indexes(include_parser(dir, lex)));
+  return id_init(indexes(include_parser(global.DIRNAME, lex)));
 }
-
-var stdinBuffer = fs.readFileSync(0)
-, { f, dir, name } = JSON.parse(stdinBuffer.toString());
-
-global.warnings = [],
-global.errors = [];
 
 console.log(
   JSON.stringify({

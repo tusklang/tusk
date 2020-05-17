@@ -13,6 +13,7 @@ import "fmt"
 import "C"
 
 var operators = []string{"^", "*", "/", "%", "+", "-", "&", "|", "!", "~", ";"}
+var imported = []string{}
 
 //export Kill
 func Kill() {
@@ -142,6 +143,8 @@ func Run(params map[string]map[string]interface{}) {
 
   dir := params["Files"]["DIR"].(string)
   fileName := params["Files"]["NAME"].(string)
+
+  imported = append(imported, dir + fileName)
 
   file := ReadFileJS(dir + fileName)[0]["Content"]
 

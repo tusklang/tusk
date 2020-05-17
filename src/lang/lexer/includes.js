@@ -1,5 +1,7 @@
 var readfile = require('../files/imports/read');
 
+global.included = [global.DIRNAME.concat(global.NAME)];
+
 module.exports = (dir, lex) => {
 
   //loop through lex
@@ -18,6 +20,10 @@ module.exports = (dir, lex) => {
         sendDir = include_name;
       } else file = readfile(dir + include_name);
 
+      if (global.included.includes(sendDir)) continue;
+
+      global.included.push(sendDir);
+
       if (file.startsWith('Error')) {
         console.log(
           JSON.stringify({
@@ -29,7 +35,7 @@ module.exports = (dir, lex) => {
         process.exit(1);
       }
 
-      var lexxed = lexer(JSON.parse(file)[0], sendDir);
+      var lexxed = lexer(JSON.parse(file)[0].Content, sendDir);
 
       let _lex = lex.slice(0, i)
       , lex_ = lex.slice(i + 3);
