@@ -1,0 +1,8 @@
+proc ~ indexof(main, inc) {
+
+  each (main) {
+    if (v = inc) return ~ k;
+  }
+
+  return ~ -1;
+}

@@ -1,0 +1,13 @@
+proc ~ floor(num) {
+
+  if (num < 0) return -1 * ceil(-1 * num); // implement later
+
+  floored: 0;
+
+  loop (num >= 1) {
+    floored++;
+    num--;
+  }
+
+  return floored;
+}

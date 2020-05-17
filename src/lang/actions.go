@@ -1832,7 +1832,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
           imported = append(imported, v["FileName"])
 
-          curlex := Lexer(v["Content"], dir, name)
+          curlex := Lexer(v["Content"], dir, strings.TrimPrefix(v["FileName"], dir) /* remove the directory part of the filename */)
 
           curmap := map[string]interface{}{
             "FileName": v["FileName"],

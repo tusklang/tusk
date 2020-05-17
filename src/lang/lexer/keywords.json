@@ -128,13 +128,25 @@
   {
     "name": "log",
     "remove": "log",
-    "pattern": "(log(\\s*)(~?))",
+    "pattern": "(log(\\s*)(~))",
+    "type": "id"
+  },
+  {
+    "name": "log",
+    "remove": "log",
+    "pattern": "(log(\\s+))",
     "type": "id"
   },
   {
     "name": "print",
     "remove": "print",
-    "pattern": "(print(\\s*)(~?))",
+    "pattern": "(print(\\s*)(~))",
+    "type": "id"
+  },
+  {
+    "name": "print",
+    "remove": "print",
+    "pattern": "(print(\\s+))",
     "type": "id"
   },
   {
@@ -279,25 +291,29 @@
     "name": ":",
     "remove": ":=",
     "pattern": "(\\:\\=)",
-    "type": "assignment"
+    "type": "operation"
   },
   {
     "name": ":",
     "remove": ":",
     "pattern": "\\:",
-    "type": "assignment"
+    "type": "operation"
   },
   {
     "name": "+",
     "remove": "+",
-    "pattern": "((?<!([-+*\\/%^=!:({[~,<>&| ])|^)\\+)",
-    "type": "operation"
+    "pattern": "(\\+)",
+    "type": "operation",
+    "no_id_before": true,
+    "no_oper_before": true
   },
   {
     "name": "-",
     "remove": "-",
-    "pattern": "((?<!([-+*\\/%^=!:({[~,<>&| ])|^)\\-)",
-    "type": "operation"
+    "pattern": "(\\-)",
+    "type": "operation",
+    "no_id_before": true,
+    "no_oper_before": true
   },
   {
     "name": "*",
@@ -380,19 +396,25 @@
   {
     "name": "process",
     "remove": "proc",
-    "pattern": "(proc(\\s*)(~?))",
+    "pattern": "(proc(\\s*)(~))",
+    "type": "id_non_tilde"
+  },
+  {
+    "name": "process",
+    "remove": "proc",
+    "pattern": "(proc(\\s+))",
     "type": "id"
   },
   {
     "name": "global",
     "remove": "gbl",
-    "pattern": "(gbl(\\s*)(~?))",
-    "type": "id"
+    "pattern": "(gbl(\\s*)(~))",
+    "type": "id_non_tilde"
   },
   {
     "name": "global",
-    "remove": "global",
-    "pattern": "(global(\\s*)(~?))",
+    "remove": "gbl",
+    "pattern": "(gbl(\\s+))",
     "type": "id"
   },
   {
@@ -410,7 +432,13 @@
   {
     "name": "return",
     "remove": "return",
-    "pattern": "(return(\\s*)(~?))",
+    "pattern": "(return(\\s*)(~))",
+    "type": "id_non_tilde"
+  },
+  {
+    "name": "return",
+    "remove": "return",
+    "pattern": "(return(\\s+))",
     "type": "id"
   },
   {
@@ -488,14 +516,20 @@
   {
     "name": "import",
     "remove": "import",
-    "pattern": "(import(\\s*)(~?))",
+    "pattern": "(import(\\s*)(~))",
+    "type": "id_non_tilde"
+  },
+  {
+    "name": "import",
+    "remove": "import",
+    "pattern": "(import(\\s+))",
     "type": "id"
   },
   {
     "name": "include",
     "remove": "include",
-    "pattern": "(include(\\s*)(~?))",
-    "type": "id"
+    "pattern": "(include(\\s*)(~))",
+    "type": "id_non_tilde"
   },
   {
     "name": "&",

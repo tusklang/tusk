@@ -44,10 +44,10 @@ global.lexer = (file, dir) => {
       continue;
     }
 
+    while (/ |\t/.test(file[i])) i++;
+
     while (curExp.length > MAX_CUR_EXP) curExp = curExp.substr(1);
     while (curExp.includes('\n')) curExp = curExp.substr(curExp.indexOf('\n') + 1);
-
-    while (/ |\t/.test(file[i])) i++;
 
     for (let o = 0; o < KEYWORDS.length; o++) {
 
@@ -164,7 +164,6 @@ global.lexer = (file, dir) => {
       curExp+=num;
 
       i--;
-
       lex.push({
         Name: (sign ? '' : '-') + num,
         Exp: curExp,
@@ -221,15 +220,16 @@ global.lexer = (file, dir) => {
 
     if (lex[i - 1] && v.Type[0] != '?' && v.Type != 'newline') {
       if (v.Type == lex[i - 1].Type) {
-        global.errors.push(
-          `\nUnexpected token: \"${v.OName.trim()}\" on line ${v.Line}`
+        global.errors.push({
+          Error:`\nUnexpected token: \"${v.OName.trim()}\" on line ${v.Line}`
           +
           `\n\nFound near: ${v.Exp.trim()}`
           +
           `\n            ${' '.repeat(v.Exp.indexOf(v.OName) == -1 ? '' : v.Exp.indexOf(v.OName))}${'^'.repeat(v.OName.length)}`
           +
-          `\nAdvanced Info: Two tokens of the type \"${v.Type}\" were detected adjacent to each other`
-        );
+          `\nAdvanced Info: Two tokens of the type \"${v.Type}\" were detected adjacent to each other`,
+          Dir: dir
+        });
       }
     }
 

@@ -92,14 +92,14 @@ func Lexer(file, dir, name string) []Lex {
   json.Unmarshal([]byte(out), &ret)
 
   for _, v := range ret["ERRORS"] {
-    C.colorprint(C.CString("Error while lexxing in " + dir + name + "!"), C.int(12))
-    fmt.Print(fmt.Sprint(v), "\n\n" + strings.Repeat("-", 90) + "\n")
+    C.colorprint(C.CString("Error while lexxing in " + fmt.Sprint(v.(map[string]interface{})["Dir"]) + "!"), C.int(12))
+    fmt.Print(fmt.Sprint(v.(map[string]interface{})["Error"]), "\n\n" + strings.Repeat("-", 90) + "\n")
     fmt.Println()
   }
 
   for _, v := range ret["WARNS"] {
-    C.colorprint(C.CString("Warning while lexxing in " + dir + name + "! "), C.int(14))
-    fmt.Print(fmt.Sprint(v), "\n\n" + strings.Repeat("-", 90) + "\n")
+    C.colorprint(C.CString("Warning while lexxing in " + fmt.Sprint(v.(map[string]interface{})["Dir"]) + "! "), C.int(14))
+    fmt.Print(fmt.Sprint(v.(map[string]interface{})["Error"]), "\n\n" + strings.Repeat("-", 90) + "\n")
     fmt.Println()
   }
 

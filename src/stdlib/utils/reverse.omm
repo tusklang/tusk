@@ -1,0 +1,14 @@
+import ~ '?~utils/len.omm';
+
+proc ~ reverse(x) {
+  new: '';
+
+  i: len(x) - 1;
+
+  loop (i >= 0) {
+    new+=x.[i];
+    i--;
+  }
+
+  return ~ new;
+}

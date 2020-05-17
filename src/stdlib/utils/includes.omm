@@ -1,0 +1,5 @@
+import ~ "?~/utils/indexof.omm";
+
+proc ~ includes(main, inc) {
+  return ~ indexof(main, inc) != -1;
+}
