@@ -12,9 +12,9 @@ import oatcompile "oat/compile" //compile omm to oat
 import oatrun "oat/run" //run an oat file
 
 //mango
-import "mango/cli/install"
-import "mango/cli/remove"
-import "mango/cli/wipe"
+import "mangomm/cli/install"
+import "mangomm/cli/remove"
+import "mangomm/cli/wipe"
 ///////
 
 ////////////

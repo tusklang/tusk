@@ -1,0 +1,9 @@
+ns::Math {
+
+  import ~ '?~/math/floor.omm';
+
+  proc ~ ceil(num) {
+
+    return ~ floor(num + .9);
+  }
+}

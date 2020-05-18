@@ -21,7 +21,7 @@ func cproc(i *int, lex []Lex, PARAM_COUNT uint, name, dir, filename string, id i
   if PARAM_COUNT != uint(len(args)) {
 
     //throw an error
-    C.colorprint(C.CString("Error while actionizing in " + curLex.Dir + "!"), C.int(12))
+    C.colorprint(C.CString("Error while actionizing in " + curLex.Dir + "!\n"), C.int(12))
     fmt.Println(" Expected", PARAM_COUNT, "argument(s), but got", len(args), "instead to call", /* say the process */ name, "\n\nError occured on line", curLex.Line, "\nFound near:", strings.TrimSpace(curLex.Exp))
 
     //exit the process

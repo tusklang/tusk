@@ -58,7 +58,7 @@ func MultiplyC(_num1C *C.char, _num2C *C.char, cli_paramsP *C.char) *C.char {
     _num1, _num2 = _num2, _num1
   }
 
-  if len(_num1) >= cli_params["Calc"]["LONG_MULT_THRESH"].(int) && len(_num2) >= cli_params["Calc"]["LONG_MULT_THRESH"].(int) {
+  if float64(len(_num1)) >= cli_params["Calc"]["LONG_MULT_THRESH"].(float64) && float64(len(_num2)) >= cli_params["Calc"]["LONG_MULT_THRESH"].(float64) {
 
     final := "0"
 

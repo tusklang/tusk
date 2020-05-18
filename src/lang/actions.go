@@ -1809,7 +1809,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         var files = []map[string]string{}
 
-        //see if user wants to import a fire from the basedir
+        //see if user wants to import a file from the stdlib
         if strings.HasPrefix(fileDir, "?~") {
 
           if strings.HasPrefix(fileDir[2:], "/") {
@@ -1823,6 +1823,12 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         }
 
         var lexxed = []map[string]interface{}{}
+
+        i+=2
+
+        if i + 1 < len_lex && lex[i + 1].Name == "newlineS" {
+          i++
+        }
 
         for _, v := range files {
 
@@ -1871,25 +1877,96 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           }
         }
 
-        i+=3
+        actions = append(actions, Action{ "import", "", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 14, []Action{}, []Action{}, []Action{}, actionizedFiles, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
+      case "?^": //only used in namespaces
+        continue
+      case "ns":
 
-        if i < len(lex) && lex[i].Name == "~" {
+        if i >= len_lex || !strings.HasPrefix(lex[i + 1].Name, "$") {
 
-          as := lex[i + 1].Name
+          //throw an error
+          C.colorprint(C.CString("Error while actionizing in " + lex[i].Dir + "!\n"), C.int(12))
+          fmt.Println("Expected a variable name after ns::", "\n\nError occured on line", lex[i].Line, "\nFound near:", strings.TrimSpace(lex[i].Exp))
 
-          if !strings.HasPrefix(as, "$") {
-            C.colorprint(C.CString("Error while actionizing in " + lex[i + 1].Dir + "!"), C.int(12))
-            fmt.Println(" Expected a variable name but instead got", as, "\n\nError occured on line", lex[i + 1].Line, "\nFound near:", strings.TrimSpace(lex[i + 1].Exp))
-            os.Exit(1)
+          //exit the process
+          os.Exit(1)
+        }
+
+        var namespace_name = lex[i + 1].Name
+        i+=2
+
+        cbCnt := 0
+        glCnt := 0
+        bCnt := 0
+        pCnt := 0
+
+        var namespace_group []Lex
+
+        for o := i; o < len_lex; o++ {
+          if lex[o].Name == "{" {
+            cbCnt++
+          }
+          if lex[o].Name == "}" {
+            cbCnt--
           }
 
-          i+=2
+          if lex[o].Name == "[:" {
+            glCnt++
+          }
+          if lex[o].Name == ":]" {
+            glCnt--
+          }
 
-          actions = append(actions, Action{ "import", as, []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 14, []Action{}, []Action{}, []Action{}, actionizedFiles, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
-        } else {
+          if lex[o].Name == "[" {
+            bCnt++
+          }
+          if lex[o].Name == "]" {
+            bCnt--
+          }
 
-          actions = append(actions, Action{ "import", "$", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 14, []Action{}, []Action{}, []Action{}, actionizedFiles, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
+          if lex[o].Name == "(" {
+            pCnt++
+          }
+          if lex[o].Name == ")" {
+            pCnt--
+          }
+
+          namespace_group = append(namespace_group, lex[o])
+          i++
+
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+            break
+          }
         }
+
+        //see if ?^ is activated
+        var not_ns = false
+
+        //change all variables in that lex group to start with the namespace name
+        for k, v := range namespace_group {
+
+          if v.Name == "?^" {
+            not_ns = true
+          }
+
+          if strings.HasPrefix(v.Name, "$") { //if it is a variable
+
+            if strings.HasPrefix(v.Name, namespace_name) {
+              continue
+            }
+
+            if not_ns {
+              not_ns = false
+              continue
+            }
+
+            namespace_group[k].Name = namespace_name + "." + v.Name[1:] //make it starts with $<namespace name>
+          }
+        }
+
+        actionized := Actionizer(namespace_group, false, dir, name)
+
+        actions = append(actions, actionized...)
       case "break":
         actions = append(actions, Action{ "break", "", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 16, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
       case "skip":

@@ -1,4 +1,4 @@
-module.exports = (lex) => {
+module.exports = lex => {
 
   var index;
 

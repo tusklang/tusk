@@ -12,6 +12,18 @@
     "type": "id"
   },
   {
+    "name": "?^",
+    "remove": "?^",
+    "pattern": "\\?\\^",
+    "type": "namespace"
+  },
+  {
+    "name": "ns",
+    "remove": "ns::",
+    "pattern": "ns::",
+    "type": "namespace"
+  },
+  {
     "name": "kill",
     "remove": "kill",
     "pattern": "kill\\b\\<-",

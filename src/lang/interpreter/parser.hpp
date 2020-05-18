@@ -297,7 +297,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             //filter the variables that are not global
             for (pair<string, Variable> o : pVars)
               if (o.second.type == "global" || o.second.type == "process")
-                vars[v.Name + "." + o.first.substr(1)] = o.second;
+                vars[o.first] = o.second;
           }
         }
         break;

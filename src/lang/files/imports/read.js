@@ -20,7 +20,7 @@ module.exports = dir => {
       var files = getAll(dir.slice(0, -3)).flat(Infinity).map(f => {
         return {
           Content: fs.readFileSync(f, 'utf8'),
-          FileName: dir.slice(0, -3) + f
+          FileName: f
         }
       });
 

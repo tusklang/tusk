@@ -1,13 +1,19 @@
-proc ~ floor(num) {
+ns::Math {
 
-  if (num < 0) return -1 * ceil(-1 * num); // implement later
+  import ~ "?~/math/ceil.omm";
 
-  floored: 0;
+  proc ~ floor(num) {
 
-  loop (num >= 1) {
-    floored++;
-    num--;
+    if (num < 0) return -1 * ceil(-1 * num);
+
+    floored: 0;
+
+    loop (num >= 1) {
+      floored++;
+      num--;
+    }
+
+    return floored;
   }
 
-  return floored;
 }

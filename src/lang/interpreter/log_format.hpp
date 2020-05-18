@@ -47,7 +47,7 @@ void log_format(Action in, const json cli_params, map<string, Variable> vars, in
 
       cout << string(hash_spacing - 2, ' ') << "]" << (doPrint == "print" ? "" : "\n");
     }
-  } else if (in.Type == "process" || in.Type == "group") cout << "{PROCESS~ | GROUP~}" << (doPrint == "print" ? "" : "\n");
+  } else if (in.Type == "process" || in.Type == "group") cout << "{PROCESS~ | GROUP~} " << "PARAM COUNT: " << in.Params.size() << (doPrint == "print" ? "" : "\n");
   else if (in.Name == "operation") {
     log_format(in.First[0], cli_params, vars, hash_spacing, "print");
 
