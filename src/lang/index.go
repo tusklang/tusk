@@ -29,10 +29,7 @@ type Lex struct {
   Dir    string
 }
 
-//export GetType
-func GetType(cVal *C.char) *C.char {
-
-  val := C.GoString(cVal)
+func getType(val string) string {
 
   var numMatch = func(num string) bool {
 
@@ -53,20 +50,20 @@ func GetType(cVal *C.char) *C.char {
   }
 
   if strings.HasPrefix(val, "\"") || strings.HasPrefix(val, "'") || strings.HasPrefix(val, "`") {
-    return C.CString("string")
+    return "string"
   } else if strings.HasPrefix(val, "[:") {
-    return C.CString("hash")
+    return "hash"
   } else if strings.HasPrefix(val, "[") {
-    return C.CString("array")
+    return "array"
   } else if val == "true" || val == "false" {
-    return C.CString("boolean")
+    return "boolean"
   } else if val == "undef" || val == "null" {
-    return C.CString("falsey")
+    return "falsey"
   } else if numMatch(val) {
-    return C.CString("number")
+    return "number"
   }
 
-  return C.CString("none")
+  return "none"
 }
 
 //export Lexer

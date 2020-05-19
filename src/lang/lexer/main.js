@@ -106,7 +106,7 @@ global.lexer = (file, dir) => {
         Name: '\'' + value + '\'',
         Exp: curExp,
         Line: line,
-        Type: 'string',
+        Type: 'expression value',
         OName: '\'' + value + '\'',
         Dir: dir
       });
@@ -137,7 +137,7 @@ global.lexer = (file, dir) => {
           Name: num,
           Exp: curExp,
           Line: line,
-          Type: 'number',
+          Type: 'expression value',
           OName: num,
           Dir: dir
         });
@@ -168,7 +168,7 @@ global.lexer = (file, dir) => {
         Name: (sign ? '' : '-') + num,
         Exp: curExp,
         Line: line,
-        Type: 'number',
+        Type: 'expression value',
         OName: num,
         Dir: dir
       });
@@ -197,7 +197,7 @@ global.lexer = (file, dir) => {
         Name: '$' + variable,
         Exp: curExp,
         Line: line,
-        Type: 'variable',
+        Type: 'expression value',
         OName: variable,
         Dir: dir
       });
@@ -209,7 +209,8 @@ global.lexer = (file, dir) => {
   lex = lex.map(l => {
     if (/\$true|\$false|\$undef|\$null/.test(l.Name)) return {
       ...l,
-      Name: l.Name.substr(1)
+      Name: l.Name.substr(1),
+      Type: 'expression value'
     };
     else return l;
   });

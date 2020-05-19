@@ -7,7 +7,6 @@ extern "C" {
   extern char* SubtractC(char*, char*, char*);
   extern char* MultiplyC(char*, char*, char*);
   extern char* DivisionC(char*, char*, char*);
-  extern char* GetType(char*);
   extern char* ReturnInitC(char*);
   extern int IsLessC(char*, char*);
   extern char* GetOp(char*);

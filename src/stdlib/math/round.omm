@@ -1,0 +1,9 @@
+ns::Math {
+  import ~ "?~/math/*";
+
+  proc ~ round(num) {
+
+    if (num - floor(num) < .5)  return floor(num);
+    else return ceil(num);
+  }
+}

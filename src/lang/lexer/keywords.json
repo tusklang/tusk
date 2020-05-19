@@ -400,6 +400,18 @@
     "type": "caller"
   },
   {
+    "name": "pargc",
+    "remove": "argc",
+    "pattern": "(argc\\s+\\d+)",
+    "type": "id"
+  },
+  {
+    "name": "pargc",
+    "remove": "argc",
+    "pattern": "(argc\\s*\\~)",
+    "type": "id_non_tilde"
+  },
+  {
     "name": "process",
     "remove": "proc",
     "pattern": "(proc(\\s*)\\()",

@@ -189,27 +189,58 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
         break;
       case 10: {
 
-          //process
+        //process
 
-          string name = v.Name;
+        string name = v.Name;
 
-          if (name != "") {
-            Variable nVar = Variable{
-              "process",
-              name,
-              { v }
-            };
+        if (name != "") {
+          Variable nVar = Variable{
+            "process",
+            name,
+            { v }
+          };
 
-            vars[name] = nVar;
-          }
-
-          if (expReturn) {
-            vector<string> noRet;
-
-            return Returner{ noRet, vars, v, "expression" };
-          }
+          vars[name] = nVar;
         }
+
+        if (expReturn) {
+          vector<string> noRet;
+
+          return Returner{ noRet, vars, v, "expression" };
+        }
+
         break;
+      }
+      case 80: {
+
+        //pargc
+
+        unsigned long long pargc = 0;
+
+        //count the pargc
+        for (pair<string, Variable> it : vars)
+          if (it.second.type == "argument") ++pargc;
+          else if (it.second.type == "pargv")
+            pargc+=parser(it.second.value, cli_params, vars, false, true, this_vals, dir).exp.Hash_Values.size();
+
+        if (to_string(pargc) == string(ReturnInitC(&v.ExpStr[0][0]))) {
+
+          Returner parsed = parser(v.ExpAct, cli_params, vars, true, true, this_vals, dir);
+
+          map<string, Variable> pVars = parsed.variables;
+
+          //filter the variables that are not global
+          for (pair<string, Variable> o : pVars)
+            if (o.second.type == "global" || o.second.type == "process" || vars.find(o.second.name) != vars.end())
+              vars[o.first] = o.second;
+
+          if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
+          if (parsed.type == "skip") continue;
+          if (parsed.type == "break") break;
+        }
+
+        break;
+      }
       case 11: {
 
           //# (call process)
@@ -1151,17 +1182,40 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
             vector<string> params = var.Params;
             vector<vector<Action>> args = v.Args;
 
-            if (params.size() != args.size()) {
+            if (params.size() != args.size() && !vector_indexes_inc(params, "pargv")) {
               parsed = fparsed;
-              goto stopIndexing_threads;
+              return Returner{ noRet, vars, falseyVal, "expression" };
             }
 
             map<string, Variable> sendVars = vars;
 
             for (int o = 0; o < params.size() || o < args.size(); o++) {
 
+              //if it starts with pargv
+              if (params[o].rfind("$pargv.", 0) == 0) {
+
+                string varname = "$" + params[o].substr(string("$pargv.").length());
+
+                //convert the rest of the args into an array and store it in the pargv variable
+                map<string, vector<Action>> pargv;
+
+                for (unsigned long long cur = 0; o < args.size(); ++o, ++cur)
+                  pargv[to_string(cur)] = { parser(args[o], cli_params, vars, false, true, this_vals, dir).exp };
+
+                Action arg = arrayVal;
+                arg.Hash_Values = pargv;
+
+                sendVars[varname] = Variable{
+                  "pargv",
+                  varname,
+                  { arg }
+                };
+
+                break;
+              }
+
               Variable cur = Variable{
-                "local",
+                "argument",
                 params[o],
                 { parser(args[o], cli_params, vars, false, true, this_vals, dir).exp }
               };

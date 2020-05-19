@@ -1467,6 +1467,58 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         logic, params, procName := procCalc(&i, lex, len_lex, dir, name)
 
         actions = append(actions, Action{ "process", procName, []string{}, logic, params, [][]Action{}, []Condition{}, 10, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, false, "private", []SubCaller{} })
+      case "pargc":
+
+        i+=2
+        count := lex[i].Name
+        i++
+
+        //if it is not a number of a parameter list
+        //(add parameter lists before)
+        //they are just as follows
+        /*
+
+        pargc ~ 5 ~ (string->, number->, ...whatever datatypes) {
+
+        }
+
+        */
+        //used to properly overload processes
+        if getType(count) != "number" {
+
+          //throw an error
+          C.colorprint(C.CString("Error while actionizing in " + lex[i].Dir + "!\n"), C.int(12))
+          fmt.Println("Expected either a numeric value or a parameter list after pargc", "\n\nError occured on line", lex[i].Line, "\nFound near:", strings.TrimSpace(lex[i].Exp))
+
+          //exit the process
+          os.Exit(1)
+        }
+
+        cbCnt := 0
+
+        var exp []Lex
+
+        for ;i < len_lex; i++ {
+
+          if lex[i].Name == "{" {
+            cbCnt++
+            continue
+          }
+          if lex[i].Name == "}" {
+            cbCnt--
+            continue
+          }
+
+          exp = append(exp, lex[i])
+
+          if cbCnt == 0 {
+            break
+          }
+        }
+
+        actionized := Actionizer(exp, false, dir, name)
+
+        actions = append(actions, Action{ "pargc", "", []string{ count }, actionized, []string{}, [][]Action{}, []Condition{}, 80, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
       case "wait":
 
         var exp []Lex
@@ -2703,7 +2755,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
           i++
 
-          switch C.GoString(GetType(C.CString(val))) {
+          switch getType(val) {
 
             case "string": {
 
@@ -2820,7 +2872,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             val := Actionizer(val_, true, dir, name)
 
             getValueType := func(val string) string {
-              switch (C.GoString(GetType(C.CString(val)))) {
+              switch getType(val) {
                 case "string": fallthrough
                 case "number": fallthrough
                 case "boolean": fallthrough

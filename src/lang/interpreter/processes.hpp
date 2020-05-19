@@ -4,6 +4,7 @@
 #include <vector>
 #include <deque>
 #include <map>
+#include <algorithm>
 
 #include "json.hpp"
 #include "parser.hpp"
@@ -11,6 +12,14 @@
 using namespace std;
 
 Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn, deque<map<string, vector<Action>>> this_vals, string dir);
+
+bool vector_indexes_inc(vector<string> vec, string str) {
+
+  for (string v : vec)
+    if (v.find(str) != string::npos) return true;
+
+  return false;
+}
 
 Returner processParser(Action var, const Action v, const json cli_params, map<string, Variable>* vars, deque<map<string, vector<Action>>> this_vals, bool isProc, string dir) {
 
@@ -45,7 +54,7 @@ Returner processParser(Action var, const Action v, const json cli_params, map<st
   vector<string> params = var.Params;
   vector<vector<Action>> args = v.Args;
 
-  if (params.size() != args.size()) {
+  if (params.size() != args.size() && !vector_indexes_inc(params, "pargv")) {
     parsed = fparsed;
     return Returner{ noRet, *vars, falseyVal, "expression" };
   }
@@ -54,8 +63,31 @@ Returner processParser(Action var, const Action v, const json cli_params, map<st
 
   for (int o = 0; o < params.size() || o < args.size(); o++) {
 
+    //if it starts with pargv
+    if (params[o].rfind("$pargv.", 0) == 0) {
+
+      string varname = "$" + params[o].substr(string("$pargv.").length());
+
+      //convert the rest of the args into an array and store it in the pargv variable
+      map<string, vector<Action>> pargv;
+
+      for (unsigned long long cur = 0; o < args.size(); ++o, ++cur)
+        pargv[to_string(cur)] = { parser(args[o], cli_params, *vars, false, true, this_vals, dir).exp };
+
+      Action arg = arrayVal;
+      arg.Hash_Values = pargv;
+
+      sendVars[varname] = Variable{
+        "pargv",
+        varname,
+        { arg }
+      };
+
+      break;
+    }
+
     Variable cur = Variable{
-      "local",
+      "argument",
       params[o],
       { parser(args[o], cli_params, *vars, false, true, this_vals, dir).exp }
     };

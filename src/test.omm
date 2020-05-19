@@ -1,3 +1,10 @@
-import ~ "?~/math/ceil.omm"
+proc ~ test(pargv.s) {
 
-log ~ Math.floor(-9.1);
+  pargc 3: {
+    log ~ 's';
+  }
+
+  log ~ s;
+}
+
+test(2, 1, 3);

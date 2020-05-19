@@ -10,6 +10,7 @@ print: 6
 expressionIndex: 8
 group: 9
 process: 10
+pargc: 80
 #: 11
 return: 12
 conditional: 13
@@ -25,7 +26,6 @@ array: 24
 arrayIndex: 25
 ascii: 26
 let: 28
-len: 31
 add: 32
 subtract: 33
 multiply: 34
