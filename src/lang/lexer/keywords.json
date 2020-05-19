@@ -563,6 +563,7 @@
   },
   {
     "name": "!|",
+    "remove": "!|",
     "pattern": "(\\!\\|)",
     "type": "operation"
   },
