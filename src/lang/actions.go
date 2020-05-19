@@ -1199,12 +1199,19 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         cond := Actionizer(cond_, true, dir, name)
 
-        for ;lex[i].Name == "=>"; {
+        for do := true; do || lex[i].Name == "=>"; do = false {
+
+          adder := 0
+
+          if lex[i].Name != "=>" {
+            adder = 1
+          }
+
           cbCnt := 0
 
           actions_ := []Lex{}
 
-          for o := i + 1; o < len_lex; o++ {
+          for o := i + adder; o < len_lex; o++ {
             if lex[o].Name == "{" {
               cbCnt++
             }

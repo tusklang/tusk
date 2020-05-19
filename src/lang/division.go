@@ -54,7 +54,7 @@ func DivisionC(_num1C *C.char, _num2C *C.char, cli_paramsP *C.char) *C.char {
     _num1+=strings.Repeat("0", 20)
   }
 
-  _num1+=strings.Repeat("0", cli_params["Calc"]["PREC"].(int))
+  _num1+=strings.Repeat("0", int(cli_params["Calc"]["PREC"].(float64)))
 
   curVal := ""
   final := ""
