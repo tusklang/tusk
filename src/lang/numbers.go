@@ -39,7 +39,7 @@ func returnInit(str string) string {
     str = str[1:]
   }
 
-  if C.GoString(GetType(C.CString(str))) == "string" {
+  if getType(str) == "string" {
     str = strconv.Itoa(len(str) - 2)
   }
 
@@ -50,7 +50,7 @@ func returnInit(str string) string {
     str = "0"
   }
 
-  if C.GoString(GetType(C.CString(str))) == "falsey" {
+  if getType(str) == "falsey" {
     str = "-1"
   }
 
@@ -194,11 +194,11 @@ func isLess(num1 string, num2 string) bool {
     return false
   }
 
-  if C.GoString(GetType(C.CString(num1))) == "string" {
+  if getType(num1) == "string" {
     num1 = strconv.Itoa(len(num1) - 2)
   }
 
-  if C.GoString(GetType(C.CString(num2))) == "string" {
+  if getType(num2) == "string" {
     num2 = strconv.Itoa(len(num2) - 2)
   }
 
@@ -216,11 +216,11 @@ func isLess(num1 string, num2 string) bool {
     num2 = "0"
   }
 
-  if C.GoString(GetType(C.CString(num1))) == "falsey" {
+  if getType(num1) == "falsey" {
     num1 = "-1"
   }
 
-  if C.GoString(GetType(C.CString(num2))) == "falsey" {
+  if getType(num2) == "falsey" {
     num2 = "-1"
   }
 

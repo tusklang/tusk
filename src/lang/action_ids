@@ -10,7 +10,8 @@ print: 6
 expressionIndex: 8
 group: 9
 process: 10
-pargc: 80
+pargc_number: 80
+pargc_paramlist: 81
 #: 11
 return: 12
 conditional: 13

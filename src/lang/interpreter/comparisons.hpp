@@ -27,7 +27,7 @@ Action equals(Action val1, Action val2, json cli_params, map<string, Variable> v
       auto finder = val2.Hash_Values.find(i.first);
 
       if (finder == val2.Hash_Values.end()) return falseRet;
-      if (parser(val2.Hash_Values[i.first], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0] != parser(i.second, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]) return falseRet;
+      if (equals(parser(val2.Hash_Values[i.first], cli_params, vars, false, true, this_vals, dir).exp, parser(i.second, cli_params, vars, false, true, this_vals, dir).exp, cli_params, vars, this_vals, dir).ExpStr[0] == "false") return falseRet;
     }
 
     return trueRet;

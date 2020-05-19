@@ -1478,17 +1478,56 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         //they are just as follows
         /*
 
-        pargc ~ 5 ~ (string->, number->, ...whatever datatypes) {
+        pargc ~ (string->, number->, ...whatever datatypes) {
 
         }
 
         */
         //used to properly overload processes
-        if getType(count) != "number" {
+        if getType(count) != "number" && count != "(" {
 
           //throw an error
           C.colorprint(C.CString("Error while actionizing in " + lex[i].Dir + "!\n"), C.int(12))
-          fmt.Println("Expected either a numeric value or a parameter list after pargc", "\n\nError occured on line", lex[i].Line, "\nFound near:", strings.TrimSpace(lex[i].Exp))
+          fmt.Println("Expected either a numeric value or a parameter list after pargc but instead got", count, "which is of type", getType(count), "\n\nError occured on line", lex[i].Line, "\nFound near:", strings.TrimSpace(lex[i].Exp))
+
+          //exit the process
+          os.Exit(1)
+        }
+
+        var types []string
+
+        if count == "(" {
+
+          for ;i < len_lex; i++ {
+
+            if lex[i].Name == "," {
+              continue
+            }
+
+            if lex[i].Name == ")" {
+              i++
+              break
+            }
+
+            types = append(types, lex[i].Name[1:])
+
+            if !isType(lex[i].Name[1:]) {
+
+              //throw an error
+              C.colorprint(C.CString("Error while actionizing in " + lex[i].Dir + "!\n"), C.int(12))
+              fmt.Println("Expected a type value instead of", lex[i].Name[1:], "\n\nError occured on line", lex[i].Line, "\nFound near:", strings.TrimSpace(lex[i].Exp))
+
+              //exit the process
+              os.Exit(1)
+            }
+          }
+        }
+
+        if lex[i].Name != "{" {
+
+          //throw an error
+          C.colorprint(C.CString("Error while actionizing in " + lex[i].Dir + "!\n"), C.int(12))
+          fmt.Println("Expected { instead of", lex[i].Name, "\nFound near:", strings.TrimSpace(lex[i].Exp))
 
           //exit the process
           os.Exit(1)
@@ -1515,10 +1554,17 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             break
           }
         }
+        i--
 
         actionized := Actionizer(exp, false, dir, name)
 
-        actions = append(actions, Action{ "pargc", "", []string{ count }, actionized, []string{}, [][]Action{}, []Condition{}, 80, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
+        if count == "(" {
+
+          actions = append(actions, Action{ "pargc_paramlist", "", []string{}, actionized, types, [][]Action{}, []Condition{}, 81, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
+        } else {
+
+          actions = append(actions, Action{ "pargc_number", "", []string{ count }, actionized, []string{}, [][]Action{}, []Condition{}, 80, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
+        }
       case "wait":
 
         var exp []Lex

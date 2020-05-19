@@ -401,14 +401,14 @@
   },
   {
     "name": "pargc",
-    "remove": "argc",
-    "pattern": "(argc\\s+\\d+)",
+    "remove": "pargc",
+    "pattern": "(pargc\\s+)",
     "type": "id"
   },
   {
     "name": "pargc",
-    "remove": "argc",
-    "pattern": "(argc\\s*\\~)",
+    "remove": "pargc",
+    "pattern": "(pargc\\s*\\~)",
     "type": "id_non_tilde"
   },
   {

@@ -1,10 +1,10 @@
 proc ~ test(pargv.s) {
 
-  pargc 3: {
+  pargc (number, string) {
     log ~ 's';
-  }
+  };
 
   log ~ s;
 }
 
-test(2, 1, 3);
+test("sy", 1);

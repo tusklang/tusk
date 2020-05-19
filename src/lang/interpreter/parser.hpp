@@ -213,7 +213,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
       }
       case 80: {
 
-        //pargc
+        //pargc_number
 
         unsigned long long pargc = 0;
 
@@ -225,6 +225,49 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
         if (to_string(pargc) == string(ReturnInitC(&v.ExpStr[0][0]))) {
 
+          Returner parsed = parser(v.ExpAct, cli_params, vars, true, true, this_vals, dir);
+
+          map<string, Variable> pVars = parsed.variables;
+
+          //filter the variables that are not global
+          for (pair<string, Variable> o : pVars)
+            if (o.second.type == "global" || o.second.type == "process" || vars.find(o.second.name) != vars.end())
+              vars[o.first] = o.second;
+
+          if (parsed.type == "return") return Returner{ parsed.value, vars, parsed.exp, "return" };
+          if (parsed.type == "skip") continue;
+          if (parsed.type == "break") break;
+        }
+
+        break;
+      }
+      case 81: {
+
+        //pargc_paramlist
+
+        unsigned long long pargc = 0;
+        vector<string> types;
+
+        //count the pargc and the types
+        for (pair<string, Variable> it : vars) {
+
+          Action parsed_it = parser(it.second.value, cli_params, vars, false, true, this_vals, dir).exp;
+
+          if (it.second.type == "argument") {
+
+            ++pargc;
+            types.push_back(parsed_it.Type);
+
+          } else if (it.second.type == "pargv") {
+
+            pargc+=parsed_it.Hash_Values.size();
+
+            for (pair<string, vector<Action>> pargv_it: parsed_it.Hash_Values)
+              types.push_back(parser(pargv_it.second, cli_params, vars, false, true, this_vals, dir).exp.Type);
+          }
+        }
+
+        if (pargc == v.Params.size() && types == v.Params) {
           Returner parsed = parser(v.ExpAct, cli_params, vars, true, true, this_vals, dir);
 
           map<string, Variable> pVars = parsed.variables;

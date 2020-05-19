@@ -4,7 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  #include <windows.h>
+  #include <windows.h> //later make a more cross platform solution
   #include <stdio.h>
 
   void colorprint(char* str, int color) {
