@@ -1,10 +1,1 @@
-proc ~ test(pargv.s) {
-
-  pargc (number, string) {
-    log ~ 's';
-  };
-
-  log ~ s;
-}
-
-test("sy", 1);
+log [[2]] ~~1: [1, [2]]

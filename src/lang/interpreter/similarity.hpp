@@ -5,6 +5,7 @@
 
 #include <map>
 #include <vector>
+#include <deque>
 #include "json.hpp"
 #include "parser.hpp"
 #include "values.hpp"
@@ -12,16 +13,38 @@
 using namespace std;
 using json = nlohmann::json;
 
+Action similarity(Action val1, Action val2, Action degree, const json cli_params, map<string, Variable> vars, deque<map<string, vector<Action>>> this_vals, string dir);
+
+map<string, vector<Action>>::iterator findsimilar(map<string, vector<Action>> m, vector<Action> find, const json cli_params, map<string, Variable> vars, deque<map<string, vector<Action>>> this_vals, string dir) {
+
+  //loop through the map
+  for (map<string, vector<Action>>::iterator it = m.begin(); it != m.end(); ++it) {
+
+    if (
+      similarity(
+        parser(it->second, cli_params, vars, false, true, this_vals, dir).exp,
+        parser(find, cli_params, vars, false, true, this_vals, dir).exp,
+        zero,
+        cli_params,
+        vars,
+        this_vals,
+        dir
+      ).ExpStr[0] == "true"
+    ) return it;
+  }
+
+  return m.end();
+}
+
 Action similarity(Action val1, Action val2, Action degree, const json cli_params, map<string, Variable> vars, deque<map<string, vector<Action>>> this_vals, string dir) {
 
   //if the degree is not a number return undef
   if (degree.Type != "number") return falseyVal;
 
-  if (val1.Name == "hashed_value" && val2.Name == "hashed_values") {
+  if (val1.Name == "hashed_value" && val2.Name == "hashed_value") {
 
+    //force val1 to have a bigger hash than val2
     if (val1.Hash_Values.size() < val2.Hash_Values.size()) {
-
-      //swap val1 and val2
       Action temp = val1;
 
       val1 = val2;
@@ -30,19 +53,19 @@ Action similarity(Action val1, Action val2, Action degree, const json cli_params
 
     char* difcount = "0";
 
-    for (pair<string, vector<Action>> i : val1.Hash_Values) {
+    map<string, vector<Action>> v1h = val1.Hash_Values, v2h = val2.Hash_Values;
 
-      for (pair<string, vector<Action>> o : val2.Hash_Values) {
+    for (unsigned long long count = v1h.size(); count > 0; --count) {
 
-        if (
-          parser(o.second, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]
-          !=
-          parser(i.second, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]
-        ) difcount = AddC(difcount, "1", &cli_params.dump()[0]);
-        else val2.Hash_Values.erase(o.first);
+      //get the first value from the first hash, and the same value from the other hash
+      map<string, vector<Action>>::iterator
+        v1find = v1h.begin(),
+        v2find = findsimilar(v2h, v1find->second, cli_params, vars, this_vals, dir);
 
-        if ((bool) IsLessC(&(degree.ExpStr[0])[0], difcount)) return falseRet;
-      }
+      if (v1find == v1h.end() || v2find == v2h.end())
+        difcount = AddC(difcount, "1", &cli_params.dump()[0]);
+
+      if ((bool) IsLessC(&degree.ExpStr[0][0], difcount)) return falseRet;
     }
 
     //it has passed the above test
@@ -82,8 +105,9 @@ Action strictSimilarity(Action val1, Action val2, Action degree, const json cli_
   //if the degree is not a number return undefined
   if (degree.Type != "number") return falseyVal;
 
-  if (val1.Name == "hashed_value" && val2.Name == "hashed_values") {
+  if (val1.Name == "hashed_value" && val2.Name == "hashed_value") {
 
+    //force val1 to have a bigger hash than val2
     if (val1.Hash_Values.size() < val2.Hash_Values.size()) {
       Action temp = val1;
 
@@ -101,9 +125,15 @@ Action strictSimilarity(Action val1, Action val2, Action degree, const json cli_
       else {
 
         if (
-          parser(val2.Hash_Values[i.first], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]
-          !=
-          parser(i.second, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]
+          strictSimilarity(
+            parser(val2.Hash_Values[i.first], cli_params, vars, false, true, this_vals, dir).exp,
+            parser(i.second, cli_params, vars, false, true, this_vals, dir).exp,
+            zero,
+            cli_params,
+            vars,
+            this_vals,
+            dir
+          ).ExpStr[0] == "false"
         ) difcount = AddC(difcount, "1", &cli_params.dump()[0]);
         else {
           val2.Hash_Values.erase(i.first);

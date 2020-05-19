@@ -12,22 +12,26 @@ using json = nlohmann::json;
 
 Action equals(Action val1, Action val2, json cli_params, map<string, Variable> vars, deque<map<string, vector<Action>>> this_vals, string dir) {
 
-  if (val1.Name == "hashed_value" && val2.Name == "hashed_values") {
+  if (val1.Name == "hashed_value" && val2.Name == "hashed_value") {
 
-    //make sure that val1 is the greater value
-    if (val1.Hash_Values.size() < val2.Hash_Values.size()) {
-      Action temp = val1;
-
-      val1 = val2;
-      val2 = temp;
-    }
+    //if the two hash values don't have the same size return false
+    if (val1.Hash_Values.size() != val2.Hash_Values.size()) return falseRet;
 
     for (pair<string, vector<Action>> i : val1.Hash_Values) {
 
       auto finder = val2.Hash_Values.find(i.first);
 
       if (finder == val2.Hash_Values.end()) return falseRet;
-      if (equals(parser(val2.Hash_Values[i.first], cli_params, vars, false, true, this_vals, dir).exp, parser(i.second, cli_params, vars, false, true, this_vals, dir).exp, cli_params, vars, this_vals, dir).ExpStr[0] == "false") return falseRet;
+      if (
+        equals(
+          parser(val2.Hash_Values[i.first], cli_params, vars, false, true, this_vals, dir).exp,
+          parser(i.second, cli_params, vars, false, true, this_vals, dir).exp,
+          cli_params,
+          vars,
+          this_vals,
+          dir
+        ).ExpStr[0] == "false"
+        ) return falseRet;
     }
 
     return trueRet;
