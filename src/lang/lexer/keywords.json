@@ -490,6 +490,12 @@
     "type": "cond"
   },
   {
+    "name": "else",
+    "remove": "else",
+    "pattern": "(else(\\s+))",
+    "type": "id"
+  },
+  {
     "name": "loop",
     "remove": "loop",
     "pattern": "(loop(\\s*)\\()",

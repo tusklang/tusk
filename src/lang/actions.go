@@ -1661,7 +1661,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         conditions := []Condition{}
 
-        for ;lex[i].Name == "if"; {
+        if (lex[i].Name == "if") {
           var cond_ = []Lex{}
           pCnt := 0
 

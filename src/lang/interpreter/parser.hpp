@@ -334,7 +334,7 @@ Returner parser(const vector<Action> actions, const json cli_params, map<string,
 
             Action val = parser(v.Condition[o].Condition, cli_params, vars, false, true, this_vals, dir).exp;
 
-            if (isTruthy(val)) {
+            if (isTruthy(val) || v.Condition[o].Type == "else") {
 
               Returner parsed = parser(v.Condition[o].Actions, cli_params, vars, true, false, this_vals, dir);
 

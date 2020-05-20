@@ -1,1 +1,4 @@
-log 8 % 3;
+if (true & false) {
+  log 's';
+} else
+  log 'p';
