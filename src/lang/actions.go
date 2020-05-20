@@ -1987,89 +1987,170 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         continue
       case "ns":
 
-        if i >= len_lex || !strings.HasPrefix(lex[i + 1].Name, "$") {
+        //define calc_ns
+        var calc_ns func(lex []Lex, cur_index *int) []Lex
 
-          //throw an error
-          C.colorprint(C.CString("Error while actionizing in " + lex[i].Dir + "!\n"), C.int(12))
-          fmt.Println("Expected a variable name after ns::", "\n\nError occured on line", lex[i].Line, "\nFound near:", strings.TrimSpace(lex[i].Exp))
+        //assign calc_ns
+        calc_ns = func(lex []Lex, cur_index *int) []Lex {
 
-          //exit the process
-          os.Exit(1)
-        }
+          if *cur_index >= len_lex || !strings.HasPrefix(lex[*cur_index + 1].Name, "$") {
 
-        var namespace_name = lex[i + 1].Name
-        i+=2
+            //throw an error
+            C.colorprint(C.CString("Error while actionizing in " + lex[i].Dir + "!\n"), C.int(12))
+            fmt.Println("Expected a variable name after ns::", "\n\nError occured on line", lex[i].Line, "\nFound near:", strings.TrimSpace(lex[i].Exp))
 
-        cbCnt := 0
-        glCnt := 0
-        bCnt := 0
-        pCnt := 0
-
-        var namespace_group []Lex
-
-        for o := i; o < len_lex; o++ {
-          if lex[o].Name == "{" {
-            cbCnt++
-          }
-          if lex[o].Name == "}" {
-            cbCnt--
+            //exit the process
+            os.Exit(1)
           }
 
-          if lex[o].Name == "[:" {
-            glCnt++
+          var namespace_name = lex[*cur_index + 1].Name
+          *cur_index+=2
+
+          cbCnt := 0
+          glCnt := 0
+          bCnt := 0
+          pCnt := 0
+
+          var namespace_group []Lex
+
+          for o := *cur_index; o < len_lex; o++ {
+            if lex[o].Name == "{" {
+              cbCnt++
+            }
+            if lex[o].Name == "}" {
+              cbCnt--
+            }
+
+            if lex[o].Name == "[:" {
+              glCnt++
+            }
+            if lex[o].Name == ":]" {
+              glCnt--
+            }
+
+            if lex[o].Name == "[" {
+              bCnt++
+            }
+            if lex[o].Name == "]" {
+              bCnt--
+            }
+
+            if lex[o].Name == "(" {
+              pCnt++
+            }
+            if lex[o].Name == ")" {
+              pCnt--
+            }
+
+            namespace_group = append(namespace_group, lex[o])
+            *cur_index++
+
+            if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+              break
+            }
           }
-          if lex[o].Name == ":]" {
-            glCnt--
-          }
+          *cur_index--
 
-          if lex[o].Name == "[" {
-            bCnt++
-          }
-          if lex[o].Name == "]" {
-            bCnt--
-          }
+          //see if ?^ is activated
+          var not_ns = false
 
-          if lex[o].Name == "(" {
-            pCnt++
-          }
-          if lex[o].Name == ")" {
-            pCnt--
-          }
+          //change all variables in that lex group to start with the namespace name
+          for k := 0; k < len(namespace_group); k++ {
 
-          namespace_group = append(namespace_group, lex[o])
-          i++
+            v := namespace_group[k]
 
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
-            break
-          }
-        }
+            if v.Name == "?^" {
+              not_ns = true
 
-        //see if ?^ is activated
-        var not_ns = false
+              if namespace_group[k + 1].Name[0] != '$' {
 
-        //change all variables in that lex group to start with the namespace name
-        for k, v := range namespace_group {
+                //throw an error
+                C.colorprint(C.CString("Error while actionizing in " + lex[i].Dir + "!\n"), C.int(12))
+                fmt.Println("Unexpected ?^ before", v, ". ?^ is only allowed before a variable!", "\n\nError occured on line", lex[i].Line, "\nFound near:", strings.TrimSpace(lex[i].Exp))
 
-          if v.Name == "?^" {
-            not_ns = true
-          }
+                //exit the process
+                os.Exit(1)
 
-          if strings.HasPrefix(v.Name, "$") { //if it is a variable
+              }
 
-            if strings.HasPrefix(v.Name, namespace_name) {
               continue
             }
 
-            if not_ns {
-              not_ns = false
-              continue
+            //detect a nested namespace
+            if v.Name == "ns" {
+
+              cbCnt = 0
+              glCnt = 0
+              bCnt = 0
+              pCnt = 0
+
+              ns_key := v
+
+              name := namespace_group[k + 1]
+              var nested_namespace_group []Lex
+
+              for j := k + 2; j < len(namespace_group); j++ {
+
+                if namespace_group[j].Name == "{" {
+                  cbCnt++
+                }
+                if namespace_group[j].Name == "}" {
+                  cbCnt--
+                }
+
+                if namespace_group[j].Name == "[:" {
+                  glCnt++
+                }
+                if namespace_group[j].Name == ":]" {
+                  glCnt--
+                }
+
+                if namespace_group[j].Name == "[" {
+                  bCnt++
+                }
+                if namespace_group[j].Name == "]" {
+                  bCnt--
+                }
+
+                if namespace_group[j].Name == "(" {
+                  pCnt++
+                }
+                if namespace_group[j].Name == ")" {
+                  pCnt--
+                }
+
+                nested_namespace_group = append(nested_namespace_group, namespace_group[j])
+
+                if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+                  break
+                }
+              }
+
+              var nested_new = []Lex{ ns_key, name }
+              nested_new = append(nested_new, nested_namespace_group...)
+
+              zero := 0
+
+              namespace_group = append(namespace_group, calc_ns(nested_new, &zero)...)
             }
 
-            namespace_group[k].Name = namespace_name + "." + v.Name[1:] //make it starts with $<namespace name>
+            if strings.HasPrefix(v.Name, "$") { //if it is a variable
+
+              if not_ns {
+                not_ns = false
+                continue
+              }
+
+              namespace_group[k].Name = namespace_name + "." + v.Name[1:] //make it starts with $<namespace name>
+              continue
+            }
           }
+
+          return namespace_group
+
         }
 
-        actionized := Actionizer(namespace_group, false, dir, name)
+        actionized := Actionizer(calc_ns(lex, &i), false, dir, name)
 
         actions = append(actions, actionized...)
       case "break":
