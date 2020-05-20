@@ -1,4 +1,0 @@
-if (true & false) {
-  log 's';
-} else
-  log 'p';

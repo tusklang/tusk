@@ -7,32 +7,35 @@
 #include "../../json.hpp"
 #include "../../structs.hpp"
 #include "../../values.hpp"
-using namespace std;
 using json = nlohmann::json;
 
-Action divide(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
+namespace omm {
 
-  /* TABLE OF TYPES:
+  Action divide(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-    num / num = num
-    default = falsey
-  */
+    /* TABLE OF TYPES:
 
-  Action finalRet;
+      num / num = num
+      default = falsey
+    */
 
-  if (num1.Type == "number" && num2.Type == "number") { //detect case num / num = num
+    Action finalRet;
 
-    string val(DivisionC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]));
+    if (num1.Type == "number" && num2.Type == "number") { //detect case num / num = num
 
-    finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+      std::string val(DivisionC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]));
 
-  } else { //detect default case
+      finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
 
-    //return undef
-    finalRet = falseyVal;
+    } else { //detect default case
+
+      //return undef
+      finalRet = falseyVal;
+    }
+
+    return finalRet;
   }
 
-  return finalRet;
 }
 
 #endif

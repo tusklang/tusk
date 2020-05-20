@@ -10,38 +10,41 @@
 #include "json.hpp"
 #include "values.hpp"
 #include "ommtypes.hpp"
-using namespace std;
 using json = nlohmann::json;
 
-void run(char* actions, char* cli_params, char* dir, int argc, char ** argv) {
+namespace omm {
 
-  const json cpJ = json::parse(string(cli_params));
+  void run(char* actions, char* cli_params, char* dir, int argc, char ** argv) {
 
-  //convert the json to a vector of actions
-  vector<Action> acts = DecodeJSON::vector(json::parse(string(actions)));
+    const json cpJ = json::parse(string(cli_params));
 
-  map<string, Variable> vars;
+    //convert the json to a vector of actions
+    std::vector<Action> acts = DecodeJSON::vector(json::parse(string(actions)));
 
-  vars["$dirname"] = Variable{
-    "global",
-    "$dirname",
-    {
-      { "string", "", { string(dir) }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" }
-    }
-  };
+    std::map<std::string, Variable> vars;
 
-  Variable omm_args = Variable{
-    "global",
-    "$argv",
-    { arrayVal }
-  };
+    vars["$dirname"] = Variable{
+      "global",
+      "$dirname",
+      {
+        { "string", "", { string(dir) }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" }
+      }
+    };
 
-  for (int i = 0; i < argc; ++i)
-    omm_args.value[0].Hash_Values[to_string(i)] = { ommtypes::to_string(string(argv[i])) };
+    Variable omm_args = Variable{
+      "global",
+      "$argv",
+      { arrayVal }
+    };
 
-  vars["$argv"] = omm_args;
+    for (int i = 0; i < argc; ++i)
+      omm_args.value[0].Hash_Values[to_string(i)] = { ommtypes::to_string(string(argv[i])) };
 
-  parser(acts, cpJ, vars, /*group return*/ false, /* expression return */ false, {}, string(dir));
+    vars["$argv"] = omm_args;
+
+    parser(acts, cpJ, vars, /*group return*/ false, /* expression return */ false, {}, std::string(dir));
+  }
+  
 }
 
 #endif

@@ -3,76 +3,79 @@
 
 #include <vector>
 #include <map>
-using namespace std;
 
-//declare the structs
-struct Condition;
-struct Action;
-struct Variable;
-struct Returner;
-/////////////////////
+namespace omm {
 
-typedef struct Condition {
+  //declare the structs
+  struct Condition;
+  struct Action;
+  struct Variable;
+  struct Returner;
+  /////////////////////
 
-  string                        Type;
-  vector<Action>                Condition;
-  vector<Action>                Actions;
+  typedef struct Condition {
 
-} Condition;
+    std::string                                  Type;
+    std::vector<Action>                          Condition;
+    std::vector<Action>                          Actions;
 
-typedef struct SubCaller {
+  } Condition;
 
-  vector<vector<Action>>        Indexes;
-  vector<vector<Action>>        Args;
-  bool                          IsProc;
+  typedef struct SubCaller {
 
-} SubCaller;
+    std::vector<std::vector<Action>>             Indexes;
+    std::vector<std::vector<Action>>             Args;
+    bool                                         IsProc;
 
-typedef struct Action {
+  } SubCaller;
 
-  string                        Type;
-  string                        Name;
-  vector<string>                ExpStr;
-  vector<Action>                ExpAct;
-  vector<string>                Params;
-  vector<vector<Action>>        Args;
-  vector<Condition>             Condition;
+  typedef struct Action {
 
-  int                           ID;
+    std::string                                  Type;
+    std::string                                  Name;
+    std::vector<std::string>                     ExpStr;
+    std::vector<Action>                          ExpAct;
+    std::vector<std::string>                     Params;
+    std::vector<std::vector<Action>>             Args;
+    std::vector<Condition>                       Condition;
 
-  //stuff for operations
+    int                                          ID;
 
-  vector<Action>                First;
-  vector<Action>                Second;
-  vector<Action>                Degree;
+    //stuff for operations
 
-  //stuff for indexes
+    std::vector<Action>                          First;
+    std::vector<Action>                          Second;
+    std::vector<Action>                          Degree;
 
-  vector<vector<Action>>        Value;
-  vector<vector<Action>>        Indexes;
-  map<string, vector<Action>>   Hash_Values;
+    //stuff for indexes
 
-  bool                          IsMutable;
-  string                        Access;
-  vector<SubCaller>             SubCall;
+    std::vector<std::vector<Action>>             Value;
+    std::vector<std::vector<Action>>             Indexes;
+    std::map<std::string, std::vector<Action>>   Hash_Values;
+
+    bool                                         IsMutable;
+    std::string                                  Access;
+    std::vector<SubCaller>                       SubCall;
 
 } Action;
 
 typedef struct Variable {
 
-  string                        type;
-  string                        name;
-  vector<Action>                value;
+    std::string                                  type;
+    std::string                                  name;
+    std::vector<Action>                          value;
 
-} Variable;
+  } Variable;
 
-typedef struct Returner {
+  typedef struct Returner {
 
-  vector<string>                value;
-  map<string, Variable>         variables;
-  Action                        exp;
-  string                        type;
+    std::vector<std::string>                          value;
+    std::map<std::string, Variable>              variables;
+    Action                                       exp;
+    std::string                                  type;
 
-} Returner;
+  } Returner;
+
+}
 
 #endif

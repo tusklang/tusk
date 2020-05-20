@@ -9,71 +9,74 @@
 #include "../../structs.hpp"
 #include "../../comparisons.hpp"
 #include "../../parser.hpp"
-using namespace std;
 using json = nlohmann::json;
 
-Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn, deque<map<string, vector<Action>>> this_vals, string dir);
+namespace omm {
 
-Action subtractstrings(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
+  Returner parser(const std::vector<Action> actions, const json cli_params, std::map<std::string, Variable> vars, const bool groupReturn, const bool expReturn, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir);
 
-  map<string, vector<Action>> finalMap;
+  Action subtractstrings(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-  if (num1.Type == "number") {
+    std::map<string, std::vector<Action>> finalMap;
 
-    for (pair<string, vector<Action>> it : num2.Hash_Values) {
-      string k = it.first;
-      vector<Action> v = it.second;
+    if (num1.Type == "number") {
 
-      if (((bool) IsLessC(&k[0], &num1.ExpStr[0][0])) || string(ReturnInitC(&num1.ExpStr[0][0])) == string(ReturnInitC(&k[0]))) continue;
+      for (std::pair<std::string, std::vector<Action>> it : num2.Hash_Values) {
+        std::string k = it.first;
+        std::vector<Action> v = it.second;
 
-      string cur(SubtractC(&num1.ExpStr[0][0], &k[0], &cli_params.dump()[0]));
+        if (((bool) IsLessC(&k[0], &num1.ExpStr[0][0])) || string(ReturnInitC(&num1.ExpStr[0][0])) == string(ReturnInitC(&k[0]))) continue;
 
-      finalMap[cur] = v;
+        std::string cur(SubtractC(&num1.ExpStr[0][0], &k[0], &cli_params.dump()[0]));
+
+        finalMap[cur] = v;
+      }
+
+    } else {
+
+      char* length = "0";
+
+      //get string length
+      for (std::pair<std::string, std::vector<Action>> it : num1.Hash_Values)
+        length = AddC(length, "1", &cli_params.dump()[0]);
+
+      while ((bool) IsLessC("0", &num2.ExpStr[0][0])) {
+
+        std::string cur(AddC(length, &num2.ExpStr[0][0], &cli_params.dump()[0]));
+        num1.Hash_Values.erase(cur);
+
+        std::string subtracted(SubtractC(&num2.ExpStr[0][0], "1", &cli_params.dump()[0]));
+        num2.ExpStr[0] = subtracted;
+      }
+
+      finalMap = num1.Hash_Values;
     }
 
-  } else {
+    std::string str;
+    std::map<std::string, Variable> emptyVars;
 
-    char* length = "0";
+    for (std::pair<std::string, std::vector<Action>> it : finalMap)
+      str+=parser(it.second, cli_params, emptyVars, false, true, this_vals, dir).exp.ExpStr[0];
 
-    //get string length
-    for (pair<string, vector<Action>> it : num1.Hash_Values)
-      length = AddC(length, "1", &cli_params.dump()[0]);
-
-    while ((bool) IsLessC("0", &num2.ExpStr[0][0])) {
-
-      string cur(AddC(length, &num2.ExpStr[0][0], &cli_params.dump()[0]));
-      num1.Hash_Values.erase(cur);
-
-      string subtracted(SubtractC(&num2.ExpStr[0][0], "1", &cli_params.dump()[0]));
-      num2.ExpStr[0] = subtracted;
-    }
-
-    finalMap = num1.Hash_Values;
+    return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false, "private" };
   }
 
-  string str;
-  map<string, Variable> emptyVars;
+  Action subtractbools(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-  for (pair<string, vector<Action>> it : finalMap)
-    str+=parser(it.second, cli_params, emptyVars, false, true, this_vals, dir).exp.ExpStr[0];
+    bool num1Bool = num1.ExpStr[0] == "true";
+    bool num2Bool = num2.ExpStr[0] == "true";
+    std::string calc = to_string(((int) num1Bool) - ((int) num2Bool));
 
-  return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false, "private" };
-}
+    return Action{ "boolean", "", { calc }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+  }
 
-Action subtractbools(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
+  Action subtractarrays(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-  bool num1Bool = num1.ExpStr[0] == "true";
-  bool num2Bool = num2.ExpStr[0] == "true";
-  string calc = to_string(((int) num1Bool) - ((int) num2Bool));
+    std::map<std::string, std::vector<Action>> hash = subtractstrings(num1, num2, cli_params, this_vals, dir).Hash_Values;
 
-  return Action{ "boolean", "", { calc }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
-}
-
-Action subtractarrays(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
-
-  map<string, vector<Action>> hash = subtractstrings(num1, num2, cli_params, this_vals, dir).Hash_Values;
-
-  return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false, "private" };
+    return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false, "private" };
+  }
+  
 }
 
 #endif

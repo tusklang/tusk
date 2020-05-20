@@ -11,34 +11,39 @@
 using namespace std;
 using json = nlohmann::json;
 
-Returner parser(const vector<Action> actions, const json cli_params, map<string, Variable> vars, const bool groupReturn, const bool expReturn, deque<map<string, vector<Action>>> this_vals, string dir);
+namespace omm {
 
-Action indexesCalc(map<string, vector<Action>> val, vector<vector<Action>> indexes, json cli_params, map<string, Variable> vars, deque<map<string, vector<Action>>> this_vals, string dir) {
+  Returner parser(const std::vector<Action> actions, const json cli_params, std::map<std::string, Variable> vars, const bool groupReturn, const bool expReturn, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir);
 
-  if (indexes.size() == 0) return falseyVal;
+  Action indexesCalc(std::map<string, std::vector<Action>> val, std::vector<std::vector<Action>> indexes, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-  string index = parser(indexes[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
+    if (indexes.size() == 0) return falseyVal;
 
-  if (val.find(index) == val.end()) { //the second boolean is determining if the value is public
+    std::string index = parser(indexes[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
-    if (val.find("falsey") == val.end()) return falseyVal;
-    else return val["falsey"][0];
+    if (val.find(index) == val.end()) { //the second boolean is determining if the value is public
 
-  } else {
-
-    //if it is a private variable return undef
-    if (islower(index[0]) && val[index][0].Access != "public")
       if (val.find("falsey") == val.end()) return falseyVal;
       else return val["falsey"][0];
 
-    Action expVal = parser(val[index], cli_params, vars, false, true, this_vals, dir).exp;
+    } else {
 
-    indexes.erase(indexes.begin());
+      //if it is a private variable return undef
+      if (std::islower(index[0]) && val[index][0].Access != "public")
+        if (val.find("falsey") == val.end()) return falseyVal;
+        else return val["falsey"][0];
 
-    if (indexes.size() == 0) return expVal;
+      Action expVal = parser(val[index], cli_params, vars, false, true, this_vals, dir).exp;
 
-    return indexesCalc(expVal.Hash_Values, indexes, cli_params, vars, this_vals, dir);
+      indexes.erase(indexes.begin());
+
+      if (indexes.size() == 0) return expVal;
+
+      return indexesCalc(expVal.Hash_Values, indexes, cli_params, vars, this_vals, dir);
+    }
+
   }
+
 }
 
 #endif

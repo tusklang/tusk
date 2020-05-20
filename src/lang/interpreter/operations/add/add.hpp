@@ -8,53 +8,56 @@
 #include "../../structs.hpp"
 #include "../../values.hpp"
 #include "addtypes.hpp"
-using namespace std;
 using json = nlohmann::json;
 
-Action add(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
+namespace omm {
 
-  /* TABLE OF TYPES:
+  Action add(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-    string + (* - array - none - hash) = string
-    array + (* - none) = array
-    num + num = num
-    hash + hash = hash
-    boolean + boolean = boolean
-    num + boolean = num
-    default = falsey
-  */
+    /* TABLE OF TYPES:
 
-  Action finalRet;
+      string + (* - array - none - hash) = string
+      array + (* - none) = array
+      num + num = num
+      hash + hash = hash
+      boolean + boolean = boolean
+      num + boolean = num
+      default = falsey
+    */
 
-  if ((num1.Type == "string" || num2.Type == "string") && ((num1.Type != "array" && num2.Type != "array") && (num1.Type != "none" && num2.Type != "none") && (num1.Type != "hash" && num2.Type != "hash"))) { //detect case string + (* - array - none - hash) = string
+    Action finalRet;
 
-    finalRet = addstrings(num1, num2, cli_params, this_vals, dir);
+    if ((num1.Type == "string" || num2.Type == "string") && ((num1.Type != "array" && num2.Type != "array") && (num1.Type != "none" && num2.Type != "none") && (num1.Type != "hash" && num2.Type != "hash"))) { //detect case string + (* - array - none - hash) = string
 
-  } else if ((num1.Type == "array" || num2.Type == "array") && (num1.Type != "none" && num2.Type != "none")) { //detect case array + (* - none) = array
+      finalRet = addstrings(num1, num2, cli_params, this_vals, dir);
 
-    finalRet = addarrays(num1, num2, cli_params, this_vals, dir);
+    } else if ((num1.Type == "array" || num2.Type == "array") && (num1.Type != "none" && num2.Type != "none")) { //detect case array + (* - none) = array
 
-  } else if ((num1.Type == "number" || num2.Type == "number") && (num1.Type == "number" || num2.Type == "number")) { //detect case num + num = num
+      finalRet = addarrays(num1, num2, cli_params, this_vals, dir);
 
-    string val(AddC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]));
+    } else if ((num1.Type == "number" || num2.Type == "number") && (num1.Type == "number" || num2.Type == "number")) { //detect case num + num = num
 
-    finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+      std::string val(AddC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]));
 
-  } else if ((num1.Type == "hash" || num2.Type == "hash") && (num1.Type == "hash" || num2.Type == "hash")) { //detect case hash + hash = hash
+      finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
 
-    finalRet = addhashes(num1, num2, cli_params, this_vals, dir);
+    } else if ((num1.Type == "hash" || num2.Type == "hash") && (num1.Type == "hash" || num2.Type == "hash")) { //detect case hash + hash = hash
 
-  } else if ((num1.Type == "boolean" || num2.Type == "boolean") && (num1.Type == "boolean" || num2.Type == "boolean")) { //detect case boolean + boolean = boolean
+      finalRet = addhashes(num1, num2, cli_params, this_vals, dir);
 
-    finalRet = addbools(num1, num2, cli_params, this_vals, dir);
+    } else if ((num1.Type == "boolean" || num2.Type == "boolean") && (num1.Type == "boolean" || num2.Type == "boolean")) { //detect case boolean + boolean = boolean
 
-  } else { //detect default case
+      finalRet = addbools(num1, num2, cli_params, this_vals, dir);
 
-    //return undef
-    finalRet = falseyVal;
+    } else { //detect default case
+
+      //return undef
+      finalRet = falseyVal;
+    }
+
+    return finalRet;
   }
 
-  return finalRet;
 }
 
 #endif

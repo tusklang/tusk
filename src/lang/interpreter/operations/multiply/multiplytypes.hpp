@@ -7,59 +7,62 @@
 #include "../../values.hpp"
 #include "../../json.hpp"
 #include "../../structs.hpp"
-using namespace std;
 using json = nlohmann::json;
 
-Action multiplystrings(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
+namespace omm {
 
-  string fin = "";
+  Action multiplystrings(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-  if (num1.Type == "number") {
+    std::string fin = "";
 
-    char* num = &num1.ExpStr[0][0];
+    if (num1.Type == "number") {
 
-    for (;((bool) IsLessC("0", num)); num = AddC(num, "1", &cli_params.dump()[0])) fin+=num2.ExpStr[0];
+      char* num = &num1.ExpStr[0][0];
 
-  } else {
+      for (;((bool) IsLessC("0", num)); num = AddC(num, "1", &cli_params.dump()[0])) fin+=num2.ExpStr[0];
 
-    char* num = &num2.ExpStr[0][0];
+    } else {
 
-    for (;((bool) IsLessC("0", num)); num = AddC(num, "1", &cli_params.dump()[0]))
-      fin+=num1.ExpStr[0];
+      char* num = &num2.ExpStr[0][0];
+
+      for (;((bool) IsLessC("0", num)); num = AddC(num, "1", &cli_params.dump()[0]))
+        fin+=num1.ExpStr[0];
+    }
+
+    Action str = Action{ "string", "", { fin }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+
+    char* i = "0";
+    for (char it : fin) {
+
+      Action character = strPlaceholder;
+
+      character.ExpStr[0] = to_string(it);
+
+      str.Hash_Values[string(i)] = { character };
+
+      i = AddC(i, "1", &cli_params.dump()[0]);
+    }
+
+    return str;
   }
 
-  Action str = Action{ "string", "", { fin }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+  Action multiplyarrays(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-  char* i = "0";
-  for (char it : fin) {
+    char* length = "0";
 
-    Action character = strPlaceholder;
+    //get length
+    for (std::pair<std::string, std::vector<Action>> it : num1.Hash_Values) length = AddC(length, "1", &cli_params.dump()[0]);
 
-    character.ExpStr[0] = to_string(it);
+    for (std::pair<std::string, std::vector<Action>> it : num2.Hash_Values) {
 
-    str.Hash_Values[string(i)] = { character };
+      std::string curIndex(AddC(length, &it.first[0], &cli_params.dump()[0]));
 
-    i = AddC(i, "1", &cli_params.dump()[0]);
+      num1.Hash_Values[curIndex] = it.second;
+    }
+
+    return num1;
   }
 
-  return str;
-}
-
-Action multiplyarrays(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
-
-  char* length = "0";
-
-  //get length
-  for (pair<string, vector<Action>> it : num1.Hash_Values) length = AddC(length, "1", &cli_params.dump()[0]);
-
-  for (pair<string, vector<Action>> it : num2.Hash_Values) {
-
-    string curIndex(AddC(length, &it.first[0], &cli_params.dump()[0]));
-
-    num1.Hash_Values[curIndex] = it.second;
-  }
-
-  return num1;
 }
 
 #endif

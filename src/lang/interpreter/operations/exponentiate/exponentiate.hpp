@@ -8,30 +8,33 @@
 #include "../../structs.hpp"
 #include "../../values.hpp"
 #include "exponentiatetypes.hpp"
-using namespace std;
 using json = nlohmann::json;
 
-Action exponentiate(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
+namespace omm {
 
-  /* TABLE OF TYPES:
+  Action exponentiate(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-    num ^ num = num
-    default = num
-  */
+    /* TABLE OF TYPES:
 
-  Action finalRet;
+      num ^ num = num
+      default = num
+    */
 
-  if (num1.Type == "number" && num2.Type == "number") { //detect case num ^ num = num
+    Action finalRet;
 
-    finalRet = exponentiatenumbers(num1, num2, cli_params, this_vals, dir);
+    if (num1.Type == "number" && num2.Type == "number") { //detect case num ^ num = num
 
-  } else {
+      finalRet = exponentiatenumbers(num1, num2, cli_params, this_vals, dir);
 
-    //return undef
-    finalRet = falseyVal;
+    } else {
+
+      //return undef
+      finalRet = falseyVal;
+    }
+
+    return finalRet;
   }
 
-  return finalRet;
 }
 
 #endif

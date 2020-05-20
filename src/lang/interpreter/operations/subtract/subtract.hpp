@@ -7,47 +7,50 @@
 #include "../../structs.hpp"
 #include "../../values.hpp"
 #include "subtracttypes.hpp"
-using namespace std;
 using json = nlohmann::json;
 
-Action subtract(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
+namespace omm {
 
-  /* TABLE OF TYPES:
+  Action subtract(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-    num - num = num
-    string - num = string
-    boolean - boolean = num
-    array - num = array
-    default = falsey
-  */
+    /* TABLE OF TYPES:
 
-  Action finalRet;
+      num - num = num
+      string - num = string
+      boolean - boolean = num
+      array - num = array
+      default = falsey
+    */
 
-  if (num1.Type == "number" && num2.Type == "number") { //detect case num - num = num
+    Action finalRet;
 
-    string val(SubtractC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]));
+    if (num1.Type == "number" && num2.Type == "number") { //detect case num - num = num
 
-    finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+      std::string val(SubtractC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]));
 
-  } else if ((num1.Type == "number" && num2.Type != "string") || (num2.Type == "string" && num1.Type != "number")) { //detect case string - num = string
+      finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
 
-    finalRet = subtractstrings(num1, num2, cli_params, this_vals, dir);
+    } else if ((num1.Type == "number" && num2.Type != "string") || (num2.Type == "string" && num1.Type != "number")) { //detect case string - num = string
 
-  } else if (num1.Type == "boolean" && num2.Type == "bolean") { //detect case boolean - boolean = num
+      finalRet = subtractstrings(num1, num2, cli_params, this_vals, dir);
 
-    finalRet = subtractbools(num1, num2, cli_params, this_vals, dir);
+    } else if (num1.Type == "boolean" && num2.Type == "bolean") { //detect case boolean - boolean = num
 
-  } else if ((num1.Type == "number" && num2.Type != "array") || (num2.Type == "array" && num1.Type != "number")) { //detect case array - num = array
+      finalRet = subtractbools(num1, num2, cli_params, this_vals, dir);
 
-    finalRet = subtractarrays(num1, num2, cli_params, this_vals, dir);
+    } else if ((num1.Type == "number" && num2.Type != "array") || (num2.Type == "array" && num1.Type != "number")) { //detect case array - num = array
 
-  } else { //detect default case
+      finalRet = subtractarrays(num1, num2, cli_params, this_vals, dir);
 
-    //return undef
-    finalRet = falseyVal;
+    } else { //detect default case
+
+      //return undef
+      finalRet = falseyVal;
+    }
+
+    return finalRet;
   }
 
-  return finalRet;
 }
 
 #endif

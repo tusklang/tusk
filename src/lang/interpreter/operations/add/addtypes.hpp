@@ -7,64 +7,67 @@
 #include "../../json.hpp"
 #include "../../structs.hpp"
 #include "../../values.hpp"
-using namespace std;
 using json = nlohmann::json;
 
-//file with all the functions to add different datatypes
+namespace omm {
 
-Action addstrings(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
+  //file with all the functions to add different datatypes
 
-  string str = num1.ExpStr[0] + num2.ExpStr[0];
+  Action addstrings(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-  map<string, vector<Action>> hash;
+    std::string str = num1.ExpStr[0] + num2.ExpStr[0];
 
-  char* i = "0";
+    std::map<std::string, std::vector<Action>> hash;
 
-  for (char c : str) {
+    char* i = "0";
 
-    Action character = strPlaceholder;
+    for (char c : str) {
 
-    character.ExpStr[0] = to_string(c);
-    hash[string(i)] = { character };
+      Action character = strPlaceholder;
 
-    i = AddC(i, "1", &cli_params.dump()[0]);
+      character.ExpStr[0] = to_string(c);
+      hash[string(i)] = { character };
+
+      i = AddC(i, "1", &cli_params.dump()[0]);
+    }
+
+    return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false, "private" };
   }
 
-  return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false, "private" };
-}
+  Action addarrays(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-Action addarrays(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
+    std::map<std::string, std::vector<Action>> finalMap;
 
-  map<string, vector<Action>> finalMap;
+    if (num1.Type == "array") num1.Hash_Values[to_string(num1.Hash_Values.size())] = { num2 };
+    else {
 
-  if (num1.Type == "array") num1.Hash_Values[to_string(num1.Hash_Values.size())] = { num2 };
-  else {
+      for (std::pair<std::string, std::vector<Action>> it : num2.Hash_Values)
+        finalMap[string(AddC(&it.first[0], "1", &cli_params.dump()[0]))] = { it.second };
 
-    for (pair<string, vector<Action>> it : num2.Hash_Values)
-      finalMap[string(AddC(&it.first[0], "1", &cli_params.dump()[0]))] = { it.second };
+      finalMap["0"] = { num1 };
+    }
 
-    finalMap["0"] = { num1 };
+    return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false, "private" };
   }
 
-  return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false, "private" };
-}
+  Action addbools(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-Action addbools(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
+    bool num1b = num1.ExpStr[0] == "true";
+    bool num2b = num2.ExpStr[0] == "true";
+    std::string final = to_string(num1b || num2b);
 
-  bool num1b = num1.ExpStr[0] == "true";
-  bool num2b = num2.ExpStr[0] == "true";
-  string final = to_string(num1b || num2b);
+    return Action{ "boolean", "", { final }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+  }
 
-  return Action{ "boolean", "", { final }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
-}
+  Action addhashes(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-Action addhashes(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
+    std::map<std::string, std::vector<Action>> final = num1.Hash_Values;
 
-  map<string, vector<Action>> final = num1.Hash_Values;
+    for (std::pair<string, std::vector<Action>> it : num2.Hash_Values) final[it.first] = it.second;
 
-  for (pair<string, vector<Action>> it : num2.Hash_Values) final[it.first] = it.second;
+    return Action{ "hash", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 22, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, final, (num1.IsMutable || num2.IsMutable) };
+  }
 
-  return Action{ "hash", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 22, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, final, (num1.IsMutable || num2.IsMutable) };
 }
 
 #endif

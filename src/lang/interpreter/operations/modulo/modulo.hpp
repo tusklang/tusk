@@ -8,46 +8,49 @@
 #include "../../structs.hpp"
 #include "../../values.hpp"
 #include "../../../bind.h"
-using namespace std;
 using json = nlohmann::json;
 
-Action modulo(Action num1, Action num2, json cli_params, deque<map<string, vector<Action>>> this_vals, string dir) {
+namespace omm {
 
-  /* TABLE OF TYPES:
+  Action modulo(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-    num % num = num
-    default = falsey
-  */
+    /* TABLE OF TYPES:
 
-  Action finalRet;
+      num % num = num
+      default = falsey
+    */
 
-  if (num1.Type == "number" && num2.Type == "number") { //detect case num % num = num
+    Action finalRet;
 
-    if (strcmp(ReturnInitC(&num2.ExpStr[0][0]), "0") == 0)  {
-      finalRet = Action{ "number", "", { "undef" }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
-    } else if (strcmp(ReturnInitC(&num1.ExpStr[0][0]), "0") == 0)  {
-      finalRet = Action{ "number", "", { "0" }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
-    } else {
+    if (num1.Type == "number" && num2.Type == "number") { //detect case num % num = num
 
-      char* divved_ = DivisionC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]);
+      if (strcmp(ReturnInitC(&num2.ExpStr[0][0]), "0") == 0)  {
+        finalRet = Action{ "number", "", { "undef" }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+      } else if (strcmp(ReturnInitC(&num1.ExpStr[0][0]), "0") == 0)  {
+        finalRet = Action{ "number", "", { "0" }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+      } else {
 
-      string divved(divved_);
+        char* divved_ = DivisionC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]);
 
-      divved = divved.substr(0, divved.find("."));
+        std::string divved(divved_);
 
-      char* mult = MultiplyC(&divved[0], &num2.ExpStr[0][0], &cli_params.dump()[0])
-      ,* remainder = SubtractC(&num1.ExpStr[0][0], mult, &cli_params.dump()[0]);
+        divved = divved.substr(0, divved.find("."));
 
-      finalRet = Action{ "number", "", { remainder }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+        char* mult = MultiplyC(&divved[0], &num2.ExpStr[0][0], &cli_params.dump()[0])
+        ,* remainder = SubtractC(&num1.ExpStr[0][0], mult, &cli_params.dump()[0]);
+
+        finalRet = Action{ "number", "", { remainder }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+      }
+
+    } else { //detect default case
+
+      //return undef
+      finalRet = falseyVal;
     }
 
-  } else { //detect default case
-
-    //return undef
-    finalRet = falseyVal;
+    return finalRet;
   }
 
-  return finalRet;
 }
 
 #endif
