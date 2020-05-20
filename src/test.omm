@@ -1,9 +1,1 @@
-ns::tee {
-  ns::he {
-    proc ~ test() {
-      log ~ 's';
-    }
-  }
-}
-
-log ~ tee.he.test();
+log ~ env("PATH")

@@ -294,6 +294,12 @@
     "type": "cproc"
   },
   {
+    "name": "env",
+    "remove": "env",
+    "pattern": "env\\s*\\(",
+    "type": "cproc"
+  },
+  {
     "name": "::",
     "remove": "::",
     "pattern": "(\\:\\:)",

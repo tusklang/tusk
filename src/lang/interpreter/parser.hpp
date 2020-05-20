@@ -11,6 +11,8 @@
 #include <windows.h>
 #include <regex>
 #include <exception>
+#include <cstdlib>
+
 #include "json.hpp"
 #include "../bind.h"
 #include "structs.hpp"
@@ -2033,6 +2035,34 @@ namespace omm {
           }
         }
         break;
+        case 82: {
+
+          //env
+
+          Action parsed = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp;
+
+          std::vector<std::string> returnNone;
+
+          if (parsed.Type != "string" && expReturn) return Returner{ returnNone, vars, falseyVal, "expression" };
+          else {
+
+            std::string val = parsed.ExpStr[0];
+            Action variable;
+
+            const char* cvariable = std::getenv(val.c_str());
+
+            if (cvariable != NULL) {
+
+              variable = strPlaceholder;
+              variable.ExpStr[0] = string(cvariable);
+
+            } else variable = falseyVal;
+
+            return Returner{returnNone, vars, variable, "expression"};
+          }
+
+          break;
+        }
         //////////////////////////
 
         //assignment operators

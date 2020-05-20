@@ -2871,6 +2871,11 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           act := cproc(&i, lex, uint(1), "typeof", dir, name, 19)
           actions = append(actions, act)
 
+        case "env":
+
+          act := cproc(&i, lex, uint(1), "env", dir, name, 82)
+          actions = append(actions, act)
+
       default:
 
         valPuts := func(lex []Lex, i int) int {

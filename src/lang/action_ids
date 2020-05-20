@@ -60,6 +60,7 @@ regex.match: 68
 regex.substitute: 69
 this: 70
 exec: 77
+env: 82
 or: 71
 and: 72
 nor: 73
