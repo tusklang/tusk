@@ -1,1 +1,3 @@
-log ~ env("PATH")
+if (true) {
+  log ~ 's';
+}

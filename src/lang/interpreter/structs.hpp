@@ -57,9 +57,9 @@ namespace omm {
     std::string                                  Access;
     std::vector<SubCaller>                       SubCall;
 
-} Action;
+  } Action;
 
-typedef struct Variable {
+  typedef struct Variable {
 
     std::string                                  type;
     std::string                                  name;

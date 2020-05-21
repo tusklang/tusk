@@ -1661,7 +1661,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         conditions := []Condition{}
 
-        if (lex[i].Name == "if") {
+        if lex[i].Name == "if" {
           var cond_ = []Lex{}
           pCnt := 0
 
@@ -1739,10 +1739,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           conditions = append(conditions, if_)
 
           i+=(1 + len(cond_) + len(actions_))
-
-          if i >= len_lex {
-            break
-          }
         }
 
         if !(i >= len_lex) {
@@ -1826,9 +1822,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             i+=(1 + len(cond_) + len(actions_))
 
-            if i >= len_lex {
-              break
-            }
           }
         }
 
@@ -2856,26 +2849,26 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         actions = append(actions, act)
 
-        case "read":
+      case "read":
 
-          act := cproc(&i, lex, uint(1), "read", dir, name, 15)
-          actions = append(actions, act)
+        act := cproc(&i, lex, uint(1), "read", dir, name, 15)
+        actions = append(actions, act)
 
-        case "ascii":
+      case "ascii":
 
-          act := cproc(&i, lex, uint(1), "ascii", dir, name, 26)
-          actions = append(actions, act)
+        act := cproc(&i, lex, uint(1), "ascii", dir, name, 26)
+        actions = append(actions, act)
 
-        case "typeof":
+      case "typeof":
 
-          act := cproc(&i, lex, uint(1), "typeof", dir, name, 19)
-          actions = append(actions, act)
+        act := cproc(&i, lex, uint(1), "typeof", dir, name, 19)
+        actions = append(actions, act)
 
-        case "env":
+      case "env":
 
-          act := cproc(&i, lex, uint(1), "env", dir, name, 82)
-          actions = append(actions, act)
-
+        act := cproc(&i, lex, uint(1), "env", dir, name, 82)
+        actions = append(actions, act)
+        
       default:
 
         valPuts := func(lex []Lex, i int) int {
