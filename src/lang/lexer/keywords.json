@@ -222,6 +222,12 @@
     "type": "cproc"
   },
   {
+    "name": "exec",
+    "remove": "exec",
+    "pattern": "(exec\\s*\\()",
+    "type": "cproc"
+  },
+  {
     "name": "this",
     "remove": "this",
     "pattern": "(this\\s*\\()",

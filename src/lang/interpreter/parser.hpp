@@ -43,7 +43,8 @@
 using json = nlohmann::json;
 
 namespace omm {
-  Returner parser(const std::vector<Action> actions, const json cli_params, std::map<std::string, Variable> vars, const bool groupReturn, const bool expReturn, deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
+
+  Returner parser(const std::vector<Action> actions, const json cli_params, std::map<std::string, Variable> vars, const bool groupReturn, const bool expReturn, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     //loop through every action
     for (Action v : actions) {
@@ -2063,7 +2064,6 @@ namespace omm {
 
           break;
         }
-        //////////////////////////
 
         //assignment operators
         case 4343: {

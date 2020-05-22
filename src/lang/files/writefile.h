@@ -3,16 +3,16 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-#include <stdio.h>
+#endif;
+  #include <stdio.h>
 
-void writefile(char* dir, char* content) {
+  void writefile(char* dir, char* content) {
 
-  FILE* f = fopen(dir, "w+");
-  fputs(content, f);
+    FILE* f = fopen(dir, "w+");
+    fputs(content, f);
 
-  fclose(f);
-}
+    fclose(f);
+  }
 
 #ifdef __cplusplus
 }

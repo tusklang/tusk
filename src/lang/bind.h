@@ -1,6 +1,6 @@
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif;
 
   extern void Kill(void);
   extern char* AddC(char*, char*, char*);
