@@ -38,8 +38,10 @@ namespace omm {
 
     std::map<std::string, std::vector<Action>> finalMap;
 
-    if (num1.Type == "array") num1.Hash_Values[to_string(num1.Hash_Values.size())] = { num2 };
-    else {
+    if (num1.Type == "array") {
+      num1.Hash_Values[to_string(num1.Hash_Values.size())] = { num2 };
+      finalMap = num1.Hash_Values;
+    } else {
 
       for (std::pair<std::string, std::vector<Action>> it : num2.Hash_Values)
         finalMap[string(AddC(&it.first[0], "1", &cli_params.dump()[0]))] = { it.second };

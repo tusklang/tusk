@@ -1,3 +1,6 @@
+#ifndef OMM_CGO_LANG_BIND_H_
+#define OMM_CGO_LANG_BIND_H_
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -17,4 +20,6 @@ extern "C" {
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

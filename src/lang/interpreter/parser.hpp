@@ -566,6 +566,8 @@ namespace omm {
                   vars[name].type,
                   name,
                   parsed,
+
+                  //empty lambda exp
                   [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                 };
               else
@@ -573,19 +575,25 @@ namespace omm {
                   "local",
                   name,
                   parsed,
+
+                  //empty lambda exp
                   [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                 };
             } else {
 
+              //create a ref to vars[name].value[0]
               Action* map = &vars[name].value[0];
 
+              //loop through the indexes
               for (std::vector<Action> it : v.Indexes) {
 
                 std::string varP = parser(it, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
+                //set the map as the index of varP
                 map = &(map->Hash_Values[varP][0]);
               }
 
+              //set the map ptr as the parsed value
               *map = parsed[0];
 
             }

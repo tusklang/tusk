@@ -51,9 +51,17 @@ namespace omm {
     char* length = "0";
 
     //get length
-    for (std::pair<std::string, std::vector<Action>> it : num1.Hash_Values) length = AddC(length, "1", &cli_params.dump()[0]);
+    for (std::pair<std::string, std::vector<Action>> it : num1.Hash_Values) {
+
+      //skip over the falsey index
+      if (it.first == "falsey") continue;
+
+      length = AddC(length, "1", &cli_params.dump()[0]);
+    }
 
     for (std::pair<std::string, std::vector<Action>> it : num2.Hash_Values) {
+
+      if (it.first == "falsey") continue;
 
       std::string curIndex(AddC(length, &it.first[0], &cli_params.dump()[0]));
 

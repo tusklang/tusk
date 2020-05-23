@@ -201,13 +201,13 @@
     "name": "[:",
     "remove": "[:",
     "pattern": "(\\[\\:)",
-    "type": "?operation"
+    "type": "?operation_paren"
   },
   {
     "name": ":]",
     "remove": ":]",
     "pattern": "(\\:\\])",
-    "type": "?operation"
+    "type": "?operation_paren"
   },
   {
     "name": ":::",
@@ -307,13 +307,13 @@
     "name": "[",
     "remove": "[",
     "pattern": "\\[",
-    "type": "?operation"
+    "type": "?operation_paren"
   },
   {
     "name": "]",
     "remove": "]",
     "pattern": "\\]",
-    "type": "?operation"
+    "type": "?operation_paren"
   },
   {
     "name": "wait",

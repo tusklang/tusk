@@ -25,6 +25,12 @@ namespace omm {
     //files.read
     { "files.read", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
+      Returner ret;
+      std::vector<std::string> retNo;
+
+      //determine if the required arguments are met, and if not return undef
+      if (v.Args.size() != 2) return Returner{ retNo, vars, falseyVal, "expression" };
+
       std::string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
       smatch match;
@@ -34,9 +40,6 @@ namespace omm {
       bool isOnDrive = std::regex_search(filename, match, pat);
 
       std::string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
-
-      Returner ret;
-      std::vector<std::string> retNo;
 
       if (isDir(nDir + filename)) {
 
@@ -106,6 +109,13 @@ namespace omm {
 
     } },
     { "files.write", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+
+      Returner ret;
+      std::vector<std::string> retNo;
+
+      //determine if the required arguments are met, and if not return undef
+      if (v.Args.size() != 2) return Returner{ retNo, vars, falseyVal, "expression" };
+
       //get both arguments and parse them
       std::string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
       Action content = parser(v.Args[1], cli_params, vars, false, true, this_vals, dir).exp;
@@ -136,9 +146,6 @@ namespace omm {
         returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
       }
 
-      Returner ret;
-      std::vector<std::string> retNo;
-
       ret.value = retNo;
       ret.variables = vars;
       ret.exp = returner;
@@ -148,6 +155,12 @@ namespace omm {
 
     } },
     { "files.remove", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+
+      Returner ret;
+      std::vector<std::string> retNo;
+
+      //determine if the required arguments are met, and if not return undef
+      if (v.Args.size() != 1) return Returner{ retNo, vars, falseyVal, "expression" };
 
       std::string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
@@ -161,12 +174,16 @@ namespace omm {
 
       deletefile(nDir + filename);
 
-      std::vector<std::string> retNo;
-
       return Returner{ retNo, vars, falseyVal, "expression" };
 
     } },
     { "files.exists", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+
+      Returner ret;
+      std::vector<std::string> retNo;
+
+      //determine if the required arguments are met, and if not return undef
+      if (v.Args.size() != 1) return Returner{ retNo, vars, falseyVal, "expression" };
 
       std::string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
@@ -197,9 +214,6 @@ namespace omm {
 
       }
 
-      Returner ret;
-      std::vector<std::string> retNo;
-
       ret.value = retNo;
       ret.variables = vars;
       ret.exp = returner;
@@ -209,6 +223,12 @@ namespace omm {
 
     } },
     { "files.isFile", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+
+      Returner ret;
+      std::vector<std::string> retNo;
+
+      //determine if the required arguments are met, and if not return undef
+      if (v.Args.size() != 1) return Returner{ retNo, vars, falseyVal, "expression" };
 
       std::string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
@@ -238,9 +258,6 @@ namespace omm {
 
       }
 
-      Returner ret;
-      std::vector<std::string> retNo;
-
       ret.value = retNo;
       ret.variables = vars;
       ret.exp = returner;
@@ -250,6 +267,12 @@ namespace omm {
 
     } },
     { "files.isDir", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+
+      Returner ret;
+      std::vector<std::string> retNo;
+
+      //determine if the required arguments are met, and if not return undef
+      if (v.Args.size() != 1) return Returner{ retNo, vars, falseyVal, "expression" };
 
       std::string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
@@ -278,9 +301,6 @@ namespace omm {
         returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
       }
 
-      Returner ret;
-      std::vector<std::string> retNo;
-
       ret.value = retNo;
       ret.variables = vars;
       ret.exp = returner;
@@ -290,6 +310,12 @@ namespace omm {
 
     } },
     { "regex.match", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+
+      Returner ret;
+      std::vector<std::string> retNo;
+
+      //determine if the required arguments are met, and if not return undef
+      if (v.Args.size() != 2) return Returner{ retNo, vars, falseyVal, "expression" };
 
       std::string str = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
       std::string regstr = parser(v.Args[1], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
@@ -338,9 +364,6 @@ namespace omm {
 
         }
 
-        Returner ret;
-        std::vector<std::string> retNo;
-
         ret.value = retNo;
         ret.variables = vars;
         ret.exp = returnerVal;
@@ -356,9 +379,6 @@ namespace omm {
         cout << "Error code: " << e.code() << endl;
         cout << endl << std::string(90, '-') << "\n\n";
 
-        Returner ret;
-        std::vector<std::string> retNo;
-
         //if there is a regex error return undef
         ret.value = retNo;
         ret.variables = vars;
@@ -370,6 +390,12 @@ namespace omm {
 
     } },
     { "regex.replace", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+
+      Returner ret;
+      std::vector<std::string> retNo;
+
+      //determine if the required arguments are met, and if not return undef
+      if (v.Args.size() != 3) return Returner{ retNo, vars, falseyVal, "expression" };
 
       std::string str = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
       std::string regstr = parser(v.Args[1], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
@@ -412,9 +438,6 @@ namespace omm {
 
         }
 
-        Returner ret;
-        std::vector<std::string> retNo;
-
         ret.value = retNo;
         ret.variables = vars;
         ret.exp = retExp;
@@ -431,8 +454,6 @@ namespace omm {
         cout << endl << std::string(90, '-') << "\n\n";
 
         //if there is a regex error return undef
-        Returner ret;
-        std::vector<std::string> retNo;
 
         ret.value = retNo;
         ret.variables = vars;
@@ -445,6 +466,12 @@ namespace omm {
     } },
     { "exec", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
+      Returner ret;
+      std::vector<std::string> retNo;
+
+      //determine if the required arguments are met, and if not return undef
+      if (v.Args.size() != 2) return Returner{ retNo, vars, falseyVal, "expression" };
+
       std::string cmd = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]; //get the command
       std::string put_stdin = parser(v.Args[1], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]; //get the stdin
 
@@ -453,9 +480,6 @@ namespace omm {
 
       //get stdout from the cmd
       char* get_stdout = ExecCmd(cmdC, stdinC, &dir[0]);
-
-      Returner ret;
-      std::vector<std::string> retNo;
 
       Action stdout_str = strPlaceholder;
 
@@ -471,6 +495,12 @@ namespace omm {
     } },
     { "read", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
+      Returner ret;
+      std::vector<std::string> retNo;
+
+      //determine if the required arguments are met, and if not return undef
+      if (v.Args.size() != 1) return Returner{ retNo, vars, falseyVal, "expression" };
+
       std::string output = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
       cout << output;
@@ -479,9 +509,6 @@ namespace omm {
       cin >> val;
 
       Action omm_str = ommtypes::to_string(val);
-
-      Returner ret;
-      std::vector<std::string> retNo;
 
       ret.value = retNo;
       ret.variables = vars;
@@ -493,6 +520,11 @@ namespace omm {
     } },
     { "typeof", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
+      std::vector<std::string> retNo;
+
+      //determine if the required arguments are met, and if not return undef
+      if (v.Args.size() != 1) return Returner{ retNo, vars, falseyVal, "expression" };
+
       Returner parsed = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir);
 
       Action exp = parsed.exp;
@@ -500,18 +532,19 @@ namespace omm {
 
       stringval.ExpStr = { exp.Type };
 
-      std::vector<std::string> noRet;
-
-      return Returner{ noRet, vars, stringval, "expression" };
+      return Returner{ retNo, vars, stringval, "expression" };
 
     } },
     { "ascii", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
+      std::vector<std::string> retNo;
+
+      //determine if the required arguments are met, and if not return undef
+      if (v.Args.size() != 1) return Returner{ retNo, vars, falseyVal, "expression" };
+
       Action parsed = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp;
 
-      std::vector<std::string> returnNone;
-
-      if (parsed.Type != "string") return Returner{ returnNone, vars, falseyVal, "expression" };
+      if (parsed.Type != "string") return Returner{ retNo, vars, falseyVal, "expression" };
       else {
 
         std::string val = parsed.ExpStr[0];
@@ -521,19 +554,22 @@ namespace omm {
 
         ascVal.ExpStr[0] = std::to_string(first);
 
-        return Returner{returnNone, vars, ascVal, "expression"};
+        return Returner{retNo, vars, ascVal, "expression"};
       }
 
-      return Returner{returnNone, vars, falseyVal, "expression"};
+      return Returner{retNo, vars, falseyVal, "expression"};
 
     } },
     { "env", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
+      std::vector<std::string> retNo;
+
+      //determine if the required arguments are met, and if not return undef
+      if (v.Args.size() != 1) return Returner{ retNo, vars, falseyVal, "expression" };
+
       Action parsed = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp;
 
-      std::vector<std::string> returnNone;
-
-      if (parsed.Type != "string") return Returner{ returnNone, vars, falseyVal, "expression" };
+      if (parsed.Type != "string") return Returner{ retNo, vars, falseyVal, "expression" };
       else {
 
         std::string val = parsed.ExpStr[0];
@@ -548,10 +584,10 @@ namespace omm {
 
         } else variable = falseyVal;
 
-        return Returner{returnNone, vars, variable, "expression"};
+        return Returner{retNo, vars, variable, "expression"};
       }
 
-      return Returner{returnNone, vars, falseyVal, "expression"};
+      return Returner{retNo, vars, falseyVal, "expression"};
 
     } }
 
