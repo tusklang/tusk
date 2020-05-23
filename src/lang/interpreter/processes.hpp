@@ -83,7 +83,8 @@ namespace omm {
         sendVars[varname] = Variable{
           "pargv",
           varname,
-          { arg }
+          { arg },
+          [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
         };
 
         break;
@@ -92,7 +93,8 @@ namespace omm {
       Variable cur = Variable{
         "argument",
         params[o],
-        { omm::parser(args[o], cli_params, *vars, false, true, this_vals, dir).exp }
+        { omm::parser(args[o], cli_params, *vars, false, true, this_vals, dir).exp },
+        [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
       };
 
       sendVars[params[o]] = cur;

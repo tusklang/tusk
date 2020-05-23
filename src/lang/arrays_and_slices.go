@@ -14,10 +14,6 @@ func arrayContain(arr []string, sub string) bool {
   return false;
 }
 
-//the list of cprocs goes here
-//just add to the slice if you add a new cproc
-var CPROCS = []string{ "files.read", "files.write", "files.remove", "files.exists", "files.isFile", "files.isDir", "regex.match", "regex.replace", "this", "exec", "read", "typeof", "ascii", "env" }
-
 func arrayContainInterface(arr []string, sub interface{}) bool {
 
   for i := 0; i < len(arr); i++ {
@@ -243,7 +239,7 @@ func interfaceContainWithProcIndex(inter []interface{}, sub interface{}, indexes
         case Lex:
 
           //if inter[k - 1] is a process or a variable, continue the loop
-          if arrayContain(CPROCS, inter[k - 1].(Lex).Name) || inter[k - 1].(Lex).Name == "process" || strings.HasPrefix(inter[k - 1].(Lex).Name, "$") || inter[k - 1].(Lex).Name == "]" || inter[k - 1].(Lex).Name == ")" {
+          if inter[k - 1].(Lex).Name == "this" || inter[k - 1].(Lex).Name == "process" || strings.HasPrefix(inter[k - 1].(Lex).Name, "$") || inter[k - 1].(Lex).Name == "]" || inter[k - 1].(Lex).Name == ")" {
             continue loop
           }
       }
@@ -280,8 +276,8 @@ func interfaceIndexOfWithProcIndex(sub interface{}, inter []interface{}, indexes
       switch inter[k - 1].(type) {
         case Lex:
 
-          //if inter[k - 1] is a cproc continue the loop
-          if arrayContain(CPROCS, inter[k - 1].(Lex).Name) {
+          //if inter[k - 1] is "this" continue the loop
+          if inter[k - 1].(Lex).Name == "this" {
             continue loop
           }
       }
@@ -324,7 +320,7 @@ func interfaceContainForExp(inter []interface{}, _sub []string) bool {
     }
 
     //prevent parenthesis after process declarations from being counted as expression parenthesis
-    if o > 0 && !(strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "process" || arrayContain(CPROCS, inter[o - 1].(Lex).Name) || v.(Lex).Name == ")" ) && v.(Lex).Name == "(" {
+    if o > 0 && !(strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "process" || inter[o - 1].(Lex).Name == "this" || v.(Lex).Name == ")" ) && v.(Lex).Name == "(" {
 
       scbCnt := 0
       sglCnt := 0

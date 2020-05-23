@@ -2775,39 +2775,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         actionized := Actionizer(exp, false, dir, name)
         actions = append(actions, Action{ "each", "", []string{ var1, var2 }, actionized, []string{}, [][]Action{}, []Condition{}, 59, iterator, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
 
-      //file system keywords
-
-      case "files.read":
-
-        act := cproc(&i, lex, uint(1), "files.read", dir, name, 60)
-        actions = append(actions, act)
-
-      case "files.write":
-
-        act := cproc(&i, lex, uint(2), "files.write", dir, name, 61)
-        actions = append(actions, act)
-
-      case "files.remove":
-
-        act := cproc(&i, lex, uint(1), "files.remove", dir, name, 78)
-        actions = append(actions, act)
-
-      case "files.exists":
-
-        act := cproc(&i, lex, uint(1), "files.exists", dir, name, 62)
-        actions = append(actions, act)
-
-      case "files.isFile":
-
-        act := cproc(&i, lex, uint(1), "files.isFile", dir, name, 63)
-        actions = append(actions, act)
-
-      case "files.isDir":
-
-        act := cproc(&i, lex, uint(1), "files.isDir", dir, name, 64)
-        actions = append(actions, act)
-      //////////////////////
-
       case "kill":
 
         if lex[i + 1].Name == "<-" {
@@ -2817,24 +2784,9 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           actions = append(actions, Action{ "kill", "", []string{}, []Action{}, []string{}, [][]Action{}, []Condition{}, 66, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
         }
 
-      case "regex.match":
-
-        act := cproc(&i, lex, uint(2), "regex.match", dir, name, 68)
-        actions = append(actions, act)
-
-      case "regex.replace":
-
-        act := cproc(&i, lex, uint(3), "regex.substitute", dir, name, 69)
-        actions = append(actions, act)
-
-      case "exec":
-
-        act := cproc(&i, lex, uint(2), "exec", dir, name, 77)
-        actions = append(actions, act)
-
       case "this":
 
-        act := cproc(&i, lex, uint(1), "this", dir, name, 70)
+        act := this_calc(&i, lex, uint(1), "this", dir, name, 70)
 
         i++
 
@@ -2849,26 +2801,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         actions = append(actions, act)
 
-      case "read":
-
-        act := cproc(&i, lex, uint(1), "read", dir, name, 15)
-        actions = append(actions, act)
-
-      case "ascii":
-
-        act := cproc(&i, lex, uint(1), "ascii", dir, name, 26)
-        actions = append(actions, act)
-
-      case "typeof":
-
-        act := cproc(&i, lex, uint(1), "typeof", dir, name, 19)
-        actions = append(actions, act)
-
-      case "env":
-
-        act := cproc(&i, lex, uint(1), "env", dir, name, 82)
-        actions = append(actions, act)
-        
       default:
 
         valPuts := func(lex []Lex, i int) int {

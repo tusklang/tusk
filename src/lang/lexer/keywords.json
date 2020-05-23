@@ -216,94 +216,10 @@
     "type": "operation"
   },
   {
-    "name": "exec",
-    "remove": "exec",
-    "pattern": "(exec\\s*\\()",
-    "type": "cproc"
-  },
-  {
-    "name": "exec",
-    "remove": "exec",
-    "pattern": "(exec\\s*\\()",
-    "type": "cproc"
-  },
-  {
     "name": "this",
     "remove": "this",
     "pattern": "(this\\s*\\()",
-    "type": "cproc"
-  },
-  {
-    "name": "read",
-    "remove": "read",
-    "pattern": "(read\\s*\\()",
-    "type": "cproc"
-  },
-  {
-    "name": "typeof",
-    "remove": "typeof",
-    "pattern": "(typeof\\s*\\()",
-    "type": "cproc"
-  },
-  {
-    "name": "ascii",
-    "remove": "ascii",
-    "pattern": "(ascii\\s*\\()",
-    "type": "cproc"
-  },
-  {
-    "name": "regex.match",
-    "remove": "regex.match",
-    "pattern": "regex\\.match\\s*\\(",
-    "type": "cproc"
-  },
-  {
-    "name": "regex.replace",
-    "remove": "regex.replace",
-    "pattern": "regex\\.replace\\s*\\(",
-    "type": "cproc"
-  },
-  {
-    "name": "files.read",
-    "remove": "files.read",
-    "pattern": "files\\.read\\s*\\(",
-    "type": "cproc"
-  },
-  {
-    "name": "files.write",
-    "remove": "files.write",
-    "pattern": "files\\.write\\s*\\(",
-    "type": "cproc"
-  },
-  {
-    "name": "files.remove",
-    "remove": "files.remove",
-    "pattern": "files\\.remove\\s*\\(",
-    "type": "cproc"
-  },
-  {
-    "name": "files.exists",
-    "remove": "files.exists",
-    "pattern": "files\\.exists\\s*\\(",
-    "type": "cproc"
-  },
-  {
-    "name": "files.isFile",
-    "remove": "files.isFile",
-    "pattern": "files\\.isFile\\s*\\(",
-    "type": "cproc"
-  },
-  {
-    "name": "files.isDir",
-    "remove": "files.isDir",
-    "pattern": "files\\.isDir\\s*\\(",
-    "type": "cproc"
-  },
-  {
-    "name": "env",
-    "remove": "env",
-    "pattern": "env\\s*\\(",
-    "type": "cproc"
+    "type": "this"
   },
   {
     "name": "::",

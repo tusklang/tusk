@@ -11,7 +11,6 @@
 #include <windows.h>
 #include <regex>
 #include <exception>
-#include <cstdlib>
 
 #include "json.hpp"
 #include "../bind.h"
@@ -65,7 +64,8 @@ namespace omm {
             Variable nVar = Variable{
               "local",
               name,
-              parsed
+              parsed,
+              [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
             };
 
             vars[name] = nVar;
@@ -82,7 +82,8 @@ namespace omm {
             Variable nVar = Variable{
               "dynamic",
               name,
-              acts
+              acts,
+              [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
             };
 
             vars[name] = nVar;
@@ -132,7 +133,8 @@ namespace omm {
             Variable nVar = Variable{
               "global",
               name,
-              parsed
+              parsed,
+              [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
             };
 
             vars[name] = nVar;
@@ -199,7 +201,8 @@ namespace omm {
             Variable nVar = Variable{
               "process",
               name,
-              { v }
+              { v },
+              [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
             };
 
             vars[name] = nVar;
@@ -303,9 +306,18 @@ namespace omm {
             if (vars.find(name) == vars.end()) goto stopIndexing_processes;
             else {
 
-              Action var = vars[name].value[0];
+              //if it is a cproc
+              if (vars[name].type == "cproc") {
 
-              parsed = processParser(var, v, cli_params, &vars, this_vals, true, dir);
+                parsed = vars[name].cproc(v, cli_params, vars, this_vals, dir);
+                goto stopIndexing_processes;
+
+              } else {
+                Action var = vars[name].value[0];
+
+                parsed = processParser(var, v, cli_params, &vars, this_vals, true, dir);
+              }
+
             }
 
             stopIndexing_processes:
@@ -553,13 +565,15 @@ namespace omm {
                 vars[name] = Variable{
                   vars[name].type,
                   name,
-                  parsed
+                  parsed,
+                  [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                 };
               else
                 vars[name] = Variable{
                   "local",
                   name,
-                  parsed
+                  parsed,
+                  [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                 };
             } else {
 
@@ -1253,7 +1267,8 @@ namespace omm {
                   sendVars[varname] = Variable{
                     "pargv",
                     varname,
-                    { arg }
+                    { arg },
+                    [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                   };
 
                   break;
@@ -1262,7 +1277,8 @@ namespace omm {
                 Variable cur = Variable{
                   "argument",
                   params[o],
-                  { parser(args[o], cli_params, vars, false, true, this_vals, dir).exp }
+                  { parser(args[o], cli_params, vars, false, true, this_vals, dir).exp },
+                  [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                 };
 
                 sendVars[params[o]] = cur;
@@ -1348,12 +1364,14 @@ namespace omm {
               sendVars[var1] = Variable{
                 "local",
                 var1,
-                { key }
+                { key },
+                [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
               };
               sendVars[var2] = Variable{
                 "local",
                 var2,
-                { parser(it.second, cli_params, vars, false, true, this_vals, dir).exp }
+                { parser(it.second, cli_params, vars, false, true, this_vals, dir).exp },
+                [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
               };
 
               Returner parsed = parser(v.ExpAct, cli_params, sendVars, true, false, this_vals, dir);
@@ -1372,486 +1390,6 @@ namespace omm {
           }
           break;
 
-        //all of the omm cprocs
-        case 60: {
-
-          //files.read
-
-          //written as files.read(dir)
-
-          std::string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-
-          smatch match;
-
-          //see if the filename is absolute
-          std::regex pat("^[a-zA-Z]:");
-          bool isOnDrive = std::regex_search(filename, match, pat);
-
-          std::string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
-
-          if (isDir(nDir + filename)) {
-
-            std::vector<std::string> dirs = read_dir(nDir + filename);
-
-            Action dir_arr = arrayVal;
-
-            unsigned long long i = 0;
-            for (std::string curD : dirs) {
-
-              Action curDirOmm = ommtypes::to_string(curD);
-              dir_arr.Hash_Values[std::to_string(i)] = { curDirOmm };
-
-              ++i;
-            }
-
-            if (expReturn) {
-
-              Returner ret;
-              std::vector<std::string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = dir_arr;
-              ret.type = "expression";
-
-              return ret;
-            }
-
-          } else {
-            std::string content = readfile(&(nDir + filename)[0]);
-
-            if (expReturn) {
-              Returner ret;
-
-              std::vector<std::string> retNo;
-
-              Action contentJ = strPlaceholder;
-
-              contentJ.ExpStr = {content};
-
-              //make the hash values of the std::string
-              for (unsigned long long o = 0; o < content.length(); o++) {
-                Action curChar = strPlaceholder;
-
-                curChar.ExpStr = {
-                  std::string(1, content[o])
-                };
-
-                contentJ.Hash_Values[std::to_string(o)] = { curChar };
-              }
-
-              Action returner = contentJ;
-
-              if (v.SubCall.size() > 0) {
-
-                Action callProcessParser = v;
-
-                bool isProc = v.SubCall[0].IsProc;
-
-                callProcessParser.Indexes = v.SubCall[0].Indexes;
-                callProcessParser.Args = v.SubCall[0].Args;
-                callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
-
-                returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
-
-              }
-
-              if (expReturn) {
-
-                Returner ret;
-                std::vector<std::string> retNo;
-
-                ret.value = retNo;
-                ret.variables = vars;
-                ret.exp = returner;
-                ret.type = "expression";
-
-                return ret;
-              }
-            }
-          }
-
-          break;
-        }
-        case 61: {
-
-          //files.write
-
-          //written as files.write(dir, content)
-
-          //get both arguments and parse them
-          std::string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-          Action content = parser(v.Args[1], cli_params, vars, false, true, this_vals, dir).exp;
-
-          smatch match;
-
-          //see if the filename is absolute
-          std::regex pat("^[a-zA-Z]:");
-          bool isOnDrive = std::regex_search(filename, match, pat);
-
-          std::string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
-
-          std::string contentstr = content.ExpStr[0];
-          writefile(&(nDir + filename)[0], &contentstr[0]);
-
-          Action returner = content;
-
-          if (v.SubCall.size() > 0) {
-
-            Action callProcessParser = v;
-
-            bool isProc = v.SubCall[0].IsProc;
-
-            callProcessParser.Indexes = v.SubCall[0].Indexes;
-            callProcessParser.Args = v.SubCall[0].Args;
-            callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
-
-            returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
-
-          }
-
-          if (expReturn) {
-
-            Returner ret;
-            std::vector<std::string> retNo;
-
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = returner;
-            ret.type = "expression";
-
-            return ret;
-          }
-          break;
-        }
-        case 78: {
-
-          //files.remove
-
-          //written as files.remove(dir)
-
-          std::string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-
-          smatch match;
-
-          //see if the filename is absolute
-          std::regex pat("^[a-zA-Z]:");
-          bool isOnDrive = std::regex_search(filename, match, pat);
-
-          std::string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
-
-          deletefile(nDir + filename);
-
-          break;
-        }
-        case 62: {
-
-          //files.exists
-
-          //written as files.exists(dir)
-
-          std::string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-
-          smatch match;
-
-          //see if the filename is absolute
-          std::regex pat("^[a-zA-Z]:");
-          bool isOnDrive = std::regex_search(filename, match, pat);
-
-          std::string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
-
-          //if it is not a directory and not a file, it does not exist
-          bool exists = !(!isDir(nDir + filename) && !isFile(nDir + filename));
-
-          Action returner = exists ? trueRet : falseRet;
-
-          if (v.SubCall.size() > 0) {
-
-            Action callProcessParser = v;
-
-            bool isProc = v.SubCall[0].IsProc;
-
-            callProcessParser.Indexes = v.SubCall[0].Indexes;
-            callProcessParser.Args = v.SubCall[0].Args;
-            callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
-
-            returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
-
-          }
-
-          if (expReturn) {
-
-            Returner ret;
-            std::vector<std::string> retNo;
-
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = returner;
-            ret.type = "expression";
-
-            return ret;
-          }
-          break;
-        }
-        case 63: {
-
-          //files.isFile
-
-          //written as files.isFile(dir)
-
-          std::string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-
-          smatch match;
-
-          //see if the filename is absolute
-          std::regex pat("^[a-zA-Z]:");
-          bool isOnDrive = std::regex_search(filename, match, pat);
-
-          std::string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
-
-          bool isFileVal = isFile(nDir + filename);
-
-          Action returner = isFileVal ? trueRet : falseRet;
-
-          if (v.SubCall.size() > 0) {
-
-            Action callProcessParser = v;
-
-            bool isProc = v.SubCall[0].IsProc;
-
-            callProcessParser.Indexes = v.SubCall[0].Indexes;
-            callProcessParser.Args = v.SubCall[0].Args;
-            callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
-
-            returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
-
-          }
-
-          if (expReturn) {
-
-            Returner ret;
-            std::vector<std::string> retNo;
-
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = returner;
-            ret.type = "expression";
-
-            return ret;
-          }
-          break;
-        }
-        case 64: {
-
-          //files.isDir
-
-          //written as files.isDir(dir)
-
-          std::string filename = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-
-          smatch match;
-
-          //see if the filename is absolute
-          std::regex pat("^[a-zA-Z]:");
-          bool isOnDrive = std::regex_search(filename, match, pat);
-
-          std::string nDir = isOnDrive ? "" : cli_params["Files"]["DIR"];
-
-          bool isDirVal = isDir(nDir + filename);
-
-          Action returner = isDirVal ? trueRet : falseRet;
-
-          if (v.SubCall.size() > 0) {
-
-            Action callProcessParser = v;
-
-            bool isProc = v.SubCall[0].IsProc;
-
-            callProcessParser.Indexes = v.SubCall[0].Indexes;
-            callProcessParser.Args = v.SubCall[0].Args;
-            callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
-
-            returner = processParser(returner, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
-
-          }
-
-          if (expReturn) {
-
-            Returner ret;
-            std::vector<std::string> retNo;
-
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = returner;
-            ret.type = "expression";
-
-            return ret;
-          }
-          break;
-        }
-
-        case 65: {
-
-          //kill_thread
-
-          terminate();
-
-          break;
-        }
-        case 66: {
-
-          //kill
-
-          Kill();
-
-          break;
-        }
-
-        case 68: {
-
-          //regex.match
-
-          std::string str = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-          std::string regstr = parser(v.Args[1], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-
-          try {
-            std::regex reg(regstr);
-
-            smatch matcher;
-
-            std::vector<unsigned long long> found_indexes;
-
-            //get all matches
-            for (auto it = std::sregex_iterator(str.begin(), str.end(), reg); it != std::sregex_iterator(); it++) {
-              found_indexes.push_back(it->position());
-            }
-
-            Action returnerArr = arrayVal;
-
-            char* cur = "0";
-
-            //loop through the indexes found and store them an omm type array
-            for (int i : found_indexes) {
-
-              //store the value of the number 1
-              Action indexJ = val1;
-
-              indexJ.ExpStr[0] = to_string(i);
-
-              returnerArr.Hash_Values[std::string(cur)] = { indexJ };
-              cur = AddC(cur, "1", &cli_params.dump()[0]);
-            }
-
-            Action returnerVal = hashVal;
-
-            if (v.SubCall.size() > 0) {
-
-              Action callProcessParser = v;
-
-              bool isProc = v.SubCall[0].IsProc;
-
-              callProcessParser.Indexes = v.SubCall[0].Indexes;
-              callProcessParser.Args = v.SubCall[0].Args;
-              callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
-
-              returnerVal = processParser(returnerArr, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
-
-            }
-
-            if (expReturn) {
-
-              Returner ret;
-              std::vector<std::string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = returnerVal;
-              ret.type = "expression";
-
-              return ret;
-            }
-
-          } catch (std::regex_error& e) {
-
-            //give information about the warning
-            cout << "Warning during interpreting: Invalid Regular Expression: " << regstr << endl;
-            cout << "Error description: " << e.what() << endl;
-            cout << "Error code: " << e.code() << endl;
-            cout << endl << std::string(90, '-') << "\n\n";
-          }
-
-          break;
-        }
-
-        case 69: {
-
-          //regex.replace
-
-          std::string str = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-          std::string regstr = parser(v.Args[1], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-          std::string replace_with = parser(v.Args[2], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-
-          try {
-            std::regex reg(regstr);
-
-            std::string result = std::regex_replace(str, reg, replace_with);
-
-            Action resultJ = strPlaceholder;
-
-            resultJ.ExpStr[0] = result;
-
-            char* cur = "0";
-
-            for (char i : result) {
-
-              Action indexJ = strPlaceholder;
-
-              indexJ.ExpStr = { std::to_string(i) };
-
-              resultJ.Hash_Values[std::string(cur)] = { indexJ };
-              cur = AddC(cur, "1", &cli_params.dump()[0]);
-            }
-
-            Action retExp = resultJ;
-
-            if (v.SubCall.size() > 0) {
-
-              Action callProcessParser = v;
-
-              bool isProc = v.SubCall[0].IsProc;
-
-              callProcessParser.Indexes = v.SubCall[0].Indexes;
-              callProcessParser.Args = v.SubCall[0].Args;
-              callProcessParser.SubCall.erase(callProcessParser.SubCall.begin());
-
-              retExp = processParser(resultJ, callProcessParser, cli_params, &vars, this_vals, isProc, dir).exp;
-
-            }
-
-            if (expReturn) {
-
-              Returner ret;
-              std::vector<std::string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = retExp;
-              ret.type = "expression";
-
-              return ret;
-            }
-
-          } catch (std::regex_error& e) {
-
-            //give information about the warning
-            cout << "Warning during interpreting: Invalid Regular Expression: " << regstr << endl;
-            cout << "Error description: " << e.what() << endl;
-            cout << "Error code: " << e.code() << endl;
-            cout << endl << std::string(90, '-') << "\n\n";
-          }
-
-          break;
-        }
         case 70: {
 
           //this
@@ -1936,134 +1474,6 @@ namespace omm {
 
           break;
         }
-        case 77: {
-
-          //exec
-
-          std::string cmd = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]; //get the command
-          std::string put_stdin = parser(v.Args[1], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0]; //get the stdin
-
-          char* cmdC = &cmd[0];
-          char* stdinC = &put_stdin[0];
-
-          //get stdout from the cmd
-          char* get_stdout = ExecCmd(cmdC, stdinC, &dir[0]);
-
-          if (expReturn) {
-
-            Returner ret;
-            std::vector<std::string> retNo;
-
-            Action stdout_str = strPlaceholder;
-
-            stdout_str.ExpStr = { std::string(get_stdout) };
-
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = stdout_str;
-            ret.type = "expression";
-
-            return ret;
-          }
-
-          break;
-        }
-        case 15: {
-
-          //read
-
-          std::string output = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-
-          cout << output;
-
-          std::string val;
-          cin >> val;
-
-          Action omm_str = ommtypes::to_string(val);
-
-          if (expReturn) {
-
-            Returner ret;
-            std::vector<std::string> retNo;
-
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = omm_str;
-            ret.type = "expression";
-
-            return ret;
-          }
-
-          break;
-        }
-        case 19: {
-
-          //typeof
-
-          Returner parsed = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir);
-
-          Action exp = parsed.exp;
-          Action stringval = strPlaceholder;
-
-          stringval.ExpStr = { exp.Type };
-
-          std::vector<std::string> noRet;
-
-          if (expReturn) return Returner{ noRet, vars, stringval, "expression" };
-          break;
-        }
-        case 26: {
-
-          //ascii
-
-          Action parsed = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp;
-
-          std::vector<std::string> returnNone;
-
-          if (parsed.Type != "string" && expReturn) return Returner{ returnNone, vars, falseyVal, "expression" };
-          else {
-            std::string val = parsed.ExpStr[0];
-            int first = (int) val[0];
-
-            if (expReturn) {
-
-              Action ascVal = val1;
-
-              ascVal.ExpStr[0] = std::to_string(first);
-
-              return Returner{returnNone, vars, ascVal, "expression"};
-            }
-          }
-        }
-        break;
-        case 82: {
-
-          //env
-
-          Action parsed = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp;
-
-          std::vector<std::string> returnNone;
-
-          if (parsed.Type != "string" && expReturn) return Returner{ returnNone, vars, falseyVal, "expression" };
-          else {
-
-            std::string val = parsed.ExpStr[0];
-            Action variable;
-
-            const char* cvariable = std::getenv(val.c_str());
-
-            if (cvariable != NULL) {
-
-              variable = strPlaceholder;
-              variable.ExpStr[0] = string(cvariable);
-
-            } else variable = falseyVal;
-
-            return Returner{returnNone, vars, variable, "expression"};
-          }
-
-          break;
-        }
 
         //assignment operators
         case 4343: {
@@ -2087,12 +1497,14 @@ namespace omm {
               nVar = Variable{
                 vars[name].type,
                 name,
-                { val }
+                { val },
+                [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
               };
             } else nVar = {
                 "local",
                 name,
-                { val1 }
+                { val1 },
+                [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
               };
           }
 
@@ -2133,12 +1545,14 @@ namespace omm {
                 nVar = Variable{
                   vars[name].type,
                   name,
-                  { val }
+                  { val },
+                  [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                 };
               } else nVar = {
                   "local",
                   name,
-                  { val1 }
+                  { val1 },
+                  [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                 };
             }
 

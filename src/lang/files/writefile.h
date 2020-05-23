@@ -3,7 +3,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif;
+#endif
   #include <stdio.h>
 
   void writefile(char* dir, char* content) {

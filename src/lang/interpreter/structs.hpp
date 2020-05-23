@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <map>
+#include <functional>
+#include "json.hpp"
+using json = nlohmann::json;
 
 namespace omm {
 
@@ -65,11 +68,20 @@ namespace omm {
     std::string                                  name;
     std::vector<Action>                          value;
 
+    //cprocs
+    std::function<Returner(
+      Action v,
+      json cli_params,
+      std::map<std::string, Variable> vars,
+      std::deque<std::map<std::string, std::vector<Action>>> this_vals,
+      std::string dir
+    )>                                           cproc;
+
   } Variable;
 
   typedef struct Returner {
 
-    std::vector<std::string>                          value;
+    std::vector<std::string>                     value;
     std::map<std::string, Variable>              variables;
     Action                                       exp;
     std::string                                  type;

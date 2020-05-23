@@ -2,9 +2,8 @@
 #define OSM_OMBR_COMPILE_HPP_
 
 #include <vector>
-#include "../../lang/interpreter/structs.hpp"
+#include <map>
 #include "../../lang/interpreter/json.hpp"
-#include "../../lang/files/readfile.hpp"
 using json = nlohmann::json;
 
 namespace omm {

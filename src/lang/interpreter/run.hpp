@@ -10,6 +10,7 @@
 #include "json.hpp"
 #include "values.hpp"
 #include "ommtypes.hpp"
+#include "cprocs.hpp"
 using json = nlohmann::json;
 
 namespace omm {
@@ -28,13 +29,15 @@ namespace omm {
       "$dirname",
       {
         { "string", "", { string(dir) }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" }
-      }
+      },
+      [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
     };
 
     Variable omm_args = Variable{
       "global",
       "$argv",
-      { arrayVal }
+      { arrayVal },
+      [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
     };
 
     for (int i = 0; i < argc; ++i)
@@ -42,9 +45,24 @@ namespace omm {
 
     vars["$argv"] = omm_args;
 
+    //put all of the cprocs
+    for (std::pair<std::string, std::function<Returner(
+      Action v,
+      json cli_params,
+      std::map<std::string, Variable> vars,
+      std::deque<std::map<std::string, std::vector<Action>>> this_vals,
+      std::string dir
+    )>> it : cprocs)
+      vars["$" + it.first] = Variable{
+        "cproc",
+        "$" + it.first,
+        {},
+        it.second
+      };
+
     parser(acts, cpJ, vars, /*group return*/ false, /* expression return */ false, {}, std::string(dir));
   }
-  
+
 }
 
 #endif
