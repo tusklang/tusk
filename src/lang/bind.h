@@ -18,7 +18,7 @@ extern "C" {
   //OSM (Omm Server Manager)
   extern void OSM_create_server(char*);
   extern void NewPath(char*, char*);
-  void bindOsm(int handle_index, char* ur);
+  void bindOsm(int handle_index, char* url);
   //////////////////////////
 
   void bindParser(char* actions, char* cli_params, char* dir, int argc, char ** argv);

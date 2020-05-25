@@ -2,6 +2,7 @@ package lang
 
 import "fmt"
 import "net/http"
+import "unsafe"
 
 // #cgo CFLAGS: -std=c99
 // #include "bind.h"
@@ -11,6 +12,10 @@ type OsmPath struct {
   Url          string
   RequestType  string
 }
+
+//all of the go funcs to pass into c++
+type OsmGetCookie struct{}
+type OsmSetCookie struct{}
 
 var paths []OsmPath
 
@@ -22,7 +27,9 @@ func handler(res http.ResponseWriter, req *http.Request) {
   for k, v := range paths {
 
     if v.Url == url {
-      C.bindOsm(C.int(k), C.CString(url))
+
+      C.bindOsm(C.int(k), /*pass extra variables in the req*/ C.CString(url))
+      break
     }
 
   }

@@ -1,6 +1,8 @@
 osm.handle("get", "/", proc() {
-  log ~ 's';
+  log ~ req.url;
+});
+osm.handle("get", "/h", proc() {
+  log ~ req.url;
   });
-
 
 osm.create("80");
