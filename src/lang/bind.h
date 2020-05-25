@@ -15,6 +15,12 @@ extern "C" {
   extern char* GetOp(char*);
   extern char* ExecCmd(char*, char*, char*);
 
+  //OSM (Omm Server Manager)
+  extern void OSM_create_server(char*);
+  extern void NewPath(char*, char*);
+  void bindOsm(int handle_index, char* ur);
+  //////////////////////////
+
   void bindParser(char* actions, char* cli_params, char* dir, int argc, char ** argv);
   void colorprint(char*, int);
 

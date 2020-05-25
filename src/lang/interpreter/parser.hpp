@@ -307,12 +307,10 @@ namespace omm {
             else {
 
               //if it is a cproc
-              if (vars[name].type == "cproc") {
+              if (vars[name].type == "cproc")
+                parsed = vars[name].cproc(v, cli_params, vars, this_vals, dir); //run the cproc
 
-                parsed = vars[name].cproc(v, cli_params, vars, this_vals, dir);
-                goto stopIndexing_processes;
-
-              } else {
+              else {
                 Action var = vars[name].value[0];
 
                 parsed = processParser(var, v, cli_params, &vars, this_vals, true, dir);
@@ -739,7 +737,7 @@ namespace omm {
           break;
         case 38: {
 
-            //std::string
+            //string
 
             std::vector<std::string> noRet;
 
@@ -1226,6 +1224,12 @@ namespace omm {
 
             if (vars.find(name) == vars.end()) goto stopIndexing_threads;
             else {
+
+              //if it is a cproc
+              if (vars[name].type == "cproc") {
+                parsed = vars[name].cproc(v, cli_params, vars, this_vals, dir); //run the cproc
+                goto stopIndexing_threads;
+              }
 
               Action var = vars[name].value[0];
 

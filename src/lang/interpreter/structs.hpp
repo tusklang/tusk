@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <deque>
 #include <functional>
 #include "json.hpp"
 using json = nlohmann::json;
@@ -87,6 +88,15 @@ namespace omm {
     std::string                                  type;
 
   } Returner;
+
+  typedef struct Handler { //osm handler for c++
+
+    Action                                       callback;
+    json                                         cli_params;
+    std::map<std::string, Variable>              vars;
+    std::string                                  dir;
+
+  } Handler;
 
 }
 

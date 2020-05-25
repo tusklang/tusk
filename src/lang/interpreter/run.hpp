@@ -20,7 +20,7 @@ namespace omm {
     const json cpJ = json::parse(string(cli_params));
 
     //convert the json to a vector of actions
-    std::vector<Action> acts = DecodeJSON::vector(json::parse(string(actions)));
+    std::vector<Action> acts = DecodeJSON::vector(json::parse(std::string(actions)));
 
     std::map<std::string, Variable> vars;
 
@@ -45,7 +45,7 @@ namespace omm {
 
     vars["$argv"] = omm_args;
 
-    //put all of the cprocs
+    //put all of the cprocs into the vars
     for (std::pair<std::string, std::function<Returner(
       Action v,
       json cli_params,
