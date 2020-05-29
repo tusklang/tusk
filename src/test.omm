@@ -1,8 +1,5 @@
-osm.handle("get", "/", proc() {
-  log ~ req.url;
-});
 osm.handle("get", "/h", proc() {
-  log ~ req.url;
-  });
+  render("test.json", [::]);
+});
 
 osm.create("80");

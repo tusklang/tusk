@@ -12,12 +12,20 @@ namespace omm {
 
     namespace ombr {
 
+      //compile from ombr (json) to html
       std::string compile(std::string file_json, map<std::string, std::string> replacers) {
 
         if (file_json.length() == 0) return "";
 
-        json j = json::parse(file_json);
+        json j;
 
+        //if it is not a valid json string return "ombr not valid"
+        if (json::accept(file_json)) j = json::parse(file_json);
+        else return "ombr not valid";
+
+        //if it is an object, convert to an array
+        //e.g.
+        //{} --> [{}]
         if (j.type() == json::value_t::object) j = json::parse("[" + file_json + "]");
 
         if (j.type() != json::value_t::array) return file_json; //if it is not an array, then return the file
@@ -39,31 +47,41 @@ namespace omm {
           //if it is not an object
           if (it.value().type() != json::value_t::object) continue;
 
-          //if it is setting the doctype
-          if (it.value()["tag"].get<std::string>() == "doctype") {
-            html+="<!DOCTYPE " + it.value().get<std::string>();
-            continue;
+          std::string val;
+
+          //if there is a value, give that, otherwise just give ""
+          if (it.value().find("value") == it.value().end()) val = "";
+          else val = it.value()["value"].get<std::string>();
+
+          //if there is no tag, insert plaintext
+          if (it.value().find("tag") == it.value().end()) html+=val;
+          else {
+
+            //if it is tag the doctype
+            if (it.value()["tag"].get<std::string>() == "doctype") {
+              html+="<!DOCTYPE " + it.value().get<std::string>();
+              continue;
+            }
+
+            //create a tag e.g. <p id='example'>Ex</p>
+            std::string tag = std::string("<") + it.value()["tag"].get<std::string>();
+
+            //loop through the attrs
+            for (auto& attrs : it.value().items()) {
+
+              std::string compiled = compile(attrs.value().dump(), replacers);
+
+              //add the attr to the tag
+              tag+=std::string(" ") + attrs.key() + std::string("=") + compiled + std::string("");
+
+            }
+
+            //add the closing tag
+            tag+=std::string(">" + val + "</") + it.value()["tag"].get<std::string>() + std::string("\">");
+
+            //add the tag to the html
+            html+=tag;
           }
-
-          //create a tag e.g. <p id='example'>Ex</p>
-          std::string tag = std::string("<") + it.value()["tag"].get<std::string>();
-
-          //loop through the attrs
-          for (auto& attrs : it.value().items()) {
-
-            std::string compiled = compile(attrs.value().dump(), replacers);
-
-            //add the attr to the tag
-            tag+=std::string(" ") + attrs.key() + std::string("=") + compiled + std::string("");
-
-          }
-
-          //add the closing tag
-          tag+=std::string("></") + it.value()["tag"].get<std::string>() + std::string("\">");
-
-          //add the tag to the html
-          html+=tag;
-
         }
 
         return html;

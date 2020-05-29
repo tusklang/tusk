@@ -239,7 +239,8 @@ func callCalcParams(i *int, lex []Lex, len_lex int, dir, filename string) ([][]A
         continue
       }
 
-      if lex[o].Name == "," {
+      //detect a new argument
+      if lex[o].Name == "," && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 1 {
         params = append(params, []Lex{})
         continue
       }
@@ -278,6 +279,9 @@ func callCalcParams(i *int, lex []Lex, len_lex int, dir, filename string) ([][]A
 
     (*i)+=skip_nums
 
+    //detect a subcaller
+    //subcaller means test_proc()() //<-- the last () is the subcaller
+    //a subcaller can also be test_proc().[0] //<-- the .[0] is a subcaller
     if *i < len_lex {
 
       if lex[*i].Name == "(" || lex[*i].Name == "." {
@@ -293,10 +297,10 @@ func callCalcParams(i *int, lex []Lex, len_lex int, dir, filename string) ([][]A
   return params_, putIndexes, subcaller, isProc
 }
 
-//function to actionize the callers (#~)
+//function to actionize the callers (#~ and @~)
 func callCalc(i *int, lex []Lex, len_lex int, dir, filename string) ([][]Action, [][]Action, []SubCaller, string) {
 
-  var name = lex[(*i) + 2].Name
+  var name = lex[*i + 2].Name
 
   (*i)+=3
 
@@ -384,7 +388,7 @@ func procCalc(i *int, lex []Lex, len_lex int, dir, name string) ([]Action, []str
       }
     }
 
-    (*i)+=len(logic_) - 1
+    (*i)+=len(logic_) + 1
 
     logic = Actionizer(logic_, false, dir, name)
   }
@@ -1481,11 +1485,10 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         i++
 
         //if it is not a number of a parameter list
-        //(add parameter lists before)
         //they are just as follows
         /*
 
-        pargc ~ (string->, number->, ...whatever datatypes) {
+        pargc ~ (string, number, ...whatever datatypes) {
 
         }
 

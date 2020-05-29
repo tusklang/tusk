@@ -622,7 +622,7 @@ namespace omm {
       Action cb = parser(v.Args[2], cli_params, vars, false, true, this_vals, dir).exp;
 
       osm_handlers.push_back(Handler{ cb, cli_params, vars, dir });
-      NewPath(&path[0], &req_type[0]);
+      NewPath(&path[0], &req_type[0], &dir[0]);
 
       return Returner{ retNo, vars, falseyVal, "expression" };
 
