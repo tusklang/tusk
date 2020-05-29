@@ -64,6 +64,33 @@ void bindOsm(int handle_index, char* url, osmGoProc goprocs[], osmGoProcName gop
   // t.detach();
 }
 
+char ** parseParams(void* params, void* cli_params, void* vars, void* this_vals, void* dir, int amt) {
+
+  //convert args into a vector of a vector of actions
+  std::vector<std::vector<omm::Action>> args = *(((std::vector<std::vector<omm::Action>>*)(params)));
+
+  char ** parsedArgs = (char **) malloc(amt);
+  int index = 0;
+
+  if (amt != args.size()) return parsedArgs;
+
+  for (std::vector<omm::Action> it : args) {
+    parsedArgs[index] = &parser(
+      args[0],
+      *((json*)(cli_params)),
+      *((std::map<std::string, omm::Variable>*)(vars)),
+      false,
+      true,
+      *((std::deque<std::map<std::string, std::vector<omm::Action>>>*)(this_vals)),
+      *((std::string*)(dir))
+    ).exp.ExpStr[0][0]; //parse the current iterator
+
+    ++index;
+  }
+
+  return parsedArgs;
+}
+
 //function to bind ombr
 char* ombrBind(void* args, void* cli_params, void* vars, void* this_vals, void* dir) {
   return omm::osm::ombr::connect(args, cli_params, vars, this_vals, dir);

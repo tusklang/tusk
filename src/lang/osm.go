@@ -35,6 +35,8 @@ func CallOSMProc(fnPtr unsafe.Pointer, args unsafe.Pointer, cli_params unsafe.Po
 
 func handler(res http.ResponseWriter, req *http.Request) {
 
+  res.Header().Set("Content-Type", "text/html")
+
   //get the url
   url := req.URL.Path
 
@@ -45,20 +47,32 @@ func handler(res http.ResponseWriter, req *http.Request) {
       //map of all the goprocs to send to the c++ interpreter
       goprocesses := map[string](func(params unsafe.Pointer, cli_params unsafe.Pointer, vars unsafe.Pointer, this_vals unsafe.Pointer, dir unsafe.Pointer) *C.char){
         "render": func(params unsafe.Pointer, cli_params unsafe.Pointer, vars unsafe.Pointer, this_vals unsafe.Pointer, dir unsafe.Pointer) *C.char {
-          res.Header().Set("Content-Type", "text/html")
 
           //call ombrBind to template the ombr (json) to html
           html := C.GoString(C.ombrBind(params, cli_params, vars, this_vals, dir))
           res.Write([]byte(html))
           return C.CString(html) //return the converted ombr (html)
         },
+        "cookies.get": func(params unsafe.Pointer, cli_params unsafe.Pointer, vars unsafe.Pointer, this_vals unsafe.Pointer, dir unsafe.Pointer) *C.char {
+          cookies := req.Cookies() //get all of the cookies
+
+          name := C.GoString( C.getIndex( C.parseParams( params, cli_params, vars, this_vals, dir, 1 /* amount of params */ ), 0 ) )
+
+          for _, v := range cookies { //loop through all of the cookies
+            if v.Name == name { //if the names match return the value
+              return C.CString(v.Value)
+            }
+          }
+
+          return C.CString("")
+        },
       }
 
-      const size = 1 //if you add more goprocesses, increase this
+      const size = 2 //if you add more goprocesses, increase this
 
       //alloc the goprocNames array
       goprocNamesArr := C.allocOSM_GoProcNames(C.size_t(size))
-      goprocNamesArrPass := (*[100000]C.osmGoProcName)(unsafe.Pointer(goprocNamesArr))[:size:size]
+      goprocNamesArrPass := (*[size]C.osmGoProcName)(unsafe.Pointer(goprocNamesArr))[:size:size]
 
       //alloc the goproc array
       goprocArr := C.allocOSM_GoProcs(C.size_t(size))

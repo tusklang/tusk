@@ -1,5 +1,6 @@
 osm.handle("get", "/h", proc() {
-  render("test.json", [::]);
+
+  log cookies.get('hello');  
 });
 
 osm.create("80");

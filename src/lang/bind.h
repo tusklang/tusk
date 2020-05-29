@@ -23,6 +23,12 @@ extern "C" {
   extern char* CallOSMProc(void*, void*, void*, void*, void*, void*);
   void bindOsm(int handle_index, char* url, osmGoProc* goprocs, osmGoProcName* goprocNames, int goprocsLen);
   char* ombrBind(void* args, void* cli_params, void* vars, void* this_vals, void* dir);
+  char ** parseParams(void* params, void* cli_params, void* vars, void* this_vals, void* dir, int amt);
+
+  static inline char* getIndex(char** strArr, int index) { //function to get the index of a char**
+    return strArr[index];
+  }
+
   //////////////////////////
 
   void bindParser(char* actions, char* cli_params, char* dir, int argc, char ** argv);
