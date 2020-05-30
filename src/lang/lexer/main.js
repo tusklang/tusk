@@ -13,7 +13,8 @@ const
   processes = require('./processes'), //file with process utils
   include_parser = require('./includes'), //file that will include omm files within other omm files
   indexes = require('./indexes'), //file to allow user to write :: instead of .['name']
-  id_init = require('./id_init'); //file to add ~ after every id
+  id_init = require('./id_init'), //file to add ~ after every id
+  insert_semicolons = require('./semi_colon_insert'); //file to insert semicolons
 
 global.KEYWORDS = require('./keywords.json');
 global.MAX_CUR_EXP = 12;
@@ -205,6 +206,9 @@ global.lexer = (file, dir) => {
 
   }
 
+  lex = lex.filter(l => l.Type != "newline"); //remove newlines
+  lex = insert_semicolons(id_init(lex))
+
   //account for: true, false, undefined, and null
   lex = lex.map(l => {
     if (/\$true|\$false|\$undef|\$null/.test(l.Name)) return {
@@ -236,9 +240,7 @@ global.lexer = (file, dir) => {
 
   });
 
-  lex = lex.filter(l => l.Type != "newline");
-
-  return id_init(indexes(include_parser(global.DIRNAME, lex)));
+  return indexes(include_parser(global.DIRNAME, lex));
 }
 
 console.log(

@@ -1,1 +1,2 @@
-log "testing";
+log 'hi'
+log 's'
