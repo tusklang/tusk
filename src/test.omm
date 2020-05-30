@@ -1,6 +1,1 @@
-osm.handle("get", "/h", proc() {
-
-  log cookies.get('hello');  
-});
-
-osm.create("80");
+log "testing";

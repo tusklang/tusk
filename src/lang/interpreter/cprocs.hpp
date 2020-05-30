@@ -592,40 +592,6 @@ namespace omm {
 
       return Returner{retNo, vars, falseyVal, "expression"};
 
-    } },
-    { "osm.create", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
-
-      std::vector<std::string> retNo;
-
-      //determine if the required arguments are met, and if not return undef
-      if (v.Args.size() != 1) return Returner{ retNo, vars, falseyVal, "expression" };
-
-      string port = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-
-      OSM_create_server(&port[0]);
-
-      return Returner{ retNo, vars, falseyVal, "expression" };
-
-    } },
-    { "osm.handle", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
-
-      std::vector<std::string> retNo;
-
-      if (v.Args.size() != 3) return Returner{ retNo, vars, falseyVal, "expression" };
-
-      //arg 0 is the request type
-      //arg 1 is the path
-      //arg 2 is the callback
-
-      string req_type = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-      string path = parser(v.Args[1], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
-      Action cb = parser(v.Args[2], cli_params, vars, false, true, this_vals, dir).exp;
-
-      osm_handlers.push_back(Handler{ cb, cli_params, vars, dir });
-      NewPath(&path[0], &req_type[0], &dir[0]);
-
-      return Returner{ retNo, vars, falseyVal, "expression" };
-
     } }
 
   };
