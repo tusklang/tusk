@@ -391,7 +391,7 @@
     "name": "await",
     "remove": "await",
     "pattern": "(await(\\s+))",
-    "type": "id_non_tilde"
+    "type": "id"
   },
   {
     "name": "return",

@@ -2,4 +2,4 @@ proc t() {
   return 1;
 }
 
-log ~ @t();
+log ~ await 1;
