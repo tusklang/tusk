@@ -1499,6 +1499,29 @@ namespace omm {
 
           break;
         }
+      case 82: {
+
+        //await
+
+        //this will allow for user to force await a thread call
+        //for example, log ~ @ptest(), would return the promise, not the returned value
+        //this can allow for log ~ await ~ @ptest()
+
+        Action parsed = parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir).exp;
+
+        Returner called;
+
+        if (parsed.Type != "thread") { //if it is not a thread
+
+          std::vector<std::string> retNo;
+
+          called = Returner{ retNo, vars, parsed, "expression" };
+        } else called = parser({ parsed }, cli_params, vars, false, true, this_vals, dir);
+
+        if (expReturn) return called;
+
+        break;
+      }
 
         //assignment operators
         case 4343: {

@@ -2803,6 +2803,55 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         act.IsMutable = isMutable
 
         actions = append(actions, act)
+      case "await":
+
+        awaiter := []Lex{}
+
+        cbCnt := 0
+        glCnt := 0
+        bCnt := 0
+        pCnt := 0
+
+        for o := i + 2; o < len_lex; o++ {
+          if lex[o].Name == "{" {
+            cbCnt++
+          }
+          if lex[o].Name == "}" {
+            cbCnt--
+          }
+
+          if lex[o].Name == "[:" {
+            glCnt++
+          }
+          if lex[o].Name == ":]" {
+            glCnt--
+          }
+
+          if lex[o].Name == "[" {
+            bCnt++
+          }
+          if lex[o].Name == "]" {
+            bCnt--
+          }
+
+          if lex[o].Name == "(" {
+            pCnt++
+          }
+          if lex[o].Name == ")" {
+            pCnt--
+          }
+
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && lex[o].Name == "newlineS" {
+            break
+          }
+
+          awaiter = append(awaiter, lex[o])
+        }
+
+        awaiterAct := Actionizer(awaiter, true, dir, name)
+
+        actions = append(actions, Action{ "await", "", []string{}, awaiterAct, []string{}, [][]Action{}, []Condition{}, 82, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} })
+        i+=len(awaiter) + 2
 
       default:
 
