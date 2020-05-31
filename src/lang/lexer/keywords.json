@@ -2,13 +2,13 @@
   {
     "name": "local",
     "remove": "local",
-    "pattern": "(local\\b(~?))",
+    "pattern": "(local(\\s*)(~?))",
     "type": "id"
   },
   {
     "name": "local",
     "remove": "lcl",
-    "pattern": "(lcl\\b(~?))",
+    "pattern": "(lcl(\\s*)(~?))",
     "type": "id"
   },
   {
@@ -26,13 +26,13 @@
   {
     "name": "kill",
     "remove": "kill",
-    "pattern": "kill\\b\\<-",
+    "pattern": "kill(\\s*)\\<-",
     "type": "kill"
   },
   {
     "name": "kill",
     "remove": "kill",
-    "pattern": "kill\\b\\;",
+    "pattern": "kill(\\s*)\\;",
     "type": "kill"
   },
   {
@@ -122,13 +122,13 @@
   {
     "name": "dynamic",
     "remove": "dyn",
-    "pattern": "(dyn\\b(~?))",
+    "pattern": "(dyn(\\s*)(~?))",
     "type": "id"
   },
   {
     "name": "dynamic",
     "remove": "dynamic",
-    "pattern": "(dynamic\\b(~?))",
+    "pattern": "(dynamic(\\s*)(~?))",
     "type": "id"
   },
   {
@@ -324,7 +324,7 @@
   {
     "name": "@",
     "remove": "@",
-    "pattern": "(@\\b\\~)",
+    "pattern": "(@(\\s*)\\~)",
     "type": "caller"
   },
   {

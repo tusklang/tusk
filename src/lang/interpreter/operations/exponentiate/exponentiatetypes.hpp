@@ -36,7 +36,7 @@ namespace omm {
 
     if (neg) finStr = "-" + finStr;
 
-    return Action{ "number", "", { finStr }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+    return Action{ "number", "", { finStr }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyFuture };
   }
 
 }

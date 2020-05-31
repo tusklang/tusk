@@ -31,7 +31,7 @@ namespace omm {
       i = AddC(i, "1", &cli_params.dump()[0]);
     }
 
-    return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false, "private" };
+    return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false, "private", emptySubCaller, emptyFuture };
   }
 
   Action addarrays(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
@@ -49,7 +49,7 @@ namespace omm {
       finalMap["0"] = { num1 };
     }
 
-    return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false, "private" };
+    return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false, "private", emptySubCaller, emptyFuture };
   }
 
   Action addbools(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
@@ -58,7 +58,7 @@ namespace omm {
     bool num2b = num2.ExpStr[0] == "true";
     std::string final = to_string(num1b || num2b);
 
-    return Action{ "boolean", "", { final }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+    return Action{ "boolean", "", { final }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyFuture };
   }
 
   Action addhashes(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
@@ -67,7 +67,7 @@ namespace omm {
 
     for (std::pair<string, std::vector<Action>> it : num2.Hash_Values) final[it.first] = it.second;
 
-    return Action{ "hash", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 22, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, final, (num1.IsMutable || num2.IsMutable) };
+    return Action{ "hash", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 22, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, final, (num1.IsMutable || num2.IsMutable), "private", emptySubCaller, emptyFuture };
   }
 
 }

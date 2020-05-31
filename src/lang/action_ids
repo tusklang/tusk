@@ -76,6 +76,7 @@ boolean: 40
 falsey: 41
 none: 42
 variable: 43
+thread: 83
 
 ++: 4343
 --: 4545

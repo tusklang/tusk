@@ -15,8 +15,6 @@ using json = nlohmann::json;
 
 namespace omm {
 
-  std::vector<Handler> osm_handlers; //the paths are stored in the osm.go file
-
   std::map<std::string, std::function<Returner(
     Action v,
     json cli_params,

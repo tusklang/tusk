@@ -20,6 +20,8 @@ global.KEYWORDS = require('./keywords.json');
 global.MAX_CUR_EXP = 12;
 global.lexer = (file, dir) => {
 
+  file = processes.init(file); //add the ~ after the # and @
+
   //current expression
   var curExp = ''
   //current lexxed value
@@ -247,6 +249,6 @@ console.log(
   JSON.stringify({
     WARNS: warnings,
     ERRORS: errors,
-    LEX: processes.hash_inserter(lexer(processes.init(f), dir + name))
+    LEX: processes.hash_inserter(lexer(f, dir + name))
   }, null, 2)
 );

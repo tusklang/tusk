@@ -153,12 +153,17 @@ func Run(params map[string]map[string]interface{}) {
   cp, _ := json.Marshal(params)
   acts, _ := json.MarshalIndent(actions, "", "  ")
 
+  _ = cp
+  _ = acts
+
   argv := make([]*C.char, len(os.Args[1:]))
 
   for k, v := range os.Args[1:] {
     cstring := C.CString(v)
     argv[k] = cstring
   }
+
+  _ = argv
 
   C.bindParser(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir), C.int(len(os.Args[1:])), &argv[0])
 }

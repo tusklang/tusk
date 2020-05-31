@@ -1,2 +1,7 @@
-log 'hi'
-log 's'
+proc t() {
+  return 1;
+}
+
+a: @t();
+
+log ~ a;

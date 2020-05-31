@@ -11,6 +11,7 @@
 #include <windows.h>
 #include <regex>
 #include <exception>
+#include <memory>
 
 #include "json.hpp"
 #include "../bind.h"
@@ -784,25 +785,25 @@ namespace omm {
 
             //variable
 
-            Action val;
-
-            if (vars.find(v.Name) == vars.end()) val = falseyVal;
-            else {
-
-              Action var = vars[v.Name].value[0];
-
-              bool varIsMutable = var.IsMutable
-              , actIsMutable = v.IsMutable
-              , isMutable = varIsMutable ^ actIsMutable;
-
-              var.IsMutable = isMutable;
-
-              val = parser({ var }, cli_params, vars, false, true, this_vals, dir).exp;
-            }
-
             std::vector<std::string> noRet;
 
-            if (expReturn) return Returner{ noRet, vars, val, "expression" };
+              Action val;
+
+              if (vars.find(v.Name) == vars.end()) val = falseyVal;
+              else {
+
+                Action var = vars[v.Name].value[0];
+
+                bool varIsMutable = var.IsMutable
+                , actIsMutable = v.IsMutable
+                , isMutable = varIsMutable ^ actIsMutable;
+
+                var.IsMutable = isMutable;
+
+                val = parser({ var }, cli_params, vars, false, true, this_vals, dir).exp;
+              }
+
+              if (expReturn) return Returner{ noRet, vars, val, "expression" };
           }
           break;
         case 46: {
@@ -1296,9 +1297,9 @@ namespace omm {
                 sendVars[params[o]] = cur;
               }
 
-              std::thread _(parser, var.ExpAct, cli_params, sendVars, true, false, this_vals, dir);
+              std::future<Returner> future = std::async(&parser, var.ExpAct, cli_params, sendVars, true, false, this_vals, dir);
 
-              _.detach();
+              parsed.exp = Action{ "thread", name, v.ExpStr, v.ExpAct, v.Params, v.Args, v.Condition, 83, v.First, v.Second, v.Degree, v.Value, v.Indexes, v.Hash_Values, v.IsMutable, v.Access, v.SubCall, std::make_shared<std::future<Returner>>(std::move(future)) };
             }
 
             stopIndexing_threads:
@@ -1483,6 +1484,18 @@ namespace omm {
 
             return ret;
           }
+
+          break;
+        }
+        case 83: {
+
+          //thread
+
+          //this case is to await for a thread
+
+         Returner called = v.Thread->get(); //get the thread
+
+         if (expReturn) return called;
 
           break;
         }

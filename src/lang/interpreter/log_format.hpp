@@ -29,7 +29,7 @@ namespace omm {
           log_format(_value[0], cli_params, vars, hash_spacing + 2, "log");
         }
 
-        cout << std::string(hash_spacing - 2, ' ') << ":]" << (doPrint == "print" ? "" : "\n");
+        cout << std::string(hash_spacing - 2, ' ') << ":]" << (doPrint == "print" ? "" : "\n") << std::flush;
       }
     } else if (in.Type == "array") {
       std::map<std::string, std::vector<Action>> hashvals = in.Hash_Values;
@@ -42,25 +42,26 @@ namespace omm {
           std::string key = it.first;
           std::vector<Action> _value = it.second;
 
-          cout << std::string(hash_spacing, ' ') << key << ": ";
+          std::cout << std::string(hash_spacing, ' ') << key << ": ";
           log_format(_value[0], cli_params, vars, hash_spacing + 2, "log");
         }
 
-        cout << std::string(hash_spacing - 2, ' ') << "]" << (doPrint == "print" ? "" : "\n");
+        std::cout << std::string(hash_spacing - 2, ' ') << "]" << (doPrint == "print" ? "" : "\n") << std::flush;
       }
-    } else if (in.Type == "process" || in.Type == "group") cout << "{PROCESS~ | GROUP~} " << "PARAM COUNT: " << in.Params.size() << (doPrint == "print" ? "" : "\n");
+    } else if (in.Type == "process" || in.Type == "group") std::cout << "{(PROCESS~ | GROUP~) " << "PARAM COUNT: " << in.Params.size() << "}" << (doPrint == "print" ? "" : "\n") << std::flush;
+    else if (in.Type == "thread") std::cout << "{Promise for proc " << in.Name.substr(1 /* remove the $ */ ) << "}" << std::flush;
     else if (in.Name == "operation") {
       log_format(in.First[0], cli_params, vars, hash_spacing, "print");
 
       std::string op = in.Type;
-      cout << " " << GetOp(&op[0]) << " ";
+      cout << " " << GetOp(&op[0]) << " " << std::flush;
       log_format(in.Second[0], cli_params, vars, hash_spacing, "print");
 
     } else {
 
       string val = in.ExpStr[0];
 
-      cout << val << (doPrint == "print" ? "" : "\n");
+      cout << val << (doPrint == "print" ? "" : "\n") << std::flush;
     }
   }
 

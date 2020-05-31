@@ -39,7 +39,7 @@ namespace omm {
 
       std::string val(AddC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]));
 
-      finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+      finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyFuture };
 
     } else if ((num1.Type == "hash" || num2.Type == "hash") && (num1.Type == "hash" || num2.Type == "hash")) { //detect case hash + hash = hash
 

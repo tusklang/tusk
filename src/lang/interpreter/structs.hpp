@@ -5,6 +5,8 @@
 #include <map>
 #include <deque>
 #include <functional>
+#include <future>
+#include <memory>
 #include "json.hpp"
 using json = nlohmann::json;
 
@@ -61,6 +63,11 @@ namespace omm {
     std::string                                  Access;
     std::vector<SubCaller>                       SubCall;
 
+    //values that are not calculated at compile time
+
+    //threads
+    std::shared_ptr<std::future<Returner>>       Thread;
+
   } Action;
 
   typedef struct Variable {
@@ -88,15 +95,6 @@ namespace omm {
     std::string                                  type;
 
   } Returner;
-
-  typedef struct Handler { //osm handler for c++
-
-    Action                                       callback;
-    json                                         cli_params;
-    std::map<std::string, Variable>              vars;
-    std::string                                  dir;
-
-  } Handler;
 
 }
 

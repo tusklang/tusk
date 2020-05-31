@@ -28,7 +28,7 @@ namespace omm {
 
       std::string val(SubtractC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]));
 
-      finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+      finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyFuture };
 
     } else if ((num1.Type == "number" && num2.Type != "string") || (num2.Type == "string" && num1.Type != "number")) { //detect case string - num = string
 

@@ -25,9 +25,9 @@ namespace omm {
     if (num1.Type == "number" && num2.Type == "number") { //detect case num % num = num
 
       if (strcmp(ReturnInitC(&num2.ExpStr[0][0]), "0") == 0)  {
-        finalRet = Action{ "number", "", { "undef" }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+        finalRet = Action{ "number", "", { "undef" }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyFuture };
       } else if (strcmp(ReturnInitC(&num1.ExpStr[0][0]), "0") == 0)  {
-        finalRet = Action{ "number", "", { "0" }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+        finalRet = Action{ "number", "", { "0" }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyFuture };
       } else {
 
         char* divved_ = DivisionC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]);
@@ -39,7 +39,7 @@ namespace omm {
         char* mult = MultiplyC(&divved[0], &num2.ExpStr[0][0], &cli_params.dump()[0])
         ,* remainder = SubtractC(&num1.ExpStr[0][0], mult, &cli_params.dump()[0]);
 
-        finalRet = Action{ "number", "", { remainder }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" };
+        finalRet = Action{ "number", "", { remainder }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyFuture };
       }
 
     } else { //detect default case

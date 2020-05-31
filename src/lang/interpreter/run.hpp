@@ -17,19 +17,19 @@ namespace omm {
 
   void run(char* actions, char* cli_params, char* dir, int argc, char ** argv) {
 
-    const json cpJ = json::parse(string(cli_params));
+    const json cpJ = json::parse(std::string(cli_params));
 
     //convert the json to a vector of actions
     std::vector<Action> acts = DecodeJSON::vector(json::parse(std::string(actions)));
 
     std::map<std::string, Variable> vars;
 
+    Action dirnameAct = { "string", "", { string(dir) }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyFuture };
+
     vars["$dirname"] = Variable{
       "global",
       "$dirname",
-      {
-        { "string", "", { string(dir) }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private" }
-      },
+      { dirnameAct },
       [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
     };
 
