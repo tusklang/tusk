@@ -1,5 +1,5 @@
-#ifndef DECODE_JSON_HPP_
-#define DECODE_JSON_HPP_
+#ifndef OMM_DECODE_JSON_HPP_
+#define OMM_DECODE_JSON_HPP_
 
 #include <vector>
 #include <map>
@@ -104,6 +104,9 @@ namespace omm {
 
       return ret;
     }
+    std::vector<long long> vectorLL(json j) {
+      return j.get<std::vector<long long>>();
+    }
 
     //all of functions (lambdas) to change the values of the action
     std::map<std::string, std::function<void(Action*, json)> > action_switch = {
@@ -123,7 +126,9 @@ namespace omm {
       {"Hash_Values", [](Action* act, json j) { act->Hash_Values = map(j); } },
       {"IsMutable", [](Action* act, json j) { act->IsMutable = boolean(j); } },
       {"Access", [](Action* act, json j) { act->Access = string(j); } },
-      {"SubCall", [](Action* act, json j) { act->SubCall = subcall(j); } }
+      {"SubCall", [](Action* act, json j) { act->SubCall = subcall(j); } },
+      {"Integer", [](Action* act, json j) { act->Integer = vectorLL(j); } },
+      {"Decimal", [](Action* act, json j) { act->Decimal = vectorLL(j); } }
     };
 
     Action action(json j) {
@@ -137,7 +142,7 @@ namespace omm {
     }
 
   }
-  
+
 }
 
 #endif

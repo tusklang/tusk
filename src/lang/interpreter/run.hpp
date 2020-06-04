@@ -11,20 +11,27 @@
 #include "values.hpp"
 #include "ommtypes.hpp"
 #include "cprocs.hpp"
+
+#include "operations/numeric/normalize.hpp"
+#include "operations/numeric/utils.hpp"
+#include "operations/numeric/multiply.hpp"
 using json = nlohmann::json;
 
 namespace omm {
 
   void run(char* actions, char* cli_params, char* dir, int argc, char ** argv) {
 
+
+    cout << normalize_number(multiply(val1, val1, "{}"_json)) << endl;
+
     const json cpJ = json::parse(std::string(cli_params));
 
     //convert the json to a vector of actions
-    std::vector<Action> acts = DecodeJSON::vector(json::parse(std::string(actions)));
+    std::vector<Action> acts = DecodeJSON::vector(json::parse(std::string(actions))); //maybe in the future remove json entirely from this, but I dont know how
 
     std::map<std::string, Variable> vars;
 
-    Action dirnameAct = { "string", "", { string(dir) }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyFuture };
+    Action dirnameAct = { "string", "", { string(dir) }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
 
     vars["$dirname"] = Variable{
       "global",

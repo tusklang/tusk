@@ -1,5 +1,5 @@
-#ifndef COMPARISONS_HPP_
-#define COMPARISONS_HPP_
+#ifndef OMM_COMPARISONS_HPP_
+#define OMM_COMPARISONS_HPP_
 
 #include <map>
 #include <vector>

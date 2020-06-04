@@ -1,5 +1,5 @@
-#ifndef SIMILARITY_HPP_
-#define SIMILARITY_HPP_
+#ifndef OMM_SIMILARITY_HPP_
+#define OMM_SIMILARITY_HPP_
 
 //header file to see if two values are similar
 

@@ -271,7 +271,7 @@ func reCalc(val *Action) {
       expstr := val.ExpStr[0]
 
       for i := 0; i < len(expstr); i++ {
-        val.Hash_Values[strconv.Itoa(i)] = []Action{ Action{ "string", "", []string{ string(expstr[i]) }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{} } }
+        val.Hash_Values[strconv.Itoa(i)] = []Action{ Action{ "string", "", []string{ string(expstr[i]) }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{}, []int{}, []int{} } }
       }
   }
 }

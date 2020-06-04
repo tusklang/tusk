@@ -58,7 +58,7 @@ namespace omm {
     for (std::pair<std::string, std::vector<Action>> it : finalMap)
       str+=parser(it.second, cli_params, emptyVars, false, true, this_vals, dir).exp.ExpStr[0];
 
-    return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false, "private", emptySubCaller, emptyFuture };
+    return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
   }
 
   Action subtractbools(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
@@ -67,14 +67,14 @@ namespace omm {
     bool num2Bool = num2.ExpStr[0] == "true";
     std::string calc = to_string(((int) num1Bool) - ((int) num2Bool));
 
-    return Action{ "boolean", "", { calc }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyFuture };
+    return Action{ "boolean", "", { calc }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
   }
 
   Action subtractarrays(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     std::map<std::string, std::vector<Action>> hash = subtractstrings(num1, num2, cli_params, this_vals, dir).Hash_Values;
 
-    return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false, "private", emptySubCaller, emptyFuture };
+    return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
   }
 
 }

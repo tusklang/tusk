@@ -1,5 +1,5 @@
-#ifndef CPROCS_HPP_
-#define CPROCS_HPP_
+#ifndef OMM_CPROCS_HPP_
+#define OMM_CPROCS_HPP_
 
 #include <functional>
 #include <map>

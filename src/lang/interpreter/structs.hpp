@@ -63,6 +63,9 @@ namespace omm {
     std::string                                  Access;
     std::vector<SubCaller>                       SubCall;
 
+    std::vector<long long>                       Integer;
+    std::vector<long long>                       Decimal;
+
     //values that are not calculated at compile time
 
     //threads

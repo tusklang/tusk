@@ -13,8 +13,8 @@ extern "C" {
   extern char* DivisionC(char*, char*, char*);
   extern char* ReturnInitC(char*);
   extern int IsLessC(char*, char*);
-  extern char* GetOp(char*);
-  extern char* ExecCmd(char*, char*, char*);
+  extern char* GetOp(char*); //get operation alias, e.g. add --> +, subtract --> -, etc.
+  extern char* ExecCmd(char*, char*, char*); //funtion to execute 
 
   void bindParser(char* actions, char* cli_params, char* dir, int argc, char ** argv);
   void colorprint(char*, int);

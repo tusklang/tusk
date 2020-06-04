@@ -1,5 +1,5 @@
-#ifndef PROCESSES_HPP_
-#define PROCESSES_HPP_
+#ifndef OMM_PROCESSES_HPP_
+#define OMM_PROCESSES_HPP_
 
 #include <vector>
 #include <deque>

@@ -1,1 +1,3 @@
 Replace nlohmann::json lib with a custom json parser (just so omm does not have any deps)
+
+Instead of sending actions as a json, send them through swig (maybe?). I have heard about it and it can connect go and c++

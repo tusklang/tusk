@@ -1,5 +1,5 @@
-#ifndef PARSER_HPP_
-#define PARSER_HPP_
+#ifndef OMM_PARSER_HPP_
+#define OMM_PARSER_HPP_
 
 #include <iostream>
 #include <deque>
@@ -39,7 +39,6 @@
 #include "operations/modulo/modulo.hpp"
 #include "operations/multiply/multiply.hpp"
 #include "operations/subtract/subtract.hpp"
-
 using json = nlohmann::json;
 
 namespace omm {
@@ -1299,7 +1298,7 @@ namespace omm {
 
               std::future<Returner> future = std::async(&parser, var.ExpAct, cli_params, sendVars, true, false, this_vals, dir);
 
-              parsed.exp = Action{ "thread", name, v.ExpStr, v.ExpAct, v.Params, v.Args, v.Condition, 83, v.First, v.Second, v.Degree, v.Value, v.Indexes, v.Hash_Values, v.IsMutable, v.Access, v.SubCall, std::make_shared<std::future<Returner>>(std::move(future)) };
+              parsed.exp = Action{ "thread", name, v.ExpStr, v.ExpAct, v.Params, v.Args, v.Condition, 83, v.First, v.Second, v.Degree, v.Value, v.Indexes, v.Hash_Values, v.IsMutable, v.Access, v.SubCall, emptyLLVec, emptyLLVec, std::make_shared<std::future<Returner>>(std::move(future)) };
             }
 
             stopIndexing_threads:

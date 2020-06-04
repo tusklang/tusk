@@ -29,7 +29,7 @@ namespace omm {
         fin+=num1.ExpStr[0];
     }
 
-    Action str = Action{ "string", "", { fin }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyFuture };
+    Action str = Action{ "string", "", { fin }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
 
     char* i = "0";
     for (char it : fin) {

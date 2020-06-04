@@ -1,5 +1,6 @@
 package lang
 
+//export Reverse
 func Reverse(s string) string {
   var result = ""
 

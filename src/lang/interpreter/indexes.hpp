@@ -1,5 +1,5 @@
-#ifndef INDEXES_HPP_
-#define INDEXES_HPP_
+#ifndef OMM_INDEXES_HPP_
+#define OMM_INDEXES_HPP_
 
 #include <map>
 #include <vector>

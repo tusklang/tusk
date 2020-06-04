@@ -1,5 +1,0 @@
-proc t() {
-  return 1;
-}
-
-log ~ await 1;

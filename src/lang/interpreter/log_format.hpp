@@ -1,5 +1,5 @@
-#ifndef LOG_FORMAT_HPP_
-#define LOG_FORMAT_HPP_
+#ifndef OMM_LOG_FORMAT_HPP_
+#define OMM_LOG_FORMAT_HPP_
 
 #include <iostream>
 #include <windows.h>
