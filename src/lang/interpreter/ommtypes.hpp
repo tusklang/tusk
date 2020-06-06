@@ -20,7 +20,7 @@ namespace omm {
       for (char c : str) {
 
         Action curChar = strPlaceholder;
-        curChar.ExpStr[0] = string(c, 1);
+        curChar.ExpStr[0] = std::string(c, 1);
 
         omm_str.Hash_Values[std::to_string(i)] = { curChar };
 

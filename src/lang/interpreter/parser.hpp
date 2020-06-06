@@ -19,7 +19,6 @@
 #include "indexes.hpp"
 #include "log_format.hpp"
 #include "values.hpp"
-#include "comparisons.hpp"
 #include "similarity.hpp"
 #include "processes.hpp"
 #include "ommtypes.hpp"
@@ -39,6 +38,7 @@
 #include "operations/modulo/modulo.hpp"
 #include "operations/multiply/multiply.hpp"
 #include "operations/subtract/subtract.hpp"
+#include "operations/numeric/utils.hpp"
 using json = nlohmann::json;
 
 namespace omm {
@@ -821,181 +821,178 @@ namespace omm {
           }
           break;
         case 47: {
-
-            //equals
-
-            Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
-            , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
-
-            Action val = equals(
-              first,
-              second,
-              cli_params,
-              vars,
-              this_vals,
-              dir
-            );
-
-            if (first.Type != second.Type) val = falseRet;
-
-            if (expReturn) {
-              Returner ret;
-
-              std::vector<std::string> retNo;
-
-              ret.value = retNo;
-              ret.variables = vars;
-              ret.exp = val;
-              ret.type = "expression";
-
-              return ret;
-            }
-          }
+          //
+          //   //equals
+          //
+          //   Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          //   , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
+          //
+          //   Action val = equals(
+          //     first,
+          //     second,
+          //     cli_params,
+          //     vars,
+          //     this_vals,
+          //     dir
+          //   );
+          //
+          //   if (first.Type != second.Type) val = falseRet;
+          //
+          //   if (expReturn) {
+          //     Returner ret;
+          //
+          //     std::vector<std::string> retNo;
+          //
+          //     ret.value = retNo;
+          //     ret.variables = vars;
+          //     ret.exp = val;
+          //     ret.type = "expression";
+          //
+          //     return ret;
+          //   }
+          // }
           break;
         case 48: {
-
-          //notEqual
-
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
-
-          Action val = equals(
-            first,
-            second,
-            cli_params,
-            vars,
-            this_vals,
-            dir
-          );
-
-          val = val.ExpStr[0] == "true" ? falseRet : trueRet;
-          if (first.Type != second.Type) val = trueRet;
-
-          if (expReturn) {
-            Returner ret;
-
-            std::vector<std::string> retNo;
-
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = val;
-            ret.type = "expression";
-
-            return ret;
-          }
+          //
+          // //notEqual
+          //
+          // Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          // , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
+          //
+          // Action val = equals(
+          //   first,
+          //   second,
+          //   cli_params,
+          //   vars,
+          //   this_vals,
+          //   dir
+          // );
+          //
+          // val = val.ExpStr[0] == "true" ? falseRet : trueRet;
+          // if (first.Type != second.Type) val = trueRet;
+          //
+          // if (expReturn) {
+          //   Returner ret;
+          //
+          //   std::vector<std::string> retNo;
+          //
+          //   ret.value = retNo;
+          //   ret.variables = vars;
+          //   ret.exp = val;
+          //   ret.type = "expression";
+          //
+          //   return ret;
+          // }
           break;
         }
         case 49: {
-
-          //greater
-
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
-
-          Action val = isGreater(
-            first,
-            second,
-            cli_params
-          );
-
-          if (expReturn) {
-            Returner ret;
-
-            std::vector<std::string> retNo;
-
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = val;
-            ret.type = "expression";
-
-            return ret;
+          //
+          // //greater
+          //
+          // Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          // , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
+          //
+          // Action val = isGreater(
+          //   first,
+          //   second,
+          //   cli_params
+          // );
+          //
+          // if (expReturn) {
+          //   Returner ret;
+          //
+          //   std::vector<std::string> retNo;
+          //
+          //   ret.value = retNo;
+          //   ret.variables = vars;
+          //   ret.exp = val;
+          //   ret.type = "expression";
+          //
+          //   return ret;
           }
           break;
         }
         case 50: {
-
-          //less
-
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
-
-          Action val = isLess(
-            first,
-            second,
-            cli_params
-          );
-
-          if (expReturn) {
-            Returner ret;
-
-            std::vector<std::string> retNo;
-
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = val;
-            ret.type = "expression";
-
-            return ret;
-          }
+          //
+          // //less
+          //
+          // Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          // , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
+          //
+          // Action val = isLess(
+          //   first,
+          //   second,
+          //   cli_params
+          // );
+          //
+          // if (expReturn) {
+          //   Returner ret;
+          //
+          //   std::vector<std::string> retNo;
+          //
+          //   ret.value = retNo;
+          //   ret.variables = vars;
+          //   ret.exp = val;
+          //   ret.type = "expression";
+          //
+          //   return ret;
           break;
         }
         case 51: {
-
-          //greaterOrEqual
-
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
-
-          Action val = isLess(
-            first,
-            second,
-            cli_params
-          );
-
-          val = val.ExpStr[0] == "true" ? falseRet : trueRet;
-
-          if (expReturn) {
-            Returner ret;
-
-            std::vector<std::string> retNo;
-
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = val;
-            ret.type = "expression";
-
-            return ret;
-          }
+          //
+          // //greaterOrEqual
+          //
+          // Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          // , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
+          //
+          // Action val = isLess(
+          //   first,
+          //   second,
+          //   cli_params
+          // );
+          //
+          // val = val.ExpStr[0] == "true" ? falseRet : trueRet;
+          //
+          // if (expReturn) {
+          //   Returner ret;
+          //
+          //   std::vector<std::string> retNo;
+          //
+          //   ret.value = retNo;
+          //   ret.variables = vars;
+          //   ret.exp = val;
+          //   ret.type = "expression";
+          //
+          //   return ret;
           break;
         }
         case 52: {
 
-          //lessOrEqual
-
-          Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
-          , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
-
-          Action val = isGreater(
-            first,
-            second,
-            cli_params
-          );
-
-          val = val.ExpStr[0] == "true" ? falseRet : trueRet;
-          if (first.Type != second.Type) val = trueRet;
-
-          if (expReturn) {
-            Returner ret;
-
-            std::vector<std::string> retNo;
-
-            ret.value = retNo;
-            ret.variables = vars;
-            ret.exp = val;
-            ret.type = "expression";
-
-            return ret;
-          }
+          // //lessOrEqual
+          //
+          // Action first = parser(v.First, cli_params, vars, false, true, this_vals, dir).exp
+          // , second = parser(v.Second, cli_params, vars, false, true, this_vals, dir).exp;
+          //
+          // Action val = isGreater(
+          //   first,
+          //   second,
+          //   cli_params
+          // );
+          //
+          // val = val.ExpStr[0] == "true" ? falseRet : trueRet;
+          // if (first.Type != second.Type) val = trueRet;
+          //
+          // if (expReturn) {
+          //   Returner ret;
+          //
+          //   std::vector<std::string> retNo;
+          //
+          //   ret.value = retNo;
+          //   ret.variables = vars;
+          //   ret.exp = val;
+          //   ret.type = "expression";
+          //
+          //   return ret;
           break;
         }
         case 53: {
@@ -1927,6 +1924,7 @@ namespace omm {
 
     return ret;
   }
+
 }
 
 #endif

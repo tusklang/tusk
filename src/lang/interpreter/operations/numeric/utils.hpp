@@ -6,50 +6,68 @@
 #include <cmath>
 
 #include "../../structs.hpp"
+#include "../../json.hpp"
+#include "../../values.hpp"
+#include "subtract.hpp"
+#include "multiply.hpp"
+using json = nlohmann::json;
 
 namespace omm {
 
-  //the max digit number (if digit surpasses this, overflow it)
+  bool isLessVec(std::vector<long long> num1, std::vector<long long> num2, bool isDec) { //helper func to isLess to determine if one vector is less than another
 
-  const int DigitSize = 4; //if you change here, change in numconv.go
+    std::vector<long long> greater = num1.size() > num2.size() ? num1 : num2; //the number with the greater length
 
-  const long long
-    OMM_MAX_DIGIT = std::pow(10, DigitSize), //the actual max digit + 1
-    OMM_MIN_DIGIT = -1 * OMM_MAX_DIGIT; //the actual min digit - 1
+    for (int i = greater.size(); i >= 0; --i) {
+      long long i1, i2; //declare the vars
 
-  namespace numeric_utils {
+      //account for missing values
+      if (i >= num1.size()) i1 = 0;
+      else i1 = num1[i];
+      if (i >= num2.size()) i2 = 0;
+      else i2 = num2[i];
 
-    bool isLess(Action num1Act, Action num2Act) {
+      if (i1 < i2) return true;
+      else if (i1 > i2) return false;
 
-      std::vector<long long> num1 = num1Act.Decimal, num2 = num2Act.Decimal;
-
-      //merge the decimals with the integers
-      num1.insert(num1.end(), num1Act.Integer.begin(), num1Act.Integer.end());
-      num2.insert(num2.end(), num2Act.Integer.begin(), num2Act.Integer.end());
-
-      //reverse the vectors
-      std::reverse(num1.begin(), num1.end());
-      std::reverse(num2.begin(), num2.end());
-
-      for (int i = 0; i < num1.size() && i < num2.size(); ++i) {
-
-        long long val1, val2;
-
-        //account for missing values
-        if (num1.size() <= i) val1 = 0;
-        else val1 = num1[i];
-
-        if (num2.size() <= i) val2 = 0;
-        else val2 = num2[i];
-
-        if (val1 < val2) return true;
-        else if (val1 > val2) break;
-
-      }
-
-      return false;
     }
 
+    return false;
+  }
+
+  bool isLess(Action num1, Action num2, json cli_params) {
+
+    bool
+      intLess = isLessVec(num1.Integer, num2.Integer, false),
+      decLess = isLessVec(num1.Decimal, num2.Decimal, true);
+
+    return intLess ? true : decLess;
+  }
+
+  Action subtractNums(Action num1, Action num2, json cli_params);
+
+  bool equals(Action num1Act, Action num2Act, json cli_params) {
+
+    //uses num1 - num2 == 0
+
+    Action subtracted = subtractNums(num1Act, num2Act, cli_params);
+
+    for (long long i : subtracted.Integer)
+      if (i != 0) return false;
+    for (long long i : subtracted.Decimal)
+      if (i != 0) return false;
+
+    return true;
+  }
+
+  bool isTruthy(Action val) {
+    return !(val.ExpStr[0] == "false" || val.Type == "falsey");
+  }
+
+  Action abs(Action val, json cli_params) {
+    if (isLess(val, zero, cli_params)) return multiplyNums(val, valn1, cli_params);
+
+    return val;
   }
 
 }

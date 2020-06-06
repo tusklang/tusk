@@ -6,7 +6,7 @@ import "strconv"
 // #cgo CFLAGS: -std=c99
 import "C"
 
-var DigitSize = 4; //if you change this, change it also in interpreter/operations/numeric/utils.hpp
+var DigitSize = 4; //if you change this, change it also in interpreter/run.hpp
 
 func bigNumConverter(num string) ([]int, []int) {
 

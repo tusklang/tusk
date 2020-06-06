@@ -11,19 +11,9 @@ using json = nlohmann::json;
 
 namespace omm {
 
-  //using naive approach because karatsuba makes digits >= 10
-  //example
-  /*
-    24
-  x 19
-  -----
-
-  2 * 1 = 2
-  4 * 9 = 36 <-- is >= 10
-
-  omm has numbers that go from -9999 to 9999 and karatsuba allows for numbers >= 10000
-  */
-  Action multiply(Action num1, Action num2, json cli_params) {
+  //using naive approach because karatsuba must have only 2 digits
+  //maybe switch to a recursive karatsuba later?
+  Action multiplyNums(Action num1, Action num2, json cli_params) {
 
     std::vector<std::vector<long long>> multFin; //store the final values that were multiplied
     int trailingZeroCount = 0;
@@ -85,7 +75,7 @@ namespace omm {
       Action totalSumAct = Action{ "number", "", {}, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, totalSum, emptyLLVec, emptyFuture }; //placeholder number to pass into add
       Action multFinAct = Action{ "number", "", {}, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, i, emptyLLVec, emptyFuture }; //placeholder number to pass into add
 
-      totalSum = add(totalSumAct, multFinAct, cli_params).Integer;
+      totalSum = addNums(totalSumAct, multFinAct, cli_params).Integer;
     }
 
     //get the decimal and the integer

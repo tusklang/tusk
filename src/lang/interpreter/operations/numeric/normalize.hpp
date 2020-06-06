@@ -62,7 +62,9 @@ namespace omm {
 
       int decIndexCounter;
 
-      for (decIndexCounter = decimal.size(); decimal[decimal.size() - 1] == 0; decIndexCounter--);
+      for (decIndexCounter = decimal.size(); decimal.size() - 1 != -1 && decimal[decimal.size() - 1] == 0; decimal.pop_back());
+
+      if (decimal.size() - 1 == -1) return "0";
 
       if (decimal[decIndexCounter - 1] < 0) isNeg = true;
     } else if (integer[integer.size() - 1] < 0) isNeg = true;
@@ -75,7 +77,7 @@ namespace omm {
 
       decimal[i] = std::abs(decimal[i]);
 
-      if (curIsNeg != isNeg) {
+      if (curIsNeg != isNeg && decimal[i] != 0 /* prevent zeros from being counted */ ) {
         decimal[i] = OMM_MAX_DIGIT - decimal[i];
         carry = isNeg ? 1 : -1;
         continue;
@@ -91,7 +93,7 @@ namespace omm {
 
       integer[i] = std::abs(integer[i]);
 
-      if (curIsNeg != isNeg) {
+      if (curIsNeg != isNeg && integer[i] != 0 /* prevent zeros from being counted */ ) {
         integer[i] = OMM_MAX_DIGIT - integer[i];
         carry = isNeg ? 1 : -1;
         continue;
@@ -106,12 +108,12 @@ namespace omm {
 
     if (decimal.size() != 0) { //this is because if there is no decimal, a "." will still be inserted
       for (long long it : decimal)
-        joined = to_string(it) + joined;
+        joined = std::to_string(it) + joined;
       joined = "." + joined;
     }
 
     for (long long it : integer)
-      joined = to_string(it) + joined;
+      joined = std::to_string(it) + joined;
 
     joined = (isNeg ? "-" : "") + joined;
 

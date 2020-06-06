@@ -3,15 +3,16 @@
 
 #include <vector>
 #include <string>
+
+#include "utils.hpp"
 #include "../../values.hpp"
 #include "../../structs.hpp"
 #include "../../json.hpp"
-#include "utils.hpp"
 using json = nlohmann::json;
 
 namespace omm {
 
-  Action add(Action num1, Action num2, json cli_params) {
+  Action addNums(Action num1, Action num2, json cli_params) {
 
     /*
 
@@ -61,38 +62,34 @@ namespace omm {
     for (decIndex = 0; decIndex < dec2.size(); ++decIndex) {
 
       long long summed = dec2[decIndex] + dec1[decIndex] + carry;
+      carry = 0;
 
       if (summed > OMM_MAX_DIGIT) {
         summed-=OMM_MAX_DIGIT;
         carry = 1;
-        continue;
       }
       if (summed < OMM_MIN_DIGIT) {
         summed+=OMM_MIN_DIGIT;
         carry = -1;
-        continue;
       }
 
       newDecimal[decIndex] = summed;
-      carry = 0;
     }
     for (;decIndex < dec1.size(); ++decIndex) {
 
       long long summed = dec1[decIndex] + carry;
+      carry = 0;
 
       if (summed > OMM_MAX_DIGIT) {
         summed-=OMM_MAX_DIGIT;
         carry = 1;
-        continue;
       }
       if (summed < OMM_MIN_DIGIT) {
         summed+=OMM_MIN_DIGIT;
         carry = -1;
-        continue;
       }
 
       newDecimal[decIndex] = summed;
-      carry = 0;
     }
 
     std::vector<long long> newInteger(int1.size());
@@ -103,39 +100,39 @@ namespace omm {
     for (intIndex = 0; intIndex < int2.size(); ++intIndex) {
 
       long long summed = int2[intIndex] + int1[intIndex] + carry;
+      carry = 0;
 
       if (summed >= OMM_MAX_DIGIT) {
         summed-=OMM_MAX_DIGIT;
         carry = 1;
-        continue;
       }
       if (summed <= OMM_MIN_DIGIT) {
         summed+=OMM_MIN_DIGIT;
         carry = -1;
-        continue;
       }
 
       newInteger[intIndex] = summed;
-      carry = 0;
     }
     for (;intIndex < int1.size(); ++intIndex) {
 
       long long summed = int1[intIndex] + carry;
+      carry = 0;
 
       if (summed >= OMM_MAX_DIGIT) {
         summed-=OMM_MAX_DIGIT;
         carry = 1;
-        continue;
       }
       if (summed <= OMM_MIN_DIGIT) {
         summed+=OMM_MIN_DIGIT;
         carry = -1;
-        continue;
       }
 
       newInteger[intIndex] = summed;
-      carry = 0;
     }
+
+    newInteger.push_back(carry);
+
+    while (newInteger[newInteger.size() - 1] == 0) newInteger.pop_back(); //remove leading zeros
 
     return Action{ "number", "", {}, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, newInteger, newDecimal, emptyFuture };
   }

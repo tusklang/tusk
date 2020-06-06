@@ -22,7 +22,6 @@ import "mangomm/cli/wipe"
 func defaults(params *map[string]map[string]interface{}, name string) {
 
   (*params)["Calc"]["PREC"] = 1000
-  (*params)["Calc"]["LONG_MULT_THRESH"] = 7
 
   if strings.LastIndex(name, ".") == -1 {
     (*params)["Calc"]["O"] = name + ".oat"
@@ -78,8 +77,6 @@ func main() {
         case "PREC":
           params["Calc"]["PREC"], _ = strconv.Atoi(args[i + 1])
           i++
-        case "LONG_MULT_THRESH":
-          params["Calc"]["LONG_MULT_THRESH"], _ = strconv.Atoi(args[i + 1])
           i++
         case "O":
           params["Calc"]["O"] = args[i + 1]
