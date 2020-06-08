@@ -33,7 +33,7 @@
 #include "ommtypes.hpp"
 #include "cprocs.hpp"
 
-#include "operations/numeric/divide.hpp"
+#include "operations/numeric/modulo.hpp"
 #include "operations/numeric/normalize.hpp"
 using json = nlohmann::json;
 
@@ -45,10 +45,10 @@ namespace omm {
     a.Integer = { 1, 9 };
 
     Action b = zero;
-    b.Integer = { 1, 2, 3, 5 };
+    b.Integer = { 1, 2, 3, 4 };
 
-    std::cout << normalize_number(divideNums(a, b, json::parse(std::string(cli_params)))) << std::endl;
-    //
+    std::cout << normalize_number(moduloNums(a, b, json::parse(std::string(cli_params)))) << std::endl;
+
     // const json cpJ = json::parse(std::string(cli_params));
     //
     // //convert the json to a vector of actions

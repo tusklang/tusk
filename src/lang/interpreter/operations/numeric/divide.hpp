@@ -1,7 +1,6 @@
 #ifndef OMM_NUMERIC_DIVIDE_HPP_
 #define OMM_NUMERIC_DIVIDE_HPP_
 
-#include <iostream>
 #include <vector>
 #include <deque>
 
@@ -11,7 +10,6 @@
 #include "utils.hpp"
 #include "subtract.hpp"
 #include "multiply.hpp"
-#include "normalize.hpp"
 using json = nlohmann::json;
 
 namespace omm {
