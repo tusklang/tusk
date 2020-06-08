@@ -34,8 +34,9 @@ global.lexer = (file, dir) => {
   for (let i = 0; i < file.length; i++) {
 
     //detect a comment
-    //single line comments are written as //
-    if (file.substr(i).trim().startsWith('//')) {
+    //single line comments are written as ;comment
+    //like in assembly
+    if (file.substr(i).trim().startsWith(';')) {
 
       var end = file.substr(i).indexOf('\n');
 

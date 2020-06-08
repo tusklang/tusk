@@ -32,7 +32,7 @@
   {
     "name": "kill",
     "remove": "kill",
-    "pattern": "kill(\\s*)\\;",
+    "pattern": "kill(\\s+)",
     "type": "kill"
   },
   {
@@ -184,12 +184,6 @@
     "remove": "\r\n",
     "pattern": "(\r\n)",
     "type": "newline"
-  },
-  {
-    "name": "newlineS",
-    "remove": ";",
-    "pattern": "(\\;)",
-    "type": "operation"
   },
   {
     "name": "~",
@@ -406,12 +400,6 @@
     "type": "id"
   },
   {
-    "name": "return",
-    "remove": "return",
-    "pattern": "(return(\\s*);)",
-    "type": "id_non_tilde"
-  },
-  {
     "name": "if",
     "remove": "if",
     "pattern": "(if(\\s*)\\()",
@@ -565,13 +553,13 @@
   {
     "name": "break",
     "remove": "break",
-    "pattern": "(break(\\s*)\\;)",
+    "pattern": "(break(\\s+))",
     "type": "id_non_tilde"
   },
   {
     "name": "skip",
     "remove": "skip",
-    "pattern": "(skip(\\s*)\\;)",
+    "pattern": "(skip(\\s+))",
     "type": "id_non_tilde"
   },
   {
