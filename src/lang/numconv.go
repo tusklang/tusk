@@ -6,14 +6,15 @@ import "strconv"
 // #cgo CFLAGS: -std=c99
 import "C"
 
-var DigitSize = 4; //if you change this, change it also in interpreter/run.hpp
+//see interpreter/run.hpp for more info about DigitSize
+var DigitSize = 1; //if you change this, change it also in interpreter/run.hpp
 
 func bigNumConverter(num string) ([]int, []int) {
 
   //this converts a numeric value, e.g. 123456
-  //to [1234, 456]
+  //to [1, 2, 3, 4, 4, 5, 6]
   //for negatives it converts -123456
-  //to [-1234, -056]
+  //to [-1, -2, -3, -4, -5, -6]
 
   neg := false
 
@@ -35,16 +36,28 @@ func bigNumConverter(num string) ([]int, []int) {
 
         cur := v
 
-        num, e := strconv.ParseInt(cur, 10, 64)
+        var subgroups []string
 
-        if neg {
-          num*=-1
+        //detect leading zeros
+        for ;strings.HasPrefix(cur, "0"); {
+          subgroups = append([]string{ "0" }, subgroups...)
+          cur = cur[1:]
         }
 
-        if e != nil {
-          put = append(put, 0)
-        } else {
-          put = append(put, int(num))
+        subgroups = append(subgroups, cur)
+
+        for _, v := range subgroups {
+          num, e := strconv.ParseInt(v, 10, 64)
+
+          if neg {
+            num*=-1
+          }
+
+          if e != nil {
+            return []int{}, []int{}
+          } else {
+            put = append(put, int(num))
+          }
         }
 
       }
@@ -60,16 +73,28 @@ func bigNumConverter(num string) ([]int, []int) {
 
         cur := v
 
-        num, e := strconv.ParseInt(cur, 10, 64)
+        var subgroups []string
 
-        if neg {
-          num*=-1
+        //detect leading zeros
+        for ;strings.HasPrefix(cur, "0"); {
+          subgroups = append([]string{ "0" }, subgroups...)
+          cur = cur[1:]
         }
 
-        if e != nil {
-          return []int{}, []int{}
-        } else {
-          put_int = append(put_int, int(num))
+        subgroups = append(subgroups, cur)
+
+        for _, v := range subgroups {
+          num, e := strconv.ParseInt(v, 10, 64)
+
+          if neg {
+            num*=-1
+          }
+
+          if e != nil {
+            return []int{}, []int{}
+          } else {
+            put_int = append(put_int, int(num))
+          }
         }
 
       }
@@ -82,20 +107,32 @@ func bigNumConverter(num string) ([]int, []int) {
 
         cur := v
 
-        for ;len(cur) != DigitSize; {
+        for ;len(cur) != DigitSize; { //add ending zeros to the decimal .4 -> .4000
           cur+="0"
         }
 
-        num, e := strconv.ParseInt(cur, 10, 64)
+        var subgroups []string
 
-        if neg {
-          num*=-1
+        //detect leading zeros
+        for ;strings.HasPrefix(cur, "0"); {
+          subgroups = append([]string{ "0" }, subgroups...)
+          cur = cur[1:]
         }
 
-        if e != nil {
-          return []int{}, []int{}
-        } else {
-          put_dec = append(put_dec, int(num))
+        subgroups = append(subgroups, cur)
+
+        for _, v := range subgroups {
+          num, e := strconv.ParseInt(v, 10, 64)
+
+          if neg {
+            num*=-1
+          }
+
+          if e != nil {
+            return []int{}, []int{}
+          } else {
+            put_dec = append(put_dec, int(num))
+          }
         }
 
       }

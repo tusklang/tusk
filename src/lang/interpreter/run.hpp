@@ -3,7 +3,21 @@
 
 //the max digit number (if digit surpasses this, overflow it)
 
-#define DigitSize 4 //if you change here, change in numconv.go
+/*
+
+  The reason DigitSize must be 1 is because of zeros
+  example:
+    DigitSize = 2
+    Number1 = 1000
+    Number2 = 100
+
+  1000 -> [10, 00] -> [10, 0]
+  100 -> [10, 0] -> [10, 0]
+
+  thus 1000 == 100, but that is not really true
+*/
+
+#define DigitSize 1 //if you change here, change in numconv.go
 
 #define OMM_MAX_DIGIT (std::pow(10, DigitSize)) //the actual max digit + 1
 #define OMM_MIN_DIGIT (-1 * OMM_MAX_DIGIT) //the actual min digit - 1
@@ -28,10 +42,10 @@ namespace omm {
   void run(char* actions, char* cli_params, char* dir, int argc, char ** argv) {
 
     Action a = zero;
-    a.Integer = { -0, -9000 };
+    a.Integer = { 1, 9 };
 
     Action b = zero;
-    b.Integer = { 3000 };
+    b.Integer = { 1, 2, 3, 5 };
 
     std::cout << normalize_number(divideNums(a, b, json::parse(std::string(cli_params)))) << std::endl;
     //

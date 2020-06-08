@@ -19,6 +19,10 @@ namespace omm {
   //using long division algorithm
   Action divideNums(Action num1, Action num2, json cli_params) {
 
+    //maybe in a future version switch to the algorithm python uses
+    //https://github.com/python/cpython/blob/8bd216dfede9cb2d5bedb67f20a30c99844dbfb8/Objects/longobject.c#L2610
+    //because it is faster
+
     //num2 is the divisor
     //num1 is the dividend
 
@@ -49,7 +53,8 @@ namespace omm {
 
     Action num2Abs = abs(num2, cli_params);
 
-    for (std::vector<long long>::reverse_iterator it = num1n.rbegin(); it != num1n.rend(); ++it) { //maybe make this mult-threaded later
+    //do the actual division
+    for (std::vector<long long>::reverse_iterator it = num1n.rbegin(); it != num1n.rend(); ++it) {
       long long i = *it; //get the value
 
       curVal.push_front(i);
@@ -69,7 +74,7 @@ namespace omm {
         curQuotient = zero, //the quotient of the current iteration
         added = zero;
 
-      for (;isLess(added, curValAbs, cli_params); added = addNums(added, num2Abs, cli_params))
+      for (Action addedTemp = added; isLess(addedTemp = addNums(added, num2Abs, cli_params), curValAbs, cli_params) || equals(addedTemp, curValAbs, cli_params); added = addedTemp)
         curQuotient = addNums(curQuotient, val1, cli_params); //increment the current quotient
 
       if (isLess(curValAct, zero, cli_params)) //detect a negative current quotient
