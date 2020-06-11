@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <thread>
 #include <windows.h>
+#include <stdlib.h>
+#include <chrono>
 #include <regex>
 #include <exception>
 #include <memory>
@@ -38,7 +40,7 @@
 #include "operations/modulo/modulo.hpp"
 #include "operations/multiply/multiply.hpp"
 #include "operations/subtract/subtract.hpp"
-#include "operations/numeric/utils.hpp"
+#include "operations/numeric/numeric.hpp"
 using json = nlohmann::json;
 
 namespace omm {
@@ -228,7 +230,7 @@ namespace omm {
             else if (it.second.type == "pargv")
               pargc+=parser(it.second.value, cli_params, vars, false, true, this_vals, dir).exp.Hash_Values.size();
 
-          if (std::to_string(pargc) == std::string(ReturnInitC(&v.ExpStr[0][0]))) {
+          if (std::to_string(pargc) == std::string(normalize_number(v))) {
 
             Returner parsed = parser(v.ExpAct, cli_params, vars, true, true, this_vals, dir);
 
@@ -507,20 +509,23 @@ namespace omm {
 
               if (!isMutable) {
 
-                char* index = "0";
+                Action index = zero;
 
                 for (std::pair<std::string, std::vector<Action>> o : v.Hash_Values) {
 
-                  if (val.Hash_Values.find(index) == val.Hash_Values.end()) {
-                    index = AddC(index, "1", &cli_params.dump()[0]);
+                  std::string indexN = normalize_number(index);
+
+                  if (val.Hash_Values.find(indexN) == val.Hash_Values.end()) {
+                    index = addNums(index, val1, cli_params);
+                    indexN = normalize_number(index);
                     continue;
                   }
 
                   std::string paramCount = "";
                   Action exp = parser(o.second, cli_params, vars, false, true, this_vals, dir).exp;
 
-                  val.Hash_Values[index] = { exp };
-                  index = AddC(index, "1", &cli_params.dump()[0]);
+                  val.Hash_Values[indexN] = { exp };
+                  index = addNums(index, val1, cli_params);
                 }
               }
 
@@ -1209,6 +1214,8 @@ namespace omm {
 
             //@ (call thread)
 
+            //FIX THIS THING. EVERYTHIGN GETS CALLED SYNCHRONOUSLY. SEE BELOW
+
             std::string name = v.Name;
 
             Returner parsed;
@@ -1293,7 +1300,13 @@ namespace omm {
                 sendVars[params[o]] = cur;
               }
 
-              std::future<Returner> future = std::async(&parser, var.ExpAct, cli_params, sendVars, true, false, this_vals, dir);
+              std::future<Returner> future;
+
+              future = std::async(parser, var.ExpAct, cli_params, sendVars, true, false, this_vals, dir);
+
+              //EVERYTHING GETS CALLED SYNCHRONOUSLY BECAUSE THIS FUTURE GETS DESTROYED AFTER THE CURLY BRACE CLOSES
+              //STD::FUTURE IS A TEMP OBJECT, THATS WHY
+              //FIX FIX FIX FIX
 
               parsed.exp = Action{ "thread", name, v.ExpStr, v.ExpAct, v.Params, v.Args, v.Condition, 83, v.First, v.Second, v.Degree, v.Value, v.Indexes, v.Hash_Values, v.IsMutable, v.Access, v.SubCall, emptyLLVec, emptyLLVec, std::make_shared<std::future<Returner>>(std::move(future)) };
             }
@@ -1313,19 +1326,28 @@ namespace omm {
 
             //wait
 
-            Action amt = parser(v.ExpAct, &cli_params.dump()[0], vars, false, true, this_vals, dir).exp;
+            //i think this must be fixed
+            //the code is pretty messy
 
-            if (IsLessC(&(amt.ExpStr[0])[0], "4294967296")) Sleep((unsigned long) std::atoi(&(amt.ExpStr[0])[0]));
+
+            Action amt = parser(v.ExpAct, cli_params, vars, false, true, this_vals, dir).exp;
+
+            //number for the maxint in c++
+            Action n4294967296 = zero;
+            n4294967296.Integer = { 6, 9, 2, 7, 6, 9, 4, 9, 2, 4 };
+
+            if (isLess(amt, n4294967296, cli_params)) std::this_thread::sleep_for(std::chrono::nanoseconds(std::atoi(normalize_number(amt).c_str())));
             else {
-              for (char* o = "0"; (bool) IsLessC(o, &(amt.ExpStr[0])[0]); o = AddC(o, "4294967296", &cli_params.dump()[0])) {
+              for (Action o = zero; isLess(o, amt, cli_params); o = addNums(o, n4294967296, cli_params)) {
 
-                char* subtracted = SubtractC(&(amt.ExpStr[0])[0], o, &cli_params.dump()[0]);
+                Action subtracted = subtractNums(amt, o, cli_params);
 
-                if (IsLessC(
+                if (isLess(
                   subtracted,
-                  "4294967296"
-                )) Sleep((unsigned long) std::atoi(subtracted));
-                else Sleep((unsigned long) 4294967296);
+                  n4294967296,
+                  cli_params
+                )) std::this_thread::sleep_for(std::chrono::nanoseconds(std::atoi(normalize_number(subtracted).c_str())));
+                else std::this_thread::sleep_for(std::chrono::nanoseconds(4294967296));
               }
             }
           }
@@ -1404,10 +1426,10 @@ namespace omm {
           //this
           //"this" will be used to access the levels of the hash
 
-          std::string level = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
+          Action level = parser(v.Args[0], cli_params, vars, false, true, this_vals, dir).exp;
 
           //if it is negative, return undef
-          if ((bool) IsLessC(&level[0], "0")) {
+          if (isLess(level, zero, cli_params)) {
             Returner ret;
 
             std::vector<std::string> retNo;
@@ -1421,7 +1443,7 @@ namespace omm {
           }
 
           //convert level std::string to ulonglong
-          unsigned long long level_number = std::stoull(level);
+          unsigned long long level_number = std::stoull(normalize_number(level));
 
           //if the this level is too high, return undef
           if (level_number >= this_vals.size()) {

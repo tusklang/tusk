@@ -7,6 +7,7 @@
 #include "../../json.hpp"
 #include "../../structs.hpp"
 #include "../../values.hpp"
+#include "../numeric/numeric.hpp"
 using json = nlohmann::json;
 
 namespace omm {
@@ -19,16 +20,16 @@ namespace omm {
 
     std::map<std::string, std::vector<Action>> hash;
 
-    char* i = "0";
+    Action i = val1;
 
     for (char c : str) {
 
       Action character = strPlaceholder;
 
       character.ExpStr[0] = to_string(c);
-      hash[string(i)] = { character };
+      hash[normalize_number(i)] = { character };
 
-      i = AddC(i, "1", &cli_params.dump()[0]);
+      i = addNums(i, val1, cli_params);
     }
 
     return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
@@ -43,8 +44,9 @@ namespace omm {
       finalMap = num1.Hash_Values;
     } else {
 
-      for (std::pair<std::string, std::vector<Action>> it : num2.Hash_Values)
-        finalMap[string(AddC(&it.first[0], "1", &cli_params.dump()[0]))] = { it.second };
+      //re add when de-normalize is implemented
+      // for (std::pair<std::string, std::vector<Action>> it : num2.Hash_Values)
+      //   finalMap[string(addNums(&it.first[0], "1", &cli_params.dump()[0]))] = { it.second };
 
       finalMap["0"] = { num1 };
     }

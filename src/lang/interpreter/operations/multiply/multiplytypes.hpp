@@ -7,6 +7,7 @@
 #include "../../values.hpp"
 #include "../../json.hpp"
 #include "../../structs.hpp"
+#include "../numeric/numeric.hpp"
 using json = nlohmann::json;
 
 namespace omm {
@@ -17,30 +18,30 @@ namespace omm {
 
     if (num1.Type == "number") {
 
-      char* num = &num1.ExpStr[0][0];
+      Action num = num1;
 
-      for (;((bool) IsLessC("0", num)); num = AddC(num, "1", &cli_params.dump()[0])) fin+=num2.ExpStr[0];
+      for (;(isLess(zero, num, cli_params)); num = addNums(num, val1, cli_params)) fin+=num2.ExpStr[0];
 
     } else {
 
-      char* num = &num2.ExpStr[0][0];
+      Action num = num2;
 
-      for (;((bool) IsLessC("0", num)); num = AddC(num, "1", &cli_params.dump()[0]))
+      for (;(isLess(zero, num, cli_params)); num = addNums(num, val1, cli_params))
         fin+=num1.ExpStr[0];
     }
 
     Action str = Action{ "string", "", { fin }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
 
-    char* i = "0";
+    Action i = zero;
     for (char it : fin) {
 
       Action character = strPlaceholder;
 
       character.ExpStr[0] = to_string(it);
 
-      str.Hash_Values[string(i)] = { character };
+      str.Hash_Values[normalize_number(i)] = { character };
 
-      i = AddC(i, "1", &cli_params.dump()[0]);
+      i = addNums(i, val1, cli_params);
     }
 
     return str;
@@ -48,7 +49,7 @@ namespace omm {
 
   Action multiplyarrays(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
-    char* length = "0";
+    Action length = zero;
 
     //get length
     for (std::pair<std::string, std::vector<Action>> it : num1.Hash_Values) {
@@ -56,16 +57,17 @@ namespace omm {
       //skip over the falsey index
       if (it.first == "falsey") continue;
 
-      length = AddC(length, "1", &cli_params.dump()[0]);
+      length = addNums(length, val1, cli_params);
     }
 
     for (std::pair<std::string, std::vector<Action>> it : num2.Hash_Values) {
 
       if (it.first == "falsey") continue;
 
-      std::string curIndex(AddC(length, &it.first[0], &cli_params.dump()[0]));
+      //fix later (when swig is being used) (using val1 for now)
+      Action curIndex = addNums(length, val1 /*it.first*/, cli_params);
 
-      num1.Hash_Values[curIndex] = it.second;
+      num1.Hash_Values[normalize_number(curIndex)] = it.second;
     }
 
     return num1;

@@ -7,6 +7,7 @@
 #include "../../json.hpp"
 #include "../../structs.hpp"
 #include "../../values.hpp"
+#include "../numeric/divide.hpp"
 using json = nlohmann::json;
 
 namespace omm {
@@ -23,9 +24,7 @@ namespace omm {
 
     if (num1.Type == "number" && num2.Type == "number") { //detect case num / num = num
 
-      std::string val(DivisionC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]));
-
-      finalRet = Action{ "number", "", { val }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
+      finalRet = divideNums(num1, num2, cli_params);
 
     } else { //detect default case
 

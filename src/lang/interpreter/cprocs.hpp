@@ -11,6 +11,7 @@
 #include <thread>
 #include "structs.hpp"
 #include "json.hpp"
+#include "operations/numeric/numeric.hpp"
 using json = nlohmann::json;
 
 namespace omm {
@@ -335,7 +336,7 @@ namespace omm {
 
         Action returnerArr = arrayVal;
 
-        char* cur = "0";
+        Action cur = zero;
 
         //loop through the indexes found and store them an omm type array
         for (int i : found_indexes) {
@@ -345,8 +346,8 @@ namespace omm {
 
           indexJ.ExpStr[0] = to_string(i);
 
-          returnerArr.Hash_Values[std::string(cur)] = { indexJ };
-          cur = AddC(cur, "1", &cli_params.dump()[0]);
+          returnerArr.Hash_Values[normalize_number(cur)] = { indexJ };
+          cur = addNums(cur, val1, cli_params);
         }
 
         Action returnerVal = hashVal;
@@ -411,7 +412,7 @@ namespace omm {
 
         resultJ.ExpStr[0] = result;
 
-        char* cur = "0";
+        Action cur = zero;
 
         for (char i : result) {
 
@@ -419,8 +420,8 @@ namespace omm {
 
           indexJ.ExpStr = { std::to_string(i) };
 
-          resultJ.Hash_Values[std::string(cur)] = { indexJ };
-          cur = AddC(cur, "1", &cli_params.dump()[0]);
+          resultJ.Hash_Values[normalize_number(cur)] = { indexJ };
+          cur = addNums(cur, val1, cli_params);
         }
 
         Action retExp = resultJ;

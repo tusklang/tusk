@@ -6,7 +6,9 @@
 #include <stdio.h>
 #include <vector>
 #include <map>
+
 #include "json.hpp"
+#include "casts.hpp"
 #include "../bind.h"
 using json = nlohmann::json;
 
@@ -59,7 +61,10 @@ namespace omm {
 
     } else {
 
-      string val = in.ExpStr[0];
+      //convert value to a string
+      //then print it
+
+      std::string val = cast(in, "string").ExpStr[0];
 
       std::cout << val << (doPrint == "print" ? "" : "\n");
     }

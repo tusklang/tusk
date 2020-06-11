@@ -8,6 +8,8 @@ using json = nlohmann::json;
 
 namespace omm {
 
+  Action addNums(Action num1, Action num2, json cli_params);
+
   Action subtractNums(Action num1, Action num2, json cli_params) {
 
     //negate the num2

@@ -32,9 +32,6 @@
 #include "values.hpp"
 #include "ommtypes.hpp"
 #include "cprocs.hpp"
-
-#include "operations/numeric/modulo.hpp"
-#include "operations/numeric/normalize.hpp"
 using json = nlohmann::json;
 
 namespace omm {

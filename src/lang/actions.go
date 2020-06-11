@@ -2546,11 +2546,11 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         hashedArr["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), false, "private", []SubCaller{}, []int{}, []int{} } }
 
-        cur := "0"
+        cur := 0
 
         for _, v := range arr {
-          hashedArr[cur] = v
-          cur = C.GoString(AddC(C.CString(cur), C.CString("1"), C.CString("{}")))
+          hashedArr[string(cur)] = v
+          cur++
         }
 
         if i >= len_lex {
@@ -2885,15 +2885,15 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
               //specify the value for the "falsey" case
               hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable, "private", []SubCaller{}, []int{}, []int{} } }
 
-              cur := "0"
+              cur := 0
 
               for _, v := range noQ {
 
                 hashedIndex := make(map[string][]Action)
                 hashedIndex["falsey"] = []Action{ Action{ "falsey", "exp_value", []string{ "undef" }, []Action{}, []string{}, [][]Action{}, []Condition{}, 41, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), isMutable, "private", []SubCaller{}, []int{}, []int{} } }
 
-                hashedString[cur] = []Action{ Action{ "string", "exp_value", []string{ string(v) }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedIndex, isMutable, "private", []SubCaller{}, []int{}, []int{} } }
-                cur = C.GoString(AddC(C.CString(cur), C.CString("1"), C.CString("{}")))
+                hashedString[string(cur)] = []Action{ Action{ "string", "exp_value", []string{ string(v) }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedIndex, isMutable, "private", []SubCaller{}, []int{}, []int{} } }
+                cur++
               }
 
               actions = append(actions, Action{ "string", "exp_value", []string{ noQ }, []Action{}, []string{}, [][]Action{}, []Condition{}, 38, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedString, isMutable, "private", []SubCaller{}, []int{}, []int{} })

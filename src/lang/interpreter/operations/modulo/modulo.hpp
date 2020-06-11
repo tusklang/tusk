@@ -8,6 +8,7 @@
 #include "../../structs.hpp"
 #include "../../values.hpp"
 #include "../../../bind.h"
+#include "../numeric/modulo.hpp"
 using json = nlohmann::json;
 
 namespace omm {
@@ -24,23 +25,7 @@ namespace omm {
 
     if (num1.Type == "number" && num2.Type == "number") { //detect case num % num = num
 
-      if (strcmp(ReturnInitC(&num2.ExpStr[0][0]), "0") == 0)  {
-        finalRet = Action{ "number", "", { "undef" }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
-      } else if (strcmp(ReturnInitC(&num1.ExpStr[0][0]), "0") == 0)  {
-        finalRet = Action{ "number", "", { "0" }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
-      } else {
-
-        char* divved_ = DivisionC(&num1.ExpStr[0][0], &num2.ExpStr[0][0], &cli_params.dump()[0]);
-
-        std::string divved(divved_);
-
-        divved = divved.substr(0, divved.find("."));
-
-        char* mult = MultiplyC(&divved[0], &num2.ExpStr[0][0], &cli_params.dump()[0])
-        ,* remainder = SubtractC(&num1.ExpStr[0][0], mult, &cli_params.dump()[0]);
-
-        finalRet = Action{ "number", "", { remainder }, emptyActVec, {}, emptyActVec2D, {}, 39, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
-      }
+      finalRet = moduloNums(num1, num2, cli_params);
 
     } else { //detect default case
 

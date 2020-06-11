@@ -89,7 +89,7 @@ namespace omm {
       decimal(final.begin(), final.end() - addDecimalPlaces),
       integer(final.end() - addDecimalPlaces, final.end());
 
-    Action finalAct;
+    Action finalAct = zero;
     finalAct.Integer = integer;
     finalAct.Decimal = decimal;
 

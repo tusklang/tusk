@@ -34,32 +34,21 @@ func bigNumConverter(num string) ([]int, []int) {
 
       for _, v := range chunked { //convert all numbers to a negative
 
-        cur := v
-
-        var subgroups []string
-
-        //detect leading zeros
-        for ;strings.HasPrefix(cur, "0"); {
-          subgroups = append([]string{ "0" }, subgroups...)
-          cur = cur[1:]
+        if v == "" {
+          continue
         }
 
-        subgroups = append(subgroups, cur)
+        num, e := strconv.ParseInt(v, 10, 64)
 
-        for _, v := range subgroups {
-          num, e := strconv.ParseInt(v, 10, 64)
-
-          if neg {
-            num*=-1
-          }
-
-          if e != nil {
-            return []int{}, []int{}
-          } else {
-            put = append(put, int(num))
-          }
+        if neg {
+          num*=-1
         }
 
+        if e != nil {
+          return []int{}, []int{}
+        } else {
+          put = append(put, int(num))
+        }
       }
 
       return put, []int{}
@@ -71,32 +60,21 @@ func bigNumConverter(num string) ([]int, []int) {
 
       for _, v := range chunked_integer { //convert all numbers to a negative
 
-        cur := v
-
-        var subgroups []string
-
-        //detect leading zeros
-        for ;strings.HasPrefix(cur, "0"); {
-          subgroups = append([]string{ "0" }, subgroups...)
-          cur = cur[1:]
+        if v == "" {
+          continue
         }
 
-        subgroups = append(subgroups, cur)
+        num, e := strconv.ParseInt(v, 10, 64)
 
-        for _, v := range subgroups {
-          num, e := strconv.ParseInt(v, 10, 64)
-
-          if neg {
-            num*=-1
-          }
-
-          if e != nil {
-            return []int{}, []int{}
-          } else {
-            put_int = append(put_int, int(num))
-          }
+        if neg {
+          num*=-1
         }
 
+        if e != nil {
+          return []int{}, []int{}
+        } else {
+          put_int = append(put_int, int(num))
+        }
       }
 
       chunked_decimal := Chunk(splitted[1], DigitSize)
@@ -105,34 +83,24 @@ func bigNumConverter(num string) ([]int, []int) {
 
       for _, v := range chunked_decimal { //convert all numbers to a negative
 
-        cur := v
-
-        for ;len(cur) != DigitSize; { //add ending zeros to the decimal .4 -> .4000
-          cur+="0"
+        if v == "" {
+          continue
         }
 
-        var subgroups []string
-
-        //detect leading zeros
-        for ;strings.HasPrefix(cur, "0"); {
-          subgroups = append([]string{ "0" }, subgroups...)
-          cur = cur[1:]
+        for ;len(v) != DigitSize; { //add ending zeros to the decimal .4 -> .4000
+          v+="0"
         }
 
-        subgroups = append(subgroups, cur)
+        num, e := strconv.ParseInt(v, 10, 64)
 
-        for _, v := range subgroups {
-          num, e := strconv.ParseInt(v, 10, 64)
+        if neg {
+          num*=-1
+        }
 
-          if neg {
-            num*=-1
-          }
-
-          if e != nil {
-            return []int{}, []int{}
-          } else {
-            put_dec = append(put_dec, int(num))
-          }
+        if e != nil {
+          return []int{}, []int{}
+        } else {
+          put_dec = append(put_dec, int(num))
         }
 
       }

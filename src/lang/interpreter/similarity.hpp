@@ -10,6 +10,7 @@
 #include "parser.hpp"
 #include "values.hpp"
 #include "structs.hpp"
+#include "operations/numeric/numeric.hpp"
 using json = nlohmann::json;
 
 namespace omm {
@@ -52,7 +53,7 @@ namespace omm {
         val2 = temp;
       }
 
-      char* difcount = "0";
+      Action difcount = zero;
 
       std::map<std::string, std::vector<Action>> v1h = val1.Hash_Values, v2h = val2.Hash_Values;
 
@@ -64,33 +65,31 @@ namespace omm {
           v2find = findsimilar(v2h, v1find->second, cli_params, vars, this_vals, dir);
 
         if (v1find == v1h.end() || v2find == v2h.end())
-          difcount = AddC(difcount, "1", &cli_params.dump()[0]);
+          difcount = addNums(difcount, val1, &cli_params.dump()[0]);
 
-        if ((bool) IsLessC(&degree.ExpStr[0][0], difcount)) return falseRet;
+        if (isLess(degree, difcount, cli_params)) return falseRet;
       }
 
       //it has passed the above test
       return trueRet;
 
     } else {
-      std::string
-        num1E = val1.ExpStr[0],
-        num2E = val2.ExpStr[0],
-        degreeE = degree.ExpStr[0];
 
       bool upperLess, lowerGreater;
 
-      if (degreeE != "0") {
-        char* upper = AddC(&num1E[0], &degreeE[0], &cli_params.dump()[0]);
-        char* lower = SubtractC(&num1E[0], &degreeE[0], &cli_params.dump()[0]);
+      if (!equals(degree, zero, cli_params)) {
 
-        upperLess = ((bool) IsLessC(&num2E[0], upper)) || strcmp(ReturnInitC(&num2E[0]), ReturnInitC(upper)) == 0;
-        lowerGreater = ((bool) IsLessC(lower, &num2E[0])) || strcmp(ReturnInitC(lower), ReturnInitC(&num2E[0])) == 0;
+        //get upper and lower bounds
+        Action upper = addNums(val1, degree, cli_params);
+        Action lower = subtractNums(val1, degree, cli_params);
+
+        upperLess = isLess(val2, upper, cli_params) || equals(val2, upper, cli_params);
+        lowerGreater = isLess(lower, val2, cli_params) || equals(lower, val2, cli_params);
       } else {
 
         //if it is 0, no need to add (also it serves as lazy equality)
-        upperLess = strcmp(ReturnInitC(&num2E[0]), ReturnInitC(&num1E[0])) == 0;
-        lowerGreater = strcmp(ReturnInitC(&num1E[0]), ReturnInitC(&num2E[0])) == 0;
+        upperLess = equals(val2, val1, cli_params);
+        lowerGreater = equals(val1, val2, cli_params);
       }
 
       if (upperLess && lowerGreater) return trueRet;
@@ -116,13 +115,13 @@ namespace omm {
         val2 = temp;
       }
 
-      char* difcount = "0";
+      Action difcount = zero;
 
       for (std::pair<std::string, std::vector<Action>> i : val1.Hash_Values) {
 
         auto find = val2.Hash_Values.find(i.first);
 
-        if (find == val2.Hash_Values.end()) difcount = AddC(difcount, "1", &cli_params.dump()[0]);
+        if (find == val2.Hash_Values.end()) difcount = addNums(difcount, val1, &cli_params.dump()[0]);
         else {
 
           if (
@@ -135,42 +134,37 @@ namespace omm {
               this_vals,
               dir
             ).ExpStr[0] == "false"
-          ) difcount = AddC(difcount, "1", &cli_params.dump()[0]);
+          ) difcount = addNums(difcount, val1, &cli_params.dump()[0]);
           else {
             val2.Hash_Values.erase(i.first);
           }
         }
 
-        if ((bool) IsLessC(&degree.ExpStr[0][0], difcount)) return falseRet;
+        if (isLess(degree, difcount, cli_params)) return falseRet;
       }
 
       //it has passed the above test
       return trueRet;
 
     } else {
-      std::string
-        num1E = val1.ExpStr[0],
-        num2E = val2.ExpStr[0],
-        degreeE = degree.ExpStr[0];
+      bool upperLess, lowerGreater;
 
-        bool upperLess, lowerGreater;
+      if (!equals(degree, zero, cli_params)) {
+        Action upper = addNums(val1, degree, cli_params);
+        Action lower = subtractNums(degree, val1, cli_params);
 
-        if (degreeE != "0") {
-          char* upper = AddC(&num1E[0], &degreeE[0], &cli_params.dump()[0]);
-          char* lower = SubtractC(&degreeE[0], &num1E[0], &cli_params.dump()[0]);
+        //strict similarity for these values is just (+/-)
+        upperLess = equals(val2, upper, cli_params);
+        lowerGreater = equals(lower, val2, cli_params);
+      } else {
 
-          //strict similarity for these values is just (+/-)
-          upperLess = strcmp(ReturnInitC(&num2E[0]), ReturnInitC(upper)) == 0;
-          lowerGreater = strcmp(ReturnInitC(lower), ReturnInitC(&num2E[0])) == 0;
-        } else {
+        //if it is 0, no need to add
+        upperLess = equals(val2, val1, cli_params);
+        lowerGreater = equals(val1, val2, cli_params);
+      }
 
-          //if it is 0, no need to add
-          upperLess = strcmp(ReturnInitC(&num2E[0]), ReturnInitC(&num1E[0])) == 0;
-          lowerGreater = strcmp(ReturnInitC(&num1E[0]), ReturnInitC(&num2E[0])) == 0;
-        }
-
-        if (upperLess || lowerGreater) return trueRet;
-        else return falseRet;
+      if (upperLess || lowerGreater) return trueRet;
+      else return falseRet;
     }
 
     //if it reaches the end, return undefined
