@@ -1,26 +1,26 @@
 package run
 
-import "encoding/json"
 import "encoding/gob"
 import "os"
 import "fmt"
-import "lang/interpreter/bind"
 
-import "lang" //omm language
+import "lang" //compiler
+import . "lang/interpreter" //interpreter
+
 
 //export Run
-func Run(params bind.CliParams) {
-  dir := params.GetFiles().GetDIR()
-  fileName := params.GetFiles().GetNAME()
+func Run(params map[string]map[string]interface{}) {
+  dir := params["Files"]["DIR"]
+  fileName := params["Files"]["NAME"]
 
-  readfile, e := os.Open(dir + fileName)
+  readfile, e := os.Open(dir.(string) + fileName.(string))
 
   if e != nil {
     fmt.Println("Error, could not access given oat file")
     os.Exit(1)
   }
 
-  var decoded []lang.Action
+  var decoded []Action
 
   decoder := gob.NewDecoder(readfile)
   e = decoder.Decode(&decoded)
@@ -32,14 +32,6 @@ func Run(params bind.CliParams) {
 
   readfile.Close()
 
-  //convert the decoded value into json
-  var jsondata, err = json.Marshal(decoded)
-
-  if err != nil {
-    fmt.Println("Error, given file cannot be read as oat")
-    os.Exit(1)
-  }
-
   //run the oat
-  lang.OatRun(string(jsondata), params, dir)
+  lang.OatRun(decoded, params, dir.(string))
 }

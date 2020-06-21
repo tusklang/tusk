@@ -2,9 +2,7 @@ package interpreter
 
 import "reflect"
 
-import . "lang"
-
-func interpreter(actions []Action, cli_params CliParams, map[string]Variable vars, expReturn bool, this_vals []Action, dir string) Returner {
+func interpreter(actions []Action, cli_params CliParams, vars map[string]Variable, expReturn bool, this_vals []Action, dir string) Returner {
 
   for _, v := range actions {
 
@@ -60,40 +58,50 @@ func interpreter(actions []Action, cli_params CliParams, map[string]Variable var
         //there is no alternator
         if len(v.Condition) == 0 {
           if expReturn {
-            return undef
+            return Returner{
+              Variables: vars,
+              Exp: undef,
+              Type: "expression",
+            }
           }
         }
 
         curCond := 0
 
         //while its truthy
-        for ;isTruthy(interpreter(v.Condition[curCond].Condition, cli_params, vars, true, this_vals, dir)); o++ {
+        for o := 0; isTruthy(interpreter(v.Condition[curCond].Condition, cli_params, vars, true, this_vals, dir).Exp); o++ {
           interpreted := interpreter(v.Condition[curCond].Actions, cli_params, vars, true, this_vals, dir)
 
           //pass the globals and already existing variables
           for _, sv := range interpreted.Variables {
-            _, exists = vars[sv.Name]
+            _, exists := vars[sv.Name]
             if sv.Type == "global" || exists {
               vars[sv.Name] = sv
             }
           }
 
           //check if they want to return/skip (continue)/break
-          if (interpreted.Type == "return") return Returner{
-            Variables: vars,
-            Exp: interpreted.Exp,
-            Type: "return"
+          if interpreted.Type == "return" {
+            return Returner{
+              Variables: vars,
+              Exp: interpreted.Exp,
+              Type: "return",
+            }
           }
-          if (interpreted.Type == "skip") continue
-          if (interpreted.Type == "break") break
+          if interpreted.Type == "skip" {
+            continue
+          }
+          if interpreted.Type == "break" {
+            break
+          }
         }
       case "log":
-        log_format(interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).exp, 2, true)
+        log_format(interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp, 2, true)
       case "print":
-        log_format(interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).exp, 2, false)
+        log_format(interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp, 2, false)
       case "expressionIndex":
-        val := interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir)
-        index := indexesCalc(val.Hash_Values, v.Indexes, cli_params, vars, this_vals, dir)
+        val := interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp
+        index := indexesCalc(val, v.Indexes, cli_params, vars, this_vals, dir)
 
         if expReturn {
           return Returner{
@@ -105,8 +113,8 @@ func interpreter(actions []Action, cli_params CliParams, map[string]Variable var
       case "group":
         interpreted := interpreter(v.ExpAct, cli_params, vars, false, this_vals, dir)
 
-        for k, sv := range interpreted.Variables {
-          _, exists = vars[sv.Name]
+        for _, sv := range interpreted.Variables {
+          _, exists := vars[sv.Name]
           if sv.Type == "global" || exists {
             vars[sv.Name] = sv
           }
@@ -127,7 +135,7 @@ func interpreter(actions []Action, cli_params CliParams, map[string]Variable var
           vars[name] = Variable{
             Type: "process",
             Name: name,
-            Value: v
+            Value: v,
           }
         }
 
@@ -142,11 +150,11 @@ func interpreter(actions []Action, cli_params CliParams, map[string]Variable var
         var pargc uint64 = 0
 
         //determine how many variables were passed as params
-        for k, v := range vars {
+        for _, v := range vars {
           if v.Type == "argument" {
             pargc++
           } else if v.Type == "pargv" {
-            pargc+=len(interpreter(v.Value, cli_params, vars, true, this_vals, dir).Exp.Hash_Values)
+            pargc+=uint64(len(interpreter([]Action{ v.Value }, cli_params, vars, true, this_vals, dir).Exp.Hash_Values))
           }
         }
 
@@ -158,7 +166,7 @@ func interpreter(actions []Action, cli_params CliParams, map[string]Variable var
 
         for _, sv := range vars {
 
-          interpreted := interpreter(sv, cli_params, vars, true, dir).Exp
+          interpreted := interpreter([]Action{ sv.Value }, cli_params, vars, true, this_vals, dir).Exp
 
           if sv.Type == "argument" {
             types = append(types, interpreted.Type)
@@ -173,8 +181,8 @@ func interpreter(actions []Action, cli_params CliParams, map[string]Variable var
         if reflect.DeepEqual(types, v.Params) {
           interpreted := interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir)
 
-          for _, sv := range interpreted.variables {
-            _, exists = vars[sv.Name]
+          for _, sv := range interpreted.Variables {
+            _, exists := vars[sv.Name]
             if sv.Type == "global" || exists {
               vars[sv.Name] = sv
             }
@@ -187,16 +195,121 @@ func interpreter(actions []Action, cli_params CliParams, map[string]Variable var
               Type: interpreted.Type,
             }
           }
+          if interpreted.Type == "break" {
+            return Returner{
+              Variables: vars,
+              Exp: interpreted.Exp,
+              Type: interpreted.Type,
+            }
+          }
+          if interpreted.Type == "skip" {
+            return Returner{
+              Variables: vars,
+              Exp: interpreted.Exp,
+              Type: interpreted.Type,
+            }
+          }
 
         }
 
       case "#":
       case "@":
-      case "return":
-      case "if":
+      case "conditional":
 
+        for _, sv := range v.Condition {
+
+          ////////////////////////////////////
+          /*
+          for example, if the dev writes:
+          if (
+            a: 1
+            b: 2
+            return a = b
+          );
+          it would not do the condition (because a != b)
+          */
+          expRetCond := len(sv.Condition) == 1
+          ////////////////////////////////////
+
+          val := interpreter(sv.Condition, cli_params, vars, expRetCond, this_vals, dir).Exp
+
+          if isTruthy(val) || sv.Type == "else" {
+            interpreted := interpreter(sv.Actions, cli_params, vars, true, this_vals, dir)
+
+            for _, ssv := range interpreted.Variables {
+              _, exists := vars[ssv.Name]
+              if ssv.Type == "global" || exists {
+                vars[ssv.Name] = ssv
+              }
+            }
+
+            //if the dev wants to return/break/skip, the outer proc/loop
+            if interpreted.Type == "return" {
+              return Returner{
+                Variables: vars,
+                Exp: interpreted.Exp,
+                Type: interpreted.Type,
+              }
+            }
+            if interpreted.Type == "break" {
+              return Returner{
+                Variables: vars,
+                Exp: interpreted.Exp,
+                Type: interpreted.Type,
+              }
+            }
+            if interpreted.Type == "skip" {
+              return Returner{
+                Variables: vars,
+                Exp: interpreted.Exp,
+                Type: interpreted.Type,
+              }
+            }
+
+            //dont test any more conditions if this condition was true
+            break
+          }
+        }
+
+      case "import":
+
+        files := v.Value
+
+        for _, sv := range files {
+          interpreted := interpreter(sv, cli_params, vars, false, this_vals, dir)
+
+          for _, ssv := range interpreted.Variables {
+            if ssv.Type == "global" { //dont pass if it already exists because each file should keep its own local variables (security)
+              vars[ssv.Name] = ssv
+            }
+          }
+        }
+      case "break":
+        return Returner{
+          Variables: vars,
+          Exp: Action{},
+          Type: "break",
+        }
+      case "skip":
+        return Returner{
+          Variables: vars,
+          Exp: Action{},
+          Type: "skip",
+        }
+      case "return":
+        return Returner{
+          Variables: vars,
+          Exp: interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp,
+          Type: "break",
+        }
     }
 
   }
 
+  //if nothing was returned, return undef
+  return Returner{
+    Variables: vars,
+    Exp: undef,
+    Type: "none",
+  }
 }

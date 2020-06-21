@@ -2,7 +2,6 @@ package interpreter
 
 import "fmt"
 import "strings"
-import . "lang"
 
 func log_format(in Action, hash_spacing int, endl bool) {
 
@@ -42,9 +41,9 @@ func log_format(in Action, hash_spacing int, endl bool) {
     case "process":
       fmt.Print("{...}", "PARAM COUNT:", len(in.Params))
     case "operation":
-      log_format(in.First[0])
+      log_format(in.First[0], hash_spacing, false)
       fmt.Print("", getOp(in.Type), "")
-      log_format(in.Second[0])
+      log_format(in.Second[0], hash_spacing, false)
     default:
       //cast to a string, then print
 

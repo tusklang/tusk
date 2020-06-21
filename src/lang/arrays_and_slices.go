@@ -3,6 +3,8 @@ package lang
 import "strings"
 import "reflect"
 
+import . "lang/interpreter"
+
 func arrayContain(arr []string, sub string) bool {
 
   for i := 0; i < len(arr); i++ {

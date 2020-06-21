@@ -3,17 +3,17 @@ package interpreter
 func getOp(val string) string {
   switch (val) {
     case "add":
-      return C.CString("+")
+      return "+"
     case "subtract":
-      return C.CString("-")
+      return "-"
     case "multiply":
-      return C.CString("*")
+      return "*"
     case "divide":
-      return C.CString("/")
+      return "/"
     case "exponentiate":
-      return C.CString("^")
+      return "^"
     case "modulo":
-      return C.CString("%")
+      return "%"
   }
 
   //if no operation was detected, return ?OP?

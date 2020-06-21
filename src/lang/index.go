@@ -7,7 +7,8 @@ import "encoding/json"
 import "unicode"
 import "regexp"
 import "fmt"
-import "lang/interpreter/bind"
+
+import . "lang/interpreter"
 
 var operators = []string{"^", "*", "/", "%", "+", "-", "&", "|", "!", "~", ";"}
 var imported = []string{} //list of the imported files from omm
@@ -119,24 +120,21 @@ func Lexer(file, dir, name string) []Lex {
 }
 
 //export OatRun
-func OatRun(acts string, cli_params bind.CliParams, dir string) {
-
-  tocc([]Action{}, cli_params, dir)
-}
+func OatRun(acts []Action, cli_params map[string]map[string]interface{}, dir string) {}
 
 //export Run
-func Run(params bind.CliParams) {
+func Run(params map[string]map[string]interface{}) {
 
-  dir := params.GetFiles().GetDIR()
-  fileName := params.GetFiles().GetNAME()
+  dir := params["Files"]["DIR"]
+  fileName := params["Files"]["NAME"]
 
-  imported = append(imported, dir + fileName)
+  imported = append(imported, dir.(string) + fileName.(string))
 
-  file := ReadFileJS(dir + fileName)[0]["Content"]
+  file := ReadFileJS(dir.(string) + fileName.(string))[0]["Content"]
 
-  lex := Lexer(file, dir, fileName)
+  lex := Lexer(file, dir.(string), fileName.(string))
 
-  var actions = Actionizer(lex, false, dir, fileName)
+  var actions = Actionizer(lex, false, dir.(string), fileName.(string))
 
-  tocc(actions, params, dir);
+  _ = actions
 }

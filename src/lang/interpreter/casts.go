@@ -1,16 +1,14 @@
 package interpreter
 
-import . "lang"
-
-func cast(val Action, type string) Action {
+func cast(val Action, nType string) Action {
   valType := val.Type
 
-  val.Type = type
+  val.Type = nType
 
-  switch valType + "->" + type {
+  switch valType + "->" + nType {
     case "string->number":
       val.Integer, val.Decimal = BigNumConverter(val.ExpStr)
-    default:
-      return val
   }
+
+  return val
 }

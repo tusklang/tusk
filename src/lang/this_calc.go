@@ -4,6 +4,8 @@ import "fmt"
 import "os"
 import "strings"
 
+import . "lang/interpreter"
+
 //this is just a function to actionize the "this" process
 func this_calc(i *int, lex []Lex, PARAM_COUNT uint, name, dir, filename string, id int) Action {
 
@@ -24,5 +26,5 @@ func this_calc(i *int, lex []Lex, PARAM_COUNT uint, name, dir, filename string, 
     os.Exit(1)
   }
 
-  return Action{ name, "", []string{}, []Action{}, []string{}, args, []Condition{}, id, []Action{}, []Action{}, []Action{}, [][]Action{}, indexes, make(map[string][]Action), false, "private", subcaller, []int64{}, []int64{} }
+  return Action{ name, "", "", []Action{}, []string{}, args, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, indexes, make(map[string][]Action), false, "private", subcaller, []int64{}, []int64{} }
 }
