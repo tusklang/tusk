@@ -6,18 +6,16 @@
 #include <map>
 #include <vector>
 #include <deque>
-#include "json.hpp"
 #include "parser.hpp"
 #include "values.hpp"
 #include "structs.hpp"
 #include "operations/numeric/numeric.hpp"
-using json = nlohmann::json;
 
 namespace omm {
 
-  Action similarity(Action val1, Action val2, Action degree, const json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir);
+  Action similarity(Action val1, Action val2, Action degree, const CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir);
 
-  std::map<std::string, std::vector<Action>>::iterator findsimilar(std::map<std::string, std::vector<Action>> m, std::vector<Action> find, const json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
+  std::map<std::string, std::vector<Action>>::iterator findsimilar(std::map<std::string, std::vector<Action>> m, std::vector<Action> find, const CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     //loop through the map
     for (std::map<std::string, std::vector<Action>>::iterator it = m.begin(); it != m.end(); ++it) {
@@ -38,7 +36,7 @@ namespace omm {
     return m.end();
   }
 
-  Action similarity(Action val1, Action val2, Action degree, const json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
+  Action similarity(Action val1, Action val2, Action degree, const CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     //if the degree is not a number return undef
     if (degree.Type != "number") return falseyVal;
@@ -100,7 +98,7 @@ namespace omm {
     return falseyVal;
   }
 
-  Action strictSimilarity(Action val1, Action val2, Action degree, const json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
+  Action strictSimilarity(Action val1, Action val2, Action degree, const CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     //if the degree is not a number return undefined
     if (degree.Type != "number") return falseyVal;

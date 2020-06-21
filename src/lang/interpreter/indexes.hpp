@@ -4,18 +4,15 @@
 #include <map>
 #include <vector>
 #include <deque>
-#include "json.hpp"
 #include "parser.hpp"
 #include "values.hpp"
 #include "structs.hpp"
-using namespace std;
-using json = nlohmann::json;
 
 namespace omm {
 
-  Returner parser(const std::vector<Action> actions, const json cli_params, std::map<std::string, Variable> vars, const bool groupReturn, const bool expReturn, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir);
+  Returner parser(const std::vector<Action> actions, const CliParams cli_params, std::map<std::string, Variable> vars, const bool groupReturn, const bool expReturn, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir);
 
-  Action indexesCalc(std::map<string, std::vector<Action>> val, std::vector<std::vector<Action>> indexes, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
+  Action indexesCalc(std::map<string, std::vector<Action>> val, std::vector<std::vector<Action>> indexes, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     if (indexes.size() == 0) return falseyVal;
 

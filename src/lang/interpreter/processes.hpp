@@ -6,13 +6,12 @@
 #include <map>
 #include <algorithm>
 
-#include "json.hpp"
 #include "parser.hpp"
 #include "values.hpp"
 
 namespace omm {
 
-  Returner parser(const std::vector<Action> actions, const json cli_params, std::map<std::string, Variable> vars, const bool groupReturn, const bool expReturn, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir);
+  Returner parser(const std::vector<Action> actions, const CliParams cli_params, std::map<std::string, Variable> vars, const bool groupReturn, const bool expReturn, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir);
 
   bool vector_indexes_inc(std::vector<std::string> vec, std::string str) {
 
@@ -24,7 +23,7 @@ namespace omm {
     return false;
   }
 
-  Returner processParser(Action var, const Action v, const json cli_params, std::map<std::string, Variable>* vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, bool isProc, std::string dir) {
+  Returner processParser(Action var, const Action v, const CliParams cli_params, std::map<std::string, Variable>* vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, bool isProc, std::string dir) {
 
     std::vector<std::string> noRet;
 
@@ -84,7 +83,7 @@ namespace omm {
           "pargv",
           varname,
           { arg },
-          [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+          [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
         };
 
         break;
@@ -94,7 +93,7 @@ namespace omm {
         "argument",
         params[o],
         { omm::parser(args[o], cli_params, *vars, false, true, this_vals, dir).exp },
-        [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+        [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
       };
 
       sendVars[params[o]] = cur;

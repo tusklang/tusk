@@ -4,15 +4,14 @@ import "encoding/json"
 import "encoding/gob"
 import "os"
 import "fmt"
+import "lang/interpreter/bind"
 
 import "lang" //omm language
 
 //export Run
-func Run(params map[string]map[string]interface{}) {
-  dir := params["Files"]["DIR"].(string)
-  fileName := params["Files"]["NAME"].(string)
-
-  paramsJ, _ := json.Marshal(params) //marhsal the cli_params
+func Run(params bind.CliParams) {
+  dir := params.GetFiles().GetDIR()
+  fileName := params.GetFiles().GetNAME()
 
   readfile, e := os.Open(dir + fileName)
 
@@ -42,5 +41,5 @@ func Run(params map[string]map[string]interface{}) {
   }
 
   //run the oat
-  lang.OatRun(string(jsondata), string(paramsJ), dir)
+  lang.OatRun(string(jsondata), params, dir)
 }

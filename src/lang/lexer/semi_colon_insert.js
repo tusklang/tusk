@@ -4,8 +4,8 @@ module.exports = lex => {
 
   for (let i = 0; i < lex.length; i++) {
 
-    let currentType = lex[i].Type == 'operation' || lex[i].Type == 'namespace';
-    let nextType = lex[i + 1] && (lex[i + 1].Type == 'operation' || lex[i + 1].Type == 'namespace');
+    let currentType = lex[i].Type == 'operation' || lex[i] == '?operation' || lex[i].Type == 'namespace';
+    let nextType = lex[i + 1] && (lex[i + 1].Type == 'operation' || lex[i + 1] == '?operation' || lex[i + 1].Type == 'namespace');
 
     newLex.push(lex[i]);
 
@@ -19,7 +19,7 @@ module.exports = lex => {
     });
 
     //detect a type with the ? prefix
-    if (lex[i].Type.startsWith('?') || (lex[i + 1] && lex[i + 1].Type.startsWith('?'))) continue;
+    if (lex[i].Type.startsWith('?') && (lex[i + 1] && lex[i + 1].Type.startsWith('?'))) continue;
 
     if (currentType == nextType) newLex.push({
       Name: 'newlineS',

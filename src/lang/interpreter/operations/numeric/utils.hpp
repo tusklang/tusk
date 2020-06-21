@@ -7,16 +7,14 @@
 #include <cmath>
 
 #include "../../structs.hpp"
-#include "../../json.hpp"
 #include "../../values.hpp"
 #include "subtract.hpp"
 #include "multiply.hpp"
 #include "normalize.hpp"
-using json = nlohmann::json;
 
 namespace omm {
 
-  bool isLess(Action num1, Action num2, json cli_params) {
+  bool isLess(Action num1, Action num2, CliParams cli_params) {
 
     bool swappedInt = false /* if a swap was performed (for integer) */, swappedDec = false /* if a swap was performed (for decimal) */;
 
@@ -67,7 +65,7 @@ namespace omm {
     return false;
   }
 
-  bool equals(Action num1Act, Action num2Act, json cli_params) {
+  bool equals(Action num1Act, Action num2Act, CliParams cli_params) {
 
     //uses num1 - num2 == 0
 
@@ -85,7 +83,7 @@ namespace omm {
     return !(val.ExpStr[0] == "false" || val.Type == "falsey");
   }
 
-  Action abs(Action val, json cli_params) {
+  Action abs(Action val, CliParams cli_params) {
     if (isLess(val, zero, cli_params)) return multiplyNums(val, valn1, cli_params);
 
     return val;

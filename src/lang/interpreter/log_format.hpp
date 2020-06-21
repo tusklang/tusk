@@ -7,14 +7,12 @@
 #include <vector>
 #include <map>
 
-#include "json.hpp"
 #include "casts.hpp"
 #include "../bind.h"
-using json = nlohmann::json;
 
 namespace omm {
 
-  void log_format(Action in, const json cli_params, std::map<std::string, Variable> vars, int hash_spacing, std::string doPrint) {
+  void log_format(Action in, const CliParams cli_params, std::map<std::string, Variable> vars, int hash_spacing, std::string doPrint) {
 
     if (in.Type == "hash") {
       std::map<std::string, vector<Action>> hashvals = in.Hash_Values;

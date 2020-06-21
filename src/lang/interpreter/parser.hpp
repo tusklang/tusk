@@ -15,7 +15,6 @@
 #include <exception>
 #include <memory>
 
-#include "json.hpp"
 #include "../bind.h"
 #include "structs.hpp"
 #include "indexes.hpp"
@@ -41,11 +40,10 @@
 #include "operations/multiply/multiply.hpp"
 #include "operations/subtract/subtract.hpp"
 #include "operations/numeric/numeric.hpp"
-using json = nlohmann::json;
 
 namespace omm {
 
-  Returner parser(const std::vector<Action> actions, const json cli_params, std::map<std::string, Variable> vars, const bool groupReturn, const bool expReturn, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
+  Returner parser(const std::vector<Action> actions, const CliParams cli_params, std::map<std::string, Variable> vars, const bool groupReturn, const bool expReturn, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     //loop through every action
     for (Action v : actions) {
@@ -67,7 +65,7 @@ namespace omm {
               "local",
               name,
               parsed,
-              [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+              [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
             };
 
             vars[name] = nVar;
@@ -85,7 +83,7 @@ namespace omm {
               "dynamic",
               name,
               acts,
-              [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+              [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
             };
 
             vars[name] = nVar;
@@ -136,7 +134,7 @@ namespace omm {
               "global",
               name,
               parsed,
-              [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+              [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
             };
 
             vars[name] = nVar;
@@ -204,7 +202,7 @@ namespace omm {
               "process",
               name,
               { v },
-              [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+              [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
             };
 
             vars[name] = nVar;
@@ -571,7 +569,7 @@ namespace omm {
                   parsed,
 
                   //empty lambda exp
-                  [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+                  [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                 };
               else
                 vars[name] = Variable{
@@ -580,7 +578,7 @@ namespace omm {
                   parsed,
 
                   //empty lambda exp
-                  [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+                  [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                 };
             } else {
 
@@ -593,7 +591,7 @@ namespace omm {
                 std::string varP = parser(it, cli_params, vars, false, true, this_vals, dir).exp.ExpStr[0];
 
                 //set the map as the index of varP
-                map = &(map->Hash_Values[varP][0]);
+                map = &(map->act.Hash_Values[varP][0]);
               }
 
               //set the map ptr as the parsed value
@@ -1284,7 +1282,7 @@ namespace omm {
                     "pargv",
                     varname,
                     { arg },
-                    [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+                    [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                   };
 
                   break;
@@ -1294,7 +1292,7 @@ namespace omm {
                   "argument",
                   params[o],
                   { parser(args[o], cli_params, vars, false, true, this_vals, dir).exp },
-                  [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+                  [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                 };
 
                 sendVars[params[o]] = cur;
@@ -1308,7 +1306,7 @@ namespace omm {
               //STD::FUTURE IS A TEMP OBJECT, THATS WHY
               //FIX FIX FIX FIX
 
-              parsed.exp = Action{ "thread", name, v.ExpStr, v.ExpAct, v.Params, v.Args, v.Condition, 83, v.First, v.Second, v.Degree, v.Value, v.Indexes, v.Hash_Values, v.IsMutable, v.Access, v.SubCall, emptyLLVec, emptyLLVec, std::make_shared<std::future<Returner>>(std::move(future)) };
+              parsed.exp = Action{ Action{ "thread", name, v.ExpStr, v.ExpAct, v.Params, v.Args, v.Condition, 83, v.First, v.Second, v.Degree, v.Value, v.Indexes, v.Hash_Values, v.IsMutable, v.Access, v.SubCall, emptyLLVec, emptyLLVec }, std::make_shared<std::future<Returner>>(std::move(future)) };
             }
 
             stopIndexing_threads:
@@ -1396,13 +1394,13 @@ namespace omm {
                 "local",
                 var1,
                 { key },
-                [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+                [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
               };
               sendVars[var2] = Variable{
                 "local",
                 var2,
                 { parser(it.second, cli_params, vars, false, true, this_vals, dir).exp },
-                [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+                [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
               };
 
               Returner parsed = parser(v.ExpAct, cli_params, sendVars, true, false, this_vals, dir);
@@ -1564,13 +1562,13 @@ namespace omm {
                 vars[name].type,
                 name,
                 { val },
-                [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+                [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
               };
             } else nVar = {
                 "local",
                 name,
                 { val1 },
-                [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+                [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
               };
           }
 
@@ -1612,13 +1610,13 @@ namespace omm {
                   vars[name].type,
                   name,
                   { val },
-                  [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+                  [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                 };
               } else nVar = {
                   "local",
                   name,
                   { val1 },
-                  [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
+                  [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner { return Returner{}; }
                 };
             }
 

@@ -3,16 +3,16 @@
 
 #include <map>
 #include <vector>
-#include "../../json.hpp"
+#include "../../CliParams.hpp"
 #include "../../structs.hpp"
 #include "../../values.hpp"
 #include "subtracttypes.hpp"
 #include "../numeric/modulo.hpp"
-using json = nlohmann::json;
+using CliParams = nlohmann::CliParams;
 
 namespace omm {
 
-  Action subtract(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
+  Action subtract(Action num1, Action num2, CliParams cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     /* TABLE OF TYPES:
 

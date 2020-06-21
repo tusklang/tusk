@@ -5,14 +5,14 @@
 #include <deque>
 #include <vector>
 #include "../../values.hpp"
-#include "../../json.hpp"
+#include "../../CliParams.hpp"
 #include "../../structs.hpp"
 #include "../numeric/numeric.hpp"
-using json = nlohmann::json;
+using CliParams = nlohmann::CliParams;
 
 namespace omm {
 
-  Action multiplystrings(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
+  Action multiplystrings(Action num1, Action num2, CliParams cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     std::string fin = "";
 
@@ -47,7 +47,7 @@ namespace omm {
     return str;
   }
 
-  Action multiplyarrays(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
+  Action multiplyarrays(Action num1, Action num2, CliParams cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     Action length = zero;
 

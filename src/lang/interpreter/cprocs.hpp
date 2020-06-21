@@ -10,22 +10,20 @@
 #include <cstdlib>
 #include <thread>
 #include "structs.hpp"
-#include "json.hpp"
 #include "operations/numeric/numeric.hpp"
-using json = nlohmann::json;
 
 namespace omm {
 
   std::map<std::string, std::function<Returner(
     Action v,
-    json cli_params,
+    CliParams cli_params,
     std::map<std::string, Variable> vars,
     std::deque<std::map<std::string, std::vector<Action>>> this_vals,
     std::string dir
   )>> cprocs = {
 
     //files.read
-    { "files.read", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+    { "files.read", [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
       Returner ret;
       std::vector<std::string> retNo;
@@ -110,7 +108,7 @@ namespace omm {
       }
 
     } },
-    { "files.write", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+    { "files.write", [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
       Returner ret;
       std::vector<std::string> retNo;
@@ -156,7 +154,7 @@ namespace omm {
       return ret;
 
     } },
-    { "files.remove", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+    { "files.remove", [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
       Returner ret;
       std::vector<std::string> retNo;
@@ -179,7 +177,7 @@ namespace omm {
       return Returner{ retNo, vars, falseyVal, "expression" };
 
     } },
-    { "files.exists", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+    { "files.exists", [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
       Returner ret;
       std::vector<std::string> retNo;
@@ -224,7 +222,7 @@ namespace omm {
       return ret;
 
     } },
-    { "files.isFile", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+    { "files.isFile", [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
       Returner ret;
       std::vector<std::string> retNo;
@@ -268,7 +266,7 @@ namespace omm {
       return ret;
 
     } },
-    { "files.isDir", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+    { "files.isDir", [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
       Returner ret;
       std::vector<std::string> retNo;
@@ -311,7 +309,7 @@ namespace omm {
       return ret;
 
     } },
-    { "regex.match", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+    { "regex.match", [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
       Returner ret;
       std::vector<std::string> retNo;
@@ -391,7 +389,7 @@ namespace omm {
       }
 
     } },
-    { "regex.replace", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+    { "regex.replace", [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
       Returner ret;
       std::vector<std::string> retNo;
@@ -466,7 +464,7 @@ namespace omm {
       }
 
     } },
-    { "exec", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+    { "exec", [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
       Returner ret;
       std::vector<std::string> retNo;
@@ -495,7 +493,7 @@ namespace omm {
       return ret;
 
     } },
-    { "read", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+    { "read", [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
       Returner ret;
       std::vector<std::string> retNo;
@@ -520,7 +518,7 @@ namespace omm {
       return ret;
 
     } },
-    { "typeof", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+    { "typeof", [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
       std::vector<std::string> retNo;
 
@@ -537,7 +535,7 @@ namespace omm {
       return Returner{ retNo, vars, stringval, "expression" };
 
     } },
-    { "ascii", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+    { "ascii", [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
       std::vector<std::string> retNo;
 
@@ -562,7 +560,7 @@ namespace omm {
       return Returner{retNo, vars, falseyVal, "expression"};
 
     } },
-    { "env", [](Action v, json cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
+    { "env", [](Action v, CliParams cli_params, std::map<std::string, Variable> vars, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) -> Returner {
 
       std::vector<std::string> retNo;
 

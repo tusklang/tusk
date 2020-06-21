@@ -4,17 +4,15 @@
 #include <map>
 #include <deque>
 #include <vector>
-#include "../../json.hpp"
 #include "../../structs.hpp"
 #include "../../values.hpp"
 #include "../numeric/numeric.hpp"
-using json = nlohmann::json;
 
 namespace omm {
 
   //file with all the functions to add different datatypes
 
-  Action addstrings(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
+  Action addstrings(Action num1, Action num2, CliParams cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     std::string str = num1.ExpStr[0] + num2.ExpStr[0];
 
@@ -35,7 +33,7 @@ namespace omm {
     return Action{ "string", "", { str }, emptyActVec, {}, emptyActVec2D, {}, 38, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, hash, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
   }
 
-  Action addarrays(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
+  Action addarrays(Action num1, Action num2, CliParams cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     std::map<std::string, std::vector<Action>> finalMap;
 
@@ -46,7 +44,7 @@ namespace omm {
 
       //re add when de-normalize is implemented
       // for (std::pair<std::string, std::vector<Action>> it : num2.Hash_Values)
-      //   finalMap[string(addNums(&it.first[0], "1", &cli_params.dump()[0]))] = { it.second };
+      //   finalMap[string(addNums(&it.first[0], "1", cli_params)] = { it.second };
 
       finalMap["0"] = { num1 };
     }
@@ -54,7 +52,7 @@ namespace omm {
     return Action{ "array", "", { "" }, emptyActVec, {}, emptyActVec2D, {}, 24, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, finalMap, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
   }
 
-  Action addbools(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
+  Action addbools(Action num1, Action num2, CliParams cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     bool num1b = num1.ExpStr[0] == "true";
     bool num2b = num2.ExpStr[0] == "true";
@@ -63,7 +61,7 @@ namespace omm {
     return Action{ "boolean", "", { final }, emptyActVec, {}, emptyActVec2D, {}, 40, emptyActVec, emptyActVec, emptyActVec, emptyActVec2D, emptyActVec2D, noneMap, false, "private", emptySubCaller, emptyLLVec, emptyLLVec, emptyFuture };
   }
 
-  Action addhashes(Action num1, Action num2, json cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
+  Action addhashes(Action num1, Action num2, CliParams cli_params, std::deque<std::map<std::string, std::vector<Action>>> this_vals, std::string dir) {
 
     std::map<std::string, std::vector<Action>> final = num1.Hash_Values;
 

@@ -7,12 +7,10 @@
 #include "utils.hpp"
 #include "../../values.hpp"
 #include "../../structs.hpp"
-#include "../../json.hpp"
-using json = nlohmann::json;
 
 namespace omm {
 
-  Action addNums(Action num1, Action num2, json cli_params) {
+  Action addNums(Action num1, Action num2, CliParams cli_params) {
 
     /*
 

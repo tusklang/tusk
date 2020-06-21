@@ -2,23 +2,24 @@ package compile
 
 import "encoding/gob"
 import "os"
+import "lang/interpreter/bind"
 
 import "lang" //omm language
 
 //export Compile
-func Compile(params map[string]map[string]interface{}) {
+func Compile(params bind.CliParams) {
 
-  dir := params["Files"]["DIR"].(string)
-  fileName := params["Files"]["NAME"].(string)
+  dir := params.GetFiles().GetDIR()
+  fileName := params.GetFiles().GetNAME()
 
   file := lang.ReadFileJS(dir + fileName)[0]["Content"]
 
   lex := lang.Lexer(file, dir, fileName)
   acts := lang.Actionizer(lex, false, dir, fileName)
 
-  if (IsAbsolute(params["Calc"]["O"].(string))) {
+  if (IsAbsolute(params.GetCalc().GetO())) {
 
-    writefile, _ := os.Create(params["Calc"]["O"].(string))
+    writefile, _ := os.Create(params.GetCalc().GetO())
 
     defer writefile.Close()
 
@@ -26,7 +27,7 @@ func Compile(params map[string]map[string]interface{}) {
     encoder.Encode(acts)
   } else {
 
-    writefile, _ := os.Create(dir + params["Calc"]["O"].(string))
+    writefile, _ := os.Create(dir + params.GetCalc().GetO())
 
     defer writefile.Close()
 

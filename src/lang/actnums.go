@@ -31,9 +31,3 @@ func GetActNum(val string) int {
 
   return 42
 }
-
-//export GetActNumC
-func GetActNumC(val *C.char) C.int {
-
-  return C.int(GetActNum(C.GoString(val)))
-}

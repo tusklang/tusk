@@ -19,40 +19,43 @@ import "mangomm/cli/wipe"
 
 ////////////
 
-func defaults(params *map[string]map[string]interface{}, name string) {
+import "lang/interpreter/bind"
 
-  (*params)["Calc"]["PREC"] = 50
+func defaults(calc *bind.Calc, package_ *bind.Package, files *bind.Files, name string) {
+
+  (*calc).SetPREC(10)
 
   if strings.LastIndex(name, ".") == -1 {
-    (*params)["Calc"]["O"] = name + ".oat"
+    (*calc).SetO(name + ".oat")
   } else {
-    (*params)["Calc"]["O"] = name[:strings.LastIndex(name, ".")] + ".oat"
+    (*calc).SetO(name[:strings.LastIndex(name, ".")] + ".oat")
   }
 
-
-  (*params)["Package"]["PACKAGE"] = "lang"
-  (*params)["Files"]["NAME"] = ""
-  (*params)["Files"]["DIR"] = "C:"
+  (*package_).SetADDON("lang")
+  (*files).SetNAME("")
+  (*files).SetDIR("C:/")
 }
 
 func main() {
   args := os.Args;
 
-  var params = make(map[string]map[string]interface{})
+  var params = bind.NewCliParams()
 
-  params["Files"] = make(map[string]interface{})
-  params["Package"] = make(map[string]interface{})
-  params["Calc"] = make(map[string]interface{})
+  var (
+    calc = bind.NewCalc()
+    package_ = bind.NewPackage()
+    files = bind.NewFiles()
+  )
 
   if len(args) <= 2 {
     fmt.Println("Error, no input was given")
     os.Exit(1)
   }
 
-  defaults(&params, args[2])
+  defaults(&calc, &package_, &files, args[2])
 
-  params["Files"]["DIR"] = args[1]
-  params["Files"]["NAME"] = args[2]
+  files.SetDIR(args[1])
+  files.SetNAME(args[2])
 
   for i := 2; i < len(args); i++ {
 
@@ -63,7 +66,7 @@ func main() {
       switch strings.ToUpper(v) {
 
         default:
-          params["Package"]["PACKAGE"] = v[2:]
+          package_.SetADDON(v[2:])
       }
 
     } else if strings.HasPrefix(v, "-") {
@@ -71,15 +74,16 @@ func main() {
       switch strings.ToUpper(v[1:]) {
 
         case "C":
-          params["Package"]["PACKAGE"] = "compile"
+          package_.SetADDON("compile")
         case "R":
-          params["Package"]["PACKAGE"] = "run"
+          package_.SetADDON("run")
         case "PREC":
-          params["Calc"]["PREC"], _ = strconv.Atoi(args[i + 1])
+          temp_prec, _ := strconv.Atoi(args[i + 1])
+          calc.SetPREC(temp_prec)
           i++
           i++
         case "O":
-          params["Calc"]["O"] = args[i + 1]
+          calc.SetO(args[i + 1])
           i++
         default:
           fmt.Println("Caution, there is no cli parameter named", v)
@@ -88,7 +92,11 @@ func main() {
     }
   }
 
-  switch strings.ToLower(params["Package"]["PACKAGE"].(string)) {
+  params.SetCalc(calc)
+  params.SetPackage(package_)
+  params.SetFiles(files)
+
+  switch strings.ToLower(package_.GetADDON()) {
 
     case "lang":
       lang.Run(params)
@@ -103,6 +111,6 @@ func main() {
     case "mango-wipe":
       mango_wipe.Wipe()
     default:
-      fmt.Println("Error: cannot use omm addon", params["Package"]["PACKAGE"])
+      fmt.Println("Error: cannot use omm addon", package_.GetADDON())
   }
 }

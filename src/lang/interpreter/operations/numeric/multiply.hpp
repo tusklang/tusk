@@ -5,15 +5,13 @@
 
 #include "utils.hpp"
 #include "add.hpp"
-#include "../../json.hpp"
 #include "../../values.hpp"
-using json = nlohmann::json;
 
 namespace omm {
 
   //using naive approach because karatsuba must have only 2 digits
   //maybe switch to a recursive karatsuba later?
-  Action multiplyNums(Action num1, Action num2, json cli_params) {
+  Action multiplyNums(Action num1, Action num2, CliParams cli_params) {
 
     std::vector<std::vector<long long>> multFin; //store the final values that were multiplied
     int trailingZeroCount = 0;

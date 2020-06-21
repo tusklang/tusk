@@ -4,18 +4,16 @@
 #include <vector>
 #include <deque>
 
-#include "../../json.hpp"
 #include "../../structs.hpp"
 #include "../../values.hpp"
 #include "utils.hpp"
 #include "subtract.hpp"
 #include "multiply.hpp"
-using json = nlohmann::json;
 
 namespace omm {
 
   //using long division algorithm
-  Action divideNums(Action num1, Action num2, json cli_params) {
+  Action divideNums(Action num1, Action num2, CliParams cli_params) {
 
     //maybe in a future version switch to the algorithm python uses
     //https://github.com/python/cpython/blob/8bd216dfede9cb2d5bedb67f20a30c99844dbfb8/Objects/longobject.c#L2610
@@ -39,7 +37,7 @@ namespace omm {
     //manage precision
     while (num2.Integer.size() + num2.Decimal.size() > num1D.size()) num1D.push_front(0);
 
-    int prec = cli_params["Calc"]["PREC"].get<int>();
+    int prec = cli_params.Calc.PREC;
 
     while (num1D.size() < prec) num1D.push_front(0);
 

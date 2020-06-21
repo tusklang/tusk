@@ -7,13 +7,10 @@ import "encoding/json"
 import "unicode"
 import "regexp"
 import "fmt"
-
-// #cgo CFLAGS: -std=c99
-// #include "bind.h"
-import "C"
+import "lang/interpreter/bind"
 
 var operators = []string{"^", "*", "/", "%", "+", "-", "&", "|", "!", "~", ";"}
-var imported = []string{}
+var imported = []string{} //list of the imported files from omm
 
 //export Kill
 func Kill() {
@@ -89,13 +86,13 @@ func Lexer(file, dir, name string) []Lex {
   json.Unmarshal([]byte(out), &ret)
 
   for _, v := range ret["ERRORS"] {
-    C.colorprint(C.CString("Error while lexxing in " + fmt.Sprint(v.(map[string]interface{})["Dir"]) + "!"), C.int(12))
+    colorprint("Error while lexxing in " + fmt.Sprint(v.(map[string]interface{})["Dir"]) + "!", 12)
     fmt.Print(fmt.Sprint(v.(map[string]interface{})["Error"]), "\n\n" + strings.Repeat("-", 90) + "\n")
     fmt.Println()
   }
 
   for _, v := range ret["WARNS"] {
-    C.colorprint(C.CString("Warning while lexxing in " + fmt.Sprint(v.(map[string]interface{})["Dir"]) + "! "), C.int(14))
+    colorprint("Warning while lexxing in " + fmt.Sprint(v.(map[string]interface{})["Dir"]) + "! ", 14)
     fmt.Print(fmt.Sprint(v.(map[string]interface{})["Error"]), "\n\n" + strings.Repeat("-", 90) + "\n")
     fmt.Println()
   }
@@ -122,25 +119,16 @@ func Lexer(file, dir, name string) []Lex {
 }
 
 //export OatRun
-func OatRun(acts, cli_params, dir string) {
+func OatRun(acts string, cli_params bind.CliParams, dir string) {
 
-  argv := make([]*C.char, len(os.Args[1:]))
-
-  for k, v := range os.Args[1:] {
-    cstring := C.CString(v)
-    argv[k] = cstring
-  }
-
-  _ = argv
-
-  C.bindParser(C.CString(acts), C.CString(cli_params), C.CString(dir), C.int(len(os.Args[1:])), &argv[0])
+  tocc([]Action{}, cli_params, dir)
 }
 
 //export Run
-func Run(params map[string]map[string]interface{}) {
+func Run(params bind.CliParams) {
 
-  dir := params["Files"]["DIR"].(string)
-  fileName := params["Files"]["NAME"].(string)
+  dir := params.GetFiles().GetDIR()
+  fileName := params.GetFiles().GetNAME()
 
   imported = append(imported, dir + fileName)
 
@@ -150,20 +138,5 @@ func Run(params map[string]map[string]interface{}) {
 
   var actions = Actionizer(lex, false, dir, fileName)
 
-  cp, _ := json.Marshal(params)
-  acts, _ := json.MarshalIndent(actions, "", "  ")
-
-  _ = cp
-  _ = acts
-
-  argv := make([]*C.char, len(os.Args[1:]))
-
-  for k, v := range os.Args[1:] {
-    cstring := C.CString(v)
-    argv[k] = cstring
-  }
-
-  _ = argv
-
-  C.bindParser(C.CString(string(acts)), C.CString(string(cp)), C.CString(dir), C.int(len(os.Args[1:])), &argv[0])
+  tocc(actions, params, dir);
 }
