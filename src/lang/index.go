@@ -120,7 +120,9 @@ func Lexer(file, dir, name string) []Lex {
 }
 
 //export OatRun
-func OatRun(acts []Action, cli_params map[string]map[string]interface{}, dir string) {}
+func OatRun(acts []Action, cli_params map[string]map[string]interface{}, dir string) {
+  RunInterpreter(acts, cli_params, dir)
+}
 
 //export Run
 func Run(params map[string]map[string]interface{}) {
@@ -137,4 +139,6 @@ func Run(params map[string]map[string]interface{}) {
   var actions = Actionizer(lex, false, dir.(string), fileName.(string))
 
   _ = actions
+
+  RunInterpreter(actions, params, dir.(string))
 }

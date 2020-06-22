@@ -47,6 +47,9 @@ func log_format(in Action, hash_spacing int, endl bool) {
     default:
       //cast to a string, then print
 
+      str := cast(in, "string")
+      fmt.Print(str.ExpStr)
+
   }
 
   end:

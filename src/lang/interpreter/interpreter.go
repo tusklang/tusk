@@ -252,18 +252,10 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
               }
             }
             if interpreted.Type == "break" {
-              return Returner{
-                Variables: vars,
-                Exp: interpreted.Exp,
-                Type: interpreted.Type,
-              }
+              break
             }
             if interpreted.Type == "skip" {
-              return Returner{
-                Variables: vars,
-                Exp: interpreted.Exp,
-                Type: interpreted.Type,
-              }
+              continue
             }
 
             //dont test any more conditions if this condition was true
@@ -302,6 +294,50 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           Exp: interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp,
           Type: "break",
         }
+      case "loop":
+
+        cond := v.Condition[0].Condition
+        expRetCond := len(v.Condition) == 1
+
+        for ;isTruthy(interpreter(cond, cli_params, vars, expRetCond, this_vals, dir).Exp); {
+          interpreted := interpreter(v.Condition[0].Actions, cli_params, vars, true, this_vals, dir)
+
+          for _, sv := range interpreted.Variables {
+            _, exists := vars[sv.Name]
+            if sv.Type == "global" || exists {
+              vars[sv.Name] = sv
+            }
+          }
+
+          //if the dev wants to return/break/skip, the outer proc/loop
+          if interpreted.Type == "return" {
+            return Returner{
+              Variables: vars,
+              Exp: interpreted.Exp,
+              Type: interpreted.Type,
+            }
+          }
+          if interpreted.Type == "break" {
+            return Returner{
+              Variables: vars,
+              Exp: interpreted.Exp,
+              Type: interpreted.Type,
+            }
+          }
+          if interpreted.Type == "skip" {
+            return Returner{
+              Variables: vars,
+              Exp: interpreted.Exp,
+              Type: interpreted.Type,
+            }
+          }
+        }
+
+      case "hash":
+      case "array":
+      case "hashIndex":
+      case "arrayIndex":
+
     }
 
   }
