@@ -35,7 +35,7 @@ func log_format(in Action, hash_spacing int, endl bool) {
         log_format(v[0], hash_spacing + 2, true)
       }
 
-      fmt.Print(strings.Repeat(" ", hash_spacing - 2) + ":]")
+      fmt.Print(strings.Repeat(" ", hash_spacing - 2) + "]")
     case "group":
       fmt.Print("{...}")
     case "process":
@@ -46,7 +46,6 @@ func log_format(in Action, hash_spacing int, endl bool) {
       log_format(in.Second[0], hash_spacing, false)
     default:
       //cast to a string, then print
-
       str := cast(in, "string")
       fmt.Print(str.ExpStr)
 

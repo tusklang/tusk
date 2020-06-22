@@ -1,2 +1,2 @@
-loop (true) {
-  log 's';
+lcl ~ a: 0
+log a

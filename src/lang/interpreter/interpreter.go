@@ -50,6 +50,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
             Type: "expression",
           }
         }
+      case "let":
       case "alt":
 
         //if it looks like
@@ -334,9 +335,108 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         }
 
       case "hash":
+
+        val := v
+
+        if !v.IsMutable {
+          for k, sv := range v.Hash_Values {
+            exp := interpreter(sv, cli_params, vars, true, this_vals, dir).Exp
+
+            val.Hash_Values[k] = []Action{ exp }
+          }
+        }
+
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: val,
+            Type: "expression",
+          }
+        }
+
       case "array":
+
+        val := v
+
+        if !v.IsMutable {
+          for k, sv := range v.Hash_Values {
+            exp := interpreter(sv, cli_params, vars, true, this_vals, dir).Exp
+
+            val.Hash_Values[k] = []Action{ exp }
+          }
+        }
+
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: val,
+            Type: "expression",
+          }
+        }
+
       case "hashIndex":
+
+        index := indexesCalc(v, v.Indexes, cli_params, vars, this_vals, dir)
+
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: index,
+            Type: "expression",
+          }
+        }
+
       case "arrayIndex":
+
+        index := indexesCalc(v, v.Indexes, cli_params, vars, this_vals, dir)
+
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: index,
+            Type: "expression",
+          }
+        }
+
+      //basic value types
+      case "string": fallthrough
+      case "number": fallthrough
+      case "boolean": fallthrough
+      case "falsey": fallthrough
+      case "thread": fallthrough
+      case "none":
+
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: v,
+            Type: "expression",
+          }
+        }
+
+      case "variable":
+
+        var val Action
+
+        if _, exists := vars[v.Name]; !exists {
+          val = undef
+        } else {
+          val = interpreter([]Action{ vars[v.Name].Value }, cli_params, vars, true, this_vals, dir).Exp
+        }
+
+        varIsMutable := val.IsMutable
+        vIsMutable := v.IsMutable
+        isMutable := varIsMutable != vIsMutable
+
+        val.IsMutable = isMutable
+
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: val,
+            Type: "expression",
+          }
+        }
 
     }
 
