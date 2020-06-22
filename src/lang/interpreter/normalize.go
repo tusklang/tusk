@@ -104,7 +104,9 @@ func num_normalize(num Action) string {
     numStr = strconv.Itoa(int(math.Abs(float64(inte[i])))) + numStr
   }
 
-  numStr = "-" + numStr
+  if isNegative {
+    numStr = "-" + numStr
+  }
 
   return numStr
 }
