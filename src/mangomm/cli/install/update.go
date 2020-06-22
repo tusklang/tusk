@@ -5,7 +5,7 @@ import "fmt"
 import "encoding/json"
 import "io/ioutil"
 
-import "lang"
+import "lang/compiler"
 
 func includes(value []interface{}, includer interface{}) bool {
 
@@ -36,7 +36,7 @@ func update(args Args, dir string) {
     //read the json
     var gomap map[string]interface{}
 
-    json_val := lang.ReadFileJS(dir + ".mngo")[0]["Content"]
+    json_val := compiler.ReadFileJS(dir + ".mngo")[0]["Content"]
     e := json.Unmarshal([]byte(json_val), &gomap)
 
     if e != nil {

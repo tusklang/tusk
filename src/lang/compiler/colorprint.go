@@ -1,4 +1,4 @@
-package lang
+package compiler
 
 // #cgo CFLAGS: -std=c99
 // #include "bind.h"

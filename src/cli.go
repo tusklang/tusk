@@ -6,10 +6,10 @@ import "fmt"
 import "strconv"
 
 //omm addons
-import "lang" //omm language
+import "lang/compiler" //omm language (compile into go slices and structs)
 
-import oatcompile "oat/compile" //compile omm to oat
-import oatrun "oat/run" //run an oat file
+import "oat/compile" //compile omm to oat
+import "oat/run" //run an oat file
 
 //mango
 import "mangomm/cli/install"
@@ -41,7 +41,7 @@ func main() {
 
   cli_params["Calc"] = map[string]interface{}{}
   cli_params["Package"] = map[string]interface{}{}
-  cli_params["Files"] = map[string]interface{}{}  
+  cli_params["Files"] = map[string]interface{}{}
 
   if len(args) <= 2 {
     fmt.Println("Error, no input was given")
@@ -91,11 +91,11 @@ func main() {
   switch strings.ToLower(cli_params["Package"]["ADDON"].(string)) {
 
     case "lang":
-      lang.Run(cli_params)
+      compiler.Run(cli_params)
     case "compile":
-      oatcompile.Compile(cli_params)
+      oatCompile.Compile(cli_params)
     case "run":
-      oatrun.Run(cli_params)
+      oatRun.Run(cli_params)
     case "mango-get":
       mango_get.Get()
     case "mango-rm":

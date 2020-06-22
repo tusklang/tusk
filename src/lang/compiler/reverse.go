@@ -1,4 +1,4 @@
-package lang
+package compiler
 
 //export Reverse
 func Reverse(s string) string {

@@ -1,4 +1,4 @@
-package compile
+package oatCompile
 
 import "regexp"
 

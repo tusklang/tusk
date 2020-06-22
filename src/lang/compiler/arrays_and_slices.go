@@ -1,4 +1,4 @@
-package lang
+package compiler
 
 import "strings"
 import "reflect"

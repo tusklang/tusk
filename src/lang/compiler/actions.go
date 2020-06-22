@@ -1,4 +1,4 @@
-package lang
+package compiler
 
 import "strings"
 import "strconv"
@@ -14,7 +14,7 @@ var operations = []string{ "+", "-", "*", "/", "^", "%", "&", "|", "=", "!=", ">
 func convToAct(_val []interface{}, dir, name string) []Action {
   var val []Action
 
-  if reflect.TypeOf(_val[0]).String() == "lang.Lex" {
+  if reflect.TypeOf(_val[0]).String() == "compiler.Lex" {
 
     var num []Lex
 
@@ -635,7 +635,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
                 pCnt--;
               }
 
-              if reflect.TypeOf(exp[o]).String() == "lang.Lex" && exp[o].(Lex).Name == ":" && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+              if reflect.TypeOf(exp[o]).String() == "compiler.Lex" && exp[o].(Lex).Name == ":" && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
                 doDeg = true
                 break
               }
@@ -700,7 +700,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
                 pCnt--;
               }
 
-              if reflect.TypeOf(exp[o]).String() == "lang.Lex" && exp[o].(Lex).Name == ":" && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
+              if reflect.TypeOf(exp[o]).String() == "compiler.Lex" && exp[o].(Lex).Name == ":" && cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
                 doDeg = true
                 break
               }
@@ -894,7 +894,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         index := interfaceIndexOfWithProcIndex("(", exp, proc_indexes)
 
-        if index - 1 != -1 && (reflect.TypeOf(exp[index - 1]).String() != "lang.Lex" || ((strings.HasPrefix(exp[index - 1].(Lex).Name, "$") || exp[index - 1].(Lex).Name == "]")))  {
+        if index - 1 != -1 && (reflect.TypeOf(exp[index - 1]).String() != "compiler.Lex" || ((strings.HasPrefix(exp[index - 1].(Lex).Name, "$") || exp[index - 1].(Lex).Name == "]")))  {
           proc_indexes = append(proc_indexes, index)
           continue
         }
@@ -1000,7 +1000,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         break
       }
 
-      if reflect.TypeOf(exp[0]).String() == "lang.Lex" {
+      if reflect.TypeOf(exp[0]).String() == "compiler.Lex" {
 
         //variale that grets convved to a []Lex
         var toa []Lex

@@ -6,7 +6,7 @@ import "encoding/gob"
 import "io/ioutil"
 import "os"
 
-import "lang"
+import "lang/compiler"
 
 func save(args Args, dir string) {
 
@@ -26,8 +26,8 @@ func save(args Args, dir string) {
       continue
     }
 
-    lex := lang.Lexer(string(file), dir, v)
-    acts := lang.Actionizer(lex, false, dir, v)
+    lex := compiler.Lexer(string(file), dir, v)
+    acts := compiler.Actionizer(lex, false, dir, v)
 
     writefile, _ := os.Create(dir + "/mango/" + v + ".oat")
 

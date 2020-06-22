@@ -1,4 +1,4 @@
-package lang
+package compiler
 
 import "os"
 import "os/exec"
@@ -66,7 +66,7 @@ func getType(val string) string {
 
 //export Lexer
 func Lexer(file, dir, name string) []Lex {
-  lexCmd := exec.Command("./lang/lexer/main-win.exe")
+  lexCmd := exec.Command("./lang/compiler/lexer/main-win.exe")
 
   var in = map[string]string{
     "f": file,

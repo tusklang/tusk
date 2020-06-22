@@ -1,4 +1,4 @@
-package lang
+package compiler
 
 import "os/exec"
 import "strings"

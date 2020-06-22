@@ -1,10 +1,10 @@
-package run
+package oatRun
 
 import "encoding/gob"
 import "os"
 import "fmt"
 
-import "lang" //compiler
+import "lang/compiler" //compiler
 import . "lang/interpreter" //interpreter
 
 
@@ -33,5 +33,5 @@ func Run(params map[string]map[string]interface{}) {
   readfile.Close()
 
   //run the oat
-  lang.OatRun(decoded, params, dir.(string))
+  compiler.OatRun(decoded, params, dir.(string))
 }

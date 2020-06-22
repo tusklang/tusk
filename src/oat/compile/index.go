@@ -1,9 +1,9 @@
-package compile
+package oatCompile
 
 import "encoding/gob"
 import "os"
 
-import "lang" //compiler
+import "lang/compiler" //compiler
 
 //export Compile
 func Compile(params map[string]map[string]interface{}) {
@@ -11,10 +11,10 @@ func Compile(params map[string]map[string]interface{}) {
   dir := params["FIles"]["DIR"]
   fileName := params["Files"]["NAME"]
 
-  file := lang.ReadFileJS(dir.(string) + fileName.(string))[0]["Content"]
+  file := compiler.ReadFileJS(dir.(string) + fileName.(string))[0]["Content"]
 
-  lex := lang.Lexer(file, dir.(string), fileName.(string))
-  acts := lang.Actionizer(lex, false, dir.(string), fileName.(string))
+  lex := compiler.Lexer(file, dir.(string), fileName.(string))
+  acts := compiler.Actionizer(lex, false, dir.(string), fileName.(string))
 
   if (IsAbsolute(params["Calc"]["O"].(string))) {
 
