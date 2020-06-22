@@ -1,5 +1,6 @@
 package interpreter
 
+import "strings"
 import "strconv"
 import "math"
 
@@ -85,8 +86,10 @@ func num_normalize(num Action) string {
       carry+=isNegativeNum
     }
 
-    numStr+=strconv.Itoa(int(math.Abs(float64(deci[i]))))
+    numStr = strconv.Itoa(int(math.Abs(float64(deci[i])))) + numStr
   }
+
+  numStr = "." + numStr
 
   //do the integer
   inte := num.Integer
@@ -106,6 +109,25 @@ func num_normalize(num Action) string {
 
   if isNegative {
     numStr = "-" + numStr
+  }
+
+  //remove leading and trailing zeros
+  splitted := strings.Split(numStr, ".")
+
+  for ;splitted[0][0] == '0'; {
+    splitted[0] = splitted[0][1:]
+  }
+  for ;strings.HasSuffix(splitted[1], "0"); {
+    splitted[1] = splitted[1][:len(splitted[1]) - 1]
+  }
+
+  numStr = splitted[0] + "." + splitted[1]
+
+  if numStr[0] == '.' {
+    numStr = "0" + numStr
+  }
+  if numStr[len(numStr) - 1] == '.' {
+    numStr+="0"
   }
 
   return numStr

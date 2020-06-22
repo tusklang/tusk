@@ -138,7 +138,5 @@ func Run(params map[string]map[string]interface{}) {
 
   var actions = Actionizer(lex, false, dir.(string), fileName.(string))
 
-  _ = actions
-
   RunInterpreter(actions, params, dir.(string))
 }

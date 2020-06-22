@@ -13,7 +13,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         vars[v.Name] = Variable{
           Type: "local",
           Name: v.Name,
-          Value: interpreter(v.ExpAct, cli_params, vars, expReturn, this_vals, dir).Exp,
+          Value: interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp,
         }
 
         if expReturn {
@@ -41,7 +41,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         vars[v.Name] = Variable{
           Type: "global",
           Name: v.Name,
-          Value: interpreter(v.ExpAct, cli_params, vars, expReturn, this_vals, dir).Exp,
+          Value: interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp,
         }
 
         if expReturn {
@@ -444,6 +444,19 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           return Returner{
             Variables: vars,
             Exp: val,
+            Type: "expression",
+          }
+        }
+
+      case "variableIndex":
+
+        exp := interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp
+        index := indexesCalc(exp, v.Indexes, cli_params, vars, this_vals, dir)
+
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: index,
             Type: "expression",
           }
         }
