@@ -1,6 +1,7 @@
 package interpreter
 
 import "reflect"
+import "unicode"
 
 func interpreter(actions []Action, cli_params CliParams, vars map[string]Variable, expReturn bool, this_vals []Action, dir string) Returner {
 
@@ -338,12 +339,14 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
         val := v
 
-        if !v.IsMutable {
-          for k, sv := range v.Hash_Values {
-            exp := interpreter(sv, cli_params, vars, true, this_vals, dir).Exp
+        for k, sv := range v.Hash_Values {
+          exp := interpreter(sv, cli_params, vars, true, this_vals, dir).Exp
 
-            val.Hash_Values[k] = []Action{ exp }
+          if !unicode.IsLower([]rune(k)[0]) { //if it starts with an uppercase letter
+            exp.Access = "public"
           }
+
+          val.Hash_Values[k] = []Action{ exp }
         }
 
         if expReturn {
@@ -358,12 +361,13 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
         val := v
 
-        if !v.IsMutable {
-          for k, sv := range v.Hash_Values {
-            exp := interpreter(sv, cli_params, vars, true, this_vals, dir).Exp
+        for k, sv := range v.Hash_Values {
 
-            val.Hash_Values[k] = []Action{ exp }
-          }
+          exp := interpreter(sv, cli_params, vars, true, this_vals, dir).Exp
+
+          exp.Access = "public"
+
+          val.Hash_Values[k] = []Action{ exp }
         }
 
         if expReturn {
@@ -376,24 +380,36 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
       case "hashIndex":
 
-        index := indexesCalc(v, v.Indexes, cli_params, vars, this_vals, dir)
+        var toInterpreter = hash
+
+        toInterpreter.Hash_Values = v.Hash_Values
+
+        index := indexesCalc(
+          interpreter([]Action{ toInterpreter }, cli_params, vars, true, this_vals, dir).Exp,
+          v.Indexes, cli_params, vars, this_vals, dir)
 
         if expReturn {
           return Returner{
             Variables: vars,
-            Exp: index,
+            Exp: interpreter([]Action{ index }, cli_params, vars, true, this_vals, dir).Exp,
             Type: "expression",
           }
         }
 
       case "arrayIndex":
 
-        index := indexesCalc(v, v.Indexes, cli_params, vars, this_vals, dir)
+        var toInterpreter = arr
+
+        toInterpreter.Hash_Values = v.Hash_Values
+
+        index := indexesCalc(
+          interpreter([]Action{ toInterpreter }, cli_params, vars, true, this_vals, dir).Exp,
+          v.Indexes, cli_params, vars, this_vals, dir)
 
         if expReturn {
           return Returner{
             Variables: vars,
-            Exp: index,
+            Exp: interpreter([]Action{ index }, cli_params, vars, true, this_vals, dir).Exp,
             Type: "expression",
           }
         }
@@ -423,12 +439,6 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         } else {
           val = interpreter([]Action{ vars[v.Name].Value }, cli_params, vars, true, this_vals, dir).Exp
         }
-
-        varIsMutable := val.IsMutable
-        vIsMutable := v.IsMutable
-        isMutable := varIsMutable != vIsMutable
-
-        val.IsMutable = isMutable
 
         if expReturn {
           return Returner{

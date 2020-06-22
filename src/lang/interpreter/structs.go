@@ -35,7 +35,6 @@ type Action struct {
   Indexes     [][]Action
   Hash_Values     map[string][]Action
 
-  IsMutable       bool
   Access          string
   SubCall       []SubCaller
 

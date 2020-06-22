@@ -5,7 +5,7 @@ func add(num1, num2 Action, cli_params CliParams) Action {
   /* TABLE OF TYPES:
 
     string + (* - array - hash) = string
-    array + (* - none) = array
+    array + * = array
     num + num = num
     hash + hash = hash
     boolean + boolean = boolean
@@ -21,6 +21,8 @@ func add(num1, num2 Action, cli_params CliParams) Action {
   if (type1 == "string" && (type2 != "array" && type2 != "hash")) || (type2 == "string" && (type1 != "array" && type2 != "hash")) {
     //detect case `string + (* - array - hash) = string`
     final = string__plus__all_not_array_not_hash(num1, num2, cli_params)
+  } else if type1 == "array" || type2 == "array" {
+    
   }
 
   return final

@@ -1,4 +1,4 @@
-var readfile = require('../files/imports/read');
+var readfile = require('../imports/read');
 
 global.included = [global.DIRNAME.concat(global.NAME)];
 
