@@ -215,6 +215,8 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         }
 
       case "#":
+        procCall := processParser(v, cli_params, &vars, this_vals, dir, true, "#")
+        _ = procCall
       case "@":
       case "conditional":
 

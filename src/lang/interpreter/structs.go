@@ -47,7 +47,7 @@ type Variable struct {
   Type      string
   Name      string
   Value     Action
-  GoProc    func(actions []Action, cli_params CliParams, vars map[string]Variable, expReturn bool, this_vals []Action, dir string) Returner
+  GoProc    func(action Action, cli_params CliParams, vars map[string]Variable, this_vals []Action, dir string) Returner
 }
 
 type Returner struct {

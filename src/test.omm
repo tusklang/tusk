@@ -1,2 +1,6 @@
-lcl a: [::];
-log a
+proc a() {
+  log 'a';
+
+}
+
+log a()
