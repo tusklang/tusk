@@ -3,9 +3,6 @@ package interpreter
 import "strings"
 import "strconv"
 
-//export DigitSize
-var DigitSize = 1;
-
 //function to chunk a string into pieces
 func Chunk(val string, by int) []string {
 

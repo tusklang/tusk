@@ -22,7 +22,7 @@ func add(num1, num2 Action, cli_params CliParams) Action {
     //detect case `string + (* - array - hash) = string`
     final = string__plus__all_not_array_not_hash(num1, num2, cli_params)
   } else if type1 == "array" || type2 == "array" {
-    
+    final = array__plus__array(num1, num2, cli_params)
   }
 
   return final
