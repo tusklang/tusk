@@ -1,5 +1,7 @@
 package interpreter
 
+import "fmt"
+
 type CliParams map[string]map[string]interface{}
 
 //number sizes
@@ -17,6 +19,7 @@ const MIN_DIGIT = -1 * MAX_DIGIT
 
 //export RunInterpreter
 func RunInterpreter(actions []Action, cli_params map[string]map[string]interface{}, dir string) {
+  fmt.Println(num_normalize(zero))
   var vars = make(map[string]Variable)
   interpreter(actions, CliParams(cli_params), vars, false, []Action{}, dir)
 }

@@ -15,7 +15,7 @@ namespace omm {
     /* TABLE OF TYPES:
 
       num ^ num = num
-      default = num
+      default = falsey
     */
 
     Action finalRet;
