@@ -3,6 +3,8 @@ package interpreter
 import "strconv"
 import "strings"
 
+var threads []chan Returner
+
 func processParser(v Action, cli_params CliParams, vars *map[string]Variable, this_vals []Action, dir string, isProc bool, callType string) Returner {
 
   name := v.Name
@@ -109,6 +111,16 @@ func processParser(v Action, cli_params CliParams, vars *map[string]Variable, th
           parsed = processParser(curVar, cli_params, vars, this_vals, dir, sv.IsProc, "#")
           goto end
         }
+      } else if callType == "@" {
+
+        retChannel := make(chan Returner)
+        threads = append(threads, retChannel)
+        go func() {
+          retChannel <- interpreter(variable.ExpAct, cli_params, sendVars, true, send_this, dir)
+        }()
+
+        parsed.Exp = thread
+        parsed.Exp.Thread = retChannel
       }
 
     }

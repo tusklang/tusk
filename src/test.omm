@@ -1,6 +1,5 @@
 proc a() {
-  log 'a';
-
+  return 'aaa';
 }
 
-log a()
+log @a();

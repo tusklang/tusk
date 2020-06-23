@@ -41,6 +41,9 @@ type Action struct {
   //stuff for numbers
   Integer       []int64
   Decimal       []int64
+
+  //threads
+  Thread          chan Returner
 }
 
 type Variable struct {

@@ -216,8 +216,28 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
       case "#":
         procCall := processParser(v, cli_params, &vars, this_vals, dir, true, "#")
-        _ = procCall
+
+        if expReturn {
+          return procCall
+        }
       case "@":
+        procCall := processParser(v, cli_params, &vars, this_vals, dir, true, "@")
+
+        if expReturn {
+          return procCall
+        }
+      case "await":
+
+        exp := interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp
+        thread := <-exp.Thread //wait for the thread
+
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: thread.Exp,
+            Type: "expression",
+          }
+        }
       case "conditional":
 
         for _, sv := range v.Condition {

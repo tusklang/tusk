@@ -17,4 +17,8 @@ const MIN_DIGIT = -1 * MAX_DIGIT
 func RunInterpreter(actions []Action, cli_params map[string]map[string]interface{}, dir string) {
   var vars = make(map[string]Variable)
   interpreter(actions, CliParams(cli_params), vars, false, []Action{}, dir)
+
+  for _, v := range threads {
+    <- v
+  }
 }

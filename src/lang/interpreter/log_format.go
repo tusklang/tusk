@@ -44,6 +44,8 @@ func log_format(in Action, hash_spacing int, endl bool) {
       log_format(in.First[0], hash_spacing, false)
       fmt.Print("", getOp(in.Type), "")
       log_format(in.Second[0], hash_spacing, false)
+    case "thread":
+      fmt.Print("CHANNEL: use the `await` keyword to get the value")
     default:
       //cast to a string, then print
       str := cast(in, "string")
