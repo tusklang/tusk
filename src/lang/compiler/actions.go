@@ -5,6 +5,7 @@ import "strconv"
 import "reflect"
 import "fmt"
 import "os"
+import "encoding/json"
 import "encoding/gob"
 
 import . "lang/interpreter"
@@ -2308,6 +2309,8 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           translated[name_] = Actionizer(v[1], true, dir, name)
         }
 
+        i--
+
         if i >= len_lex {
           actions = append(actions, Action{ "hash", "hashed_value", "", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, translated, "private", []SubCaller{}, []int64{}, []int64{}, make(chan Returner) })
           break
@@ -2489,7 +2492,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         cur := 0
 
         for _, v := range arr {
-          hashedArr[string(cur)] = v
+          hashedArr[strconv.Itoa(cur)] = v
           cur++
         }
 
@@ -2812,9 +2815,12 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
                 hashedIndex := make(map[string][]Action)
                 hashedIndex["falsey"] = []Action{ Action{ "falsey", "exp_value", "undef", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, make(chan Returner) } }
 
-                hashedString[string(cur)] = []Action{ Action{ "string", "exp_value", string(v), []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedIndex, "private", []SubCaller{}, []int64{}, []int64{}, make(chan Returner) } }
+                hashedString[strconv.Itoa(cur)] = []Action{ Action{ "string", "exp_value", string(v), []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedIndex, "private", []SubCaller{}, []int64{}, []int64{}, make(chan Returner) } }
                 cur++
               }
+
+              je := json.NewEncoder(os.Stdout)
+              je.SetIndent("", "  ")
 
               actions = append(actions, Action{ "string", "exp_value", noQ, []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedString, "private", []SubCaller{}, []int64{}, []int64{}, make(chan Returner) })
             }
@@ -3056,7 +3062,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           }
 
           var indexes [][]Action
-          varname := lex[i].Name
+          varname := lex[i].Name //store the variable name in variable (because we cannot get it later)
 
           if lex[i + 1].Name == "." && lex[i + 2].Name == "[" && doPutIndex {
 
@@ -3116,6 +3122,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           }
 
           if lex[i + 1].Name == ":" && (strings.HasPrefix(lex[i].Name, "$") || lex[i].Name == "]") {
+
             exp_ := []Lex{}
 
             cbCnt := 0

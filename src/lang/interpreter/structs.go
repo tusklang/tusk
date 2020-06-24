@@ -43,7 +43,7 @@ type Action struct {
   Decimal       []int64
 
   //threads
-  Thread          chan Returner
+  Thread          chan Returner `json:"-"`
 }
 
 type Variable struct {

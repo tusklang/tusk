@@ -277,25 +277,25 @@
     "name": "(",
     "remove": "(",
     "pattern": "\\(",
-    "type": "?paren"
+    "type": "?operation_paren"
   },
   {
     "name": ")",
     "remove": ")",
     "pattern": "\\)",
-    "type": "?paren"
+    "type": "?operation_paren"
   },
   {
     "name": "{",
     "remove": "{",
     "pattern": "\\{",
-    "type": "?operation"
+    "type": "?operation_paren"
   },
   {
     "name": "}",
     "remove": "}",
     "pattern": "\\}",
-    "type": "?operation"
+    "type": "?operation_paren"
   },
   {
     "name": "[",

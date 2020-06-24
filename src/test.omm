@@ -1,5 +1,5 @@
-proc a() {
-  return 'aaa';
-}
-
-log @a();
+lcl ~ a: [:
+  f: 's'
+:]
+a::f: 'apppppppppppppppppppppppppp'
+log a

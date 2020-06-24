@@ -186,7 +186,7 @@ global.lexer = (file, dir) => {
       for (let o = i; o < file.length; o++) {
 
         for (let j = 0; j < KEYWORDS.length; j++)
-          if (testkey(KEYWORDS[j], file, o) || /\s/.test(file[o])) break var_loop;
+          if (testkey(KEYWORDS[j], file, o) || /\s/.test(file[o]) || file[o] == ';' /* it is a comment */) break var_loop;
 
         variable+=file[o];
         i++;

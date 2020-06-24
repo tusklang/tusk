@@ -1,10 +1,7 @@
 package interpreter
 
-import "sync"
 import "reflect"
 import "unicode"
-
-var wg sync.WaitGroup
 
 func interpreter(actions []Action, cli_params CliParams, vars map[string]Variable, expReturn bool, this_vals []Action, dir string) Returner {
 
@@ -13,6 +10,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
     switch v.Type {
 
       case "local":
+
         vars[v.Name] = Variable{
           Type: "local",
           Name: v.Name,
@@ -55,6 +53,66 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           }
         }
       case "let":
+
+        name := v.Name
+        acts := v.ExpAct
+        interpreted := interpreter(acts, cli_params, vars, true, this_vals, dir).Exp
+
+        var variable Variable
+
+        if len(v.Indexes) == 0 {
+          if _, exists := vars[name]; !exists {
+            variable = Variable{
+              Type: "local",
+              Name: name,
+              Value: interpreted,
+            }
+          } else {
+            variable = Variable{
+              Type: vars[name].Type,
+              Name: name,
+              Value: interpreted,
+            }
+          }
+        } else {
+
+          if _, exists := vars[name]; !exists {
+            variable = Variable{
+              Type: "local",
+              Name: name,
+              Value: hash,
+            }
+          } else {
+            variable = vars[name]
+          }
+
+          oMap := &variable.Value //a pointer (ref) to the variable value
+
+          for _, sv := range v.Indexes {
+            index := cast(interpreter(sv, cli_params, vars, true, this_vals, dir).Exp, "string").ExpStr
+
+            if _, exists := (*oMap).Hash_Values[index]; !exists {
+              _v := hash
+              oMap = &_v
+              continue
+            }
+
+            oMap = &((*oMap).Hash_Values[index][0])
+          }
+
+          *oMap = interpreted
+        }
+
+        vars[name] = variable
+
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: variable.Value,
+            Type: "expression",
+          }
+        }
+
       case "alt":
 
         //if it looks like

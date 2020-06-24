@@ -21,7 +21,7 @@ module.exports = (key, file, i) => {
 
     if (key.no_oper_before) {
 
-      var opers = require('./keywords.json').filter(k => k.type == 'operation' || k.type == '?operation' || k.type == 'paren' || k.type == '?paren');
+      var opers = require('./keywords.json').filter(k => k.type == 'operation' || k.type == '?operation' || k.type == '?operation_paren');
 
       opers = opers.filter(i => !!pre_i.trim().match(new RegExp('(' + i.pattern + ')$')));
 
