@@ -2316,7 +2316,9 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             name_ = name_[1:]
           }
 
-          translated[name_] = Actionizer(v[1], true, dir, name)
+          hashVal := Actionizer(v[1], true, dir, name)
+
+          translated[name_] = hashVal
         }
 
         i--
@@ -2821,11 +2823,10 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
               cur := 0
 
               for _, v := range noQ {
-
                 hashedIndex := make(map[string][]Action)
                 hashedIndex["falsey"] = []Action{ Action{ "falsey", "exp_value", "undef", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
 
-                hashedString[strconv.Itoa(cur)] = []Action{ Action{ "rune", "exp_value", string(v), []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedIndex, "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
+                hashedString[strconv.Itoa(cur)] = []Action{ Action{ "rune", "exp_value", string(v), []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedIndex, "public", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
                 cur++
               }
 

@@ -204,12 +204,6 @@
     "type": "?operation_paren"
   },
   {
-    "name": ":::",
-    "remove": ":::",
-    "pattern": ":::",
-    "type": "operation"
-  },
-  {
     "name": "this",
     "remove": "this",
     "pattern": "(this\\s*\\()",

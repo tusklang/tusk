@@ -7,28 +7,28 @@ module.exports = lex => {
     if (lex[i + 1] && lex[i].Name == '::') index = [{
       Name: '.',
       Exp: lex[i].Exp,
-      Line: lex[i].line,
+      Line: lex[i].Line,
       Type: 'operation',
       OName: '.',
       Dir: lex[i].Dir
     }, {
       Name: '[',
       Exp: lex[i].Exp,
-      Line: lex[i].line,
+      Line: lex[i].Line,
       Type: '?operation',
       OName: '[',
       Dir: lex[i].Dir
     }, {
-      Name: `\'${lex[i + 1].Name.substr(1)}\'`,
+      Name: `\'${lex[i].Name[0] == '$' ? lex[i + 1].Name.substr(1) : lex[i + 1].Name}\'`,
       Exp: lex[i + 1].Exp,
-      Line: lex[i + 1].line,
+      Line: lex[i + 1].Line,
       Type: 'string',
-      OName: `\'${lex[i + 1].Name.substr(1)}\'`,
+      OName: `\'${lex[i].Name[0] == '$' ? lex[i + 1].Name.substr(1) : lex[i + 1].Name}\'`,
       Dir: lex[i + 1].Dir
     }, {
       Name: ']',
       Exp: lex[i + 1].Exp,
-      Line: lex[i + 1].line,
+      Line: lex[i + 1].Line,
       Type: '?operation',
       OName: ']',
       Dir: lex[i + 1].Dir

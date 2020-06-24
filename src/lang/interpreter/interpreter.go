@@ -485,7 +485,6 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           exp := interpreter(sv, cli_params, vars, true, this_vals, dir).Exp
 
           exp.Access = "public"
-
           val.Hash_Values[k] = []Action{ exp }
         }
 

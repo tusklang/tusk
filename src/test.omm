@@ -1,10 +1,2 @@
-proc a(pargv.s) {
-  log s;
-  pargc 1 {
-    log 2
-  }
-
-  log 1
-}
-
-#a('sd')
+a: [10]
+log a::0
