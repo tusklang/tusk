@@ -2,6 +2,7 @@ package interpreter
 
 import "reflect"
 import "unicode"
+import "strconv"
 
 func interpreter(actions []Action, cli_params CliParams, vars map[string]Variable, expReturn bool, this_vals []Action, dir string) Returner {
 
@@ -10,7 +11,6 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
     switch v.Type {
 
       case "local":
-
         vars[v.Name] = Variable{
           Type: "local",
           Name: v.Name,
@@ -219,6 +219,44 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           }
         }
 
+        pargcOmmStr := emptyString
+        pargcOmmStr.ExpStr = strconv.FormatUint(pargc, 10)
+
+        pargcOmmNum := cast(pargcOmmStr, "number")
+
+        if isEqual(pargcOmmNum, v) { //if the given pargc is equal to the count
+          interpreted := interpreter(v.ExpAct, cli_params, vars, false, this_vals, dir)
+
+          for _, sv := range interpreted.Variables {
+            _, exists := vars[sv.Name]
+            if sv.Type == "global" || exists {
+              vars[sv.Name] = sv
+            }
+          }
+
+          if interpreted.Type == "return" {
+            return Returner{
+              Variables: vars,
+              Exp: interpreted.Exp,
+              Type: interpreted.Type,
+            }
+          }
+          if interpreted.Type == "break" {
+            return Returner{
+              Variables: vars,
+              Exp: interpreted.Exp,
+              Type: interpreted.Type,
+            }
+          }
+          if interpreted.Type == "skip" {
+            return Returner{
+              Variables: vars,
+              Exp: interpreted.Exp,
+              Type: interpreted.Type,
+            }
+          }
+        }
+
         //do later
 
       case "pargc_paramlist":
@@ -240,7 +278,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
         //if the given types are equal to the pargc list
         if reflect.DeepEqual(types, v.Params) {
-          interpreted := interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir)
+          interpreted := interpreter(v.ExpAct, cli_params, vars, false, this_vals, dir)
 
           for _, sv := range interpreted.Variables {
             _, exists := vars[sv.Name]

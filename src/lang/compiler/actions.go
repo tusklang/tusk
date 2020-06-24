@@ -5,7 +5,6 @@ import "strconv"
 import "reflect"
 import "fmt"
 import "os"
-import "encoding/json"
 import "encoding/gob"
 
 import . "lang/interpreter"
@@ -1530,7 +1529,18 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           actions = append(actions, Action{ "pargc_paramlist", "", "", actionized, types, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
         } else {
 
-          actions = append(actions, Action{ "pargc_number", "", count, actionized, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
+          if getType(count) != "number" || strings.ContainsRune(count, '.') {
+            //throw an error
+            colorprint("Error while actionizing in " + lex[i].Dir + "!\n", 12)
+            fmt.Println("Expected an integer instead of", count, "\nFound near:", strings.TrimSpace(lex[i - 1].Exp))
+
+            //exit the process
+            os.Exit(1)
+          }
+
+          ommNumCountInt, _ := BigNumConverter(count) //convert to omm number
+
+          actions = append(actions, Action{ "pargc_number", "", "", actionized, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, ommNumCountInt, []int64{}, OmmThread{} })
         }
       case "wait":
 
@@ -2802,7 +2812,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             case "string": {
 
-              noQ := val[1:len(val) - 1]
+              noQ := val[1:len(val) - 1] //the string will be given like this: "hello", but omm needs to store them like this: hello
               hashedString := make(map[string][]Action)
 
               //specify the value for the "falsey" case
@@ -2815,15 +2825,21 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
                 hashedIndex := make(map[string][]Action)
                 hashedIndex["falsey"] = []Action{ Action{ "falsey", "exp_value", "undef", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
 
-                hashedString[strconv.Itoa(cur)] = []Action{ Action{ "string", "exp_value", string(v), []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedIndex, "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
+                hashedString[strconv.Itoa(cur)] = []Action{ Action{ "rune", "exp_value", string(v), []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedIndex, "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
                 cur++
               }
 
-              je := json.NewEncoder(os.Stdout)
-              je.SetIndent("", "  ")
-
               actions = append(actions, Action{ "string", "exp_value", noQ, []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedString, "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
             }
+            case "rune":
+              hashed := make(map[string][]Action)
+
+              //specify the value for the "falsey" case
+              hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", "undef", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
+
+              noQ := val[1:len(val) - 1] //see noQ for string
+
+              actions = append(actions, Action{ "rune", "exp_value", noQ, []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
             case "number":
 
               hashed := make(map[string][]Action)

@@ -81,7 +81,14 @@ func processParser(v Action, cli_params CliParams, vars *map[string]Variable, th
       arguments := v.Args
 
       //ensure that there are the same amount of params and args
-      if len(params) != len(arguments) && !containsParams(params, "$pargv") {
+      if len(params) != len(arguments) && !func() bool {
+        for _, v := range params {
+          if strings.HasPrefix(v, "$pargv") {
+            return true
+          }
+        }
+        return false
+      }() {
         goto end
       }
 
@@ -89,7 +96,7 @@ func processParser(v Action, cli_params CliParams, vars *map[string]Variable, th
 
       for k, param_v := range params {
         if strings.HasPrefix(param_v, "$pargv") {
-          varname := "$" + strings.TrimPrefix(param_v, "$pargv")
+          varname := "$" + strings.TrimPrefix(param_v, "$pargv.")
 
           //convert the rest of the args into a pargv
           var pargv = make(map[string][]Action)

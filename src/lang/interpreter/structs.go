@@ -43,7 +43,7 @@ type Action struct {
   Decimal       []int64
 
   //threads
-  Thread          OmmThread
+  Thread          OmmThread `json:"-"`
 }
 
 type Variable struct {
