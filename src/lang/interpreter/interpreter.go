@@ -288,7 +288,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
       case "await":
 
         exp := interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp
-        thread := <-exp.Thread //wait for the thread
+        thread := exp.Thread.WaitFor() //wait for the thread
 
         if expReturn {
           return Returner{

@@ -3,7 +3,32 @@ package interpreter
 import "strconv"
 import "strings"
 
-var threads []chan Returner
+//struct to create a thread
+type OmmThread struct {
+  Channel chan Returner
+  Alive   bool
+}
+
+func (ot OmmThread) IsAlive() bool {
+  return ot.Alive
+}
+
+func (ot OmmThread) WaitFor() Returner {
+
+  if !ot.Alive { //if it is not alive
+    return Returner{} //return none
+  }
+
+  defer func() {
+    ot.Alive = false
+  }() //set the thread to killed once the function finishes
+
+  getter := <- ot.Channel
+  return getter
+}
+//////////////////////////
+
+var threads []OmmThread
 
 func processParser(v Action, cli_params CliParams, vars *map[string]Variable, this_vals []Action, dir string, isProc bool, callType string) Returner {
 
@@ -113,14 +138,14 @@ func processParser(v Action, cli_params CliParams, vars *map[string]Variable, th
         }
       } else if callType == "@" {
 
-        retChannel := make(chan Returner)
-        threads = append(threads, retChannel)
+        var ommThread = OmmThread{ make(chan Returner), true } //new thread in omm
+        threads = append(threads, ommThread)
         go func() {
-          retChannel <- interpreter(variable.ExpAct, cli_params, sendVars, true, send_this, dir)
+          ommThread.Channel <- interpreter(variable.ExpAct, cli_params, sendVars, true, send_this, dir)
         }()
 
         parsed.Exp = thread
-        parsed.Exp.Thread = retChannel
+        parsed.Exp.Thread = ommThread
       }
 
     }
