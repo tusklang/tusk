@@ -92,9 +92,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
             index := cast(interpreter(sv, cli_params, vars, true, this_vals, dir).Exp, "string").ExpStr
 
             if _, exists := (*oMap).Hash_Values[index]; !exists {
-              _v := hash
-              oMap = &_v
-              continue
+              (*oMap).Hash_Values[index] = []Action{ hash }
             }
 
             oMap = &((*oMap).Hash_Values[index][0])

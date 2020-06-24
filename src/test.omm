@@ -1,5 +1,5 @@
 lcl ~ a: [:
   f: 's'
 :]
-a::f: 'apppppppppppppppppppppppppp'
+a::c: 'apppppppppppppppppppppppppp'
 log a
