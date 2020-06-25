@@ -9,7 +9,6 @@ func add(num1, num2 Action, cli_params CliParams) Action {
     num + num = num
     hash + hash = hash
     boolean + boolean = boolean
-    num + boolean = num
     default = falsey
   */
 
@@ -22,9 +21,20 @@ func add(num1, num2 Action, cli_params CliParams) Action {
     //detect case `string + (* - array - hash) = string`
     final = string__plus__all_not_array_not_hash(num1, num2, cli_params)
   } else if type1 == "array" || type2 == "array" {
-    final = array__plus__array(num1, num2, cli_params)
+    //detect case `array + * = array`
+    final = array__plus__all(num1, num2, cli_params)
   } else if type1 == "number" && type2 == "number" {
+    //detect case `num + num = num`
     final = number__plus__number(num1, num2, cli_params)
+  } else if type1 == "hash" && type2 == "hash" {
+    //detect case `hash + hash = hash`
+    final = hash__plus__hash(num1, num2, cli_params)
+  } else if type1 == "boolean" && type2 == "boolean" {
+    //detect case `boolean + boolean = boolean`
+    final = bool__plus__bool(num1, num2, cli_params)
+  } else {
+    //detect default case
+    final = undef
   }
 
   return final

@@ -14,7 +14,7 @@ func string__plus__all_not_array_not_hash(num1, num2 Action, cli_params CliParam
 }
 
 //array + * = array
-func array__plus__array(num1, num2 Action, cli_params CliParams) Action {
+func array__plus__all(num1, num2 Action, cli_params CliParams) Action {
 
   if num1.Type == "array" {
     num1.Hash_Values[strconv.Itoa(len(num1.Hash_Values))] = []Action{ num2 }
@@ -146,4 +146,28 @@ func number__plus__number(num1, num2 Action, cli_params CliParams) Action {
   number.Decimal = newDec
 
   return number
+}
+
+func hash__plus__hash(num1, num2 Action, cli_params CliParams) Action {
+
+  for k, v := range num2.Hash_Values {
+    num1.Hash_Values[k] = v
+  }
+
+  return num1
+}
+
+func bool__plus__bool(num1, num2 Action, cli_params CliParams) Action {
+
+  bool1 := num1.ExpStr == "true"
+  bool2 := num2.ExpStr == "true"
+  final := bool1 || bool2
+
+  finalAct := falseAct
+
+  if final {
+    finalAct = trueAct
+  }
+
+  return finalAct
 }
