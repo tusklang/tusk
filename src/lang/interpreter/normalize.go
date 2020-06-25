@@ -65,8 +65,6 @@ func num_normalize(num Action) string {
 
     if decimal[decIndexCounter - 1] < 0 {
       isNeg = true
-    } else if integer[len(integer) - 1] < 0 {
-      isNeg = true
     }
 
   } else if integer[len(integer) - 1] < 0 {

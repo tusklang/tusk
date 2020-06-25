@@ -1077,61 +1077,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         actions = append(actions, Action{ "local", lex[i + 2].Name, "", exp, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
         i+=(4 + len(exp_))
-      case "dynamic":
-        exp_ := []Lex{}
-
-        //getting nb semicolons
-        cbCnt := 0
-        glCnt := 0
-        bCnt := 0
-        pCnt := 0
-
-        for o := i + 4; o < len_lex; o++ {
-
-          if lex[o].Name == "{" {
-            cbCnt++;
-          }
-          if lex[o].Name == "}" {
-            cbCnt--;
-          }
-
-          if lex[o].Name == "[:" {
-            glCnt++;
-          }
-          if lex[o].Name == ":]" {
-            glCnt--;
-          }
-
-          if lex[o].Name == "[" {
-            bCnt++;
-          }
-          if lex[o].Name == "]" {
-            bCnt--;
-          }
-
-          if lex[o].Name == "(" {
-            pCnt++;
-          }
-          if lex[o].Name == ")" {
-            pCnt--;
-          }
-
-          if cbCnt != 0 || glCnt != 0 || bCnt != 0 || pCnt != 0 {
-            exp_ = append(exp_, lex[o])
-            continue
-          }
-
-          if lex[o].Name == "newlineS" {
-            break
-          }
-
-          exp_ = append(exp_, lex[o])
-        }
-
-        exp := Actionizer(exp_, true, dir, name)
-
-        actions = append(actions, Action{ "dynamic", lex[i + 2].Name, "", exp, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
-        i+=(4 + len(exp_))
       case "alt":
 
         var alter = Action{ "alt", "", "", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} }

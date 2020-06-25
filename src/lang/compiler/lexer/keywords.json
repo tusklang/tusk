@@ -120,18 +120,6 @@
     "type": "operation"
   },
   {
-    "name": "dynamic",
-    "remove": "dyn",
-    "pattern": "(dyn(\\s*)(~?))",
-    "type": "id"
-  },
-  {
-    "name": "dynamic",
-    "remove": "dynamic",
-    "pattern": "(dynamic(\\s*)(~?))",
-    "type": "id"
-  },
-  {
     "name": "alt",
     "remove": "alt",
     "pattern": "(alt\\()",

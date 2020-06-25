@@ -26,17 +26,17 @@ func isLess(val1, val2 Action) bool {
   //do the integer
   var intI int
 
-  for intI = 0; intI < len(val2.Integer); intI++ {
-    if val1.Integer[intI] < val2.Integer[intI] {
-      return !swappedInt
-    } else if val1.Integer[intI] > val2.Integer[intI] {
-      return swappedInt
-    }
-  }
-  for ;intI < len(val1.Integer); intI++ {
+  for intI = len(val1.Integer) - 1; intI >= len(val2.Integer); intI-- {
     if val1.Integer[intI] < 0 {
       return !swappedInt
     } else if val1.Integer[intI] > 0 {
+      return swappedInt
+    }
+  }
+  for ;intI >= 0; intI-- {
+    if val1.Integer[intI] < val2.Integer[intI] {
+      return !swappedInt
+    } else if val1.Integer[intI] > val2.Integer[intI] {
       return swappedInt
     }
   }
@@ -44,17 +44,17 @@ func isLess(val1, val2 Action) bool {
   //do the decimal
   var decI int
 
-  for decI = 0; decI < len(val2.Decimal); decI++ {
-    if val1.Decimal[decI] < val2.Decimal[decI] {
-      return !swappedDec
-    } else if val1.Decimal[decI] > val2.Decimal[decI] {
-      return swappedDec
-    }
-  }
-  for ;decI < len(val1.Decimal); decI++ {
+  for decI = len(val1.Decimal) - 1; decI >= len(val2.Decimal); decI-- {
     if val1.Decimal[decI] < 0 {
       return !swappedDec
     } else if val1.Decimal[decI] > 0 {
+      return swappedDec
+    }
+  }
+  for ;decI >= 0; decI-- {
+    if val1.Decimal[decI] < val2.Decimal[decI] {
+      return !swappedDec
+    } else if val1.Decimal[decI] > val2.Decimal[decI] {
       return swappedDec
     }
   }

@@ -24,20 +24,6 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
             Type: "expression",
           }
         }
-      case "dynamic":
-        vars[v.Name] = Variable{
-          Type: "dynamic",
-          Name: v.Name,
-          Value: v.ExpAct[0],
-        }
-
-        if expReturn {
-          return Returner{
-            Variables: vars,
-            Exp: vars[v.Name].Value,
-            Type: "expression",
-          }
-        }
       case "global":
         vars[v.Name] = Variable{
           Type: "global",
@@ -600,6 +586,21 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         second := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
 
         val := subtract(first, second, cli_params)
+
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: val,
+            Type: "expression",
+          }
+        }
+
+      case "multiply":
+
+        first := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+        second := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+
+        val := multiply(first, second, cli_params)
 
         if expReturn {
           return Returner{

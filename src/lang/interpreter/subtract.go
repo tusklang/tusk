@@ -11,15 +11,15 @@ func subtract(num1, num2 Action, cli_params CliParams) Action {
   type1 := num1.Type
   type2 := num2.Type
 
-  var finalRet Action
+  var final Action
 
   if type1 == "number" && type2 == "number" {
     //detect case `num - num = num`
-    finalRet = number__minus__number(num1, num2, cli_params)
+    final = number__minus__number(num1, num2, cli_params)
   } else {
     //detect default case
-    finalRet = undef
+    final = undef
   }
 
-  return finalRet
+  return final
 }
