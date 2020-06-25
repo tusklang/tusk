@@ -1,15 +1,7 @@
 const fs = require('fs');
 
-// var stdinBuffer = fs.readFileSync(0)
-// , { f, dir, name } = JSON.parse(stdinBuffer.toString());
-
-var { f, dir, name } = {
-  f:
-  `
-  a: [10]
-  log a::0
-  `, dir: '', name: ''
-}
+var stdinBuffer = fs.readFileSync(0)
+, { f, dir, name } = JSON.parse(stdinBuffer.toString());
 
 global.DIRNAME = dir;
 global.NAME = name;

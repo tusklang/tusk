@@ -3,6 +3,12 @@ package interpreter
 import "strings"
 import "strconv"
 
+func reverseStringSlice(in []string) {
+  for i, o := 0, len(in) - 1; i < o; i, o = i + 1, o - 1 {
+    in[i], in[o] = in[o], in[i]
+  }
+}
+
 //function to chunk a string into pieces
 func Chunk(val string, by int) []string {
 
@@ -49,6 +55,7 @@ func BigNumConverter(num string) ([]int64, []int64) {
     case 1:
 
       chunked := Chunk(splitted[0], DigitSize)
+      reverseStringSlice(chunked)
       var put []int64
 
       for _, v := range chunked { //convert all numbers to a negative
@@ -74,6 +81,7 @@ func BigNumConverter(num string) ([]int64, []int64) {
     case 2:
 
       chunked_integer := Chunk(splitted[0], DigitSize)
+      reverseStringSlice(chunked_integer)
       var put_int []int64
 
       for _, v := range chunked_integer { //convert all numbers to a negative
@@ -96,6 +104,7 @@ func BigNumConverter(num string) ([]int64, []int64) {
       }
 
       chunked_decimal := Chunk(splitted[1], DigitSize)
+      reverseStringSlice(chunked_decimal)
       var put_dec []int64
 
       for _, v := range chunked_decimal { //convert all numbers to a negative

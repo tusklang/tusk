@@ -1,6 +1,5 @@
 package interpreter
 
-import "strings"
 import "strconv"
 import "math"
 
@@ -37,98 +36,101 @@ func num_normalize(num Action) string {
 
   */
 
-  //determine if the number is + or -
-  merged := append(num.Integer, num.Decimal...)
-  mergedLen := len(merged)
+  integer := num.Integer
+  decimal := num.Decimal
 
-  if mergedLen == 0 {
-    return "0"
+  //the first digit is actually the last index
+  //because omm numbers are stored as so [1234, 5678, 9101] = 910, 156, 781, 234
+
+  //remove leading zeros
+  for ;integer[len(integer) - 1] == 0 && len(integer) != 0; {
+    integer = integer[:len(integer) - 1]
   }
 
-  firstNonZeroDigitIndex := 0
-  firstNonZeroDigit := merged[firstNonZeroDigitIndex]
+  var isNeg bool = false
 
-  for ;firstNonZeroDigit == 0; {
-    firstNonZeroDigitIndex++
+  if len(integer) == 0 {
 
-    //if there are no "non-zero" digits, the final value is "0"
-    if firstNonZeroDigitIndex >= mergedLen {
+    if len(decimal) == 0 { //this means that there is no number
       return "0"
     }
 
-    firstNonZeroDigit = merged[firstNonZeroDigitIndex]
-  }
+    var decIndexCounter int
 
-  var isNegative bool = false
+    for decIndexCounter = len(decimal); len(decimal) == 0 && decimal[len(decimal) - 1] == 0; decimal = decimal[:len(decimal) - 1] {}
 
-  if firstNonZeroDigit < 0 {
-    isNegative = true
-  }
-
-  var isNegativeNum int64 = 1
-
-  if isNegative {
-    isNegativeNum = -1
-  }
-
-  var numStr string = ""
-  var carry int64
-
-  //do the decimal
-  deci := num.Decimal
-
-  for i := len(deci) - 1; i >= 0; i-- {
-    deci[i]+=carry
-    curNeg := deci[i] < 0
-    carry = 0
-
-    if curNeg != isNegative && deci[i] != 0 {
-      carry+=isNegativeNum
+    if len(decimal) == 0 {
+      return "0"
     }
 
-    numStr = strconv.Itoa(int(math.Abs(float64(deci[i])))) + numStr
-  }
-
-  numStr = "." + numStr
-
-  //do the integer
-  inte := num.Integer
-
-  for i := len(inte) - 1; i >= 0; i-- {
-    inte[i]+=carry
-    curNeg := inte[i] < 0
-    carry = 0
-
-    if curNeg != isNegative && inte[i] != 0 {
-      inte[i] = int64(MAX_DIGIT) + 1 - int64(math.Abs(float64(inte[i])))
-      carry+=isNegativeNum * isNegativeNum
+    if decimal[decIndexCounter - 1] < 0 {
+      isNeg = true
+    } else if integer[len(integer) - 1] < 0 {
+      isNeg = true
     }
 
-    numStr = strconv.Itoa(int(math.Abs(float64(inte[i])))) + numStr
+  } else if integer[len(integer) - 1] < 0 {
+    isNeg = true
   }
 
-  if isNegative {
-    numStr = "-" + numStr
+  var carry int64 = 0
+
+  for i := 0; i < len(decimal); i++ {
+    curIsNeg := decimal[i] < 0
+    decimal[0]+=carry
+
+    decimal[i] = int64(math.Abs(float64(decimal[i])))
+
+    if curIsNeg != isNeg && decimal[i] != 0 /* prevent zeros from being counted */ {
+      decimal[i] = MAX_DIGIT - decimal[i]
+
+      if isNeg {
+        carry = 1
+      } else {
+        carry = -1
+      }
+
+      continue
+    }
+    carry = 0
   }
 
-  //remove leading and trailing zeros
-  splitted := strings.Split(numStr, ".")
+  for i := 0; i < len(integer); i++ {
+    curIsNeg := integer[i] < 0
+    integer[0]+=carry
 
-  for ;splitted[0][0] == '0'; {
-    splitted[0] = splitted[0][1:]
-  }
-  for ;strings.HasSuffix(splitted[1], "0"); {
-    splitted[1] = splitted[1][:len(splitted[1]) - 1]
+    integer[i] = int64(math.Abs(float64(integer[i])))
+
+    if curIsNeg != isNeg && integer[i] != 0 /* prevent zeros from being counted */ {
+      integer[i] = MAX_DIGIT - integer[i]
+
+      if isNeg {
+        carry = 1
+      } else {
+        carry = -1
+      }
+
+      continue
+    }
+    carry = 0
   }
 
-  numStr = splitted[0] + "." + splitted[1]
+  var joined string = ""
 
-  if numStr[0] == '.' {
-    numStr = "0" + numStr
-  }
-  if numStr[len(numStr) - 1] == '.' {
-    numStr+="0"
+  if len(decimal) != 0 {
+    for _, v := range decimal {
+      joined = strconv.FormatInt(v, 10) + joined
+    }
+    joined = "." + joined
   }
 
-  return numStr
+  for _, v := range integer {
+    joined = strconv.FormatInt(v, 10) + joined
+  }
+
+  if isNeg {
+    joined = "-" + joined
+  }
+
+  return joined
 }

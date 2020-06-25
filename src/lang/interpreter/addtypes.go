@@ -34,7 +34,7 @@ func array__plus__array(num1, num2 Action, cli_params CliParams) Action {
   }
 }
 
-func addNums(num1, num2 Action, cli_params CliParams) Action {
+func number__plus__number(num1, num2 Action, cli_params CliParams) Action {
 
   int1 := num1.Integer
   int2 := num2.Integer
@@ -43,7 +43,7 @@ func addNums(num1, num2 Action, cli_params CliParams) Action {
 
   //ensure that the lengths of num1 are larger than the lengths of num2
   if len(int1) < len(int2) {
-    int1, int2 = int1, int2
+    int1, int2 = int2, int1
   }
   if len(dec1) < len(dec2) {
     dec1, dec2 = dec2, dec1
@@ -57,12 +57,13 @@ func addNums(num1, num2 Action, cli_params CliParams) Action {
 
   //do the decimal
   newDec := make([]int64, len(dec1))
+  dec1Len := len(dec1)
   dec2Len := len(dec2)
 
   var deci int
 
-  for deci = len(dec1) - 1; deci >= dec2Len; deci-- {
-    added := dec1[deci] + carry
+  for ;deci < dec2Len; deci++ {
+    added := dec1[deci] + dec2[deci] + carry
     carry = 0
 
     if added > MAX_DIGIT {
@@ -76,8 +77,8 @@ func addNums(num1, num2 Action, cli_params CliParams) Action {
 
     newDec[deci] = added
   }
-  for ;deci >= 0; deci-- {
-    added := dec1[deci] + dec1[deci] + carry
+  for ;deci < dec1Len; deci++ {
+    added := dec1[deci] + carry
     carry = 0
 
     if added > MAX_DIGIT {
@@ -94,11 +95,27 @@ func addNums(num1, num2 Action, cli_params CliParams) Action {
 
   //do the integer
   newInt := make([]int64, len(int1))
+  int1Len := len(int1)
   int2Len := len(int2)
 
   var inti int
 
-  for inti = len(int1) - 1; inti >= int2Len; inti-- {
+  for ;inti < int2Len; inti++ {
+    added := int1[inti] + int2[inti] + carry
+    carry = 0
+
+    if added > MAX_DIGIT {
+      carry = 1
+      added-=MAX_DIGIT
+    }
+    if added < MIN_DIGIT {
+      carry = -1
+      added-=MIN_DIGIT
+    }
+
+    newInt[inti] = added
+  }
+  for ;inti < int1Len; inti++ {
     added := int1[inti] + carry
     carry = 0
 
@@ -113,23 +130,8 @@ func addNums(num1, num2 Action, cli_params CliParams) Action {
 
     newInt[inti] = added
   }
-  for ;inti >= 0; inti-- {
-    added := int1[inti] + int1[inti] + carry
-    carry = 0
 
-    if added > MAX_DIGIT {
-      carry = 1
-      added-=MAX_DIGIT
-    }
-    if added < MIN_DIGIT {
-      carry = -1
-      added-=MIN_DIGIT
-    }
-
-    newInt[inti] = added
-  }
-
-  newInt = append([]int64{ carry }, newInt...) //prepend the final carry to the new integer
+  newInt = append(newInt, carry) //prepend the final carry to the new integer
 
   number := zero
   number.Integer = newInt
