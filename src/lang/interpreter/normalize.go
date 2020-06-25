@@ -43,7 +43,7 @@ func num_normalize(num Action) string {
   //because omm numbers are stored as so [1234, 5678, 9101] = 910, 156, 781, 234
 
   //remove leading zeros
-  for ;integer[len(integer) - 1] == 0 && len(integer) != 0; {
+  for ;len(integer) != 0 && integer[len(integer) - 1] == 0 && len(integer) != 0; {
     integer = integer[:len(integer) - 1]
   }
 
