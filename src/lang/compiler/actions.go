@@ -1429,7 +1429,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
       case "process":
 
         putFalsey := make(map[string][]Action)
-        putFalsey["falsey"] = []Action{ Action{ "falsey", "", "undef", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
 
         logic, params, procName := procCalc(&i, lex, len_lex, dir, name)
 
@@ -2298,8 +2297,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         var translated = make(map[string][]Action)
 
-        translated["falsey"] = []Action{ Action{ "falsey", "exp_value", "undef", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
-
         for _, v := range _translated {
 
           if len(v[0]) <= 0 {
@@ -2498,8 +2495,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         }
 
         hashedArr := make(map[string][]Action)
-
-        hashedArr["falsey"] = []Action{ Action{ "falsey", "exp_value", "undef", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
 
         cur := 0
 
@@ -2817,15 +2812,10 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
               noQ := val[1:len(val) - 1] //the string will be given like this: "hello", but omm needs to store them like this: hello
               hashedString := make(map[string][]Action)
 
-              //specify the value for the "falsey" case
-              hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", "undef", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
-
               cur := 0
 
               for _, v := range noQ {
                 hashedIndex := make(map[string][]Action)
-                hashedIndex["falsey"] = []Action{ Action{ "falsey", "exp_value", "undef", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
-
                 hashedString[strconv.Itoa(cur)] = []Action{ Action{ "rune", "exp_value", string(v), []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashedIndex, "public", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
                 cur++
               }
@@ -2835,18 +2825,12 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             case "rune":
               hashed := make(map[string][]Action)
 
-              //specify the value for the "falsey" case
-              hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", "undef", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
-
               noQ := val[1:len(val) - 1] //see noQ for string
 
               actions = append(actions, Action{ "rune", "exp_value", noQ, []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
             case "number":
 
               hashed := make(map[string][]Action)
-
-              //specify the value for the "falsey" case
-              hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", "undef", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
 
               integer, decimal := BigNumConverter(val)
 
@@ -2855,16 +2839,10 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
               hashed := make(map[string][]Action)
 
-              //specify the value for the "falsey" case
-              hashed["falsey"] = []Action{ Action{ "boolean", "exp_value", strconv.FormatBool(val != "true"), []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
-
               actions = append(actions, Action{ "boolean", "exp_value", val, []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
             case "falsey":
 
               hashed := make(map[string][]Action)
-
-              //specify the value for the "falsey" case
-              hashed["falsey"] = []Action{ Action{ "falsey", "exp_value", val, []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
 
               actions = append(actions, Action{ "falsey", "exp_value", val, []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, hashed, "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
             case "none":
@@ -2873,11 +2851,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
                 actions = append(actions, Action{ "variable", val, val, []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
               } else {
-
-                hashedString := make(map[string][]Action)
-
-                //specify the value for the "falsey" case
-                hashedString["falsey"] = []Action{ Action{ "falsey", "exp_value", "undef", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} } }
 
                 //get it? 42?
                 actions = append(actions, Action{ "none", "exp_value", val, []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })

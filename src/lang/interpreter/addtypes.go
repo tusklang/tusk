@@ -24,14 +24,22 @@ func array__plus__array(num1, num2 Action, cli_params CliParams) Action {
 
     var newHash = make(map[string][]Action)
 
-    for k := range num2.Hash_Values {
-      _ = k
+    for k, v := range num2.Hash_Values {
+      integer, decimal := BigNumConverter(k) //convert to integer and decimal
+      numAct := zero
+      numAct.Integer, numAct.Decimal = integer, decimal //set the integer and decimal
+      added := number__plus__number(numAct, one, cli_params)
+      newHash[cast(added, "string").ExpStr /* convert to string */ ] = v
     }
 
-    _ = newHash
+    newHash["0"] = []Action{ num1 }
 
-    return undef //for now return undef, later change to the real code
+    val := arr
+    val.Hash_Values = newHash
+
+    return val //for now return undef, later change to the real code
   }
+
 }
 
 func number__plus__number(num1, num2 Action, cli_params CliParams) Action {
