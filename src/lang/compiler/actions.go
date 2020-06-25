@@ -417,23 +417,23 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         }
 
         //get max index
-        var min = [2]interface{}{}
+        var max = [2]interface{}{}
 
         for k, v := range indexes {
           if v != -1 {
-            min = [2]interface{}{ k, v }
+            max = [2]interface{}{ k, v }
           }
         }
 
         for k, v := range indexes {
-          if (v != -1 && v > min[1].(int)) || min[1].(int) == -1 {
-            min = [2]interface{}{ k, v }
+          if (v != -1 && v < max[1].(int)) || max[1].(int) == -1 {
+            max = [2]interface{}{ k, v }
           }
         }
 
-        switch min[0].(string) {
+        switch max[0].(string) {
           case "|":
-            index := min[1].(int)
+            index := max[1].(int)
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
 
@@ -444,7 +444,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             exp = exp_
           case "&":
-            index := min[1].(int)
+            index := max[1].(int)
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
 
@@ -455,7 +455,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             exp = exp_
           case "!|":
-            index := min[1].(int)
+            index := max[1].(int)
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
 
@@ -466,7 +466,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             exp = exp_
           case "!&":
-            index := min[1].(int)
+            index := max[1].(int)
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
 
@@ -477,7 +477,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             exp = exp_
           case "$|":
-            index := min[1].(int)
+            index := max[1].(int)
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
 
@@ -488,7 +488,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             exp = exp_
           case "!$|":
-            index := min[1].(int)
+            index := max[1].(int)
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
 
@@ -514,23 +514,23 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         }
 
         //get max index
-        var min = [2]interface{}{}
+        var max = [2]interface{}{}
 
         for k, v := range indexes {
           if v != -1 {
-            min = [2]interface{}{ k, v }
+            max = [2]interface{}{ k, v }
           }
         }
 
         for k, v := range indexes {
-          if (v != -1 && v > min[1].(int)) || min[1].(int) == -1 {
-            min = [2]interface{}{ k, v }
+          if (v != -1 && v < max[1].(int)) || max[1].(int) == -1 {
+            max = [2]interface{}{ k, v }
           }
         }
 
-        switch min[0].(string) {
+        switch max[0].(string) {
           case "=":
-            index := min[1].(int)
+            index := max[1].(int)
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
 
@@ -541,7 +541,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             exp = exp_
           case "!=":
-            index := min[1].(int)
+            index := max[1].(int)
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
 
@@ -552,7 +552,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             exp = exp_
           case ">":
-            index := min[1].(int)
+            index := max[1].(int)
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
 
@@ -563,7 +563,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             exp = exp_
           case "<":
-            index := min[1].(int)
+            index := max[1].(int)
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
 
@@ -574,7 +574,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             exp = exp_
           case ">=":
-            index := min[1].(int)
+            index := max[1].(int)
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
 
@@ -585,7 +585,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             exp = exp_
           case "<=":
-            index := min[1].(int)
+            index := max[1].(int)
 
             num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
 
@@ -596,7 +596,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             exp = exp_
           case "~~":
-            index := min[1].(int)
+            index := max[1].(int)
 
             var degree_ []interface{}
             doDeg := false
@@ -661,7 +661,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
             exp = exp_
           case "~~~":
-            index := min[1].(int)
+            index := max[1].(int)
 
             var degree_ []interface{}
             doDeg := false
@@ -730,7 +730,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
       for ;interfaceContainOperations(exp, "+") || interfaceContainOperations(exp, "-"); {
 
-        if interfaceIndexOfOperations("+", exp) > interfaceIndexOfOperations("-", exp) || interfaceIndexOfOperations("-", exp) == -1 {
+        if interfaceIndexOfOperations("+", exp) < interfaceIndexOfOperations("-", exp) || interfaceIndexOfOperations("-", exp) == -1 {
           index := interfaceIndexOfOperations("+", exp)
 
           num1, num2, _num1, _num2 := calcExp(index, exp, dir, name)
@@ -765,21 +765,21 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         }
 
         //get max index
-        var min = [2]interface{}{}
+        var max = [2]interface{}{}
 
         for k, v := range indexes {
           if v != -1 {
-            min = [2]interface{}{ k, v }
+            max = [2]interface{}{ k, v }
           }
         }
 
         for k, v := range indexes {
-          if (v != -1 && v > min[1].(int)) || min[1].(int) == -1 {
-            min = [2]interface{}{ k, v }
+          if (v != -1 && v < max[1].(int)) || max[1].(int) == -1 {
+            max = [2]interface{}{ k, v }
           }
         }
 
-        switch min[0].(string) {
+        switch max[0].(string) {
           case "*":
             index := interfaceIndexOfOperations("*", exp)
 
@@ -2403,6 +2403,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         pCnt := 0
 
         for o := i; o < len_lex; o++ {
+
           if lex[o].Name == "{" {
             cbCnt++
           }
