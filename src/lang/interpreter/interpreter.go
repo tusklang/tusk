@@ -640,6 +640,21 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           }
         }
 
+      case "exponentiate":
+
+        first := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+        second := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+
+        val := exponentiate(first, second, cli_params)
+
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: val,
+            Type: "expression",
+          }
+        }
+
     }
 
   }

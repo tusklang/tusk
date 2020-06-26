@@ -292,12 +292,6 @@
     "type": "?operation_paren"
   },
   {
-    "name": "wait",
-    "remove": "wait",
-    "pattern": "(wait(\\s*)\\()",
-    "type": "id_non_tilde"
-  },
-  {
     "name": "@",
     "remove": "@",
     "pattern": "(@(\\s*)\\~)",
@@ -464,6 +458,12 @@
     "remove": "import",
     "pattern": "(import(\\s+))",
     "type": "id"
+  },
+  {
+    "name": "include",
+    "remove": "include",
+    "pattern": "(include(\\s+))",
+    "type": "id_non_tilde"
   },
   {
     "name": "include",

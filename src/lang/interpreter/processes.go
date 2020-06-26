@@ -45,7 +45,11 @@ func processParser(v Action, cli_params CliParams, vars *map[string]Variable, th
 
     //if it is a goproc
     if (*vars)[name].Type == "goproc" {
-      parsed = (*vars)[name].GoProc(v, cli_params, *vars, this_vals, dir)
+      parsed = Returner{
+        Type: "expression",
+        Variables: *vars,
+        Exp: (*vars)[name].GoProc(v.Args, cli_params, *vars, this_vals, dir),
+      }
     } else {
 
       variable := (*vars)[name].Value

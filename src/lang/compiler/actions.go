@@ -1486,32 +1486,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
           actions = append(actions, Action{ "pargc_number", "", "", actionized, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, ommNumCountInt, []int64{}, OmmThread{} })
         }
-      case "wait":
-
-        var exp []Lex
-        pCnt := 0
-
-        for o := i + 1; o < len_lex; o++ {
-          if lex[o].Name == "(" {
-            pCnt++
-            continue
-          }
-          if lex[o].Name == ")" {
-            pCnt--
-            continue
-          }
-
-          if pCnt == 0 {
-            break
-          }
-
-          exp = append(exp, lex[o])
-        }
-
-        actionized := Actionizer(exp, true, dir, name)
-
-        actions = append(actions, Action{ "wait", "", "", actionized, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
-        i++
       case "#":
 
         params_, putIndexes, subcaller, name := callCalc(&i, lex, len_lex, dir, name)
