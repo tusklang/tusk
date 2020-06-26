@@ -1,5 +1,6 @@
 package interpreter
 
+import "strings"
 import "strconv"
 import "math"
 
@@ -42,34 +43,7 @@ func num_normalize(num Action) string {
   //the first digit is actually the last index
   //because omm numbers are stored as so [1234, 5678, 9101] = 910, 156, 781, 234
 
-  //remove leading zeros
-  for ;len(integer) != 0 && integer[len(integer) - 1] == 0 && len(integer) != 0; {
-    integer = integer[:len(integer) - 1]
-  }
-
-  var isNeg bool = false
-
-  if len(integer) == 0 {
-
-    if len(decimal) == 0 { //this means that there is no number
-      return "0"
-    }
-
-    var decIndexCounter int
-
-    for decIndexCounter = len(decimal); len(decimal) == 0 && decimal[len(decimal) - 1] == 0; decimal = decimal[:len(decimal) - 1] {}
-
-    if len(decimal) == 0 {
-      return "0"
-    }
-
-    if decimal[decIndexCounter - 1] < 0 {
-      isNeg = true
-    }
-
-  } else if integer[len(integer) - 1] < 0 {
-    isNeg = true
-  }
+  var isNeg bool = isLess(num, neg_one)
 
   var carry int64 = 0
 
@@ -124,6 +98,33 @@ func num_normalize(num Action) string {
 
   for _, v := range integer {
     joined = strconv.FormatInt(v, 10) + joined
+  }
+
+  if joined[0] == '.' {
+    joined = "0" + joined
+  }
+  if joined[len(joined) - 1] == '.' {
+    joined+="0"
+  }
+
+  if !strings.ContainsRune(joined, '.') {
+    joined+=".0"
+  }
+
+  splitted := strings.Split(joined, ".")
+
+  for ;len(splitted[0]) != 0 && splitted[0][0] == '0'; {
+    splitted[0] = splitted[0][1:]
+  }
+  for ;len(splitted[1]) != 0 && splitted[1][len(splitted[1]) - 1] == '0'; {
+    splitted[1] = splitted[1][:len(splitted[1]) - 1]
+  }
+
+  if joined[0] == '.' {
+    joined = "0" + joined
+  }
+  if joined[len(joined) - 1] == '.' {
+    joined+="0"
   }
 
   if isNeg {

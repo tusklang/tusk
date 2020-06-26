@@ -76,11 +76,11 @@ func number__plus__number(num1, num2 Action, cli_params CliParams) Action {
 
     if added > MAX_DIGIT {
       carry = 1
-      added-=MAX_DIGIT
+      added-=MAX_DIGIT + 1
     }
     if added < MIN_DIGIT {
       carry = -1
-      added-=MIN_DIGIT
+      added-=MIN_DIGIT - 1
     }
 
     newDec[deci] = added
@@ -91,11 +91,11 @@ func number__plus__number(num1, num2 Action, cli_params CliParams) Action {
 
     if added > MAX_DIGIT {
       carry = 1
-      added-=MAX_DIGIT
+      added-=MAX_DIGIT + 1
     }
     if added < MIN_DIGIT {
       carry = -1
-      added-=MIN_DIGIT
+      added-=MIN_DIGIT - 1
     }
 
     newDec[deci] = added
@@ -114,11 +114,11 @@ func number__plus__number(num1, num2 Action, cli_params CliParams) Action {
 
     if added > MAX_DIGIT {
       carry = 1
-      added-=MAX_DIGIT
+      added-=MAX_DIGIT + 1
     }
     if added < MIN_DIGIT {
       carry = -1
-      added-=MIN_DIGIT
+      added-=MIN_DIGIT - 1
     }
 
     newInt[inti] = added
@@ -129,17 +129,19 @@ func number__plus__number(num1, num2 Action, cli_params CliParams) Action {
 
     if added > MAX_DIGIT {
       carry = 1
-      added-=MAX_DIGIT
+      added-=MAX_DIGIT + 1
     }
     if added < MIN_DIGIT {
       carry = -1
-      added-=MIN_DIGIT
+      added-=MIN_DIGIT - 1
     }
 
     newInt[inti] = added
   }
 
-  newInt = append(newInt, carry) //prepend the final carry to the new integer
+  if carry != 0 {
+    newInt = append(newInt, carry) //append the final carry to the new integer
+  }
 
   number := zero
   number.Integer = newInt

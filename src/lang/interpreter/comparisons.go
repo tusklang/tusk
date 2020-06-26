@@ -1,106 +1,76 @@
 package interpreter
 
+import "math/big"
+
 func isTruthy(val Action) bool {
   return !(val.ExpStr == "false" || val.Type == "falsey")
 }
 
+func toBig(val1, val2 Action) (*big.Int, *big.Int, *big.Int, *big.Int) {
+  int1, dec1 := val1.Integer, val1.Decimal
+  int2, dec2 := val2.Integer, val2.Decimal
+
+  //convert the numbers (integers/decimals) to bigints
+  numConv := func(slice []int64) *big.Int {
+    bigVal := big.NewInt(0)
+    places := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(len(slice) - 1)), nil)
+
+    for i := len(slice) - 1; i >= 0; i-- {
+      bigVal = bigVal.Add(bigVal, new(big.Int).Mul(places, big.NewInt(slice[i])))
+      places.Div(places, big.NewInt(10)) //divide the place by 10
+    }
+
+    return bigVal
+  }
+
+  var (
+    bigInt1 = numConv(int1)
+    bigInt2 = numConv(int2)
+    bigDec1 = numConv(dec1)
+    bigDec2 = numConv(dec2)
+  )
+
+  return bigInt1, bigInt2, bigDec1, bigDec2
+}
+
 func isLess(val1, val2 Action) bool {
 
-  //loop through the integer and decimal
-  //if it is less, val1 is less, if it is greater, val1 is greater
+  bigint1, bigint2, bigdec1, bigdec2 := toBig(val1, val2)
 
-  //if a swap happened (for the integer and the decimal)
-  var swappedInt bool = false
-  var swappedDec bool = false
-
-  //ensure that the values of val1 are greater than the values of val2
-  if len(val1.Integer) < len(val2.Integer) {
-    swappedInt = true
-    val1.Integer, val2.Integer = val2.Integer, val1.Integer
-  }
-  if len(val1.Decimal) < len(val2.Decimal) {
-    swappedDec = true
-    val1.Decimal, val2.Decimal = val2.Decimal, val1.Decimal
+  if bigint1.Cmp(bigint2) != 0 {
+    return bigint1.Cmp(bigint2) == -1
   }
 
-  //do the integer
-  var intI int
-
-  for intI = len(val1.Integer) - 1; intI >= len(val2.Integer); intI-- {
-    if val1.Integer[intI] < 0 {
-      return !swappedInt
-    } else if val1.Integer[intI] > 0 {
-      return swappedInt
-    }
-  }
-  for ;intI >= 0; intI-- {
-    if val1.Integer[intI] < val2.Integer[intI] {
-      return !swappedInt
-    } else if val1.Integer[intI] > val2.Integer[intI] {
-      return swappedInt
-    }
-  }
-
-  //do the decimal
-  var decI int
-
-  for decI = len(val1.Decimal) - 1; decI >= len(val2.Decimal); decI-- {
-    if val1.Decimal[decI] < 0 {
-      return !swappedDec
-    } else if val1.Decimal[decI] > 0 {
-      return swappedDec
-    }
-  }
-  for ;decI >= 0; decI-- {
-    if val1.Decimal[decI] < val2.Decimal[decI] {
-      return !swappedDec
-    } else if val1.Decimal[decI] > val2.Decimal[decI] {
-      return swappedDec
-    }
-  }
-
-  return false //if nothing passed, return false
+  return bigdec1.Cmp(bigdec2) == -1
 }
 
 func isEqual(val1, val2 Action) bool {
 
-  //loop through the integer and decimal, and if the current value of val1 is not equal to current value of val1, it is not equal
+  bigint1, bigint2, bigdec1, bigdec2 := toBig(val1, val2)
 
-  //ensure that the values of val1 are greater than the values of val2
-  if len(val1.Integer) < len(val2.Integer) {
-    val1.Integer, val2.Integer = val2.Integer, val1.Integer
-  }
-  if len(val1.Decimal) < len(val2.Decimal) {
-    val1.Decimal, val2.Decimal = val2.Decimal, val1.Decimal
+  if bigint1.Cmp(bigint2) != 0 {
+    return false
   }
 
-  //do the integer
-  var intI int
+  return bigdec1.Cmp(bigdec2) == 0
+}
 
-  for intI = 0; intI < len(val2.Integer); intI++ {
-    if val1.Integer[intI] != val2.Integer[intI] {
-      return false
-    }
-  }
-  for ;intI < len(val1.Integer); intI++ {
-    if val1.Integer[intI] != 0 {
-      return false
-    }
+func isLessOrEqual(val1, val2 Action) bool {
+
+  bigint1, bigint2, bigdec1, bigdec2 := toBig(val1, val2)
+
+  if bigint1.Cmp(bigint2) != 0 {
+    return bigint1.Cmp(bigint2) == -1
   }
 
-  //do the decimal
-  var decI int
+  return bigdec1.Cmp(bigdec2) <= 0
+}
 
-  for decI = 0; decI < len(val2.Decimal); decI++ {
-    if val1.Decimal[decI] != val2.Decimal[decI] {
-      return false
-    }
-  }
-  for ;decI < len(val1.Decimal); decI++ {
-    if val1.Decimal[decI] != 0 {
-      return false
-    }
+func abs(val Action, cli_params CliParams) Action {
+
+  if isLess(val, zero) {
+    return number__times__number(val, neg_one, cli_params)
   }
 
-  return true //if it passed all tests, return true
+  return val
 }

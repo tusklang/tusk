@@ -21,7 +21,7 @@ import "mangomm/cli/wipe"
 
 func defaults(cli_params *map[string]map[string]interface{}, name string) {
 
-  (*cli_params)["Calc"]["PREC"] = 10
+  (*cli_params)["Calc"]["PREC"] = 50
 
   if strings.LastIndex(name, ".") == -1 {
     (*cli_params)["Calc"]["O"] = name + ".oat"
