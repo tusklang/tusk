@@ -6,28 +6,28 @@ func isTruthy(val Action) bool {
   return !(val.ExpStr == "false" || val.Type == "falsey")
 }
 
+//convert the numbers (integers/decimals) to bigints
+func sliceToBig(slice []int64) *big.Int {
+  bigVal := big.NewInt(0)
+  places := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(len(slice) - 1)), nil)
+
+  for i := len(slice) - 1; i >= 0; i-- {
+    bigVal = bigVal.Add(bigVal, new(big.Int).Mul(places, big.NewInt(slice[i])))
+    places.Div(places, big.NewInt(10)) //divide the place by 10
+  }
+
+  return bigVal
+}
+
 func toBig(val1, val2 Action) (*big.Int, *big.Int, *big.Int, *big.Int) {
   int1, dec1 := val1.Integer, val1.Decimal
   int2, dec2 := val2.Integer, val2.Decimal
 
-  //convert the numbers (integers/decimals) to bigints
-  numConv := func(slice []int64) *big.Int {
-    bigVal := big.NewInt(0)
-    places := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(len(slice) - 1)), nil)
-
-    for i := len(slice) - 1; i >= 0; i-- {
-      bigVal = bigVal.Add(bigVal, new(big.Int).Mul(places, big.NewInt(slice[i])))
-      places.Div(places, big.NewInt(10)) //divide the place by 10
-    }
-
-    return bigVal
-  }
-
   var (
-    bigInt1 = numConv(int1)
-    bigInt2 = numConv(int2)
-    bigDec1 = numConv(dec1)
-    bigDec2 = numConv(dec2)
+    bigInt1 = sliceToBig(int1)
+    bigInt2 = sliceToBig(int2)
+    bigDec1 = sliceToBig(dec1)
+    bigDec2 = sliceToBig(dec2)
   )
 
   return bigInt1, bigInt2, bigDec1, bigDec2
