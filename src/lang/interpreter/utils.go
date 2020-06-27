@@ -13,3 +13,14 @@ var emptyString = Action{ "string", "exp_value", "", []Action{}, []string{}, [][
 var emptyRune = Action{ "rune", "exp_value", "", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} }
 var thread = Action{ "thread", "", "", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} }
 //////////////////////////////
+
+//ensure that the decimal doesnt grow too much
+func ensurePrec(num1, num2 *Action, cli_params CliParams) {
+
+  if len((*num1).Decimal) > cli_params["Calc"]["PREC"].(int) {
+    (*num1).Decimal = (*num1).Decimal[len((*num1).Decimal) - cli_params["Calc"]["PREC"].(int):]
+  }
+  if len((*num2).Decimal) > cli_params["Calc"]["PREC"].(int) {
+    (*num2).Decimal = (*num2).Decimal[len((*num2).Decimal) - cli_params["Calc"]["PREC"].(int):]
+  }
+}

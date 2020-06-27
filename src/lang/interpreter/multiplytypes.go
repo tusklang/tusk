@@ -4,6 +4,9 @@ import "strconv"
 import "strings"
 
 func number__times__number(num1, num2 Action, cli_params CliParams) Action {
+  ensurePrec(&num1, &num2, cli_params)
+
+  //maybe switch to karatsuba later?
 
   var multFin [][]int64 //store the final values that were multiplied
   trailingZeroCount := 0
@@ -30,17 +33,18 @@ func number__times__number(num1, num2 Action, cli_params CliParams) Action {
     }
 
     for _, sv := range num2n {
+
       var product int64 = v * sv + carry
       carry = 0 //reverrt carry after it was factored in
 
-      if product >= MAX_DIGIT {
+      if product > MAX_DIGIT {
         var rounded int64 = product / (MAX_DIGIT + 1) * (MAX_DIGIT + 1) //round down by `MAX_DIGIT`
-        carry = product / MAX_DIGIT //divide by the max digit to get the carry
+        carry = product / (MAX_DIGIT + 1) //divide by the max digit to get the carry
         product-=rounded
       }
-      if product <= MIN_DIGIT {
+      if product < MIN_DIGIT {
         var rounded int64 = ((product + (MIN_DIGIT - 1) - 1) / (MIN_DIGIT - 1)) * (MIN_DIGIT - 1) //round up by `MIN_DIGIT`
-        carry = product / MAX_DIGIT //divide by the max digit to get the carry
+        carry = product / (MAX_DIGIT + 1) //divide by the max digit to get the carry
         product-=rounded
       }
 

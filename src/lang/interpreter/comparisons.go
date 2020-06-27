@@ -7,7 +7,7 @@ func isTruthy(val Action) bool {
 }
 
 //convert the numbers (integers/decimals) to bigints
-func sliceToBig(slice []int64) *big.Int {
+func sliceToBigInt(slice []int64) *big.Int {
   bigVal := big.NewInt(0)
   places := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(len(slice) - 1)), nil)
 
@@ -24,10 +24,10 @@ func toBig(val1, val2 Action) (*big.Int, *big.Int, *big.Int, *big.Int) {
   int2, dec2 := val2.Integer, val2.Decimal
 
   var (
-    bigInt1 = sliceToBig(int1)
-    bigInt2 = sliceToBig(int2)
-    bigDec1 = sliceToBig(dec1)
-    bigDec2 = sliceToBig(dec2)
+    bigInt1 = sliceToBigInt(int1)
+    bigInt2 = sliceToBigInt(int2)
+    bigDec1 = sliceToBigInt(dec1)
+    bigDec2 = sliceToBigInt(dec2)
   )
 
   return bigInt1, bigInt2, bigDec1, bigDec2

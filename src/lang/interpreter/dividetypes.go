@@ -1,6 +1,7 @@
 package interpreter
 
 func number__divide__number(num1, num2 Action, cli_params CliParams) Action {
+  ensurePrec(&num1, &num2, cli_params)
 
   //maybe in a future version switch to the algorithm python uses
   //https://github.com/python/cpython/blob/8bd216dfede9cb2d5bedb67f20a30c99844dbfb8/Objects/longobject.c#L2610
@@ -16,10 +17,10 @@ func number__divide__number(num1, num2 Action, cli_params CliParams) Action {
     return zero
   }
 
-  decPlaces := len(num1.Integer) + len(num1.Decimal)
+  decPlaces := len(num1.Integer) + len(num2.Decimal)
   num1n := append(num1.Decimal, num1.Integer...)
 
-  for i := 0; i < cli_params["Calc"]["PREC"].(int); i++ {
+  for i := len(num1n); i < cli_params["Calc"]["PREC"].(int); i++ {
     num1n = append([]int64{ 0 }, num1n...)
   }
 

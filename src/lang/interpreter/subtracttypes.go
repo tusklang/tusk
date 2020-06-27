@@ -1,6 +1,7 @@
 package interpreter
 
 func number__minus__number(num1, num2 Action, cli_params CliParams) Action {
+  ensurePrec(&num1, &num2, cli_params)
 
   //looks like this
   // a - b = a + -b

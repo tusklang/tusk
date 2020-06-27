@@ -4,6 +4,7 @@ import "strconv"
 
 //string + (* - array - hash) = string
 func string__plus__all_not_array_not_hash(num1, num2 Action, cli_params CliParams) Action {
+  ensurePrec(&num1, &num2, cli_params)
 
   num1C := cast(num1, "string")
   num2C := cast(num2, "string")
@@ -68,10 +69,11 @@ func number__plus__number(num1, num2 Action, cli_params CliParams) Action {
   dec1Len := len(dec1)
   dec2Len := len(dec2)
 
-  var deci int
+  var deci1 int
+  var deci2 int
 
-  for ;deci < dec2Len; deci++ {
-    added := dec1[deci] + dec2[deci] + carry
+  for ;deci1 < dec1Len - dec2Len; deci1++ {
+    added := dec1[deci1] + carry
     carry = 0
 
     if added > MAX_DIGIT {
@@ -83,10 +85,10 @@ func number__plus__number(num1, num2 Action, cli_params CliParams) Action {
       added-=MIN_DIGIT - 1
     }
 
-    newDec[deci] = added
+    newDec[deci1] = added
   }
-  for ;deci < dec1Len; deci++ {
-    added := dec1[deci] + carry
+  for ;deci1 < dec1Len; deci1, deci2 = deci1 + 1, deci2 + 1 {
+    added := dec1[deci1] + dec2[deci2] + carry
     carry = 0
 
     if added > MAX_DIGIT {
@@ -98,7 +100,7 @@ func number__plus__number(num1, num2 Action, cli_params CliParams) Action {
       added-=MIN_DIGIT - 1
     }
 
-    newDec[deci] = added
+    newDec[deci1] = added
   }
 
   //do the integer

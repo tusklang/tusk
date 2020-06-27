@@ -14,7 +14,7 @@ func exponentiate(num1, num2 Action, cli_params CliParams) Action {
   var final Action
 
   if type1 == "number" && type2 == "number" {
-    final = number__times__number(num1, num2, cli_params) //for now
+    final = number__pow__number(num1, num2, cli_params)
   } else {
     final = undef
   }
