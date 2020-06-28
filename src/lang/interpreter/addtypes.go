@@ -4,7 +4,6 @@ import "strconv"
 
 //string + (* - array - hash) = string
 func string__plus__all_not_array_not_hash(num1, num2 Action, cli_params CliParams) Action {
-  ensurePrec(&num1, &num2, cli_params)
 
   num1C := cast(num1, "string")
   num2C := cast(num2, "string")
@@ -44,6 +43,7 @@ func array__plus__all(num1, num2 Action, cli_params CliParams) Action {
 }
 
 func number__plus__number(num1, num2 Action, cli_params CliParams) Action {
+  ensurePrec(&num1, &num2, cli_params)
 
   int1 := num1.Integer
   int2 := num2.Integer

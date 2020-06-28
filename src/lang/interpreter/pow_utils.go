@@ -52,22 +52,26 @@ func ln(x Action, cli_params CliParams) Action {
   ommNumberPrec := zero
   ommNumberPrec.Integer, ommNumberPrec.Decimal = BigNumConverter(strconv.Itoa(cli_params["Calc"]["PREC"].(int)))
 
-  for i := one; isLess(i, ommNumberPrec); i = number__plus__number(i, one, cli_params) { //make async later probably
+  for i := one; isLess(i, ommNumberPrec); i = number__plus__number(i, one, cli_params) {
 
     iplaceholder := zero //i will get mutated
     iplaceholder.Integer, iplaceholder.Decimal = append([]int64{}, i.Integer...), append([]int64{}, i.Decimal...)
 
     //calculate 1/i
     onedi := number__divide__number(one, iplaceholder, cli_params)
+    ensurePrec(&onedi, &Action{}, cli_params)
 
     //calculate xm1dx ^ i
     xm1dxpi := number__pow__integer(xm1dx, i, cli_params)
+    ensurePrec(&xm1dxpi, &Action{}, cli_params)
 
     //calculate onedi * xm1dxpi
     onedi__mul__xm1dxpi := number__times__number(onedi, xm1dxpi, cli_params)
+    ensurePrec(&onedi__mul__xm1dxpi, &Action{}, cli_params)
 
     //add to the series
     series = number__plus__number(series, onedi__mul__xm1dxpi, cli_params)
+    ensurePrec(&series, &Action{}, cli_params)
   }
 
   return series
@@ -104,7 +108,7 @@ func exp(x Action, cli_params CliParams) Action {
   ommNumberPrec := zero
   ommNumberPrec.Integer, ommNumberPrec.Decimal = BigNumConverter(strconv.Itoa(cli_params["Calc"]["PREC"].(int)))
 
-  for i := one; isLess(i, ommNumberPrec); i = number__plus__number(i, one, cli_params) { //make async later probably
+  for i := one; isLess(i, ommNumberPrec); i = number__plus__number(i, one, cli_params) {
     //calculate i!
     i_factorial := fac(i, cli_params)
 
