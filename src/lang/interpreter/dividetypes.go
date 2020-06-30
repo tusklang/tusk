@@ -4,10 +4,8 @@ func number__divide__number(num1, num2 Action, cli_params CliParams) Action {
   ensurePrec(&num1, &num2, cli_params)
 
   //maybe in a future version switch to the algorithm python uses
-  //https://github.com/python/cpython/blob/8bd216dfede9cb2d5bedb67f20a30c99844dbfb8/Objects/longobject.c#L2610
-  //because it is faster
-  //also look into this:
-  //http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.47.565&rep=rep1&type=pdf
+  //knuth division
+  //https://skanthak.homepage.t-online.de/division.html
 
   //num2 is the divisor
   //num1 is the dividend

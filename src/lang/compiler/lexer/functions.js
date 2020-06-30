@@ -30,14 +30,12 @@ module.exports.init = file => {
 
 module.exports.hash_inserter = lex => {
 
-  var cprocs = keywords.filter(k => k.type == 'cproc').map(k => k.name); //get the cprocs
-
   for (let i = 0; i < lex.length; i++) {
 
     if (lex[i].Name.startsWith('$')) {
 
-      //make sure it is not a process name, thread caller, or sync caller
-      if (lex[i - 2] && (lex[i - 2].Name == 'process' || lex[i - 2].Name == '@' || lex[i - 2].Name == '#')) continue;
+      //make sure it is not a function name, thread caller, or sync caller
+      if (lex[i - 2] && (lex[i - 2].Name == 'function' || lex[i - 2].Name == '@' || lex[i - 2].Name == '#')) continue;
 
       var insert_hash = false;
 

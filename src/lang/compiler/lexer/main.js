@@ -10,7 +10,7 @@ global.errors = [];
 
 const
   testkey = require('./testkey'), //file to test each keyword
-  processes = require('./processes'), //file with process utils
+  functions = require('./functions'), //file with functions utils
   include_parser = require('./includes'), //file that will include omm files within other omm files
   indexes = require('./indexes'), //file to allow user to write :: instead of .['name']
   id_init = require('./id_init'), //file to add ~ after every id
@@ -20,7 +20,7 @@ global.KEYWORDS = require('./keywords.json');
 global.MAX_CUR_EXP = 12;
 global.lexer = (file, dir) => {
 
-  file = processes.init(file); //add the ~ after the # and @
+  file = functions.init(file); //add the ~ after the # and @
 
   //current expression
   var curExp = ''
@@ -250,6 +250,6 @@ console.log(
   JSON.stringify({
     WARNS: warnings,
     ERRORS: errors,
-    LEX: processes.hash_inserter(lexer(f, dir + name))
+    LEX: functions.hash_inserter(lexer(f, dir + name))
   }, null, 2)
 );

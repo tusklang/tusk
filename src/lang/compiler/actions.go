@@ -237,8 +237,8 @@ func callCalcParams(i *int, lex []Lex, len_lex int, dir, filename string) ([][]A
     (*i)+=skip_nums
 
     //detect a subcaller
-    //subcaller means test_proc()() //<-- the last () is the subcaller
-    //a subcaller can also be test_proc().[0] //<-- the .[0] is a subcaller
+    //subcaller means test_fn()() //<-- the last () is the subcaller
+    //a subcaller can also be test_fn().[0] //<-- the .[0] is a subcaller
     if *i < len_lex {
 
       if lex[*i].Name == "(" || lex[*i].Name == "." {
@@ -266,14 +266,14 @@ func callCalc(i *int, lex []Lex, len_lex int, dir, filename string) ([][]Action,
   return params_, putIndexes, subcaller, name
 }
 
-func procCalc(i *int, lex []Lex, len_lex int, dir, name string) ([]Action, []string, string) {
+func fnCalc(i *int, lex []Lex, len_lex int, dir, name string) ([]Action, []string, string) {
 
   var params []string
-  var procName string
+  var fnName string
   var logic []Action
 
   if lex[(*i) + 1].Name == "~" {
-    procName = lex[*i + 2].Name
+    fnName = lex[*i + 2].Name
 
     for o := (*i) + 4; o < len_lex; o++ {
       if lex[o].Name == ")" {
@@ -314,7 +314,7 @@ func procCalc(i *int, lex []Lex, len_lex int, dir, name string) ([]Action, []str
     logic = Actionizer(logic_, false, dir, name)
   } else {
     params = []string{}
-    procName = ""
+    fnName = ""
 
     for o := (*i) + 2; o < len_lex; o+=2 {
       if lex[o].Name == ")" {
@@ -350,7 +350,7 @@ func procCalc(i *int, lex []Lex, len_lex int, dir, name string) ([]Action, []str
     logic = Actionizer(logic_, false, dir, name)
   }
 
-  return logic, params, procName
+  return logic, params, fnName
 }
 
 //export Actionizer
@@ -888,14 +888,14 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         exp = exp_
       }
 
-      var proc_indexes []int
+      var fn_indexes []int
 
-      for ;interfaceContainWithProcIndex(exp, "(", proc_indexes); {
+      for ;interfaceContainWithProcIndex(exp, "(", fn_indexes); {
 
-        index := interfaceIndexOfWithProcIndex("(", exp, proc_indexes)
+        index := interfaceIndexOfWithProcIndex("(", exp, fn_indexes)
 
         if index - 1 != -1 && (reflect.TypeOf(exp[index - 1]).String() != "compiler.Lex" || ((strings.HasPrefix(exp[index - 1].(Lex).Name, "$") || exp[index - 1].(Lex).Name == "]")))  {
-          proc_indexes = append(proc_indexes, index)
+          fn_indexes = append(fn_indexes, index)
           continue
         }
 
@@ -1371,14 +1371,14 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         actions = append(actions, Action{ "group", "", "", exp, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
         i+=(len(exp_) + 1)
-      case "process":
+      case "function":
 
         putFalsey := make(map[string][]Action)
 
-        logic, params, procName := procCalc(&i, lex, len_lex, dir, name)
+        logic, params, fnName := fnCalc(&i, lex, len_lex, dir, name)
 
-        actions = append(actions, Action{ "process", procName, "", logic, params, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
-      case "pargc":
+        actions = append(actions, Action{ "function", fnName, "", logic, params, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
+      case "fargc":
 
         i+=2
         count := lex[i].Name
@@ -1388,17 +1388,17 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         //they are just as follows
         /*
 
-        pargc ~ (string, number, ...whatever datatypes) {
+        fargc ~ (string, number, ...whatever datatypes) {
 
         }
 
         */
-        //used to properly overload processes
+        //used to properly overload functions
         if getType(count) != "number" && count != "(" {
 
           //throw an error
           colorprint("Error while actionizing in " + lex[i].Dir + "!\n", 12)
-          fmt.Println("Expected either a numeric value or a parameter list after pargc but instead got", count, "which is of type", getType(count), "\n\nError occured on line", lex[i].Line, "\nFound near:", strings.TrimSpace(lex[i].Exp))
+          fmt.Println("Expected either a numeric value or a parameter list after fargc but instead got", count, "which is of type", getType(count), "\n\nError occured on line", lex[i].Line, "\nFound near:", strings.TrimSpace(lex[i].Exp))
 
           //exit the process
           os.Exit(1)
@@ -1470,7 +1470,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         if count == "(" {
 
-          actions = append(actions, Action{ "pargc_paramlist", "", "", actionized, types, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
+          actions = append(actions, Action{ "fargc_paramlist", "", "", actionized, types, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
         } else {
 
           if getType(count) != "number" || strings.ContainsRune(count, '.') {
@@ -1484,7 +1484,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
           ommNumCountInt, _ := BigNumConverter(count) //convert to omm number
 
-          actions = append(actions, Action{ "pargc_number", "", "", actionized, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, ommNumCountInt, []int64{}, OmmThread{} })
+          actions = append(actions, Action{ "fargc_number", "", "", actionized, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, ommNumCountInt, []int64{}, OmmThread{} })
         }
       case "#":
 

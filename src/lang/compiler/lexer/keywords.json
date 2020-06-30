@@ -298,33 +298,33 @@
     "type": "caller"
   },
   {
-    "name": "pargc",
-    "remove": "pargc",
-    "pattern": "(pargc\\s+)",
+    "name": "fargc",
+    "remove": "fargc",
+    "pattern": "(fargc\\s+)",
     "type": "id"
   },
   {
-    "name": "pargc",
-    "remove": "pargc",
-    "pattern": "(pargc\\s*\\~)",
+    "name": "fargc",
+    "remove": "fargc",
+    "pattern": "(fargc\\s*\\~)",
     "type": "id_non_tilde"
   },
   {
-    "name": "process",
-    "remove": "proc",
-    "pattern": "(proc(\\s*)\\()",
+    "name": "function",
+    "remove": "fn",
+    "pattern": "(fn(\\s*)\\()",
     "type": "id_non_tilde"
   },
   {
-    "name": "process",
-    "remove": "proc",
-    "pattern": "(proc(\\s*)(~))",
+    "name": "function",
+    "remove": "fn",
+    "pattern": "(fn(\\s*)(~))",
     "type": "id_non_tilde"
   },
   {
-    "name": "process",
-    "remove": "proc",
-    "pattern": "(proc(\\s+))",
+    "name": "function",
+    "remove": "fn",
+    "pattern": "(fn(\\s+))",
     "type": "id"
   },
   {

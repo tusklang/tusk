@@ -30,7 +30,7 @@ func (ot OmmThread) WaitFor() Returner {
 
 var threads []OmmThread
 
-func processParser(v Action, cli_params CliParams, vars *map[string]Variable, this_vals []Action, dir string, isProc bool, callType string) Returner {
+func functionParser(v Action, cli_params CliParams, vars *map[string]Variable, this_vals []Action, dir string, isProc bool, callType string) Returner {
 
   name := v.Name
   var parsed Returner = Returner{
@@ -77,7 +77,7 @@ func processParser(v Action, cli_params CliParams, vars *map[string]Variable, th
         goto end
       }
 
-      if variable.Type != "process" {
+      if variable.Type != "function" {
         goto end
       }
 
@@ -85,13 +85,13 @@ func processParser(v Action, cli_params CliParams, vars *map[string]Variable, th
       arguments := v.Args
 
       //ensure that there are the same amount of params and args
-      if len(params) != len(arguments) && !func() bool {
+      if len(params) != len(arguments) && func() bool {
         for _, v := range params {
-          if strings.HasPrefix(v, "$pargv") {
-            return true
+          if strings.HasPrefix(v, "$fargc") {
+            return false
           }
         }
-        return false
+        return true
       }() {
         goto end
       }
@@ -99,21 +99,21 @@ func processParser(v Action, cli_params CliParams, vars *map[string]Variable, th
       sendVars := *vars
 
       for k, param_v := range params {
-        if strings.HasPrefix(param_v, "$pargv") {
-          varname := "$" + strings.TrimPrefix(param_v, "$pargv.")
+        if strings.HasPrefix(param_v, "$fargc") {
+          varname := "$" + strings.TrimPrefix(param_v, "$fargc.")
 
-          //convert the rest of the args into a pargv
-          var pargv = make(map[string][]Action)
+          //convert the rest of the args into a fargc
+          var fargc = make(map[string][]Action)
 
           for cur, o := 0, k; o < len(arguments); cur, o = cur + 1, o + 1 {
-            pargv[strconv.Itoa(cur)] = []Action{ interpreter(arguments[o], cli_params, *vars, true, this_vals, dir).Exp }
+            fargc[strconv.Itoa(cur)] = []Action{ interpreter(arguments[o], cli_params, *vars, true, this_vals, dir).Exp }
           }
 
           arg := arr
-          arg.Hash_Values = pargv
+          arg.Hash_Values = fargc
 
           sendVars[varname] = Variable{
-            Type: "pargv",
+            Type: "fargc",
             Name: varname,
             Value: arg,
           }
@@ -144,7 +144,7 @@ func processParser(v Action, cli_params CliParams, vars *map[string]Variable, th
           curVar.Indexes = sv.Indexes
           curVar.Args = sv.Args
 
-          parsed = processParser(curVar, cli_params, vars, this_vals, dir, sv.IsProc, "#")
+          parsed = functionParser(curVar, cli_params, vars, this_vals, dir, sv.IsProc, "#")
           goto end
         }
       } else if callType == "@" {

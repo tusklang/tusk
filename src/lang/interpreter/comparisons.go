@@ -50,7 +50,7 @@ func isLess(val1, val2 Action) bool {
     num2ZeroLeadingDec++
   }
 
-  if num1ZeroLeadingDec < num2ZeroLeadingDec {
+  if num1ZeroLeadingDec > num2ZeroLeadingDec {
     num1DecGreater = true
   }
   /////////////////////////////////////////
@@ -61,7 +61,7 @@ func isLess(val1, val2 Action) bool {
     return bigint1.Cmp(bigint2) == -1
   }
 
-  if num1DecGreater {
+  if num1DecGreater { //if num1 has more leading zeros, return true(because the decimal is less)
     return true
   }
 

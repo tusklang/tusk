@@ -174,13 +174,13 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
             Type: interpreted.Type,
           }
         }
-      case "process":
+      case "function":
 
         name := v.Name
 
         if name != "" {
           vars[name] = Variable{
-            Type: "process",
+            Type: "function",
             Name: name,
             Value: v,
           }
@@ -193,24 +193,24 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
             Type: "expression",
           }
         }
-      case "pargc_number":
-        var pargc uint64 = 0
+      case "fargc_number":
+        var fargc uint64 = 0
 
         //determine how many variables were passed as params
         for _, v := range vars {
           if v.Type == "argument" {
-            pargc++
+            fargc++
           } else if v.Type == "pargv" {
-            pargc+=uint64(len(interpreter([]Action{ v.Value }, cli_params, vars, true, this_vals, dir).Exp.Hash_Values))
+            fargc+=uint64(len(interpreter([]Action{ v.Value }, cli_params, vars, true, this_vals, dir).Exp.Hash_Values))
           }
         }
 
-        pargcOmmStr := emptyString
-        pargcOmmStr.ExpStr = strconv.FormatUint(pargc, 10)
+        fargcOmmStr := emptyString
+        fargcOmmStr.ExpStr = strconv.FormatUint(fargc, 10)
 
-        pargcOmmNum := cast(pargcOmmStr, "number")
+        fargcOmmNum := cast(fargcOmmStr, "number")
 
-        if isEqual(pargcOmmNum, v) { //if the given pargc is equal to the count
+        if isEqual(fargcOmmNum, v) { //if the given fargc is equal to the count
           interpreted := interpreter(v.ExpAct, cli_params, vars, false, this_vals, dir)
 
           for _, sv := range interpreted.Variables {
@@ -245,7 +245,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
         //do later
 
-      case "pargc_paramlist":
+      case "fargc_paramlist":
 
         var types []string
 
@@ -262,7 +262,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           }
         }
 
-        //if the given types are equal to the pargc list
+        //if the given types are equal to the fargc list
         if reflect.DeepEqual(types, v.Params) {
           interpreted := interpreter(v.ExpAct, cli_params, vars, false, this_vals, dir)
 
@@ -298,13 +298,13 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         }
 
       case "#":
-        procCall := processParser(v, cli_params, &vars, this_vals, dir, true, "#")
+        procCall := functionParser(v, cli_params, &vars, this_vals, dir, true, "#")
 
         if expReturn {
           return procCall
         }
       case "@":
-        procCall := processParser(v, cli_params, &vars, this_vals, dir, true, "@")
+        procCall := functionParser(v, cli_params, &vars, this_vals, dir, true, "@")
 
         if expReturn {
           return procCall
@@ -383,6 +383,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
             }
           }
         }
+        
       case "break":
         return Returner{
           Variables: vars,
@@ -654,6 +655,8 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
             Type: "expression",
           }
         }
+
+      case "less":
 
     }
 

@@ -1,1 +1,5 @@
-log -2 ^ .2
+fn a() {
+  return a
+}
+
+log a()
