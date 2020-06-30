@@ -22,7 +22,7 @@ func number__pow__integer(num1, num2 Action, cli_params CliParams) Action {
 
   res := number__pow__integer(num1, divved, cli_params)
 
-  two.Integer = []int64{ 2 }
+  two.Integer = []int64{ 2 } //because it gets mutated
 
   resSquared := number__times__number(res, res, cli_params)
 
@@ -37,43 +37,38 @@ func ln(x Action, cli_params CliParams) Action {
   ensurePrec(&x, &Action{}, cli_params)
 
   //using taylor series expansion to calculate
-  //taylor looks like:
-  //  ln(x) = (1/1 * ((x - 1) / x)) + (1/2 * ((x - 2) / x)) ...
-  //the series is 0 < x <= prec - 1
+  //found here https://www.efunda.com/math/taylor_series/logarithmic.cfm
+  //algorithm 2
 
-  var onePlaceholder = zero //temp value for one (because one wil get mutated if it is passed directly)
-  onePlaceholder.Integer = []int64{ 1 }
+  var series = zero
 
-  //calculate (x - 1) / x
-  xm1dx := number__divide__number(number__minus__number(x, onePlaceholder, cli_params), x, cli_params)
+  var two = zero
+  two.Integer = []int64{ 2, 0 }
 
-  var series Action = zero
+  //calculate (x - 1) / (x + 1)
+  xm1dxp1 := number__divide__number(number__minus__number(x, one, cli_params), number__plus__number(x, one, cli_params), cli_params)
 
+  //convert precision to omm number
   ommNumberPrec := zero
   ommNumberPrec.Integer, ommNumberPrec.Decimal = BigNumConverter(strconv.Itoa(cli_params["Calc"]["PREC"].(int)))
 
-  for i := one; isLess(i, ommNumberPrec); i = number__plus__number(i, one, cli_params) {
-
-    iplaceholder := zero //i will get mutated
-    iplaceholder.Integer, iplaceholder.Decimal = append([]int64{}, i.Integer...), append([]int64{}, i.Decimal...)
+  //calculate taylor series to prec
+  for i := one; isLess(i, ommNumberPrec); i = number__plus__number(i, two, cli_params) {
 
     //calculate 1/i
-    onedi := number__divide__number(one, iplaceholder, cli_params)
-    ensurePrec(&onedi, &Action{}, cli_params)
+    onedi := number__divide__number(one, i, cli_params)
 
-    //calculate xm1dx ^ i
-    xm1dxpi := number__pow__integer(xm1dx, i, cli_params)
-    ensurePrec(&xm1dxpi, &Action{}, cli_params)
+    //calculate xm1dxp1 ^ i
+    xm1dxp1pi := number__pow__integer(xm1dxp1, i, cli_params)
 
-    //calculate onedi * xm1dxpi
-    onedi__mul__xm1dxpi := number__times__number(onedi, xm1dxpi, cli_params)
-    ensurePrec(&onedi__mul__xm1dxpi, &Action{}, cli_params)
+    //calculate onedi * xm1dxp1pi
+    oneditxm1dxp1pi := number__times__number(onedi, xm1dxp1pi, cli_params)
 
     //add to the series
-    series = number__plus__number(series, onedi__mul__xm1dxpi, cli_params)
-    ensurePrec(&series, &Action{}, cli_params)
+    series = number__plus__number(series, oneditxm1dxp1pi, cli_params)
   }
 
+  series = number__times__number(series, two, cli_params)
   return series
 }
 
@@ -96,9 +91,8 @@ func exp(x Action, cli_params CliParams) Action {
   ensurePrec(&x, &Action{}, cli_params)
 
   //using taylor series expansion to calculate
-  //taylor looks like:
-  //  e^x = 1 + (x ^ 1 / 1!) + (x ^ 2 / 2!) ...
-  //the series is 0 < x <= prec - 1
+  //found here https://www.efunda.com/math/taylor_series/exponential.cfm
+  //algorithm 1
 
   var onePlaceholder = zero //temp value for one (because one wil get mutated if it is passed directly)
   onePlaceholder.Integer = []int64{ 1 }

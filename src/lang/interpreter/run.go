@@ -1,6 +1,6 @@
 package interpreter
 
-import "fmt"
+import "math"
 
 type CliParams map[string]map[string]interface{}
 
@@ -9,21 +9,14 @@ type CliParams map[string]map[string]interface{}
 //export DigitSize
 const DigitSize = 1;
 //export MAX_DIGIT
-const MAX_DIGIT = 10 * DigitSize - 1
+var MAX_DIGIT = int64(math.Pow(10, DigitSize) - 1)
 //export MIN_DIGIT
-const MIN_DIGIT = -1 * MAX_DIGIT
+var MIN_DIGIT = -1 * MAX_DIGIT
 
 //////////////
 
 //export RunInterpreter
 func RunInterpreter(actions []Action, cli_params map[string]map[string]interface{}, dir string) {
-
-  var t = one
-  var q = one
-  t.Decimal = []int64{ 1, 2 }
-  q.Decimal = []int64{ 1, 2 }
-
-  fmt.Println(isEqual(t, q))
 
   var vars = make(map[string]Variable)
 
