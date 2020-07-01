@@ -662,7 +662,9 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
 
         if expReturn {
-          if isLess(val1, val2) {
+
+          //only numeric values will be tested
+          if val1.Type == "number" && val2.Type == "number" && isLess(val1, val2) {
             return Returner{
               Variables: vars,
               Exp: trueAct,
@@ -683,7 +685,9 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
 
         if expReturn {
-          if !isLessOrEqual(val1, val2) {
+
+          //only numeric values will be tested
+          if val1.Type == "number" && val2.Type == "number" && !isLessOrEqual(val1, val2) {
             return Returner{
               Variables: vars,
               Exp: trueAct,
@@ -704,7 +708,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
 
         if expReturn {
-          if isEqual(val1, val2) {
+          if equals(val1, val2) {
             return Returner{
               Variables: vars,
               Exp: trueAct,
@@ -726,7 +730,9 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
 
         if expReturn {
-          if isLessOrEqual(val1, val2) {
+
+          //only numeric values will be tested
+          if val1.Type == "number" && val2.Type == "number" && isLessOrEqual(val1, val2) {
             return Returner{
               Variables: vars,
               Exp: trueAct,
@@ -747,7 +753,9 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
 
         if expReturn {
-          if !isLess(val1, val2) {
+
+          //only numeric values will be tested
+          if val1.Type == "number" && val2.Type == "number" && !isLess(val1, val2) {
             return Returner{
               Variables: vars,
               Exp: trueAct,
@@ -768,7 +776,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
 
         if expReturn {
-          if !isEqual(val1, val2) {
+          if !equals(val1, val2) {
             return Returner{
               Variables: vars,
               Exp: trueAct,
@@ -782,6 +790,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
             }
           }
         }
+
 
     }
 

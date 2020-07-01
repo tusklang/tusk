@@ -225,8 +225,7 @@ global.lexer = (file, dir) => {
   //determine if there is an error
   //an error will occur when two adjacent tokens have the same type
   lex.forEach((v, i) => {
-
-    if (lex[i - 1] && v.Type[0] != '?' && v.Type != 'newline') {
+    if (lex[i - 1] && v.Type[0] != '?' && v.Type != 'newline' && v.Name != 'newlineS') {
       if (v.Type == lex[i - 1].Type) {
         global.errors.push({
           Error:`\nUnexpected token: \"${v.OName.trim()}\" on line ${v.Line}`

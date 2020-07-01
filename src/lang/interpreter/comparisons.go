@@ -146,3 +146,32 @@ func abs(val Action, cli_params CliParams) Action {
 
   return val
 }
+
+//function to determine if two actions are equal
+func equals(val1, val2 Action) bool {
+
+  if val1.Type == "number" && val2.Type == "number" {
+    return isEqual(val1, val2)
+  } else if val1.Name == "hashed_value" && val1.Name == "hashed_value" {
+    if len(val1.Hash_Values) < len(val2.Hash_Values) { //ensure val1 has more hash values
+      val1, val2 = val2, val1
+    }
+
+    //loop through the keys of val1, and if val1[k] == val2[k] they are equal
+    for k := range val1.Hash_Values {
+
+      //check if val2 has k
+      if _, exists := val2.Hash_Values[k]; !exists {
+        return false
+      }
+
+      if !equals(val1.Hash_Values[k][0], val2.Hash_Values[k][0]) {
+        return false
+      }
+    }
+
+    return true //if they are all equal, return true
+  } else {
+    return val1.ExpStr == val2.ExpStr
+  }
+}

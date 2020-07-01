@@ -42,10 +42,9 @@ func num_normalize(num Action) string {
   var carry int64 = 0
 
   for k := range decimal {
-    curIsNeg := decimal[k] < 0
-
     decimalCopy[k] = decimal[k]
     decimalCopy[k]+=carry
+    curIsNeg := decimalCopy[k] < 0
     carry = 0
 
     if decimalCopy[k] == 0 {
@@ -53,7 +52,7 @@ func num_normalize(num Action) string {
     }
 
     if curIsNeg != isNeg {
-      complement := MAX_DIGIT + 1 - decimalCopy[k]
+      complement := MAX_DIGIT + 1 - int64(math.Abs(float64(decimalCopy[k])))
       decimalCopy[k] = complement
 
       if isNeg {
@@ -67,10 +66,9 @@ func num_normalize(num Action) string {
   }
 
   for k := range integer {
-    curIsNeg := integer[k] < 0
-
     integerCopy[k] = integer[k]
     integerCopy[k]+=carry
+    curIsNeg := integerCopy[k] < 0
     carry = 0
 
     if integerCopy[k] == 0 {
@@ -78,7 +76,7 @@ func num_normalize(num Action) string {
     }
 
     if curIsNeg != isNeg {
-      complement := MAX_DIGIT + 1 - integerCopy[k]
+      complement := MAX_DIGIT + 1 - int64(math.Abs(float64(integerCopy[k])))
       integerCopy[k] = complement
 
       if isNeg {

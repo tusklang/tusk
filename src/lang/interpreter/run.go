@@ -17,7 +17,6 @@ var MIN_DIGIT = -1 * MAX_DIGIT
 
 //export RunInterpreter
 func RunInterpreter(actions []Action, cli_params map[string]map[string]interface{}, dir string) {
-
   var vars = make(map[string]Variable)
 
   for k, v := range goprocs {
