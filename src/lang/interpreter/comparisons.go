@@ -127,8 +127,8 @@ func isLessOrEqual(val1, val2 Action) bool {
 
   bigint1, bigint2, bigdec1, bigdec2 := toBig(val1, val2)
 
-  if bigint1.Cmp(bigint2) != 0 {
-    return bigint1.Cmp(bigint2) == -1
+  if bigdec1.Cmp(bigdec2) != 0 && !num1DecLess {
+    return bigint1.Cmp(bigint2) <= 0
   }
 
   if num1DecLess {

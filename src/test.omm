@@ -1,5 +1,1 @@
-fn a() {
-  return a
-}
-
-log a()
+log 32.1 <= 32

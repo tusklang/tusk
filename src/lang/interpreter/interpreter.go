@@ -383,7 +383,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
             }
           }
         }
-        
+
       case "break":
         return Returner{
           Variables: vars,
@@ -657,6 +657,131 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         }
 
       case "less":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+        val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+          if isLess(val1, val2) {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          }
+        }
+
+      case "greater":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+        val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+          if !isLessOrEqual(val1, val2) {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          }
+        }
+
+      case "equals":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+        val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+          if isEqual(val1, val2) {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          }
+
+        }
+
+      case "lessOrEqual":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+        val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+          if isLessOrEqual(val1, val2) {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          }
+        }
+
+      case "greaterOrEqual":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+        val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+          if !isLess(val1, val2) {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          }
+        }
+
+      case "notEqual":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+        val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+          if !isEqual(val1, val2) {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          }
+        }
 
     }
 
