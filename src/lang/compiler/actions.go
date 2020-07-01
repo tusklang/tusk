@@ -2851,15 +2851,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
           if (lex[i + 1].Name == "++" || lex[i + 1].Name == "--") && strings.HasPrefix(lex[i].Name, "$") {
 
-            id_ := []byte(lex[i + 1].Name)
-
-            id := ""
-
-            for o := 0; o < len(id_); o++ {
-              _id := strconv.Itoa(int(id_[o]))
-              id+=_id
-            }
-
             actions = append(actions, Action{ lex[i + 1].Name, lex[i].Name, "", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
             i++
             continue;
@@ -2911,15 +2902,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             }
 
             by := Actionizer(by_, true, dir, name)
-
-            id_ := []byte(lex[i + 1].Name)
-
-            id := ""
-
-            for o := 0; o < len(id_); o++ {
-              _id := strconv.Itoa(int(id_[o]))
-              id+=_id
-            }
 
             actions = append(actions, Action{ lex[i + 1].Name, lex[i].Name, "", by, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
             continue;

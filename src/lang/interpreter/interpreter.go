@@ -981,6 +981,218 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           }
         }
 
+      case "++":
+
+        //if the variable exists, set it to vars[v.Name] + 1, otherwise, set it to one
+        if _, exists := vars[v.Name]; exists {
+          temp := vars[v.Name]
+          temp.Value = add(vars[v.Name].Value, one, cli_params)
+          vars[v.Name] = temp
+        } else {
+          vars[v.Name] = Variable{
+            Type: "local",
+            Name: v.Name,
+            Value: one,
+          }
+        }
+
+        //do this for all assignment operations
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: vars[v.Name].Value,
+            Type: "expression",
+          }
+        }
+        //////////////////////////////////////
+
+      case "--":
+
+        //if the variable exists, set it to vars[v.Name] - 1, otherwise, set it to -one
+        if _, exists := vars[v.Name]; exists {
+          temp := vars[v.Name]
+          temp.Value = subtract(vars[v.Name].Value, one, cli_params)
+          vars[v.Name] = temp
+        } else {
+          vars[v.Name] = Variable{
+            Type: "local",
+            Name: v.Name,
+            Value: neg_one,
+          }
+        }
+
+        //do this for all assignment operations
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: vars[v.Name].Value,
+            Type: "expression",
+          }
+        }
+        //////////////////////////////////////
+
+      case "+=":
+
+        by := interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp
+
+        //if the variable exists, set it to vars[v.Name] + by, otherwise, set it to by
+        if _, exists := vars[v.Name]; exists {
+          temp := vars[v.Name]
+          temp.Value = add(vars[v.Name].Value, by, cli_params)
+          vars[v.Name] = temp
+        } else {
+          vars[v.Name] = Variable{
+            Type: "local",
+            Name: v.Name,
+            Value: by,
+          }
+        }
+
+        //do this for all assignment operations
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: vars[v.Name].Value,
+            Type: "expression",
+          }
+        }
+        //////////////////////////////////////
+
+      case "-=":
+
+        by := interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp
+
+        //if the variable exists, set it to vars[v.Name] - by, otherwise, set it to -by
+        if _, exists := vars[v.Name]; exists {
+          temp := vars[v.Name]
+          temp.Value = subtract(vars[v.Name].Value, by, cli_params)
+          vars[v.Name] = temp
+        } else {
+          vars[v.Name] = Variable{
+            Type: "local",
+            Name: v.Name,
+            Value: subtract(zero, by, cli_params),
+          }
+        }
+
+        //do this for all assignment operations
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: vars[v.Name].Value,
+            Type: "expression",
+          }
+        }
+        //////////////////////////////////////
+
+      case "*=":
+
+        by := interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp
+
+        //if the variable exists, set it to vars[v.Name] * by, otherwise, set it to 0 (because 0 * by == 0)
+        if _, exists := vars[v.Name]; exists {
+          temp := vars[v.Name]
+          temp.Value = multiply(vars[v.Name].Value, by, cli_params)
+          vars[v.Name] = temp
+        } else {
+          vars[v.Name] = Variable{
+            Type: "local",
+            Name: v.Name,
+            Value: zero,
+          }
+        }
+
+        //do this for all assignment operations
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: vars[v.Name].Value,
+            Type: "expression",
+          }
+        }
+        //////////////////////////////////////
+
+      case "/=":
+
+        by := interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp
+
+        //if the variable exists, set it to vars[v.Name] / by, otherwise, set it to zero (because 0 / by == 0)
+        if _, exists := vars[v.Name]; exists {
+          temp := vars[v.Name]
+          temp.Value = divide(vars[v.Name].Value, by, cli_params)
+          vars[v.Name] = temp
+        } else {
+          vars[v.Name] = Variable{
+            Type: "local",
+            Name: v.Name,
+            Value: zero,
+          }
+        }
+
+        //do this for all assignment operations
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: vars[v.Name].Value,
+            Type: "expression",
+          }
+        }
+        //////////////////////////////////////
+
+      case "%=":
+
+        by := interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp
+
+        //if the variable exists, set it to vars[v.Name] % by, otherwise, set it to 0 (because 0 % by == 0)
+        if _, exists := vars[v.Name]; exists {
+          temp := vars[v.Name]
+          temp.Value = modulo(vars[v.Name].Value, by, cli_params)
+          vars[v.Name] = temp
+        } else {
+          vars[v.Name] = Variable{
+            Type: "local",
+            Name: v.Name,
+            Value: zero,
+          }
+        }
+
+        //do this for all assignment operations
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: vars[v.Name].Value,
+            Type: "expression",
+          }
+        }
+        //////////////////////////////////////
+
+      case "^=":
+
+        by := interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp
+
+        //if the variable exists, set it to vars[v.Name] ** by, otherwise, set it to 0 (because 0 ^ by == 0)
+        if _, exists := vars[v.Name]; exists {
+          temp := vars[v.Name]
+          temp.Value = exponentiate(vars[v.Name].Value, by, cli_params)
+          vars[v.Name] = temp
+        } else {
+          vars[v.Name] = Variable{
+            Type: "local",
+            Name: v.Name,
+            Value: zero,
+          }
+        }
+
+        //do this for all assignment operations
+        if expReturn {
+          return Returner{
+            Variables: vars,
+            Exp: vars[v.Name].Value,
+            Type: "expression",
+          }
+        }
+        //////////////////////////////////////
+
     }
 
   }
