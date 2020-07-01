@@ -791,6 +791,195 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           }
         }
 
+      case "and":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+
+          //if num1 is not truthy, the "and" is automatically false
+          if !isTruthy(val1) {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          }
+
+          val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+          if isTruthy(val2) {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          }
+        }
+
+      case "or":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+
+          //if num1 is truthy, the "or" is automatically true
+          if isTruthy(val1) {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          }
+
+          val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+          if isTruthy(val2) {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          }
+        }
+
+      case "not":
+
+        val := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+          if isTruthy(val) {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          }
+        }
+
+      case "nand":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+
+          //if num1 is truthy, the "nor" is automatically false
+          if !isTruthy(val1) {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          }
+
+          val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+          if !isTruthy(val2) {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          }
+        }
+
+      case "nor":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+
+          //if num1 is not truthy, the "nand" is automatically true
+          if !isTruthy(val1) {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          }
+
+          val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+          if isTruthy(val2) {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          }
+        }
+
+      case "xor":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+        val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+
+          //xor is the same as !=
+          if isTruthy(val1) != isTruthy(val2) {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          }
+        }
+
+      case "xnor":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+        val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+
+          //xnor is the same as ==
+          if isTruthy(val1) == isTruthy(val2) {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          }
+        }
 
     }
 
