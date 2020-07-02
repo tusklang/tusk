@@ -109,7 +109,7 @@ func isLessOrEqual(val1, val2 Action) bool {
   var num1ZeroLeadingDec int
   var num2ZeroLeadingDec int
 
-  num1DecLess := true //if num1 has less leading zeros
+  num1DecLess := false //if num1 has less leading zeros
 
   for ;len(val1.Decimal) != 0 && val1.Decimal[len(val1.Decimal) - 1] == 0; {
     val1.Decimal = val1.Decimal[:len(val1.Decimal) - 1]
@@ -120,14 +120,14 @@ func isLessOrEqual(val1, val2 Action) bool {
     num2ZeroLeadingDec++
   }
 
-  if num1ZeroLeadingDec > num2ZeroLeadingDec {
-    num1DecLess = false
+  if num1ZeroLeadingDec < num2ZeroLeadingDec {
+    num1DecLess = true
   }
   /////////////////////////////////////////
 
   bigint1, bigint2, bigdec1, bigdec2 := toBig(val1, val2)
 
-  if bigdec1.Cmp(bigdec2) != 0 && !num1DecLess {
+  if bigdec1.Cmp(bigdec2) <= 0 && !num1DecLess {
     return bigint1.Cmp(bigint2) <= 0
   }
 

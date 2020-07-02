@@ -785,6 +785,49 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           }
         }
 
+      case "similar":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+        val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+        deg := interpreter(v.Degree, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+          if similar(val1, val2, deg, cli_params, vars, this_vals, dir) {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          }
+        }
+
+      case "strictSimilar":
+
+        val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+        val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+
+        if expReturn {
+          if equals(val1, val2) {
+            return Returner{
+              Variables: vars,
+              Exp: trueAct,
+              Type: "expression",
+            }
+          } else {
+            return Returner{
+              Variables: vars,
+              Exp: falseAct,
+              Type: "expression",
+            }
+          }
+        }
+
       case "and":
 
         val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp

@@ -1,4 +1,1 @@
-v: [::]
-p: clone(v)
-p::s: 's'
-log v
+log 1 ~~1: 3
