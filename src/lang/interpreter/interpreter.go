@@ -811,9 +811,10 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
         val1 := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
         val2 := interpreter(v.Second, cli_params, vars, true, this_vals, dir).Exp
+        deg := interpreter(v.Degree, cli_params, vars, true, this_vals, dir).Exp
 
         if expReturn {
-          if equals(val1, val2) {
+          if strictSimilar(val1, val2, deg, cli_params, vars, this_vals, dir) {
             return Returner{
               Variables: vars,
               Exp: trueAct,
