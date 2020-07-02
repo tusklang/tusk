@@ -19,9 +19,9 @@ var MIN_DIGIT = -1 * MAX_DIGIT
 func RunInterpreter(actions []Action, cli_params map[string]map[string]interface{}, dir string) {
   var vars = make(map[string]Variable)
 
-  for k, v := range goprocs {
+  for k, v := range gofuncs {
     vars["$" + k] = Variable{
-      Type: "goproc",
+      Type: "gofunc",
       Name: "$" + k,
       GoProc: v,
     }

@@ -44,7 +44,7 @@ func functionParser(v Action, cli_params CliParams, vars *map[string]Variable, t
   } else {
 
     //if it is a goproc
-    if (*vars)[name].Type == "goproc" {
+    if (*vars)[name].Type == "gofunc" {
       parsed = Returner{
         Type: "expression",
         Variables: *vars,

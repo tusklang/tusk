@@ -1,8 +1,4 @@
-fn a(f) {
-  a = f
-  f+="d"
-}
-
-v: []
-a(v)
+v: [::]
+p: clone(v)
+p::s: 's'
 log v
