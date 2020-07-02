@@ -1,3 +1,1 @@
-log [:
-  s: 's'
-:] ~~~1: [::]
+log exec('curl')

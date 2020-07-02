@@ -4,7 +4,9 @@ package interpreter
 //functions written in go that are used by omm
 
 import "strconv"
+import "strings"
 import "time"
+import "os/exec"
 
 var gofuncs = map[string]func(args [][]Action, cli_params CliParams, vars map[string]Variable, this_vals []Action, dir string) Action {
 
@@ -83,6 +85,36 @@ var gofuncs = map[string]func(args [][]Action, cli_params CliParams, vars map[st
       }
 
       return rval
+    }
+
+    return undef
+  },
+  "exec": func(args [][]Action, cli_params CliParams, vars map[string]Variable, this_vals []Action, dir string) Action {
+
+    if len(args) == 1 {
+      cmd := interpreter(args[0], cli_params, vars, true, this_vals, dir).Exp.ExpStr
+
+      command := exec.Command(cmd)
+      command.Dir = dir
+      out, _ := command.CombinedOutput()
+
+      stringValue := emptyString
+      stringValue.ExpStr = string(out)
+      return stringValue
+    } else if len(args) == 2 {
+      cmd := interpreter(args[0], cli_params, vars, true, this_vals, dir).Exp.ExpStr
+      stdin := interpreter(args[1], cli_params, vars, true, this_vals, dir).Exp.ExpStr
+
+      command := exec.Command(cmd)
+
+      command.Dir = dir
+      command.Stdin = strings.NewReader(stdin)
+
+      out, _ := command.CombinedOutput()
+
+      stringValue := emptyString
+      stringValue.ExpStr = string(out)
+      return stringValue
     }
 
     return undef
