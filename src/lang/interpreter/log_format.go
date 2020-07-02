@@ -38,7 +38,7 @@ func log_format(in Action, hash_spacing int, endl bool) {
       fmt.Print(strings.Repeat(" ", hash_spacing - 2) + "]")
     case "group":
       fmt.Print("{...}")
-    case "process":
+    case "function":
       fmt.Print("{...} ", "PARAM COUNT:", len(in.Params))
     case "operation":
       log_format(in.First[0], hash_spacing, false)

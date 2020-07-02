@@ -1,5 +1,8 @@
-a: 3;
+fn a(f) {
+  a = f
+  f+="d"
+}
 
-a++
-
-log a
+v: []
+a(v)
+log v

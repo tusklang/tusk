@@ -272,7 +272,7 @@ func fnCalc(i *int, lex []Lex, len_lex int, dir, name string) ([]Action, []strin
   var fnName string
   var logic []Action
 
-  if lex[(*i) + 1].Name == "~" {
+  if *i + 1 < len(lex) && lex[*i + 1].Name == "~" {
     fnName = lex[*i + 2].Name
 
     for o := (*i) + 4; o < len_lex; o++ {
@@ -2649,20 +2649,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           actions = append(actions, Action{ "kill", "", "", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
         }
 
-      case "this":
-
-        act := this_calc(&i, lex, uint(1), "this", dir, name, 70)
-
-        i++
-
-        isMutable := false
-
-        //checks for a runtime value
-        for ;i < len_lex && lex[i].Name == ":::"; i++ {
-          isMutable = !isMutable
-        }
-
-        actions = append(actions, act)
       case "await":
 
         awaiter := []Lex{}

@@ -11,6 +11,9 @@ module.exports = lex => {
 
     newLex.push(lex[i]);
 
+    //because if and functions needs a ( after if
+    if ((lex[i].Type == 'cond' || lex[i].Name == "function") && lex[i + 1] && lex[i + 1].Name == '(') continue;
+
     //detect a type with the ? prefix
     if (lex[i].Type.startsWith('?') && (lex[i + 1] && lex[i + 1].Type.startsWith('?'))) continue;
 

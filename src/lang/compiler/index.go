@@ -13,11 +13,6 @@ import . "lang/interpreter"
 var operators = []string{"^", "*", "/", "%", "+", "-", "&", "|", "!", "~", ";"}
 var imported = []string{} //list of the imported files from omm
 
-//export Kill
-func Kill() {
-  os.Exit(1)
-}
-
 type Lex struct {
   Name   string
   Exp    string

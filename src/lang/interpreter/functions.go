@@ -144,7 +144,7 @@ func functionParser(v Action, cli_params CliParams, vars *map[string]Variable, t
           curVar.Indexes = sv.Indexes
           curVar.Args = sv.Args
 
-          parsed = functionParser(curVar, cli_params, vars, this_vals, dir, sv.IsProc, "#")
+          parsed = functionParser(curVar, cli_params, vars, send_this, dir, sv.IsProc, "#")
           goto end
         }
       } else if callType == "@" {

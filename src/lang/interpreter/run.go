@@ -27,7 +27,7 @@ func RunInterpreter(actions []Action, cli_params map[string]map[string]interface
     }
   }
 
-  interpreter(actions, CliParams(cli_params), vars, false, []Action{}, dir)
+  interpreter(actions, CliParams(cli_params), vars, false, make([]Action, 0), dir)
 
   for _, v := range threads {
     v.WaitFor()

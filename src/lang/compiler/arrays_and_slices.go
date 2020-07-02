@@ -240,8 +240,8 @@ func interfaceContainWithProcIndex(inter []interface{}, sub interface{}, indexes
       switch inter[k - 1].(type) {
         case Lex:
 
-          //if inter[k - 1] is a process or a variable, continue the loop
-          if inter[k - 1].(Lex).Name == "this" || inter[k - 1].(Lex).Name == "process" || strings.HasPrefix(inter[k - 1].(Lex).Name, "$") || inter[k - 1].(Lex).Name == "]" || inter[k - 1].(Lex).Name == ")" {
+          //if inter[k - 1] is a function or a variable, continue the loop
+          if inter[k - 1].(Lex).Name == "function" || inter[k - 1].(Lex).Type == "cond" || strings.HasPrefix(inter[k - 1].(Lex).Name, "$") || inter[k - 1].(Lex).Name == "]" || inter[k - 1].(Lex).Name == ")" {
             continue loop
           }
       }
@@ -272,26 +272,11 @@ func interfaceIndexOfWithProcIndex(sub interface{}, inter []interface{}, indexes
         continue loop
     }
 
-    if k != 0 {
-
-      //only if inter[k - 1] is a lex
-      switch inter[k - 1].(type) {
-        case Lex:
-
-          //if inter[k - 1] is "this" continue the loop
-          if inter[k - 1].(Lex).Name == "this" {
-            continue loop
-          }
-      }
-    }
-
     if sub.(string) == v.(Lex).Name {
-
       for _, o := range indexes {
         if k == o {
           continue loop
         }
-
       }
 
       return k
@@ -321,8 +306,8 @@ func interfaceContainForExp(inter []interface{}, _sub []string) bool {
       continue
     }
 
-    //prevent parenthesis after process declarations from being counted as expression parenthesis
-    if o > 0 && !(strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "process" || inter[o - 1].(Lex).Name == "this" || v.(Lex).Name == ")" ) && v.(Lex).Name == "(" {
+    //prevent parenthesis after function declarations (or conditionals) from being counted as expression parenthesis
+    if o > 0 && !(strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "function" || inter[o - 1].(Lex).Type == "cond" || v.(Lex).Name == ")" ) && v.(Lex).Name == "(" {
 
       scbCnt := 0
       sglCnt := 0
@@ -399,7 +384,7 @@ func interfaceContainForExp(inter []interface{}, _sub []string) bool {
       for _, i := range sub {
 
         if i == "(" {
-          if o > 0 && (strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "process") {
+          if o > 0 && (strings.HasPrefix(inter[o - 1].(Lex).Name, "$") || inter[o - 1].(Lex).Name == "]" || inter[o - 1].(Lex).Name == "function" || inter[o - 1].(Lex).Name == "if" || inter[o - 1].(Lex).Name == "elseif") {
             continue
           }
         }

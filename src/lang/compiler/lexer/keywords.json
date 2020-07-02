@@ -15,13 +15,13 @@
     "name": "?^",
     "remove": "?^",
     "pattern": "\\?\\^",
-    "type": "namespace"
+    "type": "operation"
   },
   {
     "name": "ns",
     "remove": "ns::",
     "pattern": "ns::",
-    "type": "namespace"
+    "type": "operation"
   },
   {
     "name": "kill",
@@ -190,12 +190,6 @@
     "remove": ":]",
     "pattern": "(\\:\\])",
     "type": "?operation_paren"
-  },
-  {
-    "name": "this",
-    "remove": "this",
-    "pattern": "(this\\s*\\()",
-    "type": "this"
   },
   {
     "name": "::",
@@ -384,7 +378,7 @@
   {
     "name": "elseif",
     "remove": "elseif",
-    "pattern": "(elseif(\\s*)\\()",
+    "pattern": "(else(\\s*)if(\\s*)\\()",
     "type": "cond"
   },
   {

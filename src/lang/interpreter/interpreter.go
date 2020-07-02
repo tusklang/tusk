@@ -351,18 +351,12 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
             }
 
             //if the dev wants to return/break/skip, the outer proc/loop
-            if interpreted.Type == "return" {
+            if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "skip" {
               return Returner{
                 Variables: vars,
                 Exp: interpreted.Exp,
                 Type: interpreted.Type,
               }
-            }
-            if interpreted.Type == "break" {
-              break
-            }
-            if interpreted.Type == "skip" {
-              continue
             }
 
             //dont test any more conditions if this condition was true
@@ -400,7 +394,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
         return Returner{
           Variables: vars,
           Exp: interpreter(v.ExpAct, cli_params, vars, true, this_vals, dir).Exp,
-          Type: "break",
+          Type: "return",
         }
       case "loop":
 
