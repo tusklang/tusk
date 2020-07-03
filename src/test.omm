@@ -1,1 +1,4 @@
-log exec('curl')
+main: fn() {
+  log a
+}
+a: 3

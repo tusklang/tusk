@@ -11,12 +11,6 @@ import "lang/compiler" //omm language (compile into go slices and structs)
 import "oat/compile" //compile omm to oat
 import "oat/run" //run an oat file
 
-//mango
-import "mangomm/cli/install"
-import "mangomm/cli/remove"
-import "mangomm/cli/wipe"
-///////
-
 ////////////
 
 func defaults(cli_params *map[string]map[string]interface{}, name string) {
@@ -52,6 +46,9 @@ func main() {
 
   cli_params["Files"]["DIR"] = args[1]
   cli_params["Files"]["NAME"] = args[2]
+
+  //set the working directory
+  os.Chdir(args[1])
 
   for i := 2; i < len(args); i++ {
 
@@ -96,12 +93,6 @@ func main() {
       oatCompile.Compile(cli_params)
     case "run":
       oatRun.Run(cli_params)
-    case "mango-get":
-      mango_get.Get()
-    case "mango-rm":
-      mango_rm.Remove()
-    case "mango-wipe":
-      mango_wipe.Wipe()
     default:
       fmt.Println("Error: cannot use omm addon", cli_params["Package"]["ADDON"].(string))
   }

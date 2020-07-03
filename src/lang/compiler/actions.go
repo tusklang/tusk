@@ -22,7 +22,7 @@ func convToAct(_val []interface{}, dir, name string) []Action {
       num = append(num, v.(Lex))
     }
 
-    val = Actionizer(num, true, dir, name)
+    val, _ = Actionizer(num, true, dir, name)
 
   } else {
 
@@ -139,7 +139,8 @@ func callCalcParams(i *int, lex []Lex, len_lex int, dir, filename string) ([][]A
     }
 
     for _, v := range indexes {
-      putIndexes = append(putIndexes, Actionizer(v[1:len(v) - 1], true, dir, filename))
+      temp, _ := Actionizer(v[1:len(v) - 1], true, dir, filename)
+      putIndexes = append(putIndexes, temp)
     }
 
     (*i)++
@@ -211,7 +212,8 @@ func callCalcParams(i *int, lex []Lex, len_lex int, dir, filename string) ([][]A
         continue
       }
 
-      params_ = append(params_, Actionizer(v, true, dir, filename))
+      temp, _ := Actionizer(v, true, dir, filename)
+      params_ = append(params_, temp)
     }
 
     pCnt_ := 0
@@ -311,7 +313,7 @@ func fnCalc(i *int, lex []Lex, len_lex int, dir, name string) ([]Action, []strin
 
     (*i)+=len(logic_) - 1
 
-    logic = Actionizer(logic_, false, dir, name)
+    logic, _ = Actionizer(logic_, false, dir, name)
   } else {
     params = []string{}
     fnName = ""
@@ -347,20 +349,21 @@ func fnCalc(i *int, lex []Lex, len_lex int, dir, name string) ([]Action, []strin
 
     (*i)+=len(logic_) + 1
 
-    logic = Actionizer(logic_, false, dir, name)
+    logic, _ = Actionizer(logic_, false, dir, name)
   }
 
   return logic, params, fnName
 }
 
 //export Actionizer
-func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
+func Actionizer(lex []Lex, doExpress bool, dir, name string) ([]Action, map[string][]Action) {
   var actions = []Action{}
   var len_lex = len(lex)
+  var variables = make(map[string][]Action) //to store the variables declared in this scope
 
   for i := 0; i < len_lex; i++ {
 
-    if doExpress {
+    if doExpress { //if it is an expression
       var exp []interface{}
 
       cbCnt := 0
@@ -920,7 +923,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         pExp = pExp[1:len(pExp) - 1]
 
-        pExpAct := Actionizer(pExp, true, dir, name)
+        pExpAct, _ := Actionizer(pExp, true, dir, name)
 
         scbCnt := 0
         sglCnt := 0
@@ -985,7 +988,8 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             for _, v := range indexes {
 
               v = v[1:len(v) - 1]
-              putIndexes = append(putIndexes, Actionizer(v, true, dir, name))
+              temp, _ := Actionizer(v, true, dir, name)
+              putIndexes = append(putIndexes, temp)
             }
 
             pExpAct[0].Type = "expressionIndex"
@@ -1009,7 +1013,8 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           toa = append(toa, v.(Lex))
         }
 
-        exp[0] = Actionizer(toa, false, dir, name)[0]
+        temp, _ := Actionizer(toa, false, dir, name)
+        exp[0] = temp[0]
       }
 
       actions = append(actions, exp[0].(Action))
@@ -1073,8 +1078,9 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           exp_ = append(exp_, lex[o])
         }
 
-        exp := Actionizer(exp_, true, dir, name)
+        exp, _ := Actionizer(exp_, true, dir, name)
 
+        variables[lex[i + 2].Name] = exp
         actions = append(actions, Action{ "local", lex[i + 2].Name, "", exp, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
         i+=(4 + len(exp_))
       case "alt":
@@ -1102,7 +1108,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         i+=len(cond_) + 1
 
-        cond := Actionizer(cond_, true, dir, name)
+        cond, _ := Actionizer(cond_, true, dir, name)
 
         for do := true; do || lex[i].Name == "=>"; do = false {
 
@@ -1132,7 +1138,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           }
 
           i+=len(actions_)
-          actions := Actionizer(actions_, true, dir, name)
+          actions, _ := Actionizer(actions_, true, dir, name)
 
           alter.Condition = append(alter.Condition, Condition{ "alt", cond, actions })
           i++
@@ -1195,8 +1201,9 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           exp_ = append(exp_, lex[o])
         }
 
-        exp := Actionizer(exp_, true, dir, name)
+        exp, _ := Actionizer(exp_, true, dir, name)
 
+        variables[lex[i + 2].Name] = exp
         actions = append(actions, Action{ "global", lex[i + 2].Name, "", exp, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
         i+=(4 + len(exp_))
       case "log":
@@ -1250,7 +1257,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           exp_ = append(exp_, lex[o])
         }
 
-        exp := Actionizer(exp_, true, dir, name)
+        exp, _ := Actionizer(exp_, true, dir, name)
 
         actions = append(actions, Action{ "log", "", "", exp, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
         i+=(2 + len(exp_))
@@ -1305,7 +1312,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           exp_ = append(exp_, lex[o])
         }
 
-        exp := Actionizer(exp_, false, dir, name)
+        exp, _ := Actionizer(exp_, false, dir, name)
 
         actions = append(actions, Action{ "print", "", "", exp, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
         i+=(2 + len(exp_))
@@ -1367,7 +1374,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         exp_ = exp_[1:]
         exp_ = exp_[:len(exp_) - 1]
 
-        exp := Actionizer(exp_, false, dir, name)
+        exp, _ := Actionizer(exp_, false, dir, name)
 
         actions = append(actions, Action{ "group", "", "", exp, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
         i+=(len(exp_) + 1)
@@ -1377,7 +1384,9 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         logic, params, fnName := fnCalc(&i, lex, len_lex, dir, name)
 
-        actions = append(actions, Action{ "function", fnName, "", logic, params, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
+        act := Action{ "function", fnName, "", logic, params, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, putFalsey, "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} }
+        variables[fnName] = []Action{ act }
+        actions = append(actions, act)
       case "fargc":
 
         i+=2
@@ -1466,7 +1475,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         }
         i--
 
-        actionized := Actionizer(exp, false, dir, name)
+        actionized, _ := Actionizer(exp, false, dir, name)
 
         if count == "(" {
 
@@ -1541,7 +1550,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           returner_ = append(returner_, lex[o])
         }
 
-        returner := Actionizer(returner_, true, dir, name)
+        returner, _ := Actionizer(returner_, true, dir, name)
 
         actions = append(actions, Action{ "return", "", "", returner, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
         i+=len(returner_) + 2
@@ -1568,7 +1577,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             }
           }
 
-          cond := Actionizer(cond_, true, dir, name)
+          cond, _ := Actionizer(cond_, true, dir, name)
 
           cbCnt := 0
           glCnt := 0
@@ -1620,7 +1629,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             }
           }
 
-          acts := Actionizer(actions_, false, dir, name)
+          acts, _ := Actionizer(actions_, false, dir, name)
 
           var if_ = Condition{ "if", cond, acts }
 
@@ -1650,7 +1659,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
               }
             }
 
-            cond := Actionizer(cond_, true, dir, name)
+            cond, _ := Actionizer(cond_, true, dir, name)
 
             cbCnt := 0
             glCnt := 0
@@ -1702,7 +1711,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
               }
             }
 
-            acts := Actionizer(actions_, false, dir, name)
+            acts, _ := Actionizer(actions_, false, dir, name)
 
             var elseif_ = Condition{ "elseif", cond, acts }
 
@@ -1770,7 +1779,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
               actions_ = actions_[1:]
             }
 
-            actions := Actionizer(actions_, false, dir, name)
+            actions, _ := Actionizer(actions_, false, dir, name)
 
             var else_ = Condition{ "else", []Action{}, actions }
 
@@ -1858,8 +1867,8 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             actionizedFiles = append(actionizedFiles, decoded)
 
           } else {
-
-            actionizedFiles = append(actionizedFiles, Actionizer(v["Content"].([]Lex), false, dir, name))
+            temp, _ := Actionizer(v["Content"].([]Lex), false, dir, name)
+            actionizedFiles = append(actionizedFiles, temp)
           }
         }
 
@@ -2031,7 +2040,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
 
         }
 
-        actionized := Actionizer(calc_ns(lex, &i), false, dir, name)
+        actionized, _ := Actionizer(calc_ns(lex, &i), false, dir, name)
 
         actions = append(actions, actionized...)
       case "break":
@@ -2059,7 +2068,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           }
         }
 
-        condition := Actionizer(condition_, true, dir, name)
+        condition, _ := Actionizer(condition_, true, dir, name)
         action_ := []Lex{}
 
         var curlyBraceCond = lex[i + 1 + len(condition_)].Name == "{"
@@ -2110,7 +2119,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           }
         }
 
-        action := Actionizer(action_, false, dir, name)
+        action, _ := Actionizer(action_, false, dir, name)
 
         actions = append(actions, Action{ "loop", "", "", action, []string{}, [][]Action{}, []Condition{ { "loop", condition, action } }, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
         i+=len(condition_) + len(action_)
@@ -2232,7 +2241,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             name_ = name_[1:]
           }
 
-          hashVal := Actionizer(v[1], true, dir, name)
+          hashVal, _ := Actionizer(v[1], true, dir, name)
 
           translated[name_] = hashVal
         }
@@ -2304,7 +2313,8 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           for _, v := range indexes {
 
             v = v[1:len(v) - 1]
-            putIndexes = append(putIndexes, Actionizer(v, true, dir, name))
+            temp, _ := Actionizer(v, true, dir, name)
+            putIndexes = append(putIndexes, temp)
           }
 
           i+=3
@@ -2410,8 +2420,8 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           }
 
           o+=len(sub)
-
-          arr = append(arr, Actionizer(sub, true, dir, name))
+          temp, _ := Actionizer(sub, true, dir, name)
+          arr = append(arr, temp)
         }
 
         hashedArr := make(map[string][]Action)
@@ -2488,7 +2498,8 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           for _, v := range indexes {
 
             v = v[1:len(v) - 1]
-            putIndexes = append(putIndexes, Actionizer(v, true, dir, name))
+            temp, _ := Actionizer(v, true, dir, name)
+            putIndexes = append(putIndexes, temp)
           }
 
           i+=3
@@ -2571,7 +2582,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           stopIterIndex = k
         }
 
-        iterator := Actionizer(_iterator, true, dir, name)
+        iterator, _ := Actionizer(_iterator, true, dir, name)
 
         var var1 string
         var var2 string
@@ -2637,7 +2648,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
         }
 
         i+=len(exp) + 1
-        actionized := Actionizer(exp, false, dir, name)
+        actionized, _ := Actionizer(exp, false, dir, name)
         actions = append(actions, Action{ "each", "", "", actionized, []string{ var1, var2 }, [][]Action{}, []Condition{}, iterator, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
 
       case "kill":
@@ -2694,7 +2705,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
           awaiter = append(awaiter, lex[o])
         }
 
-        awaiterAct := Actionizer(awaiter, true, dir, name)
+        awaiterAct, _ := Actionizer(awaiter, true, dir, name)
 
         actions = append(actions, Action{ "await", "", "", awaiterAct, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
         i+=len(awaiter) + 2
@@ -2813,7 +2824,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
               val_ = append(val_, lex[o])
             }
 
-            val := Actionizer(val_, true, dir, name)
+            val, _ := Actionizer(val_, true, dir, name)
 
             getValueType := func(val string) string {
               switch getType(val) {
@@ -2887,7 +2898,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
               by_ = append(by_, lex[o])
             }
 
-            by := Actionizer(by_, true, dir, name)
+            by, _ := Actionizer(by_, true, dir, name)
 
             actions = append(actions, Action{ lex[i + 1].Name, lex[i].Name, "", by, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
             continue;
@@ -2993,7 +3004,8 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             }
 
             for _, v := range _indexes {
-              indexes = append(indexes, Actionizer(v[1:len(v) - 1], true, dir, name))
+              temp, _ := Actionizer(v[1:len(v) - 1], true, dir, name)
+              indexes = append(indexes, temp)
             }
 
             i++
@@ -3045,9 +3057,13 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
               exp_ = append(exp_, lex[o]);
             }
 
-            exp := Actionizer(exp_, true, dir, name)
+            exp, _ := Actionizer(exp_, true, dir, name)
 
-            actions = append(actions, Action{ "let", varname, "", exp, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, indexes, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
+            act := Action{ "let", varname, "", exp, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, indexes, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} }
+
+            //set the variable
+            variables[varname] = exp
+            actions = append(actions, act)
             i+=(len(exp_))
             continue
           }
@@ -3120,17 +3136,18 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
             for _, v := range indexes {
 
               v = v[1:len(v) - 1]
-              putIndexes = append(putIndexes, Actionizer(v, true, dir, name))
+              temp, _ := Actionizer(v, true, dir, name)
+              putIndexes = append(putIndexes, temp)
             }
 
             i+=3
 
             if strings.HasPrefix(val, "$") {
-              actVal := Actionizer([]Lex{ Lex{ val, "", 0, "", "", dir } }, true, dir, name)
+              actVal, _ := Actionizer([]Lex{ Lex{ val, "", 0, "", "", dir } }, true, dir, name)
 
               actions = append(actions, Action{ "variableIndex", "", "", actVal, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
             } else {
-              actVal := Actionizer([]Lex{ Lex{ val, "", 0, "", "", dir } }, true, dir, name)
+              actVal, _ := Actionizer([]Lex{ Lex{ val, "", 0, "", "", dir } }, true, dir, name)
 
               actions = append(actions, Action{ "expressionIndex", "", "", actVal, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, putIndexes, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
             }
@@ -3146,5 +3163,5 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) []Action {
       }
   }
 
-  return actions
+  return actions, variables
 }

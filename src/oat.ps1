@@ -55,4 +55,4 @@ foreach ($cmd in $args) {
 }
 
 #if no cli param was given, just call with --run
-CallScript -tyoe --run -arguments $args
+CallScript -type --run -arguments $args
