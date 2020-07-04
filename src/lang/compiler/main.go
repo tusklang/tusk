@@ -8,19 +8,10 @@ import "unicode"
 import "regexp"
 import "fmt"
 
-import . "lang/interpreter"
+// import . "lang/interpreter"
 
 var operators = []string{"^", "*", "/", "%", "+", "-", "&", "|", "!", "~", ";"}
 var imported = []string{} //list of the imported files from omm
-
-type Lex struct {
-  Name   string
-  Exp    string
-  Line   uint64
-  Type   string
-  OName  string
-  Dir    string
-}
 
 func getType(val string) string {
 
@@ -126,7 +117,11 @@ func Run(params map[string]map[string]interface{}) {
 
   lex := Lexer(file, dir.(string), fileName.(string))
 
-  _, variables := Actionizer(lex, false, dir.(string), fileName.(string))
+  _ = lex
 
-  RunInterpreter(variables, params, dir.(string))
+  _ = Compile(file, dir.(string), fileName.(string))
+
+  // _, variables := Actionizer(lex, false, dir.(string), fileName.(string))
+
+  //RunInterpreter(variables, params, dir.(string))
 }

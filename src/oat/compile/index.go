@@ -15,7 +15,11 @@ func Compile(params map[string]map[string]interface{}) {
   file := compiler.ReadFileJS(dir.(string) + fileName.(string))[0]["Content"]
 
   lex := compiler.Lexer(file, dir.(string), fileName.(string))
-  _, variables := compiler.Actionizer(lex, false, dir.(string), fileName.(string))
+  // _, variables := compiler.Actionizer(lex, false, dir.(string), fileName.(string))
+
+  _ = lex
+
+  var variables = map[string][]Action{}
 
   gob.Register(map[string][]Action{})
 
