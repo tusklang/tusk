@@ -19,7 +19,7 @@ var MIN_DIGIT = -1 * MAX_DIGIT
 //////////////
 
 //export RunInterpreter
-func RunInterpreter(actions []Action, cli_params map[string]map[string]interface{}, dir string, compiledVars map[string][]Action) {
+func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[string]interface{}, dir string) {
   var vars = make(map[string]Variable)
 
   for k, v := range compiledVars {
@@ -44,11 +44,12 @@ func RunInterpreter(actions []Action, cli_params map[string]map[string]interface
   } else {
     main := vars["$main"]
     called := interpreter(main.Value.ExpAct, cli_params, vars, true, make([]Action, 0), dir).Exp
+
+    for _, v := range threads {
+      v.WaitFor()
+    }
+
     exitType, _ := strconv.Atoi(cast(called, "string").ExpStr) //convert return value to int
     os.Exit(exitType)
-  }
-
-  for _, v := range threads {
-    v.WaitFor()
   }
 }

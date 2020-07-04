@@ -172,6 +172,8 @@ func equals(val1, val2 Action) bool {
 
     return true //if they are all equal, return true
   } else {
-    return val1.ExpStr == val2.ExpStr
+
+    //for lazy (type insensitive) comparisons, use ~~ (similarity with no degree)
+    return val1.ExpStr == val2.ExpStr && val1.Type == val2.Type
   }
 }

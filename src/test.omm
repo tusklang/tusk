@@ -1,4 +1,3 @@
-main: fn() {
-  log a
+fn main() {
+  files.write('hello', 'hello')
 }
-a: 3

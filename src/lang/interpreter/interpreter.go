@@ -243,8 +243,6 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           }
         }
 
-        //do later
-
       case "fargc_paramlist":
 
         var types []string
@@ -435,6 +433,75 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           }
         }
 
+      case "each":
+
+        var1 := v.Params[0]
+        var2 := v.Params[1]
+
+        iterator := interpreter(v.First, cli_params, vars, true, this_vals, dir).Exp
+
+        for k, sv := range iterator.Hash_Values {
+
+          if iterator.Type == "hash" && sv[0].Access == "private" {
+            continue //skip over private values
+          }
+
+          var sendVars = vars
+
+          key := emptyString
+
+          key.ExpStr = k
+
+          for idx, ssv := range k {
+            runeP := emptyRune
+            runeP.ExpStr = string(ssv)
+            key.Hash_Values[strconv.Itoa(idx)] = []Action{ runeP }
+          }
+
+          sendVars[var1] = Variable{
+            Type: "local",
+            Name: var1,
+            Value: key,
+          }
+          sendVars[var2] = Variable{
+            Type: "local",
+            Name: var2,
+            Value: sv[0],
+          }
+
+          interpreted := interpreter(v.ExpAct, cli_params, sendVars, true, this_vals, dir)
+
+          for _, ssv := range interpreted.Variables {
+            _, exists := vars[ssv.Name]
+            if ssv.Type == "global" || exists {
+              vars[ssv.Name] = ssv
+            }
+          }
+
+          //if the dev wants to return/break/skip, the outer proc/loop
+          if interpreted.Type == "return" {
+            return Returner{
+              Variables: vars,
+              Exp: interpreted.Exp,
+              Type: interpreted.Type,
+            }
+          }
+          if interpreted.Type == "break" {
+            return Returner{
+              Variables: vars,
+              Exp: interpreted.Exp,
+              Type: interpreted.Type,
+            }
+          }
+          if interpreted.Type == "skip" {
+            return Returner{
+              Variables: vars,
+              Exp: interpreted.Exp,
+              Type: interpreted.Type,
+            }
+          }
+        }
+
       case "hash":
 
         val := v
@@ -515,6 +582,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
       //basic value types
       case "string": fallthrough
+      case "rune": fallthrough
       case "number": fallthrough
       case "boolean": fallthrough
       case "falsey": fallthrough

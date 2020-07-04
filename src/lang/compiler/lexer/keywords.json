@@ -12,18 +12,6 @@
     "type": "id"
   },
   {
-    "name": "?^",
-    "remove": "?^",
-    "pattern": "\\?\\^",
-    "type": "operation"
-  },
-  {
-    "name": "ns",
-    "remove": "ns::",
-    "pattern": "ns::",
-    "type": "operation"
-  },
-  {
     "name": "kill",
     "remove": "kill",
     "pattern": "kill(\\s*)\\<-",
@@ -104,7 +92,7 @@
   {
     "name": "each",
     "remove": "each",
-    "pattern": "(each\\()",
+    "pattern": "(each(\\s*)\\()",
     "type": "cond"
   },
   {

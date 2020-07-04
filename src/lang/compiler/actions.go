@@ -1873,176 +1873,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) ([]Action, map[stri
         }
 
         actions = append(actions, Action{ "import", "", "", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, actionizedFiles, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
-      case "?^": //only used in namespaces
-        continue
-      case "ns":
-
-        //define calc_ns
-        var calc_ns func(lex []Lex, cur_index *int) []Lex
-
-        //assign calc_ns
-        calc_ns = func(lex []Lex, cur_index *int) []Lex {
-
-          if *cur_index >= len_lex || !strings.HasPrefix(lex[*cur_index + 1].Name, "$") {
-
-            //throw an error
-            colorprint("Error while actionizing in " + lex[i].Dir + "!\n", 12)
-            fmt.Println("Expected a variable name after ns::", "\n\nError occured on line", lex[i].Line, "\nFound near:", strings.TrimSpace(lex[i].Exp))
-
-            //exit the process
-            os.Exit(1)
-          }
-
-          var namespace_name = lex[*cur_index + 1].Name
-          *cur_index+=2
-
-          cbCnt := 0
-          glCnt := 0
-          bCnt := 0
-          pCnt := 0
-
-          var namespace_group []Lex
-
-          for o := *cur_index; o < len_lex; o++ {
-            if lex[o].Name == "{" {
-              cbCnt++
-            }
-            if lex[o].Name == "}" {
-              cbCnt--
-            }
-
-            if lex[o].Name == "[:" {
-              glCnt++
-            }
-            if lex[o].Name == ":]" {
-              glCnt--
-            }
-
-            if lex[o].Name == "[" {
-              bCnt++
-            }
-            if lex[o].Name == "]" {
-              bCnt--
-            }
-
-            if lex[o].Name == "(" {
-              pCnt++
-            }
-            if lex[o].Name == ")" {
-              pCnt--
-            }
-
-            namespace_group = append(namespace_group, lex[o])
-            *cur_index++
-
-            if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
-              break
-            }
-          }
-          *cur_index--
-
-          //see if ?^ is activated
-          var not_ns = false
-
-          //change all variables in that lex group to start with the namespace name
-          for k := 0; k < len(namespace_group); k++ {
-
-            v := namespace_group[k]
-
-            if v.Name == "?^" {
-              not_ns = true
-
-              if namespace_group[k + 1].Name[0] != '$' {
-
-                //throw an error
-                colorprint("Error while actionizing in " + lex[i].Dir + "!\n", 12)
-                fmt.Println("Unexpected ?^ before", v, ". ?^ is only allowed before a variable!", "\n\nError occured on line", lex[i].Line, "\nFound near:", strings.TrimSpace(lex[i].Exp))
-
-                //exit the process
-                os.Exit(1)
-
-              }
-
-              continue
-            }
-
-            //detect a nested namespace
-            if v.Name == "ns" {
-
-              cbCnt = 0
-              glCnt = 0
-              bCnt = 0
-              pCnt = 0
-
-              ns_key := v
-
-              name := namespace_group[k + 1]
-              var nested_namespace_group []Lex
-
-              for j := k + 2; j < len(namespace_group); j++ {
-
-                if namespace_group[j].Name == "{" {
-                  cbCnt++
-                }
-                if namespace_group[j].Name == "}" {
-                  cbCnt--
-                }
-
-                if namespace_group[j].Name == "[:" {
-                  glCnt++
-                }
-                if namespace_group[j].Name == ":]" {
-                  glCnt--
-                }
-
-                if namespace_group[j].Name == "[" {
-                  bCnt++
-                }
-                if namespace_group[j].Name == "]" {
-                  bCnt--
-                }
-
-                if namespace_group[j].Name == "(" {
-                  pCnt++
-                }
-                if namespace_group[j].Name == ")" {
-                  pCnt--
-                }
-
-                nested_namespace_group = append(nested_namespace_group, namespace_group[j])
-
-                if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 {
-                  break
-                }
-              }
-
-              var nested_new = []Lex{ ns_key, name }
-              nested_new = append(nested_new, nested_namespace_group...)
-
-              zero := 0
-
-              namespace_group = append(namespace_group, calc_ns(nested_new, &zero)...)
-            }
-
-            if strings.HasPrefix(v.Name, "$") { //if it is a variable
-
-              if not_ns {
-                not_ns = false
-                continue
-              }
-
-              namespace_group[k].Name = namespace_name + "." + v.Name[1:] //make it starts with $<namespace name>
-              continue
-            }
-          }
-
-          return namespace_group
-
-        }
-
-        actionized, _ := Actionizer(calc_ns(lex, &i), false, dir, name)
-
-        actions = append(actions, actionized...)
       case "break":
         actions = append(actions, Action{ "break", "", "", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
       case "skip":
@@ -2571,7 +2401,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) ([]Action, map[stri
             pCnt--
           }
 
-          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && v.Name == "newlineS" {
+          if cbCnt == 0 && glCnt == 0 && bCnt == 0 && pCnt == 0 && v.Name == "," {
 
             //index where the iterator stopped
             stopIterIndex = k
@@ -2587,12 +2417,13 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) ([]Action, map[stri
         var var1 string
         var var2 string
 
-        if stopIterIndex + 1 >= len(condition_) {
-          var1 = "$k"
-          var2 = "$v"
-        } else if stopIterIndex + 3 >= len(condition_) {
-          var1 = condition_[stopIterIndex + 1].Name
-          var2 = "$v"
+        if stopIterIndex + 1 >= len(condition_) || stopIterIndex + 3 >= len(condition_) {
+          //throw an error
+          colorprint("Error while actionizing in " + lex[i].Dir + "!\n", 12)
+          fmt.Println("Expected two variables after iterator in \"each\"", "\n\nError occured on line", lex[i].Line, "\nFound near:", strings.TrimSpace(lex[i].Exp))
+
+          //exit the process
+          os.Exit(1)
         } else {
           var1, var2 = condition_[stopIterIndex + 1].Name, condition_[stopIterIndex + 3].Name
         }
@@ -2650,15 +2481,6 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) ([]Action, map[stri
         i+=len(exp) + 1
         actionized, _ := Actionizer(exp, false, dir, name)
         actions = append(actions, Action{ "each", "", "", actionized, []string{ var1, var2 }, [][]Action{}, []Condition{}, iterator, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
-
-      case "kill":
-
-        if lex[i + 1].Name == "<-" {
-          actions = append(actions, Action{ "kill_thread", "", "", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
-          i++
-        } else {
-          actions = append(actions, Action{ "kill", "", "", []Action{}, []string{}, [][]Action{}, []Condition{}, []Action{}, []Action{}, []Action{}, [][]Action{}, [][]Action{}, make(map[string][]Action), "private", []SubCaller{}, []int64{}, []int64{}, OmmThread{} })
-        }
 
       case "await":
 
@@ -3064,7 +2886,7 @@ func Actionizer(lex []Lex, doExpress bool, dir, name string) ([]Action, map[stri
             //set the variable
             variables[varname] = exp
             actions = append(actions, act)
-            i+=(len(exp_))
+            i+=(len(exp_)) - 1
             continue
           }
 

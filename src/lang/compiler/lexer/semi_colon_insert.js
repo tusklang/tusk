@@ -77,5 +77,23 @@ module.exports = lex => {
     });
   }
 
-  return newLex;
+  var cbLex = [];
+
+  //because if it looks like
+  //  {
+  //    return 'abc' ; <-- there should be a term there
+  //  }
+  for (let [k, v] of newLex.entries()) {
+    if (v.Name == '}') cbLex.push({
+      Name: 'newlineS',
+      Exp: v.Exp,
+      Line: v.Line,
+      Type: 'operation',
+      OName: ';',
+      Dir: v.Dir
+    });
+    cbLex.push(v);
+  }
+
+  return cbLex;
 }

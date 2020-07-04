@@ -16,6 +16,11 @@ func log_format(in Action, hash_spacing int, endl bool) {
       fmt.Println("[:")
 
       for k, v := range in.Hash_Values {
+
+        if v[0].Access == "private" { //if it is private, do not print it
+          continue
+        }
+
         fmt.Print(strings.Repeat(" ", hash_spacing) +  k + ": ")
         log_format(v[0], hash_spacing + 2, true)
       }
@@ -31,6 +36,12 @@ func log_format(in Action, hash_spacing int, endl bool) {
       fmt.Println("[")
 
       for k, v := range in.Hash_Values {
+
+        if v[0].Access == "private" { //if it is private, do not print it
+          fmt.Println(strings.Repeat(" ", hash_spacing) + "::private::")
+          continue
+        }
+
         fmt.Print(strings.Repeat(" ", hash_spacing) +  k + ": ")
         log_format(v[0], hash_spacing + 2, true)
       }
