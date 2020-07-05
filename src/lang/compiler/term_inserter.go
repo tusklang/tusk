@@ -23,6 +23,15 @@ func term_inserter(lex []Lex) []Lex {
       continue
     }
 
+    //if it looks like
+    //  (1 + 3)
+    //it would become
+    //  ($term 1 + 3 $term)
+    //this is to prevent that
+    if (v.Type == "?open_brace" && k + 2 <= len(lex) && lex[k + 1].Type == "expression value") || (v.Type == "expression value" && k + 2 <= len(lex) && lex[k + 1].Type == "?close_brace") {
+      continue
+    }
+
     if currentType == nextType {
       nLex = append(nLex, Lex{
         Name: "$term",

@@ -105,7 +105,7 @@ var keywordJSON =
     "name": "log",
     "remove": "log",
     "pattern": "(log(\\s*)(~))",
-    "type": "id"
+    "type": "id_non_tilde"
   },
   {
     "name": "log",
@@ -117,7 +117,7 @@ var keywordJSON =
     "name": "print",
     "remove": "print",
     "pattern": "(print(\\s*)(~))",
-    "type": "id"
+    "type": "id_non_tilde"
   },
   {
     "name": "print",

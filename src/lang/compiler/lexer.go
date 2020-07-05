@@ -68,7 +68,7 @@ func lexer(file, dirname, filename string) []Lex {
         }
 
         curExp+=v["remove"] + " "
-        i+=len(v["remove"])
+        i+=len(v["remove"]) - 1
 
         lex = append(lex, Lex{
           Name: v["name"],
@@ -130,6 +130,9 @@ func lexer(file, dirname, filename string) []Lex {
 
       for ;unicode.IsDigit(rune(strings.TrimSpace(file)[i:][0])) || strings.TrimSpace(file)[i:][0] == '.'; i++ {
         num+=string(strings.TrimSpace(file)[i:][0])
+        if len(strings.TrimSpace(file)[i + 1:]) == 0 {
+          break
+        }
       }
 
       if !positive {
@@ -146,6 +149,7 @@ func lexer(file, dirname, filename string) []Lex {
         OName: num,
         Dir: path.Join(dirname, filename),
       })
+      i--
     } else {
 
       if unicode.IsSpace(rune(file[i:][0])) {
