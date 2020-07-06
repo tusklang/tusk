@@ -132,12 +132,6 @@ var keywordJSON =
     "type": "operation"
   },
   {
-    "name": ".",
-    "remove": ".>",
-    "pattern": "(\\.\\>)",
-    "type": "operation"
-  },
-  {
     "name": "newlineN",
     "remove": "\\n",
     "pattern": "\\n",
@@ -260,14 +254,14 @@ var keywordJSON =
   {
     "name": "async",
     "remove": "async",
-    "pattern": "(async\\s*~)",
-    "type": "id_non_tilde"
+    "pattern": "(async\\s*\\()",
+    "type": "operation"
   },
   {
-    "name": "async",
-    "remove": "async",
-    "pattern": "(async\\s+)",
-    "type": "id"
+    "name": "sync",
+    "remove": "sync",
+    "pattern": "(sync\\s*\\()",
+    "type": "operation"
   },
   {
     "name": "fargc",
@@ -426,39 +420,15 @@ var keywordJSON =
     "type": "id_non_tilde"
   },
   {
+    "name": "!",
+    "remove": "!",
+    "pattern": "\\!",
+    "type": "?operation"
+  },
+  {
     "name": "&",
     "remove": "&&",
     "pattern": "(\\&\\&)",
-    "type": "operation"
-  },
-  {
-    "name": "!|",
-    "remove": "!|",
-    "pattern": "(\\!\\|)",
-    "type": "operation"
-  },
-  {
-    "name": "$|",
-    "remove": "$|",
-    "pattern": "(\\$\\|)",
-    "type": "operation"
-  },
-  {
-    "name": "!$|",
-    "remove": "$!|",
-    "pattern": "(\\$\\!\\|)",
-    "type": "operation"
-  },
-  {
-    "name": "!$|",
-    "remove": "!$|",
-    "pattern": "(\\!\\$\\|)",
-    "type": "operation"
-  },
-  {
-    "name": "!&",
-    "remove": "!&",
-    "pattern": "(\\!\\&)",
     "type": "operation"
   },
   {
@@ -466,13 +436,6 @@ var keywordJSON =
     "remove": "||",
     "pattern": "(\\|\\|)",
     "type": "operation"
-  },
-  {
-    "name": "!",
-    "remove": "!",
-    "pattern": "\\!",
-    "type": "?operation",
-    "comment": "?operation is just notation for the error detector to not detect this as an operation"
   },
   {
     "name": "&",

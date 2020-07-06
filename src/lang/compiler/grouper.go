@@ -58,7 +58,6 @@ func makeGroups(lex []Lex) [][]Item {
         exp = append(exp, lex[i])
       }
 
-      i++
       groupedExp := makeGroups(exp)
       groups[len(groups) - 1] = append(groups[len(groups) - 1], Item{
         Type: braceType,
@@ -79,5 +78,14 @@ func makeGroups(lex []Lex) [][]Item {
 
   }
 
-  return groups
+  //filter empty groups out
+  var filteredGroups = [][]Item{}
+
+  for _, v := range groups {
+    if len(v) != 0 {
+      filteredGroups = append(filteredGroups, v)
+    }
+  }
+
+  return filteredGroups
 }

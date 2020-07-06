@@ -128,12 +128,13 @@ func lexer(file, dirname, filename string) []Lex {
 
       num := ""
 
-      for ;unicode.IsDigit(rune(strings.TrimSpace(file)[i:][0])) || strings.TrimSpace(file)[i:][0] == '.'; i++ {
-        num+=string(strings.TrimSpace(file)[i:][0])
-        if len(strings.TrimSpace(file)[i + 1:]) == 0 {
+      for o := i; unicode.IsDigit(rune(strings.TrimSpace(file)[o:][0])) || strings.TrimSpace(file)[o:][0] == '.'; o++ {
+        num+=string(strings.TrimSpace(file)[o:][0])
+        if len(strings.TrimSpace(file)[o + 1:]) == 0 {
           break
         }
       }
+      i+=len(num) - 1
 
       if !positive {
         num = "-" + num
@@ -149,7 +150,6 @@ func lexer(file, dirname, filename string) []Lex {
         OName: num,
         Dir: path.Join(dirname, filename),
       })
-      i--
     } else {
 
       if unicode.IsSpace(rune(file[i:][0])) {
@@ -202,7 +202,7 @@ func lexer(file, dirname, filename string) []Lex {
   }
   lex = newLex
 
-  lex = term_inserter(tilde_inserter(lex))
+  lex = term_inserter(tilde_inserter(funcLex(lex)))
 
   return lex
 }
