@@ -2,31 +2,21 @@ package interpreter
 
 import "os"
 import "fmt"
-import "math"
-import "strconv"
 
-type CliParams map[string]map[string]interface{}
+import . "lang/types"
 
-//number sizes
-
-//export DigitSize
-const DigitSize = 1;
-//export MAX_DIGIT
-var MAX_DIGIT = int64(math.Pow(10, DigitSize) - 1)
-//export MIN_DIGIT
-var MIN_DIGIT = -1 * MAX_DIGIT
-
-//////////////
+var threads []OmmThread
 
 //export RunInterpreter
 func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[string]interface{}, dir string) {
   var vars = make(map[string]Variable)
 
   for k, v := range compiledVars {
+    _ = v
     vars[k] = Variable{
       Type: "global",
       Name: k,
-      Value: interpreter(v, cli_params, vars, true, make([]Action, 0), dir).Exp,
+      // Value: interpreter(v, cli_params, vars, true, make([]Action, 0), dir).Exp,
     }
   }
 
@@ -43,13 +33,14 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[
     os.Exit(1)
   } else {
     main := vars["$main"]
-    called := interpreter(main.Value.ExpAct, cli_params, vars, true, make([]Action, 0), dir).Exp
+    _ = main
+    // called := interpreter(main.Value.ExpAct, cli_params, vars, true, make([]Action, 0), dir).Exp
 
     for _, v := range threads {
       v.WaitFor()
     }
 
-    exitType, _ := strconv.Atoi(cast(called, "string").ExpStr) //convert return value to int
-    os.Exit(exitType)
+    // exitType, _ := strconv.Atoi(cast(called, "string").ExpStr) //convert return value to int
+    // os.Exit(exitType)
   }
 }

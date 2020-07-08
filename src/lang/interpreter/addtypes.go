@@ -1,5 +1,6 @@
 package interpreter
 
+import . "lang/types"
 import "strconv"
 
 //string + (* - array - hash) = string
@@ -17,12 +18,12 @@ func string__plus__all_not_array_not_hash(num1, num2 Action, cli_params CliParam
 func array__plus__all(num1, num2 Action, cli_params CliParams) Action {
 
   if num1.Type == "array" {
-    num1.Hash_Values[strconv.Itoa(len(num1.Hash_Values))] = []Action{ num2 }
+    num1.Hash_Values[strconv.Itoa(len(num1.Hash_Values))] = num2
 
     return num1
   } else {
 
-    var newHash = make(map[string][]Action)
+    var newHash = make(map[string]Action)
 
     for k, v := range num2.Hash_Values {
       integer, decimal := BigNumConverter(k) //convert to integer and decimal
@@ -32,7 +33,7 @@ func array__plus__all(num1, num2 Action, cli_params CliParams) Action {
       newHash[cast(added, "string").ExpStr /* convert to string */ ] = v
     }
 
-    newHash["0"] = []Action{ num1 }
+    newHash["0"] = num1
 
     val := arr
     val.Hash_Values = newHash

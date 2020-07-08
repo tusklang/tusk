@@ -1,5 +1,7 @@
 package interpreter
 
+import . "lang/types"
+
 func multiply(num1, num2 Action, cli_params CliParams) Action {
 
   /* TABLE OF TYPES:

@@ -1,5 +1,6 @@
 package interpreter
 
+import . "lang/types"
 import "math/big"
 
 //convert the numbers (integers/decimals) to bigints
@@ -165,7 +166,7 @@ func equals(val1, val2 Action) bool {
         return false
       }
 
-      if !equals(val1.Hash_Values[k][0], val2.Hash_Values[k][0]) {
+      if !equals(val1.Hash_Values[k], val2.Hash_Values[k]) {
         return false
       }
     }

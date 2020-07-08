@@ -1,5 +1,7 @@
 package interpreter
 
+import . "lang/types"
+
 func similar(val1, val2, degree Action, cli_params CliParams, vars map[string]Variable, this_vals []Action, dir string) bool {
 
   if degree.Type == "falsey" { //if the degree is undef, the degree is zero
@@ -27,7 +29,7 @@ func similar(val1, val2, degree Action, cli_params CliParams, vars map[string]Va
         goto addone
       }
 
-      if isEqual(interpreter(v, cli_params, vars, true, this_vals, dir).Exp, interpreter(val2.Hash_Values[k], cli_params, vars, true, this_vals, dir).Exp) {
+      if isEqual(interpreter([]Action{ v }, cli_params, vars, true, this_vals, dir).Exp, interpreter([]Action{ val2.Hash_Values[k] }, cli_params, vars, true, this_vals, dir).Exp) {
         continue
       }
 
@@ -92,7 +94,7 @@ func strictSimilar(val1, val2, degree Action, cli_params CliParams, vars map[str
         goto addone
       }
 
-      if isEqual(interpreter(v, cli_params, vars, true, this_vals, dir).Exp, interpreter(val2.Hash_Values[k], cli_params, vars, true, this_vals, dir).Exp) {
+      if isEqual(interpreter([]Action{ v }, cli_params, vars, true, this_vals, dir).Exp, interpreter([]Action{ val2.Hash_Values[k] }, cli_params, vars, true, this_vals, dir).Exp) {
         continue
       }
 

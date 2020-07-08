@@ -1,5 +1,6 @@
 package interpreter
 
+import . "lang/types"
 import "strconv"
 
 func cast(val Action, nType string) Action {
@@ -18,7 +19,7 @@ func cast(val Action, nType string) Action {
         ommRune.Access = "public"
         ommRune.ExpStr = string(v)
 
-        val.Hash_Values[strconv.Itoa(k)] = []Action{ ommRune }
+        val.Hash_Values[strconv.Itoa(k)] = ommRune
       }
   }
 

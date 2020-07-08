@@ -3,6 +3,8 @@ package interpreter
 import "strconv"
 import "math"
 
+import . "lang/types"
+
 func num_normalize(num Action) string {
 
   /*

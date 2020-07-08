@@ -10,6 +10,8 @@ import "os"
 import "os/exec"
 import "io/ioutil"
 
+import . "lang/types"
+
 var gofuncs = map[string]func(args [][]Action, cli_params CliParams, vars map[string]Variable, this_vals []Action, dir string) Action {
 
   "wait": func(args [][]Action, cli_params CliParams, vars map[string]Variable, this_vals []Action, dir string) Action {
@@ -61,7 +63,7 @@ var gofuncs = map[string]func(args [][]Action, cli_params CliParams, vars map[st
       val := interpreter(args[0], cli_params, vars, true, this_vals, dir).Exp
 
       //copy the elements of the hash
-      var hash = make(map[string][]Action)
+      var hash = make(map[string]Action)
       for k, v := range val.Hash_Values {
         hash[k] = v
       }
@@ -77,7 +79,6 @@ var gofuncs = map[string]func(args [][]Action, cli_params CliParams, vars map[st
         First: append([]Action{}, val.First...),
         Second: append([]Action{}, val.Second...),
         Degree: append([]Action{}, val.Degree...),
-        Value: append([][]Action{}, val.Value...),
         Indexes: append([][]Action{}, val.Indexes...),
         Hash_Values: hash,
         Access: val.Access,
@@ -218,7 +219,7 @@ var gofuncs = map[string]func(args [][]Action, cli_params CliParams, vars map[st
         runeP := emptyRune
         runeP.ExpStr = string(v)
 
-        retStr.Hash_Values[strconv.Itoa(k)] = []Action{ runeP }
+        retStr.Hash_Values[strconv.Itoa(k)] = runeP
       }
 
       return retStr
@@ -252,7 +253,7 @@ var gofuncs = map[string]func(args [][]Action, cli_params CliParams, vars map[st
         statStr := emptyString
         statStr.ExpStr = v.Name()
 
-        ommarray.Hash_Values[cast(idx, "string").ExpStr] = []Action{ statStr }
+        ommarray.Hash_Values[cast(idx, "string").ExpStr] = statStr
         idx = number__plus__number(idx, one, cli_params)
       }
 

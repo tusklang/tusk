@@ -3,6 +3,8 @@ package interpreter
 import "strconv"
 import "strings"
 
+import . "lang/types"
+
 func naive_mul(num1, num2 Action, cli_params CliParams) Action {
   ensurePrec(&num1, &num2, cli_params)
 
@@ -95,7 +97,7 @@ func string__times__number(num1, num2 Action, cli_params CliParams) Action {
   for _, v := range finalAct.ExpStr {
     var curRune = emptyRune
     curRune.ExpStr = string(v)
-    finalAct.Hash_Values[strings.TrimPrefix(num_normalize(i), ".0") /* remove the ".0" from the end */ ] = []Action{ curRune }
+    finalAct.Hash_Values[strings.TrimPrefix(num_normalize(i), ".0") /* remove the ".0" from the end */ ] = curRune
   }
 
   return finalAct

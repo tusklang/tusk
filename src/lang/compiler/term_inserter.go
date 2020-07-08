@@ -15,10 +15,6 @@ func term_inserter(lex []Lex) []Lex {
       continue
     }
 
-    if v.Type == "cond" || v.Type == "function" { //because conditionals and functions do not need a semicolon after them
-      continue
-    }
-
     if v.Type[0] == '?' && k + 2 <= len(lex) && lex[k + 1].Type[0] == '?' { //detect types with a ? prefix
       continue
     }

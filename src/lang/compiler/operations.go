@@ -2,10 +2,11 @@ package compiler
 
 type Operation struct {
   Type        string
+  Line        uint64
   Left       *Operation
   Right      *Operation
   Degree     *Operation
-  Items     []Item //in case there is no operation
+  Item        Item //in case there is no operation
 }
 
 var operations []map[string]func(exp []Item, index int, opType string)Operation
@@ -26,6 +27,16 @@ func operationIncludes(group []Item) bool {
 
 func indexOper(group []Item, oper string) int {
 
+  if oper == "~" || oper == ":" { //because these ones start from the beginning
+    for k, v := range group {
+      if v.Token.Name == oper {
+        return k
+      }
+    }
+
+    return -1
+  }
+
   for i := len(group) - 1; i >= 0; i-- {
     if group[i].Token.Name == oper {
       return i
@@ -45,6 +56,7 @@ func normalOpFunc(exp []Item, index int, opType string) Operation {
 
   return Operation{
     Type: opType,
+    Line: exp[index].Line,
     Left: &makeOperations([][]Item{ left })[0],
     Right: &makeOperations([][]Item{ right })[0],
   }
@@ -74,6 +86,7 @@ func similarityOpFunc(exp []Item, index int, opType string) Operation {
 
   return Operation{
     Type: opType,
+    Line: exp[index].Line,
     Left: &makeOperations([][]Item{ left })[0],
     Right: &makeOperations([][]Item{ right })[0],
     Degree: &makeOperations([][]Item{ degExp })[0],
@@ -81,7 +94,7 @@ func similarityOpFunc(exp []Item, index int, opType string) Operation {
 }
 
 //ODO is
-// tilde operator
+// statement operator (~)
 // assigner (:)
 // boolean operations (except not gate)
 // comparisons
@@ -97,6 +110,7 @@ func makeOperations(groups [][]Item) []Operation {
   operations = []map[string]func(exp []Item, index int, opType string) Operation {
     map[string]func(exp []Item, index int, opType string) Operation {
       "~": normalOpFunc,
+      "?": normalOpFunc,
     },
     map[string]func(exp []Item, index int, opType string) Operation {
       ":": normalOpFunc,
@@ -136,6 +150,7 @@ func makeOperations(groups [][]Item) []Operation {
       "!": func(exp []Item, index int, opType string) Operation {
         return Operation{
           Type: opType,
+          Line: exp[index].Line,
           Right: &makeOperations([][]Item{ exp[index + 1:] })[0],
         }
       },
@@ -144,12 +159,14 @@ func makeOperations(groups [][]Item) []Operation {
       "++": func(exp []Item, index int, opType string) Operation {
         return Operation{
           Type: opType,
+          Line: exp[index].Line,
           Left: &makeOperations([][]Item{ exp[:index] })[0],
         }
       },
       "--": func(exp []Item, index int, opType string) Operation {
         return Operation{
           Type: opType,
+          Line: exp[index].Line,
           Left: &makeOperations([][]Item{ exp[:index] })[0],
         }
       },
@@ -169,7 +186,8 @@ func makeOperations(groups [][]Item) []Operation {
     if !operationIncludes(v) {
       newGroups = append(newGroups, Operation{
         Type: "none",
-        Items: v,
+        Line: v[0].Line,
+        Item: v[0],
       })
     }
 

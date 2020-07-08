@@ -3,6 +3,8 @@ package interpreter
 import "fmt"
 import "strings"
 
+import . "lang/types"
+
 func log_format(in Action, hash_spacing int, endl bool) {
 
   switch in.Type {
@@ -17,12 +19,12 @@ func log_format(in Action, hash_spacing int, endl bool) {
 
       for k, v := range in.Hash_Values {
 
-        if v[0].Access == "private" { //if it is private, do not print it
+        if v.Access == "private" { //if it is private, do not print it
           continue
         }
 
         fmt.Print(strings.Repeat(" ", hash_spacing) +  k + ": ")
-        log_format(v[0], hash_spacing + 2, true)
+        log_format(v, hash_spacing + 2, true)
       }
 
       fmt.Print(strings.Repeat(" ", hash_spacing - 2) + ":]")
@@ -37,13 +39,13 @@ func log_format(in Action, hash_spacing int, endl bool) {
 
       for k, v := range in.Hash_Values {
 
-        if v[0].Access == "private" { //if it is private, do not print it
+        if v.Access == "private" { //if it is private, do not print it
           fmt.Println(strings.Repeat(" ", hash_spacing) + "::private::")
           continue
         }
 
         fmt.Print(strings.Repeat(" ", hash_spacing) +  k + ": ")
-        log_format(v[0], hash_spacing + 2, true)
+        log_format(v, hash_spacing + 2, true)
       }
 
       fmt.Print(strings.Repeat(" ", hash_spacing - 2) + "]")

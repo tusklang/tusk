@@ -30,8 +30,6 @@ func lexer(file, dirname, filename string) []Lex {
 
   for i := 0; i < len(file); i++ {
 
-    for ;len(file[i:]) != 0 && unicode.IsSpace(rune(file[i:][0])); i++ {}
-
     if len(strings.TrimSpace(file[i:])) == 0 {
       break
     }
@@ -53,7 +51,7 @@ func lexer(file, dirname, filename string) []Lex {
       continue
     }
 
-    for ;unicode.IsSpace(rune(file[i])); {
+    if unicode.IsSpace(rune(file[i])) {
       continue
     }
 
@@ -106,7 +104,7 @@ func lexer(file, dirname, filename string) []Lex {
       line+=uint64(strings.Count(value, "\n"))
       i++
       lex = append(lex, Lex{
-        Name: "\"" + value[:len(value) - 1] + "\"",
+        Name: string(qType) + value,
         Exp: curExp,
         Line: line,
         Type: "expression value",

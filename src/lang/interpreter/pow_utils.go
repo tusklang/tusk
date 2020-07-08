@@ -4,6 +4,8 @@ package interpreter
 
 import "strconv"
 
+import . "lang/types"
+
 func number__pow__integer(num1, num2 Action, cli_params CliParams) Action {
   ensurePrec(&num1, &num2, cli_params)
 

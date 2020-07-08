@@ -4,7 +4,7 @@ import "encoding/gob"
 import "os"
 
 import "lang/compiler" //compiler
-import . "lang/interpreter"
+import . "lang/types"
 
 //export Compile
 func Compile(params map[string]map[string]interface{}) {

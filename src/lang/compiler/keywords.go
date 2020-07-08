@@ -24,12 +24,6 @@ var keywordJSON =
     "type": "operation"
   },
   {
-    "name": "=>",
-    "remove": "=>",
-    "pattern": "(\\=\\>)",
-    "type": "operation"
-  },
-  {
     "name": "++",
     "remove": "++",
     "pattern": "(\\+\\+)",
@@ -78,12 +72,6 @@ var keywordJSON =
     "type": "?operation"
   },
   {
-    "name": "each",
-    "remove": "each",
-    "pattern": "(each(\\s*)\\()",
-    "type": "cond"
-  },
-  {
     "name": "~~~",
     "remove": "~~~",
     "pattern": "((~~~))",
@@ -94,12 +82,6 @@ var keywordJSON =
     "remove": "~~",
     "pattern": "(~~)",
     "type": "operation"
-  },
-  {
-    "name": "alt",
-    "remove": "alt",
-    "pattern": "(alt\\()",
-    "type": "cond"
   },
   {
     "name": "log",
@@ -165,12 +147,6 @@ var keywordJSON =
     "name": "::",
     "remove": "::",
     "pattern": "(\\:\\:)",
-    "type": "operation"
-  },
-  {
-    "name": ":",
-    "remove": ":=",
-    "pattern": "(\\:\\=)",
     "type": "operation"
   },
   {
@@ -324,34 +300,40 @@ var keywordJSON =
     "type": "id"
   },
   {
-    "name": "if",
-    "remove": "if",
-    "pattern": "(if(\\s*)\\()",
-    "type": "cond"
+    "name": "?",
+    "remove": "?",
+    "pattern": "(\\?)",
+    "type": "operation"
   },
   {
-    "name": "elseif",
-    "remove": "elseif",
-    "pattern": "(else(\\s*)if(\\s*)\\()",
-    "type": "cond"
-  },
-  {
-    "name": "else",
-    "remove": "else",
-    "pattern": "(else(\\s*)(\\{|\\~))",
-    "type": "cond"
-  },
-  {
-    "name": "else",
-    "remove": "else",
-    "pattern": "(else(\\s+))",
+    "name": "cond",
+    "remove": "cond",
+    "pattern": "(cond\\s*\\[)",
     "type": "id"
   },
   {
-    "name": "loop",
-    "remove": "loop",
-    "pattern": "(loop(\\s*)\\()",
-    "type": "cond"
+    "name": "while",
+    "remove": "while",
+    "pattern": "(while(\\s*)\\()",
+    "type": "id"
+  },
+  {
+    "name": "while",
+    "remove": "while",
+    "pattern": "(while(\\s*)\\{)",
+    "type": "id"
+  },
+  {
+    "name": "each",
+    "remove": "each",
+    "pattern": "(each(\\s*)\\()",
+    "type": "id"
+  },
+  {
+    "name": "each",
+    "remove": "each",
+    "pattern": "(each(\\s*)\\{)",
+    "type": "id"
   },
   {
     "name": "<=",
@@ -460,12 +442,6 @@ var keywordJSON =
     "remove": "skip",
     "pattern": "(skip(\\s+))",
     "type": "id_non_tilde"
-  },
-  {
-    "name": "loop",
-    "remove": "while",
-    "pattern": "(while\\()",
-    "type": "cond"
   },
   {
     "name": "number",

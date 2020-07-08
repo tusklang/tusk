@@ -6,6 +6,7 @@ type Item struct {
   //otherwise, the Token field will be used
 
   Type       string
+  Line       uint64
   Group  [][]Item
   Token      Lex
 }
@@ -40,7 +41,13 @@ func makeGroups(lex []Lex) [][]Item {
 
       braceTypes[braceType]++
 
+      var line uint64 = 0
+
       for i++ ;i < len(lex); i++ {
+
+        if line == 0 {
+          line = lex[i].Line
+        }
 
         //account for opening braces
         if _, exists := braceTypes[lex[i].Name]; exists {
@@ -61,17 +68,19 @@ func makeGroups(lex []Lex) [][]Item {
       groupedExp := makeGroups(exp)
       groups[len(groups) - 1] = append(groups[len(groups) - 1], Item{
         Type: braceType,
+        Line: line,
         Group: groupedExp,
       })
     } else {
 
-      if lex[i].Name == "$term" {
+      if lex[i].Name == "$term" || lex[i].Name == "," {
         groups = append(groups, []Item{})
         continue
       }
 
       groups[len(groups) - 1] = append(groups[len(groups) - 1], Item{
         Type: lex[i].Type,
+        Line: lex[i].Line,
         Token: lex[i],
       })
     }

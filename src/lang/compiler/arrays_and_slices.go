@@ -3,7 +3,7 @@ package compiler
 import "strings"
 import "reflect"
 
-import . "lang/interpreter"
+import . "lang/types"
 
 func arrayContain(arr []string, sub string) bool {
 

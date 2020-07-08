@@ -4,7 +4,8 @@ import "encoding/gob"
 import "os"
 import "fmt"
 
-import ."lang/interpreter"
+import . "lang/interpreter"
+import . "lang/types"
 
 //export Run
 func Run(params map[string]map[string]interface{}) {
