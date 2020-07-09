@@ -5,7 +5,7 @@ import "math"
 
 import . "lang/types"
 
-func num_normalize(num Action) string {
+func num_normalize(num OmmNumber) string {
 
   /*
   ALGORITHM TO NORMALIZE:
@@ -25,8 +25,8 @@ func num_normalize(num Action) string {
         finally, return the result
   */
 
-  integer := num.Integer
-  decimal := num.Decimal
+  integer := *num.Integer
+  decimal := *num.Decimal
 
   //the first digit is actually the last index
   //because omm numbers are stored as so [1234, 5678, 9101] = 910, 156, 781, 234

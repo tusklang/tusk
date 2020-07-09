@@ -8,7 +8,7 @@ import "os/exec"
 
 //export ReadFileJS
 func ReadFileJS(fileName string) []map[string]string {
-  readCmd := exec.Command("./lang/compiler/imports/index-win.exe")
+  readCmd := exec.Command("./lang/compiler/imports/index-linux")
 
   readCmd.Stdin = strings.NewReader(fileName)
 

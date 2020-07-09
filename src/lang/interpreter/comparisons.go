@@ -16,25 +16,25 @@ func sliceToBigInt(slice []int64) *big.Int {
   return bigVal
 }
 
-func toBig(val1, val2 Action) (*big.Int, *big.Int, *big.Int, *big.Int) {
+func toBig(val1, val2 OmmNumber) (*big.Int, *big.Int, *big.Int, *big.Int) {
   int1, dec1 := val1.Integer, val1.Decimal
   int2, dec2 := val2.Integer, val2.Decimal
 
   var (
-    bigInt1 = sliceToBigInt(int1)
-    bigInt2 = sliceToBigInt(int2)
-    bigDec1 = sliceToBigInt(dec1)
-    bigDec2 = sliceToBigInt(dec2)
+    bigInt1 = sliceToBigInt(*int1)
+    bigInt2 = sliceToBigInt(*int2)
+    bigDec1 = sliceToBigInt(*dec1)
+    bigDec2 = sliceToBigInt(*dec2)
   )
 
   return bigInt1, bigInt2, bigDec1, bigDec2
 }
 
-func isTruthy(val Action) bool {
-  return !(val.ExpStr == "false" || val.Type == "falsey")
+func isTruthy(val OmmType) bool {
+  return false //for now
 }
 
-func isLess(val1, val2 Action) bool {
+func isLess(val1, val2 OmmNumber) bool {
 
   //manage for leading zeros in the decimal
   var num1ZeroLeadingDec int
@@ -42,12 +42,12 @@ func isLess(val1, val2 Action) bool {
 
   num1DecGreater := false //if num1 has less leading zeros
 
-  for ;len(val1.Decimal) != 0 && val1.Decimal[len(val1.Decimal) - 1] == 0; {
-    val1.Decimal = val1.Decimal[:len(val1.Decimal) - 1]
+  for ;len(*val1.Decimal) != 0 && (*val1.Decimal)[len(*val1.Decimal) - 1] == 0; {
+    *val1.Decimal = (*val1.Decimal)[:len(*val1.Decimal) - 1]
     num1ZeroLeadingDec++
   }
-  for ;len(val2.Decimal) != 0 && val2.Decimal[len(val2.Decimal) - 1] == 0; {
-    val2.Decimal = val2.Decimal[:len(val2.Decimal) - 1]
+  for ;len(*val2.Decimal) != 0 && (*val2.Decimal)[len(*val2.Decimal) - 1] == 0; {
+    *val2.Decimal = (*val2.Decimal)[:len(*val2.Decimal) - 1]
     num2ZeroLeadingDec++
   }
 
@@ -69,7 +69,7 @@ func isLess(val1, val2 Action) bool {
   return bigdec1.Cmp(bigdec2) == -1
 }
 
-func isEqual(val1, val2 Action) bool {
+func isEqual(val1, val2 OmmNumber) bool {
 
   //manage for leading zeros in the decimal
   var num1ZeroLeadingDec int
@@ -77,12 +77,12 @@ func isEqual(val1, val2 Action) bool {
 
   num1DecNotEqual := true //if num1 has less leading zeros
 
-  for ;len(val1.Decimal) != 0 && val1.Decimal[len(val1.Decimal) - 1] == 0; {
-    val1.Decimal = val1.Decimal[:len(val1.Decimal) - 1]
+  for ;len(*val1.Decimal) != 0 && (*val1.Decimal)[len(*val1.Decimal) - 1] == 0; {
+    *val1.Decimal = (*val1.Decimal)[:len(*val1.Decimal) - 1]
     num1ZeroLeadingDec++
   }
-  for ;len(val2.Decimal) != 0 && val2.Decimal[len(val2.Decimal) - 1] == 0; {
-    val2.Decimal = val2.Decimal[:len(val2.Decimal) - 1]
+  for ;len(*val2.Decimal) != 0 && (*val2.Decimal)[len(*val2.Decimal) - 1] == 0; {
+    *val2.Decimal = (*val2.Decimal)[:len(*val2.Decimal) - 1]
     num2ZeroLeadingDec++
   }
 
@@ -104,7 +104,7 @@ func isEqual(val1, val2 Action) bool {
   return bigdec1.Cmp(bigdec2) == 0
 }
 
-func isLessOrEqual(val1, val2 Action) bool {
+func isLessOrEqual(val1, val2 OmmNumber) bool {
 
   //manage for leading zeros in the decimal
   var num1ZeroLeadingDec int
@@ -112,12 +112,12 @@ func isLessOrEqual(val1, val2 Action) bool {
 
   num1DecLess := false //if num1 has less leading zeros
 
-  for ;len(val1.Decimal) != 0 && val1.Decimal[len(val1.Decimal) - 1] == 0; {
-    val1.Decimal = val1.Decimal[:len(val1.Decimal) - 1]
+  for ;len(*val1.Decimal) != 0 && (*val1.Decimal)[len(*val1.Decimal) - 1] == 0; {
+    *val1.Decimal = (*val1.Decimal)[:len(*val1.Decimal) - 1]
     num1ZeroLeadingDec++
   }
-  for ;len(val2.Decimal) != 0 && val2.Decimal[len(val2.Decimal) - 1] == 0; {
-    val2.Decimal = val2.Decimal[:len(val2.Decimal) - 1]
+  for ;len(*val2.Decimal) != 0 && (*val2.Decimal)[len(*val2.Decimal) - 1] == 0; {
+    *val2.Decimal = (*val2.Decimal)[:len(*val2.Decimal) - 1]
     num2ZeroLeadingDec++
   }
 
@@ -139,42 +139,11 @@ func isLessOrEqual(val1, val2 Action) bool {
   return bigdec1.Cmp(bigdec2) <= 0
 }
 
-func abs(val Action, cli_params CliParams) Action {
+func abs(val OmmNumber, cli_params CliParams) OmmType {
 
   if isLess(val, zero) {
     return number__times__number(val, neg_one, cli_params)
   }
 
   return val
-}
-
-//function to determine if two actions are equal
-func equals(val1, val2 Action) bool {
-
-  if val1.Type == "number" && val2.Type == "number" {
-    return isEqual(val1, val2)
-  } else if val1.Name == "hashed_value" && val1.Name == "hashed_value" {
-    if len(val1.Hash_Values) < len(val2.Hash_Values) { //ensure val1 has more hash values
-      val1, val2 = val2, val1
-    }
-
-    //loop through the keys of val1, and if val1[k] == val2[k] they are equal
-    for k := range val1.Hash_Values {
-
-      //check if val2 has k
-      if _, exists := val2.Hash_Values[k]; !exists {
-        return false
-      }
-
-      if !equals(val1.Hash_Values[k], val2.Hash_Values[k]) {
-        return false
-      }
-    }
-
-    return true //if they are all equal, return true
-  } else {
-
-    //for lazy (type insensitive) comparisons, use ~~ (similarity with no degree)
-    return val1.ExpStr == val2.ExpStr && val1.Type == val2.Type
-  }
 }

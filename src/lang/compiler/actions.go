@@ -1,16 +1,6 @@
 package compiler
 
-import "fmt"
-import "os"
-import "strconv"
-
 import . "lang/types"
-
-func actionizerErr(msg string, dir string, line uint64) {
-  colorprint("Error while actionizing " + dir + " at line " + strconv.FormatUint(line, 10) + "\n", 12)
-  fmt.Println(msg)
-  os.Exit(1)
-}
 
 func actionizer(operations []Operation, dir string) []Action {
 
@@ -35,7 +25,7 @@ func actionizer(operations []Operation, dir string) []Action {
     switch v.Type {
       case "~":
 
-        var statements = []string{ "local", "global", "log", "print", "cond", "while", "each" } //list of statements
+        var statements = []string{ "local", "global", "log", "print", "cond", "while", "each", "include" } //list of statements
 
         var hasStatement bool = false
 
@@ -59,27 +49,40 @@ func actionizer(operations []Operation, dir string) []Action {
                 //give an error
 
                 if right[0].Type != "array" {
-                  actionizerErr("Conditionals require an array to loop through", dir, v.Line)
+                  compilerErr("Conditionals require an array to loop through", dir, v.Line)
                 }
             }
 
-            actions = append(actions, Action{
-              Type: val,
-              Name: name,
-              ExpAct: right,
-            })
+            if val == "include" { //if it is include, it is different than the other statements
+              if right[0].Type != "string" {
+                compilerErr("Expected a string after \"include\"", dir, v.Line)
+              }
+
+              included := includer(right[0].Value.(OmmString).ToGoType(), v.Line, dir)
+
+              for _, acts := range included {
+                actions = append(actions, acts...)
+              }
+
+            } else {
+              actions = append(actions, Action{
+                Type: val,
+                Name: name,
+                ExpAct: right,
+              })
+            }
 
             hasStatement = true
           }
         }
 
         if !hasStatement {
-          actionizerErr("\"" + (*v.Left).Item.Token.Name + "\" is not a statement", dir, v.Line)
+          compilerErr("\"" + (*v.Left).Item.Token.Name + "\" is not a statement", dir, v.Line)
         }
       case ":":
 
         if len(left) == 0 || left[0].Type != "variable" {
-          actionizerErr("Must have a variable before an assigner operator", dir, v.Line)
+          compilerErr("Must have a variable before an assigner operator", dir, v.Line)
         }
 
         varname := left[0].Name
@@ -132,7 +135,7 @@ func actionizer(operations []Operation, dir string) []Action {
       case "--":
 
         if len(left) == 0 || left[0].Type != "variable" {
-          actionizerErr("Must have a variable before an increment or decrement", dir, v.Line)
+          compilerErr("Must have a variable before an increment or decrement", dir, v.Line)
         }
 
         actions = append(actions, Action{
@@ -148,16 +151,28 @@ func actionizer(operations []Operation, dir string) []Action {
       case "^=":
 
         if len(left) == 0 || left[0].Type != "variable" {
-          actionizerErr("Must have a variable before an assignment operator", dir, v.Line)
+          compilerErr("Must have a variable before an assignment operator", dir, v.Line)
         }
         if len(right) == 0 {
-          actionizerErr("Could not find a value after " + v.Type, dir, v.Line)
+          compilerErr("Could not find a value after " + v.Type, dir, v.Line)
         }
 
         actions = append(actions, Action{
           Type: v.Type,
           Name: left[0].Name,
           Second: right,
+        })
+
+      case "cb-ob":
+        //this is the operator to connect a closing brace to an opening brace
+        //  like this:
+        //  while (true) {}
+        //between ) and { there must be an operator because everything in omm is an operation
+
+        actions = append(actions, Action{
+          Type: "cb-ob",
+          First: left,
+          ExpAct: right,
         })
 
       case "none":

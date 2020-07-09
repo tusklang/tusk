@@ -2,26 +2,24 @@ package interpreter
 
 import . "lang/types"
 
-func subtract(num1, num2 Action, cli_params CliParams) Action {
+func number__minus__number(val1, val2 OmmType, cli_params CliParams) OmmType {
+  num1, num2 := val1.(OmmNumber), val2.(OmmNumber)
+  ensurePrec(&num1, &num2, cli_params)
 
-  /* TABLE OF TYPES:
+  num2Placeholder := zero //create a placeholder for num2 (so it wont mutate)
+  *num2Placeholder.Integer, *num2Placeholder.Decimal = make([]int64, len(*num2.Integer)), make([]int64, len(*num2.Decimal)) //allocate the length
 
-    num - num = num
-    default = falsey
-  */
+  //looks like this
+  // a - b = a + -b
 
-  type1 := num1.Type
-  type2 := num2.Type
-
-  var final Action
-
-  if type1 == "number" && type2 == "number" {
-    //detect case `num - num = num`
-    final = number__minus__number(num1, num2, cli_params)
-  } else {
-    //detect default case
-    final = undef
+  //invert the decimal
+  for k, v := range *num2.Decimal {
+    (*num2Placeholder.Decimal)[k] = -1 * v
+  }
+  //invert the integer
+  for k, v := range *num2.Integer {
+    (*num2Placeholder.Integer)[k] = -1 * v
   }
 
-  return final
+  return number__plus__number(num1, num2Placeholder, cli_params)
 }

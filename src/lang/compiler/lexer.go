@@ -18,11 +18,11 @@ type Lex struct {
 //length of each error expression
 const EXPRESSION_LEN = 30
 
+var keywords []map[string]string
+
+var _ = json.Unmarshal(keywordJSON, &keywords)
+
 func lexer(file, dirname, filename string) []Lex {
-
-  var keywords []map[string]string
-
-  _ = json.Unmarshal(keywordJSON, &keywords)
 
   var lex []Lex
   curExp := ""
@@ -199,6 +199,14 @@ func lexer(file, dirname, filename string) []Lex {
     newLex = append(newLex, v)
   }
   lex = newLex
+  newLex = nil
+
+  //detect two operators back to back (which is an error)
+  for k, v := range lex {
+    if v.Type == "operation" && k + 1 < len(lex) && lex[k + 1].Type == "operation" {
+      compilerErr("Cannot have two operations next to each other \nFound near this expression: " + lex[k + 1].Exp, path.Join(dirname, filename), lex[k + 1].Line)
+    }
+  }
 
   lex = term_inserter(tilde_inserter(funcLex(lex)))
 
@@ -207,5 +215,24 @@ func lexer(file, dirname, filename string) []Lex {
 
 func testkey(keyword map[string]string, file string, i int) bool {
   re, _ := regexp.Compile("^(" + keyword["pattern"] + ")")
-  return re.MatchString(strings.TrimSpace(file[i:]))
+  matched := re.MatchString(strings.TrimSpace(file[i:]))
+
+  if matched {
+    if keyword["name"] == "+" || keyword["name"] == "-" {
+      //because + and - can also be used as signs
+      //if +/- comes after a keyword or operation, it must be a sign
+
+      for _, v := range keywords {
+        re, _ := regexp.Compile("(" + v["pattern"] + ")$")
+        matched := re.MatchString(strings.TrimSpace(file[:i]))
+
+        if matched {
+          return false
+        }
+      }
+
+    }
+  }
+
+  return matched
 }

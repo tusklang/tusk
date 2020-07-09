@@ -2,42 +2,113 @@ package interpreter
 
 import . "lang/types"
 
-func add(num1, num2 Action, cli_params CliParams) Action {
+func number__plus__number(val1, val2 OmmType, cli_params CliParams) OmmType {
+  num1, num2 := val1.(OmmNumber), val2.(OmmNumber)
+  ensurePrec(&num1, &num2, cli_params)
 
-  /* TABLE OF TYPES:
+  int1 := *num1.Integer
+  int2 := *num2.Integer
+  dec1 := *num1.Decimal
+  dec2 := *num2.Decimal
 
-    string + (* - array - hash) = string
-    array + * = array
-    num + num = num
-    hash + hash = hash
-    boolean + boolean = boolean
-    default = falsey
-  */
-
-  type1 := num1.Type
-  type2 := num2.Type
-
-  var final Action
-
-  if (type1 == "string" && (type2 != "array" && type2 != "hash")) || (type2 == "string" && (type1 != "array" && type2 != "hash")) {
-    //detect case `string + (* - array - hash) = string`
-    final = string__plus__all_not_array_not_hash(num1, num2, cli_params)
-  } else if type1 == "array" || type2 == "array" {
-    //detect case `array + * = array`
-    final = array__plus__all(num1, num2, cli_params)
-  } else if type1 == "number" && type2 == "number" {
-    //detect case `num + num = num`
-    final = number__plus__number(num1, num2, cli_params)
-  } else if type1 == "hash" && type2 == "hash" {
-    //detect case `hash + hash = hash`
-    final = hash__plus__hash(num1, num2, cli_params)
-  } else if type1 == "boolean" && type2 == "boolean" {
-    //detect case `boolean + boolean = boolean`
-    final = bool__plus__bool(num1, num2, cli_params)
-  } else {
-    //detect default case
-    final = undef
+  //ensure that the lengths of num1 are larger than the lengths of num2
+  if len(int1) < len(int2) {
+    int1, int2 = int2, int1
+  }
+  if len(dec1) < len(dec2) {
+    dec1, dec2 = dec2, dec1
   }
 
-  return final
+  //got this from the python source code
+  //https://github.com/python/cpython/blob/master/Objects/longobject.c#L3003
+  //basically, it does not require an "if" statement to see if num2 has an element at an index
+
+  var carry int64 = 0
+
+  //do the decimal
+  newDec := make([]int64, len(dec1))
+  dec1Len := len(dec1)
+  dec2Len := len(dec2)
+
+  var deci1 int
+  var deci2 int
+
+  for ;deci1 < dec1Len - dec2Len; deci1++ {
+    added := dec1[deci1] + carry
+    carry = 0
+
+    if added > MAX_DIGIT {
+      carry = 1
+      added-=MAX_DIGIT + 1
+    }
+    if added < MIN_DIGIT {
+      carry = -1
+      added-=MIN_DIGIT - 1
+    }
+
+    newDec[deci1] = added
+  }
+  for ;deci1 < dec1Len; deci1, deci2 = deci1 + 1, deci2 + 1 {
+    added := dec1[deci1] + dec2[deci2] + carry
+    carry = 0
+
+    if added > MAX_DIGIT {
+      carry = 1
+      added-=MAX_DIGIT + 1
+    }
+    if added < MIN_DIGIT {
+      carry = -1
+      added-=MIN_DIGIT - 1
+    }
+
+    newDec[deci1] = added
+  }
+
+  //do the integer
+  newInt := make([]int64, len(int1))
+  int1Len := len(int1)
+  int2Len := len(int2)
+
+  var inti int
+
+  for ;inti < int2Len; inti++ {
+    added := int1[inti] + int2[inti] + carry
+    carry = 0
+
+    if added > MAX_DIGIT {
+      carry = 1
+      added-=MAX_DIGIT + 1
+    }
+    if added < MIN_DIGIT {
+      carry = -1
+      added-=MIN_DIGIT - 1
+    }
+
+    newInt[inti] = added
+  }
+  for ;inti < int1Len; inti++ {
+    added := int1[inti] + carry
+    carry = 0
+
+    if added > MAX_DIGIT {
+      carry = 1
+      added-=MAX_DIGIT + 1
+    }
+    if added < MIN_DIGIT {
+      carry = -1
+      added-=MIN_DIGIT - 1
+    }
+
+    newInt[inti] = added
+  }
+
+  if carry != 0 {
+    newInt = append(newInt, carry) //append the final carry to the new integer
+  }
+
+  number := zero
+  *number.Integer = newInt
+  *number.Decimal = newDec
+
+  return number
 }

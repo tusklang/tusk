@@ -25,25 +25,17 @@ func operationIncludes(group []Item) bool {
   return false
 }
 
-func indexOper(group []Item, oper string) int {
-
-  if oper == "~" || oper == ":" { //because these ones start from the beginning
-    for k, v := range group {
-      if v.Token.Name == oper {
-        return k
-      }
-    }
-
-    return -1
-  }
+func indexOper(group []Item, opers []string) (int, int) {
 
   for i := len(group) - 1; i >= 0; i-- {
-    if group[i].Token.Name == oper {
-      return i
+    for k, v := range opers {
+      if group[i].Token.Name == v {
+        return i, k
+      }
     }
   }
 
-  return -1
+  return -1, -1
 }
 
 //operation function used for most operators (except assignment, not gate, similarity, function calls, etc...)
@@ -111,6 +103,7 @@ func makeOperations(groups [][]Item) []Operation {
     map[string]func(exp []Item, index int, opType string) Operation {
       "~": normalOpFunc,
       "?": normalOpFunc,
+      "cb-ob": normalOpFunc, //operator to connect a close brace to open brace (like this: while (true) <need operator here> {})
     },
     map[string]func(exp []Item, index int, opType string) Operation {
       ":": normalOpFunc,
@@ -192,13 +185,21 @@ func makeOperations(groups [][]Item) []Operation {
     }
 
     for _, val := range operations {
+
+      var opers []string
+      var funcs []func(exp []Item, index int, opType string) Operation
+
       for oper, function := range val {
-        indexOfOper := indexOper(v, oper)
-        if indexOfOper != -1 {
-          newGroups = append(newGroups, function(v, indexOfOper, oper))
-          goto breakOuter
-        }
+        opers = append(opers, oper)
+        funcs = append(funcs, function)
       }
+
+      indexOfOper, operNum := indexOper(v, opers)
+      if indexOfOper != -1 {
+        newGroups = append(newGroups, funcs[operNum](v, indexOfOper, opers[operNum]))
+        goto breakOuter
+      }
+
     }
 
     breakOuter:

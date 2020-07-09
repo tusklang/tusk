@@ -4,8 +4,8 @@ import "encoding/gob"
 import "os"
 import "fmt"
 
+import "lang/compiler"
 import . "lang/interpreter"
-import . "lang/types"
 
 //export Run
 func Run(params map[string]map[string]interface{}) {
@@ -19,7 +19,7 @@ func Run(params map[string]map[string]interface{}) {
     os.Exit(1)
   }
 
-  var decoded map[string][]Action
+  var decoded compiler.OatValues
 
   decoder := gob.NewDecoder(readfile)
   e = decoder.Decode(&decoded)
@@ -32,5 +32,5 @@ func Run(params map[string]map[string]interface{}) {
   readfile.Close()
 
   //run the oat
-  RunInterpreter(decoded, params, dir.(string))
+  RunInterpreter(decoded.Variables, params, dir.(string))
 }

@@ -378,22 +378,10 @@ var keywordJSON =
     "type": "operation"
   },
   {
-    "name": "import",
-    "remove": "import",
-    "pattern": "(import(\\s*)(~))",
-    "type": "id_non_tilde"
-  },
-  {
-    "name": "import",
-    "remove": "import",
-    "pattern": "(import(\\s+))",
-    "type": "id"
-  },
-  {
     "name": "include",
     "remove": "include",
     "pattern": "(include(\\s+))",
-    "type": "id_non_tilde"
+    "type": "id"
   },
   {
     "name": "include",

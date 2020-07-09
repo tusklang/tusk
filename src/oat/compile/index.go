@@ -4,7 +4,6 @@ import "encoding/gob"
 import "os"
 
 import "lang/compiler" //compiler
-import . "lang/types"
 
 //export Compile
 func Compile(params map[string]map[string]interface{}) {
@@ -14,14 +13,9 @@ func Compile(params map[string]map[string]interface{}) {
 
   file := compiler.ReadFileJS(dir.(string) + fileName.(string))[0]["Content"]
 
-  lex := compiler.Lexer(file, dir.(string), fileName.(string))
-  // _, variables := compiler.Actionizer(lex, false, dir.(string), fileName.(string))
+  actions, vars := compiler.Compile(file, dir.(string), fileName.(string))
 
-  _ = lex
-
-  var variables = map[string][]Action{}
-
-  gob.Register(map[string][]Action{})
+  var vals = compiler.OatValues{ actions, vars, params }
 
   if (IsAbsolute(params["Calc"]["O"].(string))) {
 
@@ -30,7 +24,7 @@ func Compile(params map[string]map[string]interface{}) {
     defer writefile.Close()
 
     encoder := gob.NewEncoder(writefile)
-    encoder.Encode(variables)
+    encoder.Encode(vals)
   } else {
 
     writefile, _ := os.Create(dir.(string) + params["Calc"]["O"].(string))
@@ -38,6 +32,6 @@ func Compile(params map[string]map[string]interface{}) {
     defer writefile.Close()
 
     encoder := gob.NewEncoder(writefile)
-    encoder.Encode(variables)
+    encoder.Encode(vals)
   }
 }

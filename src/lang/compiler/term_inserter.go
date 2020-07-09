@@ -11,7 +11,23 @@ func term_inserter(lex []Lex) []Lex {
     currentType := v.Type == "operation" || v.Type == "?operation"
     nextType := k + 2 <= len(lex) && (lex[k + 1].Type == "operation" || lex[k + 1].Type == "?operation")
 
-    if v.Type == "open_brace" { //because opening braces don't need a $term after it
+    if v.Type == "?open_brace" { //because opening braces don't need a $term after it
+      continue
+    }
+
+    //because each and while loops look like:
+    //  while (true) {}
+    //and there must be an operator between the ) and {
+    //  while (true) some-operator {}
+    if v.Type == "?close_brace" && k + 2 <= len(lex) && lex[k + 1].Type == "?open_brace" {
+      nLex = append(nLex, Lex{
+        Name: "cb-ob",
+        Exp: v.Exp,
+        Line: v.Line,
+        Type: "operator",
+        OName: "",
+        Dir: v.Dir,
+      })
       continue
     }
 
