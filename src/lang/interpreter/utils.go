@@ -2,22 +2,26 @@ package interpreter
 
 import . "lang/types"
 
+var tmpFalse = false
+var tmpTrue = true
+
 //list of commonly used values
 var undef = OmmUndef{}
-var arr = OmmArray{}
-var hash = OmmHash{}
-var zero = OmmNumber{}
+var zero = OmmNumber{
+  Integer: &[]int64{0},
+}
 var one = OmmNumber{
   Integer: &[]int64{1},
 }
 var neg_one = OmmNumber{
   Integer: &[]int64{-1},
 }
-var falseAct = OmmBool{}
-var trueAct = OmmBool{}
-var emptyString = OmmString{}
-var emptyRune = OmmRune{}
-var thread = OmmThread{}
+var falseAct = OmmBool{
+  Boolean: &tmpFalse,
+}
+var trueAct = OmmBool{
+  Boolean: &tmpTrue,
+}
 //////////////////////////////
 
 //ensure that the decimal doesnt grow too much

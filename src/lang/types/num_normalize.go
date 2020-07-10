@@ -1,9 +1,7 @@
-package interpreter
+package types
 
 import "strconv"
 import "math"
-
-import . "lang/types"
 
 func num_normalize(num OmmNumber) string {
 
@@ -31,15 +29,39 @@ func num_normalize(num OmmNumber) string {
   //the first digit is actually the last index
   //because omm numbers are stored as so [1234, 5678, 9101] = 910, 156, 781, 234
 
-  if isEqual(num, zero) {
-    return "0"
-  }
-
   //alloc amounts into the copies
   var decimalCopy = make([]int64, len(decimal))
   var integerCopy = make([]int64, len(integer))
 
-  var isNeg bool = isLess(num, zero)
+  //determine if it is less than 0
+
+  combined := append(integerCopy, decimalCopy...)
+
+  var negative int = 0 //0 means 0, -1 means negative, 1 means positive
+
+  for i := len(combined) - 1; i >= 0; i-- {
+    if combined[i] == 0 {
+      continue
+    }
+
+    if combined[i] < 0 {
+      negative = -1
+    } else {
+      negative = 1
+    }
+
+    break
+  }
+
+  var isNeg bool
+
+  if negative == 0 {
+    return "0"
+  } else if negative == -1 {
+    isNeg = true
+  } else {
+    isNeg = false
+  }
 
   var carry int64 = 0
 

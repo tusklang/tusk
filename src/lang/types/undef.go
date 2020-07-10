@@ -13,4 +13,6 @@ func (b OmmUndef) ToGoType() struct{} {
   return nilv
 }
 
-func (_ OmmUndef) ValueFunc() {}
+func (b OmmUndef) Format() string {
+  return "undef"
+}

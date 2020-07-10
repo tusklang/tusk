@@ -1,8 +1,12 @@
 package types
 
+import "strconv"
+
 type OmmFunc struct {
   Params []Action
   Body   []Action
 }
 
-func (_ OmmFunc) ValueFunc() {}
+func (f OmmFunc) Format() string {
+  return "(PARAM COUNT: " + strconv.Itoa(len(f.Params)) + ") { ... }"
+}

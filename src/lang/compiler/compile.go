@@ -1,11 +1,11 @@
 package compiler
 
-import "encoding/json"
 import "fmt"
 import "path"
 import "os"
 import "strconv"
 
+import "lang/interpreter"
 import . "lang/types"
 
 type OatValues struct {
@@ -45,10 +45,12 @@ func Compile(file, dir, filename string) ([]Action, map[string][]Action) {
     vartypes[k] = "global"
   }
 
+  //also account for the gofuncs
+  for k := range interpreter.GoFuncs {
+    vartypes[k] = "global"
+  }
+
   checkvars(actions, path.Join(dir, filename), vartypes)
 
-  j, _ := json.MarshalIndent(actions, "", "  ")
-  fmt.Println(string(j))
-
-  return actions, make(map[string][]Action)
+  return actions, vars
 }

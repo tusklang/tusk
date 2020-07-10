@@ -32,4 +32,12 @@ func (ot OmmThread) WaitFor() Returner {
   return getter
 }
 
-func (_ OmmThread) ValueFunc() {}
+func (ot OmmThread) Format() string {
+
+  if ot.Alive {
+    return "{Alive Thread}"
+  } else {
+    return "{Dead Thread}"
+  }
+
+}

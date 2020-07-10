@@ -45,4 +45,11 @@ func (arr *OmmArray) PopFront(val OmmType) {
   arr.array = arr.array[1:]
 }
 
-func (_ OmmArray) ValueFunc() {}
+func (arr OmmArray) Format() string {
+  var formatted = "["
+  for _, v := range arr.array {
+    formatted+=v.Format()
+  }
+  formatted+="]"
+  return formatted
+}

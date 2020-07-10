@@ -14,4 +14,6 @@ func (str OmmString) ToGoType() string {
   return *str.string
 }
 
-func (_ OmmString) ValueFunc() {}
+func (str OmmString) Format() string {
+  return *str.string
+}

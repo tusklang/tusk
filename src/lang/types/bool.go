@@ -1,15 +1,19 @@
 package types
 
+import "strconv"
+
 type OmmBool struct {
-  boolean *bool
+  Boolean *bool
 }
 
 func (b *OmmBool) FromGoType(val bool) {
-  b.boolean = &val
+  b.Boolean = &val
 }
 
 func (b OmmBool) ToGoType() bool {
-  return *b.boolean
+  return *b.Boolean
 }
 
-func (_ OmmBool) ValueFunc() {}
+func (b OmmBool) Format() string {
+  return strconv.FormatBool(*b.Boolean)
+}

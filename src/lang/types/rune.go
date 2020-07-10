@@ -12,4 +12,6 @@ func (r OmmRune) ToGoType() rune {
   return *r.rune
 }
 
-func (_ OmmRune) ValueFunc() {}
+func (r OmmRune) Format() string {
+  return string(*r.rune)
+}

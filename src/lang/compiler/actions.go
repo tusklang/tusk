@@ -32,6 +32,10 @@ func actionizer(operations []Operation, dir string) []Action {
 
             if len(right) > 0 {
               name = right[0].Name
+
+              if len(right[0].Indexes) != 0 {
+                compilerErr("Cannot use the index operator (::) for a statement", dir, v.Line)
+              }
             }
 
             switch val {
@@ -62,7 +66,7 @@ func actionizer(operations []Operation, dir string) []Action {
 
             } else if val == "function" {
 
-              if right[0].Type != "cb-ob" {
+              if right[0].Type != "=>" {
                 compilerErr("Functions need a parameter list and function body", dir, right[0].Line)
               }
 
@@ -103,17 +107,34 @@ func actionizer(operations []Operation, dir string) []Action {
         }
       case ":":
 
-        if len(left) == 0 || left[0].Type != "variable" {
+        if len(left) == 0 || (left[0].Type != "variable" && left[0].Type != "::")  {
           compilerErr("Must have a variable before an assigner operator", dir, v.Line)
         }
 
-        varname := left[0].Name
+        var varname string
+        var indexes [][]Action
+
+        if left[0].Type == "variable" {
+          varname = left[0].Name
+        } else {
+
+          var currentIndex = left[0]
+
+          for ;currentIndex.Type != "variable"; {
+            indexes = append([][]Action{ currentIndex.Second }, indexes...)
+            currentIndex = currentIndex.First[0]
+          }
+
+          varname = currentIndex.Name
+        }
+
         value := right
 
         actions = append(actions, Action{
           Type: "let",
           Name: varname,
           ExpAct: value,
+          Indexes: indexes,
           File: dir,
           Line: v.Line,
         })
@@ -138,6 +159,8 @@ func actionizer(operations []Operation, dir string) []Action {
       case "|": fallthrough
       case "::": fallthrough
       case "?": fallthrough
+      case "->": fallthrough
+      case "=>": fallthrough
       case "sync": fallthrough
       case "async":
 
@@ -160,13 +183,30 @@ func actionizer(operations []Operation, dir string) []Action {
       case "++": fallthrough
       case "--":
 
-        if len(left) == 0 || left[0].Type != "variable" {
+        if len(left) == 0 || (left[0].Type != "variable" && left[0].Type != "::") {
           compilerErr("Must have a variable before an increment or decrement", dir, v.Line)
+        }
+
+        var varname string
+        var indexes [][]Action
+
+        if left[0].Type == "variable" {
+          varname = left[0].Name
+        } else {
+
+          var currentIndex = left[0]
+
+          for ;currentIndex.Type != "variable"; {
+            indexes = append([][]Action{ currentIndex.Second }, indexes...)
+            currentIndex = currentIndex.First[0]
+          }
+
+          varname = currentIndex.Name
         }
 
         actions = append(actions, Action{
           Type: v.Type,
-          Name: left[0].Name,
+          Name: varname,
           File: dir,
           Line: v.Line,
         })
@@ -178,30 +218,33 @@ func actionizer(operations []Operation, dir string) []Action {
       case "%=": fallthrough
       case "^=":
 
-        if len(left) == 0 || left[0].Type != "variable" {
+        if len(left) == 0 || (left[0].Type != "variable" && left[0].Type != "::") {
           compilerErr("Must have a variable before an assignment operator", dir, v.Line)
         }
         if len(right) == 0 {
           compilerErr("Could not find a value after " + v.Type, dir, v.Line)
         }
 
+        var varname string
+        var indexes [][]Action
+
+        if left[0].Type == "variable" {
+          varname = left[0].Name
+        } else {
+
+          var currentIndex = left[0]
+
+          for ;currentIndex.Type != "variable"; {
+            indexes = append([][]Action{ currentIndex.Second }, indexes...)
+            currentIndex = currentIndex.First[0]
+          }
+
+          varname = currentIndex.Name
+        }
+
         actions = append(actions, Action{
           Type: v.Type,
-          Name: left[0].Name,
-          Second: right,
-          File: dir,
-          Line: v.Line,
-        })
-
-      case "cb-ob":
-        //this is the operator to connect a closing brace to an opening brace
-        //  like this:
-        //  while (true) {}
-        //between ) and { there must be an operator because everything in omm is an operation
-
-        actions = append(actions, Action{
-          Type: "cb-ob",
-          First: left,
+          Name: varname,
           Second: right,
           File: dir,
           Line: v.Line,

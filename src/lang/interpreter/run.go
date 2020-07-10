@@ -12,35 +12,45 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[
   var vars = make(map[string]Variable)
 
   for k, v := range compiledVars {
-    _ = v
     vars[k] = Variable{
       Type: "global",
-      Name: k,
-      // Value: interpreter(v, cli_params, vars, true, make([]Action, 0), dir).Exp,
+      Value: interpreter(v, cli_params, vars, make([]Action, 0)).Exp,
     }
   }
 
-  for k, v := range gofuncs {
+  for k, v := range GoFuncs {
     vars["$" + k] = Variable{
       Type: "gofunc",
-      Name: "$" + k,
       GoProc: v,
     }
   }
 
-  if _, exists := vars["$main"]; !exists || vars["$main"].Value.Type != "function" {
+  if _, exists := vars["$main"]; !exists {
     fmt.Println("Given program has no entry point/main function")
     os.Exit(1)
   } else {
-    main := vars["$main"]
-    _ = main
-    // called := interpreter(main.Value.ExpAct, cli_params, vars, true, make([]Action, 0), dir).Exp
 
-    for _, v := range threads {
-      v.WaitFor()
+    switch vars["$main"].Value.(type) {
+      case OmmFunc:
+        main := vars["$main"]
+
+        called := interpreter(main.Value.(OmmFunc).Body, cli_params, vars, make([]Action, 0)).Exp
+
+        for _, v := range threads {
+          v.WaitFor()
+        }
+
+        var exitType int64 = 0
+
+        switch called.(type) {
+          case OmmNumber:
+            exitType = int64(called.(OmmNumber).ToGoType())
+        }
+
+        os.Exit(int(exitType))
+      default:
+        fmt.Println("Entry point was not given as a function")
+        os.Exit(1)
     }
-
-    // exitType, _ := strconv.Atoi(cast(called, "string").ExpStr) //convert return value to int
-    // os.Exit(exitType)
   }
 }

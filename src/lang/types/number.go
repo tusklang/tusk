@@ -2,6 +2,7 @@ package types
 
 import "strconv"
 import "math"
+import "fmt"
 
 //number sizes
 
@@ -19,14 +20,15 @@ type OmmNumber struct {
   Decimal *[]int64
 }
 
-func (n *OmmNumber) FromGoType(val int64) {
-  numStr := strconv.FormatInt(val, 10)
+func (n *OmmNumber) FromGoType(val float64) {
+  numStr := fmt.Sprintf("%f", val)
   integer, decimal := BigNumConverter(numStr)
   n.Integer, n.Decimal = &integer, &decimal
 }
 
-func (n OmmNumber) ToGoType() int64 {
-  return 0 //for now
+func (n OmmNumber) ToGoType() float64 {
+  f, _ := strconv.ParseFloat(num_normalize(n), 64)
+  return float64(f)
 }
 
 func (n *OmmNumber) FromString(val string) {
@@ -49,4 +51,7 @@ func (n OmmNumber) Clone() OmmNumber {
   return newNum
 }
 
-func (_ OmmNumber) ValueFunc() {}
+func (n OmmNumber) Format() string {
+  str := num_normalize(n)
+  return str
+}

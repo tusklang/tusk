@@ -5,4 +5,5 @@ package interpreter
 
 import . "lang/types"
 
-var gofuncs = map[string]func(args [][]Action, cli_params CliParams, vars map[string]Variable, this_vals []Action, dir string) OmmType {}
+//export GoFuncs
+var GoFuncs = map[string]func(args [][]Action, cli_params CliParams, vars map[string]Variable, this_vals []Action, dir string) OmmType {}

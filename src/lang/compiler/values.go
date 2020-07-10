@@ -48,6 +48,15 @@ func valueActions(item Item, dir string) Action {
         /////////////
 
         key := (*oper.Left).Item.Token.Name
+
+        //if it is a string or rune, remove the quotes
+        if key[0] == '\'' || key[0] == '"' || key[0] == '`' {
+          key = key[1:len(key) - 1]
+        }
+        if key[0] == '$' { //if it is a variable, remove the $
+          key = key[1:]
+        }
+
         value := actionizer([]Operation{ *oper.Right }, dir)
 
         if len(value) == 0 {
@@ -131,7 +140,7 @@ func valueActions(item Item, dir string) Action {
       } else if val == "undef" { //detect a falsey value
         var undef OmmUndef
         return Action{
-          Type: "falsey",
+          Type: "undef",
           Value: undef,
           File: dir,
           Line: item.Line,

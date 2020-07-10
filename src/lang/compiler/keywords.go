@@ -108,6 +108,18 @@ var keywordJSON =
     "type": "id"
   },
   {
+    "name": "->",
+    "remove": "->",
+    "pattern": "(\\-\\>)",
+    "type": "operation"
+  },
+  {
+    "name": "=>",
+    "remove": "=>",
+    "pattern": "(\\=\\>)",
+    "type": "operation"
+  },
+  {
     "name": "^",
     "remove": "**",
     "pattern": "(\\*\\*)",
@@ -438,15 +450,9 @@ var keywordJSON =
     "type": "type"
   },
   {
-    "name": "boolean",
+    "name": "bool",
     "remove": "bool",
     "pattern": "(bool\\-\\>)",
-    "type": "type"
-  },
-  {
-    "name": "falsey",
-    "remove": "falsey",
-    "pattern": "(falsey\\-\\>)",
     "type": "type"
   },
   {

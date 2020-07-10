@@ -108,6 +108,7 @@ func similarityOpFunc(exp []Item, index int, opType string) Operation {
 // index operations and function calls
 // not gate
 // assignment operations
+// cast operation
 
 func makeOperations(groups [][]Item) []Operation {
 
@@ -116,7 +117,7 @@ func makeOperations(groups [][]Item) []Operation {
       "~": normalOpFunc,
       ":": normalOpFunc,
       "?": normalOpFunc,
-      "cb-ob": normalOpFunc, //operator to connect a close brace to open brace (like this: while (true) <need operator here> {})
+      "=>": normalOpFunc,
     },
     map[string]func(exp []Item, index int, opType string) Operation {
       "&": normalOpFunc,
@@ -179,6 +180,9 @@ func makeOperations(groups [][]Item) []Operation {
       "/=": normalOpFunc,
       "%=": normalOpFunc,
       "^=": normalOpFunc,
+    },
+    map[string]func(exp []Item, index int, opType string) Operation {
+      "->": normalOpFunc,
     },
   }
 
