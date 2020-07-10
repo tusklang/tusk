@@ -27,7 +27,16 @@ func includeSingle(filename string, line uint64, dir string) []Action {
   }
 
   filename+=".omm"
+
+  for _, v := range included {
+    if v == filename {
+      return []Action{}
+    }
+  }
+
   content, err := ioutil.ReadFile(filename)
+
+  included = append(included, filename)
 
   if err != nil {
     compilerErr("Could not find file: " + filename, dir, line)

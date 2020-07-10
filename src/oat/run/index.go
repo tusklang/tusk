@@ -32,5 +32,5 @@ func Run(params map[string]map[string]interface{}) {
   readfile.Close()
 
   //run the oat
-  RunInterpreter(decoded.Variables, params, dir.(string))
+  RunInterpreter(decoded.Variables, params)
 }

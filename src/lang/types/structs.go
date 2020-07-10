@@ -6,8 +6,6 @@ type Action struct {
   Name            string
   Value           OmmType
   ExpAct        []Action
-  Params        []string
-  Args        [][]Action
 
   //stuff for operations
 
@@ -15,9 +13,16 @@ type Action struct {
   Second        []Action
   Degree        []Action
 
-  //access of the value
+  //////////////////////
 
   Access          string
+
+  //stuff to panic errors and give stack
+
+  File            string
+  Line            uint64
+
+  //////////////////////////////////////
 }
 
 type Variable struct {

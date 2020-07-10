@@ -33,10 +33,19 @@ func compilerErr(msg string, dir string, line uint64) {
 func Compile(file, dir, filename string) ([]Action, map[string][]Action) {
 
   lex := lexer(file, dir, filename)
-
   groups := makeGroups(lex)
   operations := makeOperations(groups)
   actions := actionizer(operations, path.Join(dir, filename))
+  vars := getvars(actions, path.Join(dir, filename))
+
+  //make each var have only it's type
+  var vartypes = make(map[string]string)
+
+  for k := range vars {
+    vartypes[k] = "global"
+  }
+
+  checkvars(actions, path.Join(dir, filename), vartypes)
 
   j, _ := json.MarshalIndent(actions, "", "  ")
   fmt.Println(string(j))

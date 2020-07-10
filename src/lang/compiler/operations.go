@@ -25,6 +25,19 @@ func operationIncludes(group []Item) bool {
   return false
 }
 
+func indexOper_ltr(group []Item, opers []string) (int, int) {
+
+  for k, v := range group {
+    for k2, v2 := range opers {
+      if v.Token.Name == v2 {
+        return k, k2
+      }
+    }
+  }
+
+  return -1, -1
+}
+
 func indexOper(group []Item, opers []string) (int, int) {
 
   for i := len(group) - 1; i >= 0; i-- {
@@ -86,8 +99,7 @@ func similarityOpFunc(exp []Item, index int, opType string) Operation {
 }
 
 //ODO is
-// statement operator (~)
-// assigner (:)
+// ~, ?, cb-ob, and :
 // boolean operations (except not gate)
 // comparisons
 // exponentiation
@@ -100,13 +112,11 @@ func similarityOpFunc(exp []Item, index int, opType string) Operation {
 func makeOperations(groups [][]Item) []Operation {
 
   operations = []map[string]func(exp []Item, index int, opType string) Operation {
-    map[string]func(exp []Item, index int, opType string) Operation {
+    map[string]func(exp []Item, index int, opType string) Operation { //these ones start from left to right
       "~": normalOpFunc,
+      ":": normalOpFunc,
       "?": normalOpFunc,
       "cb-ob": normalOpFunc, //operator to connect a close brace to open brace (like this: while (true) <need operator here> {})
-    },
-    map[string]func(exp []Item, index int, opType string) Operation {
-      ":": normalOpFunc,
     },
     map[string]func(exp []Item, index int, opType string) Operation {
       "&": normalOpFunc,
@@ -184,7 +194,7 @@ func makeOperations(groups [][]Item) []Operation {
       })
     }
 
-    for _, val := range operations {
+    for k, val := range operations {
 
       var opers []string
       var funcs []func(exp []Item, index int, opType string) Operation
@@ -194,7 +204,15 @@ func makeOperations(groups [][]Item) []Operation {
         funcs = append(funcs, function)
       }
 
-      indexOfOper, operNum := indexOper(v, opers)
+      var indexOfOper int
+      var operNum int
+
+      if k == 0 { //the first one should go from left to right
+        indexOfOper, operNum = indexOper_ltr(v, opers)
+      } else {
+        indexOfOper, operNum = indexOper(v, opers)
+      }
+
       if indexOfOper != -1 {
         newGroups = append(newGroups, funcs[operNum](v, indexOfOper, opers[operNum]))
         goto breakOuter

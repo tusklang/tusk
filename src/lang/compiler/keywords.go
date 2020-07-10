@@ -114,18 +114,6 @@ var keywordJSON =
     "type": "operation"
   },
   {
-    "name": "newlineN",
-    "remove": "\\n",
-    "pattern": "\\n",
-    "type": "newline"
-  },
-  {
-    "name": "newlineN",
-    "remove": "\\r\\n",
-    "pattern": "(\\r\\n)",
-    "type": "newline"
-  },
-  {
     "name": "~",
     "remove": "~",
     "pattern": "\\~",
@@ -255,7 +243,7 @@ var keywordJSON =
     "name": "function",
     "remove": "fn",
     "pattern": "(fn(\\s*)\\()",
-    "type": "id_non_tilde"
+    "type": "id"
   },
   {
     "name": "global",

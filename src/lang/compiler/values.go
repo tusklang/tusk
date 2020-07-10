@@ -3,36 +3,34 @@ package compiler
 import "unicode"
 import . "lang/types"
 
-func valueActions(item Item, dir string) []Action {
+func valueActions(item Item, dir string) Action {
 
   switch item.Type {
 
     case "{":
-
-      if len(item.Group) == 0 {
-        compilerErr("{} is not allowed, try using {_} instead", dir, item.Line)
-      }
-
-      actionized := actionizer(
-        makeOperations(
-          item.Group,
+      return Action{
+        Type: "{",
+        ExpAct: actionizer(
+          makeOperations(
+            item.Group,
+          ),
+          dir,
         ),
-        dir,
-      )
-
-      return actionized
+        File: dir,
+        Line: item.Line,
+      }
     case "(":
-
-      if len(item.Group) == 0 {
-        compilerErr("() is not allowed, try using (_) instead", dir, item.Line)
-      }
-
-      return actionizer(
-        makeOperations(
-          item.Group,
+      return Action{
+        Type: "(",
+        ExpAct: actionizer(
+          makeOperations(
+            item.Group,
+          ),
+          dir,
         ),
-        dir,
-      )
+        File: dir,
+        Line: item.Line,
+      }
     case "[:":
 
       hash := map[string]Action{}
@@ -65,10 +63,12 @@ func valueActions(item Item, dir string) []Action {
         ommVal.Set(k, v.Value)
       }
 
-      return []Action{ Action{
+      return Action{
         Type: "hash",
         Value: ommVal,
-      } }
+        File: dir,
+        Line: item.Line,
+      }
     case "[":
 
       var arr OmmArray
@@ -84,10 +84,12 @@ func valueActions(item Item, dir string) []Action {
         arr.PushBack(value[0].Value)
       }
 
-      return []Action{ Action{
+      return Action{
         Type: "array",
         Value: arr,
-      } }
+        File: dir,
+        Line: item.Line,
+      }
     case "expression value":
 
       var val = item.Token.Name
@@ -95,10 +97,12 @@ func valueActions(item Item, dir string) []Action {
       if val[0] == '"' || val[0] == '`' { //detect string
         var str = OmmString{}
         str.FromGoType(val[1:len(val) - 1])
-        return []Action{ Action{
+        return Action{
           Type: "string",
           Value: str,
-        } }
+          File: dir,
+          Line: item.Line,
+        }
       } else if val[0] == '\'' { //detect a rune
         var oRune = OmmRune{}
 
@@ -109,40 +113,50 @@ func valueActions(item Item, dir string) []Action {
         }
 
         oRune.FromGoType([]rune(qrem)[0])
-        return []Action{ Action{
+        return Action{
           Type: "rune",
           Value: oRune,
-        } }
+          File: dir,
+          Line: item.Line,
+        }
       } else if val == "true" || val == "false" { //detect a bool
         var boolean = OmmBool{}
         boolean.FromGoType(val == "true" /* convert to a boolean */)
-        return []Action{ Action{
+        return Action{
           Type: "bool",
           Value: boolean,
-        } }
+          File: dir,
+          Line: item.Line,
+        }
       } else if val == "undef" { //detect a falsey value
         var undef OmmUndef
-        return []Action{ Action{
+        return Action{
           Type: "falsey",
           Value: undef,
-        } }
+          File: dir,
+          Line: item.Line,
+        }
       } else if unicode.IsDigit(rune(val[0])) || val[0] == '.' || val[0] == '+' || val[0] == '-' { //detect a number
         var number = OmmNumber{}
         number.FromString(val)
-        return []Action{ Action{
+        return Action{
           Type: "number",
           Value: number,
-        } }
+          File: dir,
+          Line: item.Line,
+        }
       } else if val[0] == '$' { //detect a variable
-        return []Action{ Action{
+        return Action{
           Type: "variable",
           Name: val,
-        } }
+          File: dir,
+          Line: item.Line,
+        }
       } else { //detect nothing, which throws an error
         compilerErr(val + " is not a value", dir, item.Line)
       }
 
   }
 
-  return []Action{}
+  return Action{}
 }

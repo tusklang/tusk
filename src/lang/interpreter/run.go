@@ -8,7 +8,7 @@ import . "lang/types"
 var threads []OmmThread
 
 //export RunInterpreter
-func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[string]interface{}, dir string) {
+func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[string]interface{}) {
   var vars = make(map[string]Variable)
 
   for k, v := range compiledVars {

@@ -30,14 +30,14 @@ func lexer(file, dirname, filename string) []Lex {
 
   for i := 0; i < len(file); i++ {
 
-    if len(strings.TrimSpace(file[i:])) == 0 {
+    if len(strings.TrimLeft(file[i:], " ")) == 0 {
       break
     }
 
     //detect a comment
     //single line comments are written as ;comment
     //like in assembly
-    if strings.TrimSpace(file[i:])[0] == ';' {
+    if strings.TrimLeft(file[i:], " ")[0] == ';' {
 
       var end = strings.Index(file[i:], "\n")
 
@@ -51,7 +51,12 @@ func lexer(file, dirname, filename string) []Lex {
       continue
     }
 
-    if unicode.IsSpace(rune(file[i])) {
+    if file[i] == '\n' {
+      line++
+      continue
+    }
+
+    if unicode.IsSpace(rune(file[i])) { //if it is a whitespace, ignore it
       continue
     }
 
@@ -59,12 +64,7 @@ func lexer(file, dirname, filename string) []Lex {
     for ;len(curExp) > EXPRESSION_LEN; curExp = curExp[1:] {}
 
     for _, v := range keywords {
-
       if testkey(v, file, i) {
-        if v["name"] == "newlineN" { //if it is a newline, increment the line
-          line++
-        }
-
         curExp+=v["remove"] + " "
         i+=len(v["remove"]) - 1
 
@@ -81,20 +81,20 @@ func lexer(file, dirname, filename string) []Lex {
 
     }
 
-    if strings.TrimSpace(file)[i:][0] == '"' || strings.TrimSpace(file)[i:][0] == '\'' || strings.TrimSpace(file)[i:][0] == '`' { //detect a string
-      qType := strings.TrimSpace(file)[i:][0]
+    if strings.TrimLeft(file, " ")[i:][0] == '"' || strings.TrimLeft(file, " ")[i:][0] == '\'' || strings.TrimLeft(file, " ")[i:][0] == '`' { //detect a string
+      qType := strings.TrimLeft(file, " ")[i:][0]
       value := ""
       escaped := false
 
       for i++; i < len(file); i++ {
-        value+=string(strings.TrimSpace(file)[i:][0])
+        value+=string(strings.TrimLeft(file, " ")[i:][0])
 
-        if !escaped && strings.TrimSpace(file)[i:][0] == '\\' {
+        if !escaped && strings.TrimLeft(file, " ")[i:][0] == '\\' {
           escaped = true
           continue
         }
 
-        if !escaped && strings.TrimSpace(file)[i:][0] == qType {
+        if !escaped && strings.TrimLeft(file, " ")[i:][0] == qType {
           break
         }
         escaped = false
@@ -102,7 +102,6 @@ func lexer(file, dirname, filename string) []Lex {
 
       curExp+=value + " "
       line+=uint64(strings.Count(value, "\n"))
-      i++
       lex = append(lex, Lex{
         Name: string(qType) + value,
         Exp: curExp,
@@ -112,23 +111,23 @@ func lexer(file, dirname, filename string) []Lex {
         Dir: path.Join(dirname, filename),
       })
       goto contOuter
-    } else if unicode.IsDigit(rune(strings.TrimSpace(file)[i:][0])) || strings.TrimSpace(file)[i:][0] == '+' || strings.TrimSpace(file)[i:][0] == '-' || strings.TrimSpace(file)[i:][0] == '.' {
+    } else if unicode.IsDigit(rune(strings.TrimLeft(file, " ")[i:][0])) || strings.TrimLeft(file, " ")[i:][0] == '+' || strings.TrimLeft(file, " ")[i:][0] == '-' || strings.TrimLeft(file, " ")[i:][0] == '.' {
 
       var positive = true
 
-      if strings.TrimSpace(file)[i:][0] == '+' {
+      if strings.TrimLeft(file, " ")[i:][0] == '+' {
         positive = true
         i++
-      } else if strings.TrimSpace(file)[i:][0] == '-' {
+      } else if strings.TrimLeft(file, " ")[i:][0] == '-' {
         positive = false
         i++
       }
 
       num := ""
 
-      for o := i; unicode.IsDigit(rune(strings.TrimSpace(file)[o:][0])) || strings.TrimSpace(file)[o:][0] == '.'; o++ {
-        num+=string(strings.TrimSpace(file)[o:][0])
-        if len(strings.TrimSpace(file)[o + 1:]) == 0 {
+      for o := i; unicode.IsDigit(rune(strings.TrimLeft(file, " ")[o:][0])) || strings.TrimLeft(file, " ")[o:][0] == '.'; o++ {
+        num+=string(strings.TrimLeft(file, " ")[o:][0])
+        if len(strings.TrimLeft(file, " ")[o + 1:]) == 0 {
           break
         }
       }
@@ -169,7 +168,7 @@ func lexer(file, dirname, filename string) []Lex {
       break_var_loop:
 
       curExp+=variable + " "
-      variable = strings.TrimSpace(variable)
+      variable = strings.TrimLeft(variable, " ")
       i--
 
       lex = append(lex, Lex{
@@ -215,7 +214,7 @@ func lexer(file, dirname, filename string) []Lex {
 
 func testkey(keyword map[string]string, file string, i int) bool {
   re, _ := regexp.Compile("^(" + keyword["pattern"] + ")")
-  matched := re.MatchString(strings.TrimSpace(file[i:]))
+  matched := re.MatchString(file[i:])
 
   if matched {
     if keyword["name"] == "+" || keyword["name"] == "-" {
@@ -224,7 +223,7 @@ func testkey(keyword map[string]string, file string, i int) bool {
 
       for _, v := range keywords {
         re, _ := regexp.Compile("(" + v["pattern"] + ")$")
-        matched := re.MatchString(strings.TrimSpace(file[:i]))
+        matched := re.MatchString(file[:i])
 
         if matched {
           return false

@@ -24,7 +24,7 @@ func term_inserter(lex []Lex) []Lex {
         Name: "cb-ob",
         Exp: v.Exp,
         Line: v.Line,
-        Type: "operator",
+        Type: "operation",
         OName: "",
         Dir: v.Dir,
       })

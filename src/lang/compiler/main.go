@@ -1,8 +1,11 @@
 package compiler
 
 import "path"
+import "io/ioutil"
+import "fmt"
+import "os"
 
-// import . "lang/interpreter"
+import . "lang/interpreter"
 
 var included = []string{} //list of the imported files from omm
 
@@ -14,11 +17,14 @@ func Run(params map[string]map[string]interface{}) {
 
   included = append(included, path.Join(dir.(string), fileName.(string)))
 
-  file := ReadFileJS(path.Join(dir.(string), fileName.(string)))[0]["Content"]
+  file, e := ioutil.ReadFile(fileName.(string))
 
-  _, _ = Compile(file, dir.(string), fileName.(string))
+  if e != nil {
+    fmt.Println("Could not find", fileName.(string))
+    os.Exit(1)
+  }
 
-  // _, variables := Actionizer(lex, false, dir.(string), fileName.(string))
+  _, variables := Compile(string(file), dir.(string), fileName.(string))
 
-  //RunInterpreter(variables, params, dir.(string))
+  RunInterpreter(variables, params)
 }

@@ -11,21 +11,17 @@ func actionizer(operations []Operation, dir string) []Action {
     var left []Action
     var right []Action
 
-    if v.Type != "none" {
-
-      if v.Left != nil {
-        left = actionizer([]Operation{ *v.Left }, dir)
-      }
-      if v.Right != nil {
-        right = actionizer([]Operation{ *v.Right }, dir)
-      }
-
+    if v.Left != nil {
+      left = actionizer([]Operation{ *v.Left }, dir)
+    }
+    if v.Right != nil {
+      right = actionizer([]Operation{ *v.Right }, dir)
     }
 
     switch v.Type {
       case "~":
 
-        var statements = []string{ "local", "global", "log", "print", "cond", "while", "each", "include" } //list of statements
+        var statements = []string{ "local", "global", "log", "print", "cond", "while", "each", "include", "function" } //list of statements
 
         var hasStatement bool = false
 
@@ -58,17 +54,43 @@ func actionizer(operations []Operation, dir string) []Action {
                 compilerErr("Expected a string after \"include\"", dir, v.Line)
               }
 
-              included := includer(right[0].Value.(OmmString).ToGoType(), v.Line, dir)
+              includeFiles := includer(right[0].Value.(OmmString).ToGoType(), v.Line, dir)
 
-              for _, acts := range included {
+              for _, acts := range includeFiles {
                 actions = append(actions, acts...)
               }
 
+            } else if val == "function" {
+
+              if right[0].Type != "cb-ob" {
+                compilerErr("Functions need a parameter list and function body", dir, right[0].Line)
+              }
+
+              for _, p := range right[0].First[0].ExpAct {
+                if p.Type == "global" || p.Type == "local" {
+                  compilerErr("Cannot set access for parameter defaults", dir, right[0].Line)
+                }
+                if p.Type != "let" && p.Type != "variable" {
+                  compilerErr("Function parameter lists can only have let statements and variables", dir, right[0].Line)
+                }
+              }
+
+              actions = append(actions, Action{
+                Type: "function",
+                Value: OmmFunc{
+                  Params: right[0].First[0].ExpAct, //getting the ExpAct because it wont matter if the dev uses a { or a ( because everything will be in the function's scope
+                  Body: right[0].Second,
+                },
+                File: dir,
+                Line: v.Line,
+              })
             } else {
               actions = append(actions, Action{
                 Type: val,
                 Name: name,
                 ExpAct: right,
+                File: dir,
+                Line: v.Line,
               })
             }
 
@@ -92,6 +114,8 @@ func actionizer(operations []Operation, dir string) []Action {
           Type: "let",
           Name: varname,
           ExpAct: value,
+          File: dir,
+          Line: v.Line,
         })
 
       //all of these operations have the same way of appending
@@ -128,6 +152,8 @@ func actionizer(operations []Operation, dir string) []Action {
           First: left,
           Second: right,
           Degree: degree,
+          File: dir,
+          Line: v.Line,
         })
       ////////////////////////////////////////////////////////
 
@@ -141,6 +167,8 @@ func actionizer(operations []Operation, dir string) []Action {
         actions = append(actions, Action{
           Type: v.Type,
           Name: left[0].Name,
+          File: dir,
+          Line: v.Line,
         })
 
       case "+=": fallthrough
@@ -161,6 +189,8 @@ func actionizer(operations []Operation, dir string) []Action {
           Type: v.Type,
           Name: left[0].Name,
           Second: right,
+          File: dir,
+          Line: v.Line,
         })
 
       case "cb-ob":
@@ -172,13 +202,15 @@ func actionizer(operations []Operation, dir string) []Action {
         actions = append(actions, Action{
           Type: "cb-ob",
           First: left,
-          ExpAct: right,
+          Second: right,
+          File: dir,
+          Line: v.Line,
         })
 
       case "none":
         vActs := valueActions(v.Item, dir)
 
-        actions = append(actions, vActs...)
+        actions = append(actions, vActs)
     }
   }
 
