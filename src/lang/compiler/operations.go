@@ -100,6 +100,7 @@ func similarityOpFunc(exp []Item, index int, opType string) Operation {
 
 //ODO is
 // ~, ?, cb-ob, and :
+// break and continue
 // boolean operations (except not gate)
 // comparisons
 // exponentiation
@@ -116,8 +117,19 @@ func makeOperations(groups [][]Item) []Operation {
     map[string]func(exp []Item, index int, opType string) Operation { //these ones start from left to right
       "~": normalOpFunc,
       ":": normalOpFunc,
-      "?": normalOpFunc,
       "=>": normalOpFunc,
+    },
+    map[string]func(exp []Item, index int, opType string) Operation {
+      "break": func(exp []Item, index int, opType string) Operation {
+        return Operation{
+          Type: opType,
+        }
+      },
+      "continue": func(exp []Item, index int, opType string) Operation {
+        return Operation{
+          Type: opType,
+        }
+      },
     },
     map[string]func(exp []Item, index int, opType string) Operation {
       "&": normalOpFunc,
@@ -130,8 +142,6 @@ func makeOperations(groups [][]Item) []Operation {
       ">=": normalOpFunc,
       "<": normalOpFunc,
       "<=": normalOpFunc,
-      "~~": similarityOpFunc,
-      "~~~": similarityOpFunc,
     },
     map[string]func(exp []Item, index int, opType string) Operation {
       "^": normalOpFunc,

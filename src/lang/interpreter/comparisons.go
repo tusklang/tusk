@@ -44,7 +44,15 @@ func toBig(val1, val2 OmmNumber) (*big.Int, *big.Int, *big.Int, *big.Int) {
 }
 
 func isTruthy(val OmmType) bool {
-  return false //for now
+
+  switch val.(type) {
+    case OmmBool:
+      return *val.(OmmBool).Boolean
+    case OmmUndef:
+      return false
+  }
+
+  return true
 }
 
 func isLess(val1, val2 OmmNumber) bool {
@@ -60,17 +68,23 @@ func isLess(val1, val2 OmmNumber) bool {
       *val1.Decimal = (*val1.Decimal)[:len(*val1.Decimal) - 1]
       num1ZeroLeadingDec++
     }
+    if len(*val1.Decimal) == 0 { //this means the number looks like 1.00000
+      num1ZeroLeadingDec = 0
+    }
   }
   if val2.Decimal != nil {
     for ;len(*val2.Decimal) != 0 && (*val2.Decimal)[len(*val2.Decimal) - 1] == 0; {
       *val2.Decimal = (*val2.Decimal)[:len(*val2.Decimal) - 1]
       num2ZeroLeadingDec++
     }
+    if len(*val2.Decimal) == 0 { //this means the number looks like 1.000000000000000000000000000
+      num2ZeroLeadingDec = 0
+    }
   }
 
-    if num1ZeroLeadingDec > num2ZeroLeadingDec {
-      num1DecGreater = true
-    }
+  if num1ZeroLeadingDec > num2ZeroLeadingDec {
+    num1DecGreater = true
+  }
   /////////////////////////////////////////
 
   bigint1, bigint2, bigdec1, bigdec2 := toBig(val1, val2)
@@ -99,11 +113,17 @@ func isEqual(val1, val2 OmmNumber) bool {
       *val1.Decimal = (*val1.Decimal)[:len(*val1.Decimal) - 1]
       num1ZeroLeadingDec++
     }
+    if len(*val1.Decimal) == 0 { //this means the number looks like 1.000000000000000000000000000
+      num1ZeroLeadingDec = 0
+    }
   }
   if val2.Decimal != nil {
     for ;len(*val2.Decimal) != 0 && (*val2.Decimal)[len(*val2.Decimal) - 1] == 0; {
       *val2.Decimal = (*val2.Decimal)[:len(*val2.Decimal) - 1]
       num2ZeroLeadingDec++
+    }
+    if len(*val2.Decimal) == 0 { //this means the number looks like 1.000000000000000000000000000
+      num2ZeroLeadingDec = 0
     }
   }
 
@@ -138,11 +158,17 @@ func isLessOrEqual(val1, val2 OmmNumber) bool {
       *val1.Decimal = (*val1.Decimal)[:len(*val1.Decimal) - 1]
       num1ZeroLeadingDec++
     }
+    if len(*val1.Decimal) == 0 { //this means the number looks like 1.000000000000000000000000000
+      num1ZeroLeadingDec = 0
+    }
   }
   if val2.Decimal != nil {
     for ;len(*val2.Decimal) != 0 && (*val2.Decimal)[len(*val2.Decimal) - 1] == 0; {
       *val2.Decimal = (*val2.Decimal)[:len(*val2.Decimal) - 1]
       num2ZeroLeadingDec++
+    }
+    if len(*val2.Decimal) == 0 { //this means the number looks like 1.000000000000000000000000000
+      num2ZeroLeadingDec = 0
     }
   }
 

@@ -15,3 +15,7 @@ func (r OmmRune) ToGoType() rune {
 func (r OmmRune) Format() string {
   return string(*r.rune)
 }
+
+func (arr OmmRune) Type() string {
+  return "rune"
+}

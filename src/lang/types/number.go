@@ -55,3 +55,7 @@ func (n OmmNumber) Format() string {
   str := NumNormalize(n)
   return str
 }
+
+func (arr OmmNumber) Type() string {
+  return "number"
+}

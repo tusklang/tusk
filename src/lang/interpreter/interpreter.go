@@ -20,31 +20,26 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
   var vars = make(map[string]Variable)
 
-  for k, v := range passedVars { //copy passedVars into vars
+  for k, v := range passedVars { //copy passedVars into vars (so they won't mutate)
     vars[k] = v
   }
 
   for _, v := range actions {
     switch v.Type {
 
-      case "local":
-        vars[v.Name] = Variable{
-          Type: "local",
-          Value: interpreter(v.ExpAct, cli_params, vars, this_vals).Exp,
+      case "local": fallthrough
+      case "global": fallthrough
+      case "let":
+
+        interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
+
+        for k, variable := range interpreted.Variables {
+          vars[k] = variable
         }
 
-        if expReturn {
-          return Returner{
-            Type: "expression",
-            Exp: vars[v.Name].Value,
-            Variables: vars,
-          }
-        }
-
-      case "global":
         vars[v.Name] = Variable{
-          Type: "global",
-          Value: interpreter(v.ExpAct, cli_params, vars, this_vals).Exp,
+          Type: v.Type,
+          Value: interpreted.Exp,
         }
 
         if expReturn {
@@ -56,9 +51,17 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
         }
 
       case "log":
-        fmt.Println(interpreter(v.ExpAct, cli_params, vars, this_vals).Exp.Format())
+        interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
+        for k, variable := range interpreted.Variables {
+          vars[k] = variable
+        }
+        fmt.Println(interpreted.Exp.Format())
       case "print":
-        fmt.Print(interpreter(v.ExpAct, cli_params, vars, this_vals).Exp.Format())
+        interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
+        for k, variable := range interpreted.Variables {
+          vars[k] = variable
+        }
+        fmt.Print(interpreted.Exp.Format())
 
       //all of the types
       case "string": fallthrough
@@ -80,13 +83,23 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
         }
       //////////////////
 
+      case "variable":
+
+        if expReturn {
+          return Returner{
+            Type: "expression",
+            Exp: vars[v.Name].Value,
+            Variables: vars,
+          }
+        }
+
       case "{":
 
         groupRet := interpreter(v.ExpAct, cli_params, vars, this_vals)
 
-        for k, v := range groupRet.Variables {
-          if _, exists := vars[k]; exists || v.Type == "global" {
-            vars[k] = v
+        for k, variable := range groupRet.Variables {
+          if _, exists := vars[k]; exists || variable.Type == "global" {
+            vars[k] = variable
           }
         }
 
@@ -102,8 +115,8 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
         groupRet := interpreter(v.ExpAct, cli_params, vars, this_vals)
 
-        for k, v := range groupRet.Variables {
-          vars[k] = v
+        for k, variable := range groupRet.Variables {
+          vars[k] = variable
         }
 
         if expReturn {
@@ -133,19 +146,30 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
         case "&": fallthrough
         case "|": fallthrough
         case "::": fallthrough
-        case "?": fallthrough
         case "->": fallthrough
         case "=>": fallthrough //this is probably not necessary, but i just left it here
         case "sync": fallthrough
         case "async":
 
-          operationFunc, exists := operations[v.First[0].Type + " " + v.Type + " " + v.Second[0].Type]
+          firstInterpreted := interpreter(v.First, cli_params, vars, this_vals)
+          secondInterpreted := interpreter(v.Second, cli_params, vars, this_vals)
 
-          if !exists { //if there is no operation for that type, panic
-            ommPanic("Could not find " + v.Type + " operation for types " + v.First[0].Type + " and " + v.Second[0].Type, v.Line, v.File)
+          for k, variable := range firstInterpreted.Variables {
+            vars[k] = variable
+          }
+          for k, variable := range secondInterpreted.Variables {
+            vars[k] = variable
           }
 
-          computed := operationFunc(v.First[0].Value, v.Second[0].Value, cli_params, v.Line, v.File)
+          fmt.Println(v.Type)
+
+          operationFunc, exists := operations[firstInterpreted.Exp.Type() + " " + v.Type + " " + secondInterpreted.Exp.Type()]
+
+          if !exists { //if there is no operation for that type, panic
+            ommPanic("Could not find " + v.Type + " operation for types " + firstInterpreted.Exp.Type() + " and " + secondInterpreted.Exp.Type(), v.Line, v.File)
+          }
+
+          computed := operationFunc(firstInterpreted.Exp, secondInterpreted.Exp, cli_params, v.Line, v.File)
 
           if expReturn {
             return Returner{
@@ -156,6 +180,182 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
           }
 
         ////////////
+
+        case "break": fallthrough
+        case "continue":
+
+          return Returner{
+            Type: v.Type,
+            Variables: vars,
+          }
+
+        case "return":
+
+          return Returner{
+            Type: "return",
+            Exp: interpreter(v.ExpAct, cli_params, vars, this_vals).Exp,
+            Variables: vars,
+          }
+
+        case "while":
+
+          cond := interpreter(v.First, cli_params, vars, this_vals)
+
+          for k, variable := range cond.Variables {
+            vars[k] = variable
+          }
+
+          for ;isTruthy(cond.Exp); cond = interpreter(v.First, cli_params, vars, this_vals) {
+            for k, variable := range cond.Variables {
+              vars[k] = variable
+            }
+
+            interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
+
+            for k, variable := range interpreted.Variables {
+              vars[k] = variable
+            }
+
+            if interpreted.Type == "return" {
+              return Returner{
+                Type: interpreted.Type,
+                Exp: interpreted.Exp,
+                Variables: vars,
+              }
+            }
+
+            if interpreted.Type == "break" {
+              break
+            }
+            if interpreted.Type == "continue" {
+              continue;
+            }
+          }
+
+        case "each":
+
+          it := interpreter([]Action{ v.First[0] }, cli_params, vars, this_vals).Exp
+          keyName := v.First[1].Name //get name of key
+          valName := v.First[2].Name //get name of val
+
+          switch it.(type) {
+            case OmmHash:
+
+              for key, val := range it.(OmmHash).Hash {
+
+                ommtypeKey := OmmString{}
+                ommtypeKey.FromGoType(key)
+
+                var sendVars = make(map[string]Variable)
+
+                for k, variable := range vars {
+                  sendVars[k] = variable
+                }
+
+                sendVars[keyName] = Variable{
+                  Type: "local",
+                  Value: ommtypeKey,
+                }
+                sendVars[valName] = Variable{
+                  Type: "local",
+                  Value: val,
+                }
+
+                interpreted := interpreter(v.ExpAct, cli_params, sendVars, this_vals)
+
+                for k, variable := range interpreted.Variables {
+                  vars[k] = variable
+                }
+
+                if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
+                  return Returner{
+                    Type: interpreted.Type,
+                    Exp: interpreted.Exp,
+                    Variables: vars,
+                  }
+                }
+
+              }
+
+            case OmmArray:
+
+              for key, val := range it.(OmmArray).Array {
+
+                ommtypeKey := OmmNumber{}
+                ommtypeKey.FromGoType(float64(key))
+
+                var sendVars = make(map[string]Variable)
+
+                for k, variable := range vars {
+                  sendVars[k] = variable
+                }
+
+                sendVars[keyName] = Variable{
+                  Type: "local",
+                  Value: ommtypeKey,
+                }
+                sendVars[valName] = Variable{
+                  Type: "local",
+                  Value: val,
+                }
+
+                interpreted := interpreter(v.ExpAct, cli_params, sendVars, this_vals)
+
+                for k, variable := range interpreted.Variables {
+                  vars[k] = variable
+                }
+
+                if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
+                  return Returner{
+                    Type: interpreted.Type,
+                    Exp: interpreted.Exp,
+                    Variables: vars,
+                  }
+                }
+
+              }
+
+            case OmmString:
+
+              for key, val := range it.(OmmString).ToGoType() {
+
+                ommtypeKey := OmmNumber{}
+                ommtypeKey.FromGoType(float64(key))
+                ommtypeVal := OmmRune{}
+                ommtypeVal.FromGoType(val)
+
+                var sendVars = make(map[string]Variable)
+
+                for k, variable := range vars {
+                  sendVars[k] = variable
+                }
+
+                sendVars[keyName] = Variable{
+                  Type: "local",
+                  Value: ommtypeKey,
+                }
+                sendVars[valName] = Variable{
+                  Type: "local",
+                  Value: ommtypeVal,
+                }
+
+                interpreted := interpreter(v.ExpAct, cli_params, sendVars, this_vals)
+
+                for k, variable := range interpreted.Variables {
+                  vars[k] = variable
+                }
+
+                if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
+                  return Returner{
+                    Type: interpreted.Type,
+                    Exp: interpreted.Exp,
+                    Variables: vars,
+                  }
+                }
+
+              }
+
+          }
 
     }
   }

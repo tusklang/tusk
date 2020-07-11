@@ -3,29 +3,29 @@ package types
 import "strings"
 
 type OmmHash struct {
-  hash map[string]OmmType
+  Hash map[string]OmmType
   Length  uint64
 }
 
 func (hash OmmHash) At(idx string) OmmType {
-  return hash.hash[idx]
+  return hash.Hash[idx]
 }
 
 func (hash *OmmHash) Set(idx string, val OmmType) {
 
-  if hash.hash == nil {
-    hash.hash = map[string]OmmType{}
+  if hash.Hash == nil {
+    hash.Hash = map[string]OmmType{}
   }
 
-  if _, exists := hash.hash[idx]; !exists {
+  if _, exists := hash.Hash[idx]; !exists {
     hash.Length++
   }
 
-  hash.hash[idx] = val
+  hash.Hash[idx] = val
 }
 
 func (hash OmmHash) Exists(idx string) bool {
-  _, exists := hash.hash[idx]
+  _, exists := hash.Hash[idx]
   return exists
 }
 
@@ -33,13 +33,13 @@ func (hash OmmHash) Format() string {
 
   return func() string {
 
-    if len(hash.hash) == 0 {
+    if len(hash.Hash) == 0 {
       return "[::]"
     }
 
     var formatted = "[:"
 
-    for k, v := range hash.hash {
+    for k, v := range hash.Hash {
 
       vFormatted := v.Format()
 
@@ -63,4 +63,8 @@ func (hash OmmHash) Format() string {
 
     return formatted + "\n:]"
   }() //staring with 2
+}
+
+func (arr OmmHash) Type() string {
+  return "hash"
 }

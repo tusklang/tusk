@@ -21,7 +21,7 @@ func actionizer(operations []Operation, dir string) []Action {
     switch v.Type {
       case "~":
 
-        var statements = []string{ "local", "global", "log", "print", "cond", "while", "each", "include", "function" } //list of statements
+        var statements = []string{ "local", "global", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return" } //list of statements
 
         var hasStatement bool = false
 
@@ -85,6 +85,42 @@ func actionizer(operations []Operation, dir string) []Action {
                   Params: right[0].First[0].ExpAct, //getting the ExpAct because it wont matter if the dev uses a { or a ( because everything will be in the function's scope
                   Body: right[0].Second,
                 },
+                File: dir,
+                Line: v.Line,
+              })
+            } else if val == "while" {
+
+              if right[0].Type != "=>" {
+                compilerErr("While loops require a condition and a body", dir, right[0].Line)
+              }
+
+              actions = append(actions, Action{
+                Type: val,
+                First: right[0].First,
+                ExpAct: right[0].Second,
+                File: dir,
+                Line: v.Line,
+              })
+            } else if val == "each" {
+
+              if right[0].Type != "=>" {
+                compilerErr("Each loops require a iterator and a body", dir, right[0].Line)
+              }
+
+              if len(right[0].First[0].ExpAct) != 3 {
+                compilerErr("Each loops must look like this: each(iterator, key, value)", dir, right[0].Line)
+              }
+
+              for _, n := range right[0].First[0].ExpAct[1:] {
+                if n.Type != "variable" {
+                  compilerErr("Key or value was not given as a variable", dir, right[0].Line)
+                }
+              }
+
+              actions = append(actions, Action{
+                Type: val,
+                First: right[0].First[0].ExpAct, //because it doesnt matter if they use a { or (
+                ExpAct: right[0].Second,
                 File: dir,
                 Line: v.Line,
               })
@@ -152,13 +188,10 @@ func actionizer(operations []Operation, dir string) []Action {
       case "<": fallthrough
       case ">=": fallthrough
       case "<=": fallthrough
-      case "~~": fallthrough
-      case "~~~": fallthrough
       case "!": fallthrough
       case "&": fallthrough
       case "|": fallthrough
       case "::": fallthrough
-      case "?": fallthrough
       case "->": fallthrough
       case "=>": fallthrough
       case "sync": fallthrough
@@ -246,6 +279,15 @@ func actionizer(operations []Operation, dir string) []Action {
           Type: v.Type,
           Name: varname,
           Second: right,
+          File: dir,
+          Line: v.Line,
+        })
+
+      case "break": fallthrough
+      case "continue":
+
+        actions = append(actions, Action{
+          Type: v.Type,
           File: dir,
           Line: v.Line,
         })

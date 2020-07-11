@@ -17,3 +17,7 @@ func (str OmmString) ToGoType() string {
 func (str OmmString) Format() string {
   return *str.string
 }
+
+func (arr OmmString) Type() string {
+  return "string"
+}

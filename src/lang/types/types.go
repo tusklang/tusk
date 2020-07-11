@@ -5,5 +5,6 @@ package types
 type CliParams map[string]map[string]interface{}
 
 type OmmType interface {
-  Format() string
+  Format()  string
+  Type()    string
 }

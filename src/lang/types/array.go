@@ -1,8 +1,8 @@
 package types
 
 type OmmArray struct {
-  array []OmmType
-  Length  uint64
+  Array   []OmmType
+  Length    uint64
 }
 
 func (arr OmmArray) At(idx int64) OmmType {
@@ -14,11 +14,11 @@ func (arr OmmArray) At(idx int64) OmmType {
     return undef
   }
 
-  return arr.array[idx]
+  return arr.Array[idx]
 }
 
 func (arr *OmmArray) Set(idx int64, val OmmType) {
-  arr.array[idx] = val
+  arr.Array[idx] = val
 }
 
 func (arr OmmArray) Exists(idx int64) bool {
@@ -27,29 +27,33 @@ func (arr OmmArray) Exists(idx int64) bool {
 
 func (arr *OmmArray) PushBack(val OmmType) {
   arr.Length++
-  arr.array = append(arr.array, val)
+  arr.Array = append(arr.Array, val)
 }
 
 func (arr *OmmArray) PushFront(val OmmType) {
   arr.Length++
-  arr.array = append([]OmmType{ val }, arr.array...)
+  arr.Array = append([]OmmType{ val }, arr.Array...)
 }
 
 func (arr *OmmArray) PopBack(val OmmType) {
   arr.Length--
-  arr.array = arr.array[:arr.Length]
+  arr.Array = arr.Array[:arr.Length]
 }
 
 func (arr *OmmArray) PopFront(val OmmType) {
   arr.Length--
-  arr.array = arr.array[1:]
+  arr.Array = arr.Array[1:]
 }
 
 func (arr OmmArray) Format() string {
   var formatted = "["
-  for _, v := range arr.array {
+  for _, v := range arr.Array {
     formatted+=v.Format()
   }
   formatted+="]"
   return formatted
+}
+
+func (arr OmmArray) Type() string {
+  return "array"
 }

@@ -17,3 +17,7 @@ func (b OmmBool) ToGoType() bool {
 func (b OmmBool) Format() string {
   return strconv.FormatBool(*b.Boolean)
 }
+
+func (arr OmmBool) Type() string {
+  return "bool"
+}

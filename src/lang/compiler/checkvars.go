@@ -12,6 +12,21 @@ func checkvars(actions []Action, dir string, vars map[string]string) {
 
   for _, v := range actions {
 
+    if v.Type == "function" {
+      for _, p := range v.Value.(OmmFunc).Params { //add the params to the current variables
+        curVars[p.Name] = "local"
+      }
+      checkvars(v.Value.(OmmFunc).Body, dir, curVars)
+    }
+    if v.Type == "each" { //if it is each, also give the key and value variables
+      key := v.First[1].Name
+      val := v.First[2].Name
+      curVars[key] = "local"
+      curVars[val] = "local"
+
+      checkvars(v.ExpAct, dir, curVars)
+    }
+
     //perform checkvars on all of the sub actions
     checkvars(v.ExpAct, dir, curVars)
     checkvars(v.First, dir, curVars)
@@ -31,13 +46,6 @@ func checkvars(actions []Action, dir string, vars map[string]string) {
       if _, exists := curVars[v.Name]; !exists {
         compilerErr(v.Name[1:] /* remove the $ from the variable name */ + " was not declared", dir, v.Line)
       }
-    }
-
-    if v.Type == "function" {
-      for _, p := range v.Value.(OmmFunc).Params { //add the params to the current variables
-        curVars[p.Name] = "local"
-      }
-      checkvars(v.Value.(OmmFunc).Body, dir, curVars)
     }
 
   }

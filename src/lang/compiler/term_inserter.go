@@ -15,25 +15,6 @@ func term_inserter(lex []Lex) []Lex {
       continue
     }
 
-    //because each and while loops look like:
-    //  while (true) {}
-    //and there must be an operator between the ) and {
-    //  while (true) some-operator {}
-    //also if it looks like
-    //  while (true) log 'hi'
-    //it should insert an operator between ) and log
-    if (v.Name == ")" || v.Name == "}") &&  k + 2 <= len(lex) && !nextType {
-      nLex = append(nLex, Lex{
-        Name: "=>",
-        Exp: v.Exp,
-        Line: v.Line,
-        Type: "operation",
-        OName: "",
-        Dir: v.Dir,
-      })
-      continue
-    }
-
     if v.Type[0] == '?' && k + 2 <= len(lex) && lex[k + 1].Type[0] == '?' { //detect types with a ? prefix
       continue
     }
@@ -47,7 +28,7 @@ func term_inserter(lex []Lex) []Lex {
       continue
     }
 
-    if currentType == nextType {
+    if currentType == nextType || ((v.Name == "++" || v.Name == "--") && !nextType) { //because ++ and -- need terminators after them if a value is after it
       nLex = append(nLex, Lex{
         Name: "$term",
         Exp: v.Exp,

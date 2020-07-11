@@ -10,3 +10,7 @@ type OmmFunc struct {
 func (f OmmFunc) Format() string {
   return "(PARAM COUNT: " + strconv.Itoa(len(f.Params)) + ") { ... }"
 }
+
+func (arr OmmFunc) Type() string {
+  return "function"
+}

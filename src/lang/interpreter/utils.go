@@ -17,10 +17,10 @@ var one = OmmNumber{
 var neg_one = OmmNumber{
   Integer: &[]int64{-1},
 }
-var falseAct = OmmBool{
+var falsev = OmmBool{
   Boolean: &tmpFalse,
 }
-var trueAct = OmmBool{
+var truev = OmmBool{
   Boolean: &tmpTrue,
 }
 //////////////////////////////

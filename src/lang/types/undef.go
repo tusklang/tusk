@@ -16,3 +16,7 @@ func (b OmmUndef) ToGoType() struct{} {
 func (b OmmUndef) Format() string {
   return "undef"
 }
+
+func (arr OmmUndef) Type() string {
+  return "undef"
+}

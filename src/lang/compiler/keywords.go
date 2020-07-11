@@ -72,18 +72,6 @@ var keywordJSON =
     "type": "?operation"
   },
   {
-    "name": "~~~",
-    "remove": "~~~",
-    "pattern": "((~~~))",
-    "type": "operation"
-  },
-  {
-    "name": "~~",
-    "remove": "~~",
-    "pattern": "(~~)",
-    "type": "operation"
-  },
-  {
     "name": "log",
     "remove": "log",
     "pattern": "(log(\\s*)(~))",
@@ -422,13 +410,13 @@ var keywordJSON =
   {
     "name": "break",
     "remove": "break",
-    "pattern": "(break(\\s+))",
+    "pattern": "(break\\s*\\,)",
     "type": "id_non_tilde"
   },
   {
-    "name": "skip",
-    "remove": "skip",
-    "pattern": "(skip(\\s+))",
+    "name": "continue",
+    "remove": "continue",
+    "pattern": "(continue\\s*\\,)",
     "type": "id_non_tilde"
   },
   {
