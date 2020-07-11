@@ -294,9 +294,45 @@ var keywordJSON =
     "type": "operation"
   },
   {
-    "name": "cond",
-    "remove": "cond",
-    "pattern": "(cond\\s*\\[)",
+    "name": "if",
+    "remove": "if",
+    "pattern": "(if\\s*\\()",
+    "type": "id"
+  },
+  {
+    "name": "if",
+    "remove": "if",
+    "pattern": "(if\\s*\\{)",
+    "type": "id"
+  },
+  {
+    "name": "elif",
+    "remove": "elif",
+    "pattern": "(elif\\s*\\()",
+    "type": "id"
+  },
+  {
+    "name": "elif",
+    "remove": "elif",
+    "pattern": "(elif\\s*\\{)",
+    "type": "id"
+  },
+  {
+    "name": "else",
+    "remove": "else",
+    "pattern": "(else\\s*\\{)",
+    "type": "id"
+  },
+  {
+    "name": "else",
+    "remove": "else",
+    "pattern": "(else\\s*\\()",
+    "type": "id"
+  },
+  {
+    "name": "else",
+    "remove": "else",
+    "pattern": "(else\\s+)",
     "type": "id"
   },
   {

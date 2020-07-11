@@ -161,8 +161,6 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
             vars[k] = variable
           }
 
-          fmt.Println(v.Type)
-
           operationFunc, exists := operations[firstInterpreted.Exp.Type() + " " + v.Type + " " + secondInterpreted.Exp.Type()]
 
           if !exists { //if there is no operation for that type, panic
@@ -195,6 +193,39 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
             Type: "return",
             Exp: interpreter(v.ExpAct, cli_params, vars, this_vals).Exp,
             Variables: vars,
+          }
+
+        case "condition":
+
+          for _, v := range v.ExpAct {
+
+            truthy := true
+
+            if v.Type == "if" {
+              condition := interpreter(v.First, cli_params, vars, this_vals)
+              for k, variable := range condition.Variables {
+                vars[k] = variable
+              }
+              truthy = isTruthy(condition.Exp)
+            }
+
+            if truthy {
+              interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
+
+              for k, variable := range interpreted.Variables {
+                vars[k] = variable
+              }
+
+              if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
+                return Returner{
+                  Type: interpreted.Type,
+                  Exp: interpreted.Exp,
+                  Variables: vars,
+                }
+              }
+
+              break
+            }
           }
 
         case "while":
@@ -267,12 +298,19 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
                   vars[k] = variable
                 }
 
-                if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
+                if interpreted.Type == "return" {
                   return Returner{
                     Type: interpreted.Type,
                     Exp: interpreted.Exp,
                     Variables: vars,
                   }
+                }
+
+                if interpreted.Type == "break" {
+                  break
+                }
+                if interpreted.Type == "continue" {
+                  continue;
                 }
 
               }

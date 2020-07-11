@@ -39,99 +39,134 @@ func actionizer(operations []Operation, dir string) []Action {
             }
 
             switch val {
-              case "cond":
-                //if the cond does not have an array
-                //like this
-                //  cond [
-                //    true ? {_},
-                //    false ? {_},
-                //  ]
-                //give an error
 
-                if right[0].Type != "array" {
-                  compilerErr("Conditionals require an array to loop through", dir, v.Line)
+              case "include":
+                if right[0].Type != "string" {
+                  compilerErr("Expected a string after \"include\"", dir, v.Line)
                 }
-            }
 
-            if val == "include" { //if it is include, it is different than the other statements
-              if right[0].Type != "string" {
-                compilerErr("Expected a string after \"include\"", dir, v.Line)
-              }
+                includeFiles := includer(right[0].Value.(OmmString).ToGoType(), v.Line, dir)
 
-              includeFiles := includer(right[0].Value.(OmmString).ToGoType(), v.Line, dir)
-
-              for _, acts := range includeFiles {
-                actions = append(actions, acts...)
-              }
-
-            } else if val == "function" {
-
-              if right[0].Type != "=>" {
-                compilerErr("Functions need a parameter list and function body", dir, right[0].Line)
-              }
-
-              for _, p := range right[0].First[0].ExpAct {
-                if p.Type == "global" || p.Type == "local" {
-                  compilerErr("Cannot set access for parameter defaults", dir, right[0].Line)
+                for _, acts := range includeFiles {
+                  actions = append(actions, acts...)
                 }
-                if p.Type != "let" && p.Type != "variable" {
-                  compilerErr("Function parameter lists can only have let statements and variables", dir, right[0].Line)
+
+              case "function":
+                if right[0].Type != "=>" {
+                  compilerErr("Expected a => operator to connect the function parameter list and the function body", dir, right[0].Line)
                 }
-              }
 
-              actions = append(actions, Action{
-                Type: "function",
-                Value: OmmFunc{
-                  Params: right[0].First[0].ExpAct, //getting the ExpAct because it wont matter if the dev uses a { or a ( because everything will be in the function's scope
-                  Body: right[0].Second,
-                },
-                File: dir,
-                Line: v.Line,
-              })
-            } else if val == "while" {
-
-              if right[0].Type != "=>" {
-                compilerErr("While loops require a condition and a body", dir, right[0].Line)
-              }
-
-              actions = append(actions, Action{
-                Type: val,
-                First: right[0].First,
-                ExpAct: right[0].Second,
-                File: dir,
-                Line: v.Line,
-              })
-            } else if val == "each" {
-
-              if right[0].Type != "=>" {
-                compilerErr("Each loops require a iterator and a body", dir, right[0].Line)
-              }
-
-              if len(right[0].First[0].ExpAct) != 3 {
-                compilerErr("Each loops must look like this: each(iterator, key, value)", dir, right[0].Line)
-              }
-
-              for _, n := range right[0].First[0].ExpAct[1:] {
-                if n.Type != "variable" {
-                  compilerErr("Key or value was not given as a variable", dir, right[0].Line)
+                for _, p := range right[0].First[0].ExpAct {
+                  if p.Type == "global" || p.Type == "local" {
+                    compilerErr("Cannot set access for parameter defaults", dir, right[0].Line)
+                  }
+                  if p.Type != "let" && p.Type != "variable" {
+                    compilerErr("Function parameter lists can only have let statements and variables", dir, right[0].Line)
+                  }
                 }
-              }
 
-              actions = append(actions, Action{
-                Type: val,
-                First: right[0].First[0].ExpAct, //because it doesnt matter if they use a { or (
-                ExpAct: right[0].Second,
-                File: dir,
-                Line: v.Line,
-              })
-            } else {
-              actions = append(actions, Action{
-                Type: val,
-                Name: name,
-                ExpAct: right,
-                File: dir,
-                Line: v.Line,
-              })
+                actions = append(actions, Action{
+                  Type: "function",
+                  Value: OmmFunc{
+                    Params: right[0].First[0].ExpAct, //getting the ExpAct because it wont matter if the dev uses a { or a ( because everything will be in the function's scope
+                    Body: right[0].Second,
+                  },
+                  File: dir,
+                  Line: v.Line,
+                })
+
+              case "if":
+
+                if right[0].Type != "=>" {
+                  compilerErr("Expected a => operator to connect the if condition and the body", dir, right[0].Line)
+                }
+
+                actions = append(actions, Action{
+                  Type: "condition",
+                  ExpAct: []Action{ Action{
+                    Type: "if",
+                    First: right[0].First,
+                    ExpAct: right[0].Second,
+                  } },
+                  File: dir,
+                  Line: v.Line,
+                })
+
+              case "elif":
+
+                if right[0].Type != "=>" {
+                  compilerErr("Expected a => operator to connect the elif condition and the body", dir, right[0].Line)
+                }
+
+                if len(actions) == 0 || actions[len(actions) - 1].Type != "condition" {
+                  compilerErr("Unexpected elif statement", dir, right[0].Line)
+                }
+
+                //append to the previous conditional statement
+                actions[len(actions) - 1].ExpAct = append(actions[len(actions) - 1].ExpAct, Action{
+                  Type: "if",
+                  First: right[0].First,
+                  ExpAct: right[0].Second,
+                })
+
+              case "else":
+
+                if len(actions) == 0 || actions[len(actions) - 1].Type != "condition" {
+                  compilerErr("Unexpected else statement", dir, right[0].Line)
+                }
+
+                //append to the previous conditional statement
+                actions[len(actions) - 1].ExpAct = append(actions[len(actions) - 1].ExpAct, Action{
+                  Type: "else",
+                  ExpAct: right,
+                })
+
+              case "while":
+                if right[0].Type != "=>" {
+                  compilerErr("Expected a => operator to connect the while condition and the body", dir, right[0].Line)
+                }
+
+                actions = append(actions, Action{
+                  Type: val,
+                  First: right[0].First,
+                  ExpAct: right[0].Second,
+                  File: dir,
+                  Line: v.Line,
+                })
+
+              case "each":
+                if right[0].Type != "=>" {
+                  compilerErr("Expected a => operator to connect the each iterator and the body", dir, right[0].Line)
+                }
+
+                if len(right[0].First[0].ExpAct) != 3 {
+                  compilerErr("Each loops must look like this: each(iterator, key, value)", dir, right[0].Line)
+                }
+
+                for _, n := range right[0].First[0].ExpAct[1:] {
+                  if n.Type != "variable" {
+                    compilerErr("Key or value was not given as a variable", dir, right[0].Line)
+                  }
+                }
+
+                actions = append(actions, Action{
+                  Type: val,
+                  First: right[0].First[0].ExpAct, //because it doesnt matter if they use a { or (
+                  ExpAct: right[0].Second,
+                  File: dir,
+                  Line: v.Line,
+                })
+
+              default:
+
+                actions = append(actions, Action{
+                  Type: val,
+                  Name: name,
+                  ExpAct: right,
+                  File: dir,
+                  Line: v.Line,
+                })
+
             }
 
             hasStatement = true
