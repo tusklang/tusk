@@ -2,7 +2,7 @@ package interpreter
 
 import . "lang/types"
 
-func number__plus__number(val1, val2 OmmType, cli_params CliParams) OmmType {
+func number__plus__number(val1, val2 OmmType, cli_params CliParams, line uint64, file string) OmmType {
   num1, num2 := val1.(OmmNumber), val2.(OmmNumber)
   ensurePrec(&num1, &num2, cli_params)
 
@@ -107,8 +107,8 @@ func number__plus__number(val1, val2 OmmType, cli_params CliParams) OmmType {
   }
 
   number := zero
-  *number.Integer = newInt
-  *number.Decimal = newDec
+  number.Integer = &newInt
+  number.Decimal = &newDec
 
   return number
 }

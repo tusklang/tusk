@@ -3,7 +3,8 @@ package types
 import "strconv"
 import "math"
 
-func num_normalize(num OmmNumber) string {
+//export NumNormalize
+func NumNormalize(num OmmNumber) string {
 
   /*
   ALGORITHM TO NORMALIZE:
@@ -35,7 +36,7 @@ func num_normalize(num OmmNumber) string {
 
   //determine if it is less than 0
 
-  combined := append(integerCopy, decimalCopy...)
+  combined := append(decimal, integer...)
 
   var negative int = 0 //0 means 0, -1 means negative, 1 means positive
 
@@ -52,6 +53,7 @@ func num_normalize(num OmmNumber) string {
 
     break
   }
+  ////////////////////////////////
 
   var isNeg bool
 

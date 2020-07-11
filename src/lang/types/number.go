@@ -27,7 +27,7 @@ func (n *OmmNumber) FromGoType(val float64) {
 }
 
 func (n OmmNumber) ToGoType() float64 {
-  f, _ := strconv.ParseFloat(num_normalize(n), 64)
+  f, _ := strconv.ParseFloat(NumNormalize(n), 64)
   return float64(f)
 }
 
@@ -52,6 +52,6 @@ func (n OmmNumber) Clone() OmmNumber {
 }
 
 func (n OmmNumber) Format() string {
-  str := num_normalize(n)
+  str := NumNormalize(n)
   return str
 }

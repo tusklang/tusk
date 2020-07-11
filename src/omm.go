@@ -15,7 +15,7 @@ import "oat/run" //run an oat file
 
 func defaults(cli_params *map[string]map[string]interface{}, name string) {
 
-  (*cli_params)["Calc"]["PREC"] = 10
+  (*cli_params)["Calc"]["PREC"] = 15
 
   if strings.LastIndex(name, ".") == -1 {
     (*cli_params)["Calc"]["O"] = name + ".oat"

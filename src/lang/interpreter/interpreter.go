@@ -1,7 +1,14 @@
 package interpreter
 
 import "fmt"
+import "os"
 import . "lang/types"
+
+func ommPanic(err string, line uint64, file string) {
+  fmt.Println("Panic on line", line, "file", file)
+  fmt.Println(err)
+  os.Exit(1)
+}
 
 func interpreter(actions []Action, cli_params CliParams, passedVars map[string]Variable, this_vals []Action) Returner {
 
@@ -106,6 +113,49 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
             Variables: vars,
           }
         }
+
+        //operations
+        case "+": fallthrough
+        case "-": fallthrough
+        case "*": fallthrough
+        case "/": fallthrough
+        case "%": fallthrough
+        case "^": fallthrough
+        case "=": fallthrough
+        case "!=": fallthrough
+        case ">": fallthrough
+        case "<": fallthrough
+        case ">=": fallthrough
+        case "<=": fallthrough
+        case "~~": fallthrough
+        case "~~~": fallthrough
+        case "!": fallthrough
+        case "&": fallthrough
+        case "|": fallthrough
+        case "::": fallthrough
+        case "?": fallthrough
+        case "->": fallthrough
+        case "=>": fallthrough //this is probably not necessary, but i just left it here
+        case "sync": fallthrough
+        case "async":
+
+          operationFunc, exists := operations[v.First[0].Type + " " + v.Type + " " + v.Second[0].Type]
+
+          if !exists { //if there is no operation for that type, panic
+            ommPanic("Could not find " + v.Type + " operation for types " + v.First[0].Type + " and " + v.Second[0].Type, v.Line, v.File)
+          }
+
+          computed := operationFunc(v.First[0].Value, v.Second[0].Value, cli_params, v.Line, v.File)
+
+          if expReturn {
+            return Returner{
+              Type: "expression",
+              Exp: computed,
+              Variables: vars,
+            }
+          }
+
+        ////////////
 
     }
   }

@@ -21,11 +21,24 @@ func toBig(val1, val2 OmmNumber) (*big.Int, *big.Int, *big.Int, *big.Int) {
   int2, dec2 := val2.Integer, val2.Decimal
 
   var (
-    bigInt1 = sliceToBigInt(*int1)
-    bigInt2 = sliceToBigInt(*int2)
-    bigDec1 = sliceToBigInt(*dec1)
-    bigDec2 = sliceToBigInt(*dec2)
+    bigInt1 = big.NewInt(0)
+    bigInt2 = big.NewInt(0)
+    bigDec1 = big.NewInt(0)
+    bigDec2 = big.NewInt(0)
   )
+
+  if int1 != nil {
+    bigInt1 = sliceToBigInt(*int1)
+  }
+  if int2 != nil {
+    bigInt2 = sliceToBigInt(*int2)
+  }
+  if dec1 != nil {
+    bigDec1 = sliceToBigInt(*dec1)
+  }
+  if dec2 != nil {
+    bigDec2 = sliceToBigInt(*dec2)
+  }
 
   return bigInt1, bigInt2, bigDec1, bigDec2
 }
@@ -42,18 +55,22 @@ func isLess(val1, val2 OmmNumber) bool {
 
   num1DecGreater := false //if num1 has less leading zeros
 
-  for ;len(*val1.Decimal) != 0 && (*val1.Decimal)[len(*val1.Decimal) - 1] == 0; {
-    *val1.Decimal = (*val1.Decimal)[:len(*val1.Decimal) - 1]
-    num1ZeroLeadingDec++
+  if val1.Decimal != nil {
+    for ;len(*val1.Decimal) != 0 && (*val1.Decimal)[len(*val1.Decimal) - 1] == 0; {
+      *val1.Decimal = (*val1.Decimal)[:len(*val1.Decimal) - 1]
+      num1ZeroLeadingDec++
+    }
   }
-  for ;len(*val2.Decimal) != 0 && (*val2.Decimal)[len(*val2.Decimal) - 1] == 0; {
-    *val2.Decimal = (*val2.Decimal)[:len(*val2.Decimal) - 1]
-    num2ZeroLeadingDec++
+  if val2.Decimal != nil {
+    for ;len(*val2.Decimal) != 0 && (*val2.Decimal)[len(*val2.Decimal) - 1] == 0; {
+      *val2.Decimal = (*val2.Decimal)[:len(*val2.Decimal) - 1]
+      num2ZeroLeadingDec++
+    }
   }
 
-  if num1ZeroLeadingDec > num2ZeroLeadingDec {
-    num1DecGreater = true
-  }
+    if num1ZeroLeadingDec > num2ZeroLeadingDec {
+      num1DecGreater = true
+    }
   /////////////////////////////////////////
 
   bigint1, bigint2, bigdec1, bigdec2 := toBig(val1, val2)
@@ -77,13 +94,17 @@ func isEqual(val1, val2 OmmNumber) bool {
 
   num1DecNotEqual := true //if num1 has less leading zeros
 
-  for ;len(*val1.Decimal) != 0 && (*val1.Decimal)[len(*val1.Decimal) - 1] == 0; {
-    *val1.Decimal = (*val1.Decimal)[:len(*val1.Decimal) - 1]
-    num1ZeroLeadingDec++
+  if val1.Decimal != nil {
+    for ;len(*val1.Decimal) != 0 && (*val1.Decimal)[len(*val1.Decimal) - 1] == 0; {
+      *val1.Decimal = (*val1.Decimal)[:len(*val1.Decimal) - 1]
+      num1ZeroLeadingDec++
+    }
   }
-  for ;len(*val2.Decimal) != 0 && (*val2.Decimal)[len(*val2.Decimal) - 1] == 0; {
-    *val2.Decimal = (*val2.Decimal)[:len(*val2.Decimal) - 1]
-    num2ZeroLeadingDec++
+  if val2.Decimal != nil {
+    for ;len(*val2.Decimal) != 0 && (*val2.Decimal)[len(*val2.Decimal) - 1] == 0; {
+      *val2.Decimal = (*val2.Decimal)[:len(*val2.Decimal) - 1]
+      num2ZeroLeadingDec++
+    }
   }
 
   if num1ZeroLeadingDec == num2ZeroLeadingDec {
@@ -112,13 +133,17 @@ func isLessOrEqual(val1, val2 OmmNumber) bool {
 
   num1DecLess := false //if num1 has less leading zeros
 
-  for ;len(*val1.Decimal) != 0 && (*val1.Decimal)[len(*val1.Decimal) - 1] == 0; {
-    *val1.Decimal = (*val1.Decimal)[:len(*val1.Decimal) - 1]
-    num1ZeroLeadingDec++
+  if val1.Decimal != nil {
+    for ;len(*val1.Decimal) != 0 && (*val1.Decimal)[len(*val1.Decimal) - 1] == 0; {
+      *val1.Decimal = (*val1.Decimal)[:len(*val1.Decimal) - 1]
+      num1ZeroLeadingDec++
+    }
   }
-  for ;len(*val2.Decimal) != 0 && (*val2.Decimal)[len(*val2.Decimal) - 1] == 0; {
-    *val2.Decimal = (*val2.Decimal)[:len(*val2.Decimal) - 1]
-    num2ZeroLeadingDec++
+  if val2.Decimal != nil {
+    for ;len(*val2.Decimal) != 0 && (*val2.Decimal)[len(*val2.Decimal) - 1] == 0; {
+      *val2.Decimal = (*val2.Decimal)[:len(*val2.Decimal) - 1]
+      num2ZeroLeadingDec++
+    }
   }
 
   if num1ZeroLeadingDec < num2ZeroLeadingDec {
@@ -142,7 +167,7 @@ func isLessOrEqual(val1, val2 OmmNumber) bool {
 func abs(val OmmNumber, cli_params CliParams) OmmType {
 
   if isLess(val, zero) {
-    return number__times__number(val, neg_one, cli_params)
+    return number__times__number(val, neg_one, cli_params, 0, "none" /* using this because it will not throw an error */)
   }
 
   return val
