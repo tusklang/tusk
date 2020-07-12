@@ -10,7 +10,7 @@ func ommPanic(err string, line uint64, file string) {
   os.Exit(1)
 }
 
-func interpreter(actions []Action, cli_params CliParams, passedVars map[string]Variable, this_vals []Action) Returner {
+func interpreter(actions []Action, cli_params CliParams, vars map[string]Variable, this_vals []Action) Returner {
 
   var expReturn = false //if it is inside an expression
 
@@ -18,24 +18,13 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
     expReturn = true
   }
 
-  var vars = make(map[string]Variable)
-
-  for k, v := range passedVars { //copy passedVars into vars (so they won't mutate)
-    vars[k] = v
-  }
-
   for _, v := range actions {
     switch v.Type {
 
       case "local": fallthrough
-      case "global": fallthrough
-      case "let":
+      case "global":
 
         interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
-
-        for k, variable := range interpreted.Variables {
-          vars[k] = variable
-        }
 
         vars[v.Name] = Variable{
           Type: v.Type,
@@ -43,25 +32,27 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
         }
 
         if expReturn {
+          variable := vars[v.Name]
           return Returner{
             Type: "expression",
-            Exp: vars[v.Name].Value,
-            Variables: vars,
+            Exp: variable.Value,
           }
         }
 
+      case "let":
+
+        interpreted := *interpreter(v.ExpAct, cli_params, vars, this_vals).Exp
+
+        variable := interpreter(v.First, cli_params, vars, this_vals)
+
+        *variable.Exp = interpreted
+
       case "log":
         interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
-        for k, variable := range interpreted.Variables {
-          vars[k] = variable
-        }
-        fmt.Println(interpreted.Exp.Format())
+        fmt.Println((*interpreted.Exp).Format())
       case "print":
         interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
-        for k, variable := range interpreted.Variables {
-          vars[k] = variable
-        }
-        fmt.Print(interpreted.Exp.Format())
+        fmt.Print((*interpreted.Exp).Format())
 
       //all of the types
       case "string": fallthrough
@@ -77,8 +68,7 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
         if expReturn {
           return Returner{
             Type: "expression",
-            Exp: v.Value,
-            Variables: vars,
+            Exp: &v.Value,
           }
         }
       //////////////////
@@ -89,25 +79,23 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
           return Returner{
             Type: "expression",
             Exp: vars[v.Name].Value,
-            Variables: vars,
           }
         }
 
       case "{":
 
-        groupRet := interpreter(v.ExpAct, cli_params, vars, this_vals)
+        var passedVars = make(map[string]Variable)
 
-        for k, variable := range groupRet.Variables {
-          if _, exists := vars[k]; exists || variable.Type == "global" {
-            vars[k] = variable
-          }
+        for k, variable := range vars {
+          passedVars[k] = variable
         }
+
+        groupRet := interpreter(v.ExpAct, cli_params, passedVars, this_vals)
 
         if expReturn {
           return Returner{
             Type: "expression",
             Exp: groupRet.Exp,
-            Variables: groupRet.Variables,
           }
         }
 
@@ -115,15 +103,10 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
         groupRet := interpreter(v.ExpAct, cli_params, vars, this_vals)
 
-        for k, variable := range groupRet.Variables {
-          vars[k] = variable
-        }
-
         if expReturn {
           return Returner{
             Type: "expression",
             Exp: groupRet.Exp,
-            Variables: vars,
           }
         }
 
@@ -154,26 +137,18 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
           firstInterpreted := interpreter(v.First, cli_params, vars, this_vals)
           secondInterpreted := interpreter(v.Second, cli_params, vars, this_vals)
 
-          for k, variable := range firstInterpreted.Variables {
-            vars[k] = variable
-          }
-          for k, variable := range secondInterpreted.Variables {
-            vars[k] = variable
-          }
-
-          operationFunc, exists := operations[firstInterpreted.Exp.Type() + " " + v.Type + " " + secondInterpreted.Exp.Type()]
+          operationFunc, exists := operations[(*firstInterpreted.Exp).Type() + " " + v.Type + " " + (*secondInterpreted.Exp).Type()]
 
           if !exists { //if there is no operation for that type, panic
-            ommPanic("Could not find " + v.Type + " operation for types " + firstInterpreted.Exp.Type() + " and " + secondInterpreted.Exp.Type(), v.Line, v.File)
+            ommPanic("Could not find " + v.Type + " operation for types " + (*firstInterpreted.Exp).Type() + " and " + (*secondInterpreted.Exp).Type(), v.Line, v.File)
           }
 
-          computed := operationFunc(firstInterpreted.Exp, secondInterpreted.Exp, cli_params, v.Line, v.File)
+          computed := operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, cli_params, v.Line, v.File)
 
           if expReturn {
             return Returner{
               Type: "expression",
-              Exp: computed,
-              Variables: vars,
+              Exp: &computed,
             }
           }
 
@@ -184,7 +159,6 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
           return Returner{
             Type: v.Type,
-            Variables: vars,
           }
 
         case "return":
@@ -192,7 +166,6 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
           return Returner{
             Type: "return",
             Exp: interpreter(v.ExpAct, cli_params, vars, this_vals).Exp,
-            Variables: vars,
           }
 
         case "condition":
@@ -203,24 +176,16 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
             if v.Type == "if" {
               condition := interpreter(v.First, cli_params, vars, this_vals)
-              for k, variable := range condition.Variables {
-                vars[k] = variable
-              }
-              truthy = isTruthy(condition.Exp)
+              truthy = isTruthy(*condition.Exp)
             }
 
             if truthy {
               interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
 
-              for k, variable := range interpreted.Variables {
-                vars[k] = variable
-              }
-
               if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
                 return Returner{
                   Type: interpreted.Type,
                   Exp: interpreted.Exp,
-                  Variables: vars,
                 }
               }
 
@@ -232,26 +197,14 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
           cond := interpreter(v.First, cli_params, vars, this_vals)
 
-          for k, variable := range cond.Variables {
-            vars[k] = variable
-          }
-
-          for ;isTruthy(cond.Exp); cond = interpreter(v.First, cli_params, vars, this_vals) {
-            for k, variable := range cond.Variables {
-              vars[k] = variable
-            }
+          for ;isTruthy(*cond.Exp); cond = interpreter(v.First, cli_params, vars, this_vals) {
 
             interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
-
-            for k, variable := range interpreted.Variables {
-              vars[k] = variable
-            }
 
             if interpreted.Type == "return" {
               return Returner{
                 Type: interpreted.Type,
                 Exp: interpreted.Exp,
-                Variables: vars,
               }
             }
 
@@ -265,7 +218,7 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
         case "each":
 
-          it := interpreter([]Action{ v.First[0] }, cli_params, vars, this_vals).Exp
+          it := *interpreter([]Action{ v.First[0] }, cli_params, vars, this_vals).Exp
           keyName := v.First[1].Name //get name of key
           valName := v.First[2].Name //get name of val
 
@@ -274,8 +227,10 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
               for key, val := range it.(OmmHash).Hash {
 
-                ommtypeKey := OmmString{}
-                ommtypeKey.FromGoType(key)
+                ommtypeKeyn := OmmString{}
+                ommtypeKeyn.FromGoType(key)
+
+                var ommtypeKey OmmType = ommtypeKeyn
 
                 var sendVars = make(map[string]Variable)
 
@@ -285,24 +240,19 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
                 sendVars[keyName] = Variable{
                   Type: "local",
-                  Value: ommtypeKey,
+                  Value: &ommtypeKey,
                 }
                 sendVars[valName] = Variable{
                   Type: "local",
-                  Value: val,
+                  Value: &val,
                 }
 
                 interpreted := interpreter(v.ExpAct, cli_params, sendVars, this_vals)
-
-                for k, variable := range interpreted.Variables {
-                  vars[k] = variable
-                }
 
                 if interpreted.Type == "return" {
                   return Returner{
                     Type: interpreted.Type,
                     Exp: interpreted.Exp,
-                    Variables: vars,
                   }
                 }
 
@@ -319,8 +269,10 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
               for key, val := range it.(OmmArray).Array {
 
-                ommtypeKey := OmmNumber{}
-                ommtypeKey.FromGoType(float64(key))
+                ommtypeKeyn := OmmNumber{}
+                ommtypeKeyn.FromGoType(float64(key))
+
+                var ommtypeKey OmmType = ommtypeKeyn
 
                 var sendVars = make(map[string]Variable)
 
@@ -330,24 +282,19 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
                 sendVars[keyName] = Variable{
                   Type: "local",
-                  Value: ommtypeKey,
+                  Value: &ommtypeKey,
                 }
                 sendVars[valName] = Variable{
                   Type: "local",
-                  Value: val,
+                  Value: &val,
                 }
 
                 interpreted := interpreter(v.ExpAct, cli_params, sendVars, this_vals)
-
-                for k, variable := range interpreted.Variables {
-                  vars[k] = variable
-                }
 
                 if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
                   return Returner{
                     Type: interpreted.Type,
                     Exp: interpreted.Exp,
-                    Variables: vars,
                   }
                 }
 
@@ -357,10 +304,13 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
               for key, val := range it.(OmmString).ToGoType() {
 
-                ommtypeKey := OmmNumber{}
-                ommtypeKey.FromGoType(float64(key))
-                ommtypeVal := OmmRune{}
-                ommtypeVal.FromGoType(val)
+                ommtypeKeyn := OmmNumber{}
+                ommtypeKeyn.FromGoType(float64(key))
+                ommtypeValr := OmmRune{}
+                ommtypeValr.FromGoType(val)
+
+                var ommtypeKey OmmType = ommtypeKeyn
+                var ommtypeVal OmmType = ommtypeValr
 
                 var sendVars = make(map[string]Variable)
 
@@ -370,24 +320,19 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
                 sendVars[keyName] = Variable{
                   Type: "local",
-                  Value: ommtypeKey,
+                  Value: &ommtypeKey,
                 }
                 sendVars[valName] = Variable{
                   Type: "local",
-                  Value: ommtypeVal,
+                  Value: &ommtypeVal,
                 }
 
                 interpreted := interpreter(v.ExpAct, cli_params, sendVars, this_vals)
-
-                for k, variable := range interpreted.Variables {
-                  vars[k] = variable
-                }
 
                 if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
                   return Returner{
                     Type: interpreted.Type,
                     Exp: interpreted.Exp,
-                    Variables: vars,
                   }
                 }
 
@@ -400,6 +345,5 @@ func interpreter(actions []Action, cli_params CliParams, passedVars map[string]V
 
   return Returner{
     Type: "none",
-    Variables: vars,
   }
 }

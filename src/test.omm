@@ -1,6 +1,6 @@
-main: fn() => {
-  i: 0
-  while (true) => {
-    log i: i + 1
-  }
+lcl main: fn() => {
+  lcl i: 0
+  i: 3
+
+  log i
 }

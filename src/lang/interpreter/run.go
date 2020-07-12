@@ -31,11 +31,17 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[
     os.Exit(1)
   } else {
 
-    switch vars["$main"].Value.(type) {
+    switch (*vars["$main"].Value).(type) {
       case OmmFunc:
         main := vars["$main"]
 
-        called := interpreter(main.Value.(OmmFunc).Body, cli_params, vars, make([]Action, 0)).Exp
+        calledP := interpreter((*main.Value).(OmmFunc).Body, cli_params, vars, make([]Action, 0)).Exp
+
+        if calledP == nil {
+          os.Exit(0)
+        }
+
+        called := *calledP
 
         for _, v := range threads {
           v.WaitFor()

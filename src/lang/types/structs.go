@@ -6,7 +6,6 @@ type Action struct {
   Name            string
   Value           OmmType
   ExpAct        []Action
-  Indexes     [][]Action
 
   //stuff for operations
 
@@ -28,12 +27,11 @@ type Action struct {
 
 type Variable struct {
   Type      string
-  Value     OmmType
+  Value    *OmmType
   GoProc    func(args [][]Action, cli_params CliParams, vars map[string]Variable, this_vals []Action, dir string) OmmType
 }
 
 type Returner struct {
-  Variables map[string]Variable
-  Exp       OmmType
+  Exp      *OmmType
   Type      string
 }

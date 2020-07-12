@@ -32,13 +32,9 @@ func checkvars(actions []Action, dir string, vars map[string]string) {
     checkvars(v.First, dir, curVars)
     checkvars(v.Second, dir, curVars)
     checkvars(v.Degree, dir, curVars)
-
-    for _, idx := range v.Indexes {
-      checkvars(idx, dir, curVars)
-    }
     /////////////////////////////////////////////
 
-    if v.Type == "let" || v.Type == "global" || v.Type == "local" {
+    if v.Type == "global" || v.Type == "local" {
       curVars[v.Name] = v.Type
     }
 

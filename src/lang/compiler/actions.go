@@ -28,16 +28,6 @@ func actionizer(operations []Operation, dir string) []Action {
         for _, val := range statements {
           if val == (*v.Left).Item.Token.Name {
 
-            var name string
-
-            if len(right) > 0 {
-              name = right[0].Name
-
-              if len(right[0].Indexes) != 0 {
-                compilerErr("Cannot use the index operator (::) for a statement", dir, v.Line)
-              }
-            }
-
             switch val {
 
               case "include":
@@ -157,11 +147,28 @@ func actionizer(operations []Operation, dir string) []Action {
                   Line: v.Line,
                 })
 
+              case "local": fallthrough
+              case "global":
+                if right[0].Type != "let" {
+                  compilerErr("Expected a assigner statement after lcl", dir, right[0].Line)
+                }
+
+                if right[0].First[0].Type != "variable" {
+                  compilerErr("Cannot use :: operator in lcl and gbl", dir, right[0].Line)
+                }
+
+                actions = append(actions, Action{
+                  Type: val,
+                  Name: right[0].First[0].Name,
+                  ExpAct: right[0].ExpAct,
+                  File: dir,
+                  Line: v.Line,
+                })
+
               default:
 
                 actions = append(actions, Action{
                   Type: val,
-                  Name: name,
                   ExpAct: right,
                   File: dir,
                   Line: v.Line,
@@ -182,30 +189,10 @@ func actionizer(operations []Operation, dir string) []Action {
           compilerErr("Must have a variable before an assigner operator", dir, v.Line)
         }
 
-        var varname string
-        var indexes [][]Action
-
-        if left[0].Type == "variable" {
-          varname = left[0].Name
-        } else {
-
-          var currentIndex = left[0]
-
-          for ;currentIndex.Type != "variable"; {
-            indexes = append([][]Action{ currentIndex.Second }, indexes...)
-            currentIndex = currentIndex.First[0]
-          }
-
-          varname = currentIndex.Name
-        }
-
-        value := right
-
         actions = append(actions, Action{
           Type: "let",
-          Name: varname,
-          ExpAct: value,
-          Indexes: indexes,
+          First: left,
+          ExpAct: right,
           File: dir,
           Line: v.Line,
         })
@@ -255,26 +242,9 @@ func actionizer(operations []Operation, dir string) []Action {
           compilerErr("Must have a variable before an increment or decrement", dir, v.Line)
         }
 
-        var varname string
-        var indexes [][]Action
-
-        if left[0].Type == "variable" {
-          varname = left[0].Name
-        } else {
-
-          var currentIndex = left[0]
-
-          for ;currentIndex.Type != "variable"; {
-            indexes = append([][]Action{ currentIndex.Second }, indexes...)
-            currentIndex = currentIndex.First[0]
-          }
-
-          varname = currentIndex.Name
-        }
-
         actions = append(actions, Action{
           Type: v.Type,
-          Name: varname,
+          First: left,
           File: dir,
           Line: v.Line,
         })
@@ -293,26 +263,9 @@ func actionizer(operations []Operation, dir string) []Action {
           compilerErr("Could not find a value after " + v.Type, dir, v.Line)
         }
 
-        var varname string
-        var indexes [][]Action
-
-        if left[0].Type == "variable" {
-          varname = left[0].Name
-        } else {
-
-          var currentIndex = left[0]
-
-          for ;currentIndex.Type != "variable"; {
-            indexes = append([][]Action{ currentIndex.Second }, indexes...)
-            currentIndex = currentIndex.First[0]
-          }
-
-          varname = currentIndex.Name
-        }
-
         actions = append(actions, Action{
           Type: v.Type,
-          Name: varname,
+          First: left,
           Second: right,
           File: dir,
           Line: v.Line,
