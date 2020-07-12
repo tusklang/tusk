@@ -1,5 +1,6 @@
 package interpreter
 
+import "strconv"
 import . "lang/types"
 
 //list of operations
@@ -97,10 +98,88 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 	"undef ! bool": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
 
 		boolean := !val2.(OmmBool).ToGoType()
+
 		var converted OmmType = OmmBool{
 			Boolean: &boolean,
 		}
 
 		return &converted
+	},
+	"number > number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+
+		isGreaterv := !isLessOrEqual(val1.(OmmNumber), val2.(OmmNumber))
+		var isGreaterType OmmType = falsev
+
+		if isGreaterv {
+			isGreaterType = truev
+		}
+
+		return &isGreaterType
+	},
+	"number >= number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+
+		isGreaterOrEqualv := !isLess(val1.(OmmNumber), val2.(OmmNumber))
+		var isGreaterOrEqualType OmmType = falsev
+
+		if isGreaterOrEqualv {
+			isGreaterOrEqualType = truev
+		}
+
+		return &isGreaterOrEqualType
+	},
+	"number < number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+
+		isLessv := isLess(val1.(OmmNumber), val2.(OmmNumber))
+		var isLessType OmmType = falsev
+
+		if isLessv {
+			isLessType = truev
+		}
+
+		return &isLessType
+	},
+	"number <= number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+
+		isLessOrEqualv := isLessOrEqual(val1.(OmmNumber), val2.(OmmNumber))
+		var isLessOrEqualType OmmType = falsev
+
+		if isLessOrEqualv {
+			isLessOrEqualType = truev
+		}
+
+		return &isLessOrEqualType
+	},
+	"array :: number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+
+		//convert to int64
+		idx := int64(val2.(OmmNumber).ToGoType())
+		arr := val1.(OmmArray)
+
+		if !arr.Exists(idx) {
+			ommPanic("Index " + strconv.FormatInt(idx, 10) + " out of range with length " + strconv.FormatUint(arr.Length, 10), line, file)
+		}
+
+		return arr.At(idx)
+	},
+	"string :: number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+
+		//convert to int64
+		idx := int64(val2.(OmmNumber).ToGoType())
+		str := val1.(OmmString)
+
+		if !str.Exists(idx) {
+			ommPanic("Index " + strconv.FormatInt(idx, 10) + " out of range with length " + strconv.FormatUint(str.Length, 10), line, file)
+		}
+
+		var ommtype OmmType = *str.At(idx)
+
+		return &ommtype
+	},
+	"hash :: string": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+
+		//convert index to go string
+		gostr := val2.(OmmString).ToGoType()
+
+		return val1.(OmmHash).At(gostr)
 	},
 }

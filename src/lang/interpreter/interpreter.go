@@ -253,7 +253,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
               }
               sendVars[valName] = Variable{
                 Type: "local",
-                Value: &val,
+                Value: val,
               }
 
               interpreted := interpreter(v.ExpAct, cli_params, sendVars, this_vals)
@@ -295,7 +295,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
               }
               sendVars[valName] = Variable{
                 Type: "local",
-                Value: &val,
+                Value: val,
               }
 
               interpreted := interpreter(v.ExpAct, cli_params, sendVars, this_vals)

@@ -1,3 +1,5 @@
 lcl main: fn() => {
-  log !false
+  lcl a: [::]
+  a::"s": 'f'
+  log a::"s"
 }

@@ -68,6 +68,8 @@ func valueActions(item Item, dir string) Action {
 
       var ommVal OmmHash
 
+      ommVal.Hash = make(map[string]*OmmType)
+
       for k, v := range hash {
         ommVal.Set(k, v.Value)
       }
