@@ -1,5 +1,4 @@
-lcl main: fn() => {
-  lcl a: [::]
-  a::"s": 'f'
-  log a::"s"
+var main: fn() => {
+
+  while (true) => log 's'
 }

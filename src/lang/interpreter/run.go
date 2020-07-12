@@ -14,7 +14,7 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[
 
   for k, v := range compiledVars {
     vars[k] = Variable{
-      Type: "global",
+      Type: "variable",
       Value: interpreter(v, cli_params, vars, make([]Action, 0)).Exp,
     }
   }

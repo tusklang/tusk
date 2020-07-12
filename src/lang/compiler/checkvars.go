@@ -34,8 +34,8 @@ func checkvars(actions []Action, dir string, vars map[string]string) {
     checkvars(v.Degree, dir, curVars)
     /////////////////////////////////////////////
 
-    if v.Type == "global" || v.Type == "local" {
-      curVars[v.Name] = v.Type
+    if v.Type == "var" {
+      curVars[v.Name] = "local"
     }
 
     if v.Type == "variable" {

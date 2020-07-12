@@ -21,8 +21,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
   for _, v := range actions {
     switch v.Type {
 
-      case "local": fallthrough
-      case "global":
+      case "var":
 
         interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
 

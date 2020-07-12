@@ -6,16 +6,16 @@ var keywordJSON =
 `
 [
   {
-    "name": "local",
-    "remove": "local",
-    "pattern": "(local(\\s*)(~?))",
+    "name": "var",
+    "remove": "var",
+    "pattern": "(var(\\s+))",
     "type": "id"
   },
   {
-    "name": "local",
-    "remove": "lcl",
-    "pattern": "(lcl(\\s*)(~?))",
-    "type": "id"
+    "name": "var",
+    "remove": "var",
+    "pattern": "(var(\\s*)\\~)",
+    "type": "id_non_tilde"
   },
   {
     "name": "->",
@@ -243,18 +243,6 @@ var keywordJSON =
     "name": "function",
     "remove": "fn",
     "pattern": "(fn(\\s*)\\()",
-    "type": "id"
-  },
-  {
-    "name": "global",
-    "remove": "gbl",
-    "pattern": "(gbl(\\s*)(~))",
-    "type": "id_non_tilde"
-  },
-  {
-    "name": "global",
-    "remove": "gbl",
-    "pattern": "(gbl(\\s+))",
     "type": "id"
   },
   {

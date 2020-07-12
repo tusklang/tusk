@@ -23,7 +23,7 @@ func actionizer(operations []Operation, dir string) []Action {
     switch v.Type {
       case "~":
 
-        var statements = []string{ "local", "global", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return" } //list of statements
+        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return" } //list of statements
 
         var hasStatement bool = false
 
@@ -49,10 +49,7 @@ func actionizer(operations []Operation, dir string) []Action {
                 }
 
                 for _, p := range right[0].First[0].ExpAct {
-                  if p.Type == "global" || p.Type == "local" {
-                    compilerErr("Cannot set access for parameter defaults", dir, right[0].Line)
-                  }
-                  if p.Type != "let" && p.Type != "variable" {
+                  if p.Type != "var" && p.Type != "let" && p.Type != "variable" {
                     compilerErr("Function parameter lists can only have let statements and variables", dir, right[0].Line)
                   }
                 }
@@ -149,14 +146,14 @@ func actionizer(operations []Operation, dir string) []Action {
                   Line: v.Line,
                 })
 
-              case "local": fallthrough
-              case "global":
+              case "var":
+
                 if right[0].Type != "let" {
-                  compilerErr("Expected a assigner statement after lcl", dir, right[0].Line)
+                  compilerErr("Expected a assigner statement after var", dir, right[0].Line)
                 }
 
                 if right[0].First[0].Type != "variable" {
-                  compilerErr("Cannot use :: operator in lcl and gbl", dir, right[0].Line)
+                  compilerErr("Cannot use :: operator in variable declaration", dir, right[0].Line)
                 }
 
                 actions = append(actions, Action{
