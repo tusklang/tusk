@@ -2,7 +2,7 @@ package interpreter
 
 import . "lang/types"
 
-func number__mod__number(val1, val2 OmmType, cli_params CliParams, line uint64, file string) OmmType {
+func number__mod__number(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
   num1, num2 := val1.(OmmNumber), val2.(OmmNumber)
   ensurePrec(&num1, &num2, cli_params)
 
@@ -18,9 +18,9 @@ func number__mod__number(val1, val2 OmmType, cli_params CliParams, line uint64, 
   num2P.Integer, num2P.Decimal = &tmpInt, &tmpDec
 
   //if you set the prec to 0 here, it will mutate it
-  divided := number__divide__number(num1, num2, cli_params, line, file).(OmmNumber)
+  divided := (*number__divide__number(num1, num2, cli_params, line, file)).(OmmNumber)
   *divided.Decimal = nil //round down
 
-  multiplied := number__times__number(divided, num2, cli_params, line, file).(OmmNumber)
+  multiplied := (*number__times__number(divided, num2, cli_params, line, file)).(OmmNumber)
   return number__minus__number(num1, multiplied, cli_params, line, file)
 }

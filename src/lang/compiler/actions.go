@@ -2,6 +2,8 @@ package compiler
 
 import . "lang/types"
 
+var types = []string{ "string", "rune", "number", "bool", "hash", "array" }
+
 func actionizer(operations []Operation, dir string) []Action {
 
   var actions []Action
@@ -197,6 +199,28 @@ func actionizer(operations []Operation, dir string) []Action {
           Line: v.Line,
         })
 
+      case "->":
+
+        castType := v.Item.Token.Name[1:]
+
+        for _, v := range types {
+          if v == castType {
+            goto typeExists
+          }
+        }
+
+        compilerErr(castType + " is not a type", dir, v.Line)
+
+        typeExists:
+
+        actions = append(actions, Action{
+          Type: "cast",
+          Name: castType, //type to cast into
+          ExpAct: right,
+          File: dir,
+          Line: v.Line,
+        })
+
       //all of these operations have the same way of appending
       case "+": fallthrough
       case "-": fallthrough
@@ -214,7 +238,6 @@ func actionizer(operations []Operation, dir string) []Action {
       case "&": fallthrough
       case "|": fallthrough
       case "::": fallthrough
-      case "->": fallthrough
       case "=>": fallthrough
       case "sync": fallthrough
       case "async":

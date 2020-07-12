@@ -1,6 +1,3 @@
 lcl main: fn() => {
-  lcl i: 0
-  i: 3
-
-  log i
+  log !false
 }

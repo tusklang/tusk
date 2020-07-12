@@ -454,42 +454,6 @@ var keywordJSON =
     "remove": "continue",
     "pattern": "(continue\\s*\\,)",
     "type": "id_non_tilde"
-  },
-  {
-    "name": "number",
-    "remove": "number",
-    "pattern": "(number\\-\\>)",
-    "type": "type"
-  },
-  {
-    "name": "number",
-    "remove": "num",
-    "pattern": "(num\\-\\>)",
-    "type": "type"
-  },
-  {
-    "name": "string",
-    "remove": "string",
-    "pattern": "(string\\-\\>)",
-    "type": "type"
-  },
-  {
-    "name": "bool",
-    "remove": "bool",
-    "pattern": "(bool\\-\\>)",
-    "type": "type"
-  },
-  {
-    "name": "hash",
-    "remove": "hash",
-    "pattern": "(hash\\-\\>)",
-    "type": "type"
-  },
-  {
-    "name": "array",
-    "remove": "array",
-    "pattern": "(array\\-\\>)",
-    "type": "type"
   }
 ]
 `,

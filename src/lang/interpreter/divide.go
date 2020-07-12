@@ -2,7 +2,7 @@ package interpreter
 
 import . "lang/types"
 
-func number__divide__number(val1, val2 OmmType, cli_params CliParams, line uint64, file string) OmmType {
+func number__divide__number(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
   num1, num2 := val1.(OmmNumber), val2.(OmmNumber)
   ensurePrec(&num1, &num2, cli_params)
 
@@ -17,7 +17,8 @@ func number__divide__number(val1, val2 OmmType, cli_params CliParams, line uint6
     ommPanic("Divide by zero error", line, file)
   }
   if isEqual(num1, zero) { //if it is 0/n return 0
-    return zero
+    var ztype OmmType = zero
+    return &ztype
   }
 
   decPlaces := len(*num1.Integer) + len(*num2.Decimal)
@@ -57,21 +58,21 @@ func number__divide__number(val1, val2 OmmType, cli_params CliParams, line uint6
     var added OmmNumber = zero
 
     for addedTemp := added; func() bool {
-      addedTemp = number__plus__number(addedTemp, num2Abs, cli_params, line, file).(OmmNumber)
+      addedTemp = (*number__plus__number(addedTemp, num2Abs, cli_params, line, file)).(OmmNumber)
       return isLessOrEqual(addedTemp, curValAbs)
     }(); added = addedTemp {
-      curQuotient = number__plus__number(curQuotient, one, cli_params, line, file).(OmmNumber) //increment the current quotient
+      curQuotient = (*number__plus__number(curQuotient, one, cli_params, line, file)).(OmmNumber) //increment the current quotient
     }
 
-    apn2 := number__plus__number(added, num2Abs, cli_params, line, file).(OmmNumber)
+    apn2 := (*number__plus__number(added, num2Abs, cli_params, line, file)).(OmmNumber)
 
     if isEqual(apn2, curValAbs) {
       added = apn2
-      curQuotient = number__plus__number(curQuotient, one, cli_params, line, file).(OmmNumber)
+      curQuotient = (*number__plus__number(curQuotient, one, cli_params, line, file)).(OmmNumber)
     }
 
     if isLess(num1, zero) {
-      curQuotient = number__times__number(curQuotient, neg_one, cli_params, line, file).(OmmNumber)
+      curQuotient = (*number__times__number(curQuotient, neg_one, cli_params, line, file)).(OmmNumber)
     }
 
     //remove leading zeros from the curQuotient
@@ -79,14 +80,14 @@ func number__divide__number(val1, val2 OmmType, cli_params CliParams, line uint6
       *curQuotient.Integer = (*curQuotient.Integer)[:len(*curQuotient.Integer) - 1]
     }
 
-    curVal = number__minus__number(curValAbs, added, cli_params, line, file).(OmmNumber)
+    curVal = (*number__minus__number(curValAbs, added, cli_params, line, file)).(OmmNumber)
     final = append(*curQuotient.Integer, final...)
   }
 
   if isLess(num2, zero) { //if num2 is negative, multiply the final by -1
     finalAct := zero
     finalAct.Integer = &final
-    finalAct = number__times__number(finalAct, neg_one, cli_params, line, file).(OmmNumber)
+    finalAct = (*number__times__number(finalAct, neg_one, cli_params, line, file)).(OmmNumber)
     final = *finalAct.Integer
   }
 
@@ -95,5 +96,7 @@ func number__divide__number(val1, val2 OmmType, cli_params CliParams, line uint6
   tmpDec := final[:len(final) - decPlaces]
   ret.Integer, ret.Decimal = &tmpInt, &tmpDec
 
-  return ret
+  var retType OmmType = ret
+
+  return &retType
 }
