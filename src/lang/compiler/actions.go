@@ -202,7 +202,7 @@ func actionizer(operations []Operation, dir string) []Action {
 
       case "->":
 
-        castType := v.Item.Token.Name[1:]
+        castType := v.Left.Item.Token.Name[1:]
 
         for _, v := range types {
           if v == castType {

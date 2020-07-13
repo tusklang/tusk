@@ -1,3 +1,5 @@
 var main: fn() => {
-  log input["S"]
+  var a: "fsf"
+  a::0: "s"
+  log a
 }

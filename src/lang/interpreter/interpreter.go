@@ -137,9 +137,9 @@ func interpreter(actions []Action, cli_params CliParams, stacktrace []string) Re
           }
         }
 
-      case "->":
+      case "cast":
 
-        casted := cast(*interpreter(v.ExpAct, cli_params, stacktrace).Exp, v.Name)
+        casted := cast(*interpreter(v.ExpAct, cli_params, stacktrace).Exp, v.Name, stacktrace, v.Line, v.File)
 
         if expReturn {
           return Returner{
