@@ -50,6 +50,13 @@ func interpreter(actions []Action, cli_params CliParams, stacktrace []string) Re
 
         *variable.Exp = interpreted
 
+        if expReturn {
+          return Returner{
+            Type: "expression",
+            Exp: variable.Exp,
+          }
+        }
+
       case "log":
         interpreted := interpreter(v.ExpAct, cli_params, stacktrace)
         fmt.Println((*interpreted.Exp).Format())
@@ -168,8 +175,8 @@ func interpreter(actions []Action, cli_params CliParams, stacktrace []string) Re
       case "|": fallthrough
       case "::": fallthrough
       case "=>": fallthrough //this is probably not necessary, but i just left it here
-      case "sync": fallthrough
-      case "async":
+      case "<-": fallthrough
+      case "<~":
 
         firstInterpreted := interpreter(v.First, cli_params, stacktrace)
         secondInterpreted := interpreter(v.Second, cli_params, stacktrace)

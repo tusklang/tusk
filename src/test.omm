@@ -1,4 +1,10 @@
 var main: fn() => {
-  var a: 1
-  log a
+  var i: 0
+  stop <~ []
+  while (true) => log i: i + 1
+}
+
+var stop: fn() => {
+  wait[10000]
+  exit[]
 }

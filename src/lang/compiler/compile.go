@@ -1,6 +1,5 @@
 package compiler
 
-import "encoding/json"
 import "fmt"
 import "path"
 import "os"
@@ -54,9 +53,6 @@ func Compile(file, dir, filename string) ([]Action, map[string][]Action) {
   for k := range vars {
     changevarnames(vars[k], varnames)
   }
-
-  j, _ := json.MarshalIndent(vars, "", "  ")
-  fmt.Println(string(j))
 
   return actions, vars
 }

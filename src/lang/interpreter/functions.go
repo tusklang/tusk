@@ -62,7 +62,7 @@ func initfuncs() {
     return gfn.Function(arr.Array, cli_params, stacktrace, line, file)
   }
 
-  operations["function sync array"] = function__sync__array
-  operations["function async array"] = function__async__array
-  operations["gofunc sync array"] = gofunc__sync__array
+  operations["function <- array"] = function__sync__array
+  operations["function <~ array"] = function__async__array
+  operations["gofunc <- array"] = gofunc__sync__array
 }

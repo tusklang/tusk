@@ -6,6 +6,7 @@ package interpreter
 import "bufio"
 import "os"
 import "fmt"
+import "time"
 
 import . "lang/types"
 
@@ -108,5 +109,73 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     }
 
     return &arr
+  },
+  "exit": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+
+    if len(args) == 1 {
+
+      switch (*args[0]).(type) {
+        case OmmNumber:
+
+          var gonum = (*args[0]).(OmmNumber).ToGoType()
+          os.Exit(int(gonum))
+
+        case OmmBool:
+
+          if (*args[0]).(OmmBool).ToGoType() == true {
+            os.Exit(0)
+          } else {
+            os.Exit(1)
+          }
+
+        default:
+          os.Exit(0)
+      }
+
+    } else if len(args) == 0 {
+      os.Exit(0)
+    } else {
+      ommPanic("Function exit requires a parameter count of 1 or 0", line, file, stacktrace)
+    }
+
+    var tmpundef OmmType = undef
+    return &tmpundef
+  },
+  "wait": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+
+    if len(args) == 1 {
+
+      if (*args[0]).Type() != "number" {
+        ommPanic("Function wait requires a number as the argument", line, file, stacktrace)
+      }
+
+      var amt = (*args[0]).(OmmNumber)
+
+      var n4294967295 = zero
+      n4294967295.Integer = &[]int64{ 5, 9, 2, 7, 6, 9, 4, 9, 2, 4 }
+
+      //if amt is less than 2 ^ 32 - 1, just convert to a go int
+      if isLess(amt, n4294967295) {
+        gonum := amt.ToGoType()
+
+        time.Sleep(time.Duration(gonum) * time.Millisecond)
+      } else {
+        //this is how this works
+        /*
+          the loop starts at 0 with an increment of 2 ^ 32 - 1
+          in each iteration, it will wait for 2 ^ 32 - 1 milliseconds
+        */
+
+        for i := zero; isLess(i, amt); i = (*number__plus__number(i, n4294967295, cli_params, stacktrace, line, file)).(OmmNumber) {
+          time.Sleep(4294967295 * time.Millisecond)
+        }
+      }
+
+    } else {
+      ommPanic("Function wait requires a parameter count of 1", line, file, stacktrace)
+    }
+
+    var tmpundef OmmType = undef
+    return &tmpundef
   },
 }

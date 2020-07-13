@@ -157,8 +157,8 @@ func makeOperations(groups [][]Item) []Operation {
     },
     map[string]func(exp []Item, index int, opType string) Operation {
       "::": normalOpFunc,
-      "sync": normalOpFunc,
-      "async": normalOpFunc,
+      "<-": normalOpFunc,
+      "<~": normalOpFunc,
     },
     map[string]func(exp []Item, index int, opType string) Operation {
       "!": func(exp []Item, index int, opType string) Operation {

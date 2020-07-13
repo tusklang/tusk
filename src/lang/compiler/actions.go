@@ -240,8 +240,8 @@ func actionizer(operations []Operation, dir string) []Action {
       case "|": fallthrough
       case "::": fallthrough
       case "=>": fallthrough
-      case "sync": fallthrough
-      case "async":
+      case "<-": fallthrough
+      case "<~":
 
         var degree []Action
 

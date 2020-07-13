@@ -216,15 +216,15 @@ var keywordJSON =
     "type": "?close_brace"
   },
   {
-    "name": "async",
-    "remove": "async",
-    "pattern": "(async\\s*\\[)",
+    "name": "<~",
+    "remove": "<~",
+    "pattern": "(\\<\\~)",
     "type": "operation"
   },
   {
-    "name": "sync",
-    "remove": "sync",
-    "pattern": "(sync\\s*\\[)",
+    "name": "<-",
+    "remove": "<-",
+    "pattern": "(\\<\\-)",
     "type": "operation"
   },
   {

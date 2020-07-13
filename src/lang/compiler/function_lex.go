@@ -16,7 +16,7 @@ func funcLex(lex []Lex) []Lex {
     if (v.Type != "operation" && v.Type != "?operation") && k + 2 <= len(lex) && lex[k + 1].Name == "[" {
       //insert a "sync"
       nLex = append(nLex, Lex{
-        Name: "sync",
+        Name: "<-",
         Exp: v.Exp,
         Line: v.Line,
         Type: "operation",
