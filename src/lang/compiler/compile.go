@@ -1,5 +1,6 @@
 package compiler
 
+import "encoding/json"
 import "fmt"
 import "path"
 import "os"
@@ -38,19 +39,24 @@ func Compile(file, dir, filename string) ([]Action, map[string][]Action) {
   actions := actionizer(operations, path.Join(dir, filename))
   vars := getvars(actions, path.Join(dir, filename))
 
-  //make each var have only it's type
-  var vartypes = make(map[string]string)
+  //make each var have only it's name
+  var varnames = make(map[string]string)
 
   for k := range vars {
-    vartypes[k] = "global"
+    varnames[k] = k
   }
 
   //also account for the gofuncs
   for k := range interpreter.GoFuncs {
-    vartypes["$" + k] = "global"
+    varnames["$" + k] = "$" + k
   }
 
-  checkvars(actions, path.Join(dir, filename), vartypes)
+  for k := range vars {
+    changevarnames(vars[k], varnames)
+  }
+
+  j, _ := json.MarshalIndent(vars, "", "  ")
+  fmt.Println(string(j))
 
   return actions, vars
 }
