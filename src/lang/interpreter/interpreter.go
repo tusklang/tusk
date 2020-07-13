@@ -10,7 +10,7 @@ func ommPanic(err string, line uint64, file string) {
   os.Exit(1)
 }
 
-func interpreter(actions []Action, cli_params CliParams, vars map[string]Variable, this_vals []Action) Returner {
+func interpreter(actions []Action, cli_params CliParams) Returner {
 
   var expReturn = false //if it is inside an expression
 
@@ -23,7 +23,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
       case "var":
 
-        interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
+        interpreted := interpreter(v.ExpAct, cli_params)
 
         vars[v.Name] = Variable{
           Type: v.Type,
@@ -40,17 +40,17 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
       case "let":
 
-        interpreted := *interpreter(v.ExpAct, cli_params, vars, this_vals).Exp
+        interpreted := *interpreter(v.ExpAct, cli_params).Exp
 
-        variable := interpreter(v.First, cli_params, vars, this_vals)
+        variable := interpreter(v.First, cli_params)
 
         *variable.Exp = interpreted
 
       case "log":
-        interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
+        interpreted := interpreter(v.ExpAct, cli_params)
         fmt.Println((*interpreted.Exp).Format())
       case "print":
-        interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
+        interpreted := interpreter(v.ExpAct, cli_params)
         fmt.Print((*interpreted.Exp).Format())
 
       //all of the types
@@ -59,8 +59,6 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
       case "number": fallthrough
       case "bool": fallthrough
       case "function": fallthrough
-      case "array": fallthrough
-      case "hash": fallthrough
       case "undef": fallthrough
       case "thread":
 
@@ -70,6 +68,48 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
             Exp: &v.Value,
           }
         }
+
+      //arrays and hashes are a bit different
+      case "array":
+
+        var nArr = make([]*OmmType, len(v.Array))
+
+        for k, i := range v.Array {
+          nArr[k] = interpreter(i, cli_params).Exp
+        }
+
+        var ommType OmmType = OmmArray{
+          Array: nArr,
+          Length: uint64(len(v.Array)),
+        }
+
+        if expReturn {
+          return Returner{
+            Type: "expression",
+            Exp: &ommType,
+          }
+        }
+
+      case "hash":
+
+        var nHash = make(map[string]*OmmType)
+
+        for k, i := range v.Hash {
+          nHash[k] = interpreter(i, cli_params).Exp
+        }
+
+        var ommType OmmType = OmmHash{
+          Hash: nHash,
+          Length: uint64(len(v.Hash)),
+        }
+
+        if expReturn {
+          return Returner{
+            Type: "expression",
+            Exp: &ommType,
+          }
+        }
+
       //////////////////
 
       case "variable":
@@ -81,26 +121,10 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           }
         }
 
-      case "{":
-
-        var passedVars = make(map[string]Variable)
-
-        for k, variable := range vars {
-          passedVars[k] = variable
-        }
-
-        groupRet := interpreter(v.ExpAct, cli_params, passedVars, this_vals)
-
-        if expReturn {
-          return Returner{
-            Type: "expression",
-            Exp: groupRet.Exp,
-          }
-        }
-
+      case "{": fallthrough
       case "(":
 
-        groupRet := interpreter(v.ExpAct, cli_params, vars, this_vals)
+        groupRet := interpreter(v.ExpAct, cli_params)
 
         if expReturn {
           return Returner{
@@ -111,7 +135,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
       case "->":
 
-        casted := cast(*interpreter(v.ExpAct, cli_params, vars, this_vals).Exp, v.Name)
+        casted := cast(*interpreter(v.ExpAct, cli_params).Exp, v.Name)
 
         if expReturn {
           return Returner{
@@ -142,8 +166,9 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
       case "=>": fallthrough //this is probably not necessary, but i just left it here
       case "sync": fallthrough
       case "async":
-        firstInterpreted := interpreter(v.First, cli_params, vars, this_vals)
-        secondInterpreted := interpreter(v.Second, cli_params, vars, this_vals)
+
+        firstInterpreted := interpreter(v.First, cli_params)
+        secondInterpreted := interpreter(v.Second, cli_params)
 
         operationFunc, exists := operations[(*firstInterpreted.Exp).Type() + " " + v.Type + " " + (*secondInterpreted.Exp).Type()]
 
@@ -162,6 +187,25 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
       ////////////
 
+      case "await":
+
+        interpreted := *interpreter(v.ExpAct, cli_params).Exp
+        var awaited OmmType
+
+        switch interpreted.(type) {
+          case OmmThread:
+            awaited = *interpreted.(OmmThread).WaitFor().Exp
+          default:
+            awaited = interpreted
+        }
+
+        if expReturn {
+          return Returner{
+            Type: "expression",
+            Exp: &awaited,
+          }
+        }
+
       case "break": fallthrough
       case "continue":
 
@@ -173,7 +217,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
         return Returner{
           Type: "return",
-          Exp: interpreter(v.ExpAct, cli_params, vars, this_vals).Exp,
+          Exp: interpreter(v.ExpAct, cli_params).Exp,
         }
 
       case "condition":
@@ -183,12 +227,12 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
           truthy := true
 
           if v.Type == "if" {
-            condition := interpreter(v.First, cli_params, vars, this_vals)
+            condition := interpreter(v.First, cli_params)
             truthy = isTruthy(*condition.Exp)
           }
 
           if truthy {
-            interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
+            interpreted := interpreter(v.ExpAct, cli_params)
 
             if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
               return Returner{
@@ -203,11 +247,11 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
       case "while":
 
-        cond := interpreter(v.First, cli_params, vars, this_vals)
+        cond := interpreter(v.First, cli_params)
 
-        for ;isTruthy(*cond.Exp); cond = interpreter(v.First, cli_params, vars, this_vals) {
+        for ;isTruthy(*cond.Exp); cond = interpreter(v.First, cli_params) {
 
-          interpreted := interpreter(v.ExpAct, cli_params, vars, this_vals)
+          interpreted := interpreter(v.ExpAct, cli_params)
 
           if interpreted.Type == "return" {
             return Returner{
@@ -226,7 +270,7 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
       case "each":
 
-        it := *interpreter([]Action{ v.First[0] }, cli_params, vars, this_vals).Exp
+        it := *interpreter([]Action{ v.First[0] }, cli_params).Exp
         keyName := v.First[1].Name //get name of key
         valName := v.First[2].Name //get name of val
 
@@ -240,22 +284,16 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
               var ommtypeKey OmmType = ommtypeKeyn
 
-              var sendVars = make(map[string]Variable)
-
-              for k, variable := range vars {
-                sendVars[k] = variable
-              }
-
-              sendVars[keyName] = Variable{
+              vars[keyName] = Variable{
                 Type: "local",
                 Value: &ommtypeKey,
               }
-              sendVars[valName] = Variable{
+              vars[valName] = Variable{
                 Type: "local",
                 Value: val,
               }
 
-              interpreted := interpreter(v.ExpAct, cli_params, sendVars, this_vals)
+              interpreted := interpreter(v.ExpAct, cli_params)
 
               if interpreted.Type == "return" {
                 return Returner{
@@ -282,22 +320,16 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
 
               var ommtypeKey OmmType = ommtypeKeyn
 
-              var sendVars = make(map[string]Variable)
-
-              for k, variable := range vars {
-                sendVars[k] = variable
-              }
-
-              sendVars[keyName] = Variable{
+              vars[keyName] = Variable{
                 Type: "local",
                 Value: &ommtypeKey,
               }
-              sendVars[valName] = Variable{
+              vars[valName] = Variable{
                 Type: "local",
                 Value: val,
               }
 
-              interpreted := interpreter(v.ExpAct, cli_params, sendVars, this_vals)
+              interpreted := interpreter(v.ExpAct, cli_params)
 
               if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
                 return Returner{
@@ -320,22 +352,16 @@ func interpreter(actions []Action, cli_params CliParams, vars map[string]Variabl
               var ommtypeKey OmmType = ommtypeKeyn
               var ommtypeVal OmmType = ommtypeValr
 
-              var sendVars = make(map[string]Variable)
-
-              for k, variable := range vars {
-                sendVars[k] = variable
-              }
-
-              sendVars[keyName] = Variable{
+              vars[keyName] = Variable{
                 Type: "local",
                 Value: &ommtypeKey,
               }
-              sendVars[valName] = Variable{
+              vars[valName] = Variable{
                 Type: "local",
                 Value: &ommtypeVal,
               }
 
-              interpreted := interpreter(v.ExpAct, cli_params, sendVars, this_vals)
+              interpreted := interpreter(v.ExpAct, cli_params)
 
               if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
                 return Returner{

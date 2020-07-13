@@ -33,7 +33,7 @@ func valueActions(item Item, dir string) Action {
       }
     case "[:":
 
-      hash := map[string]Action{}
+      hash := map[string][]Action{}
 
       for _, v := range item.Group {
         oper := makeOperations([][]Item{ v })[0]
@@ -63,26 +63,18 @@ func valueActions(item Item, dir string) Action {
           compilerErr("Expected some value as after ':'", dir, oper.Line)
         }
 
-        hash[key] = value[0]
-      }
-
-      var ommVal OmmHash
-
-      ommVal.Hash = make(map[string]*OmmType)
-
-      for k, v := range hash {
-        ommVal.Set(k, v.Value)
+        hash[key] = value
       }
 
       return Action{
         Type: "hash",
-        Value: ommVal,
+        Hash: hash,
         File: dir,
         Line: item.Line,
       }
     case "[":
 
-      var arr OmmArray
+      var arr [][]Action
 
       for _, v := range item.Group {
         oper := makeOperations([][]Item{ v })[0]
@@ -92,12 +84,12 @@ func valueActions(item Item, dir string) Action {
           compilerErr("Each entry in the array must have a value", dir, oper.Line)
         }
 
-        arr.PushBack(value[0].Value)
+        arr = append(arr, value)
       }
 
       return Action{
         Type: "array",
-        Value: arr,
+        Array: arr,
         File: dir,
         Line: item.Line,
       }

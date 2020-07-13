@@ -30,7 +30,7 @@ func (str OmmString) ToGoType() string {
 }
 
 func (str OmmString) Exists(idx int64) bool {
-  return uint64(idx) < str.Length && idx >= 0
+  return str.Length != 0 && uint64(idx) < str.Length && idx >= 0
 }
 
 func (str OmmString) At(idx int64) *OmmRune {

@@ -3,7 +3,7 @@ package types
 import "strconv"
 
 type OmmFunc struct {
-  Params []Action
+  Params []string
   Body   []Action
 }
 

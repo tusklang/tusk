@@ -18,7 +18,7 @@ func (arr OmmArray) At(idx int64) *OmmType {
 }
 
 func (arr OmmArray) Exists(idx int64) bool {
-  return uint64(idx) < arr.Length && idx >= 0
+  return arr.Length != 0 && uint64(idx) < arr.Length && idx >= 0
 }
 
 func (arr *OmmArray) PushBack(val OmmType) {

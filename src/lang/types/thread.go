@@ -1,8 +1,9 @@
 package types
 
 type OmmThread struct {
-  Channel chan Returner
-  Alive   bool
+  Channel   chan Returner
+  Alive     bool
+  returned  Returner
 }
 
 func (ot *OmmThread) FromGoType(val chan Returner) {
@@ -21,14 +22,12 @@ func (ot OmmThread) IsAlive() bool {
 func (ot OmmThread) WaitFor() Returner {
 
   if !ot.Alive { //if it is not alive
-    return Returner{} //return none
+    return ot.returned//return none
   }
 
-  defer func() {
-    ot.Alive = false
-  }() //set the thread to killed once the function finishes
-
   getter := <- ot.Channel
+  ot.returned = getter
+  ot.Alive = false
   return getter
 }
 
@@ -40,4 +39,8 @@ func (ot OmmThread) Format() string {
     return "{Dead Thread}"
   }
 
+}
+
+func (ot OmmThread) Type() string {
+  return "thread"
 }

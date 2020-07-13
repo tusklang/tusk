@@ -6,16 +6,19 @@ import "fmt"
 import . "lang/types"
 
 var threads []OmmThread
+var vars map[string]Variable
 
 //export RunInterpreter
 func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[string]interface{}) {
 
-  var vars = make(map[string]Variable)
+  vars = make(map[string]Variable)
+
+  initfuncs()
 
   for k, v := range compiledVars {
     vars[k] = Variable{
       Type: "variable",
-      Value: interpreter(v, cli_params, vars, make([]Action, 0)).Exp,
+      Value: interpreter(v, cli_params).Exp,
     }
   }
 
@@ -35,7 +38,7 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[
       case OmmFunc:
         main := vars["$main"]
 
-        calledP := interpreter((*main.Value).(OmmFunc).Body, cli_params, vars, make([]Action, 0)).Exp
+        calledP := interpreter((*main.Value).(OmmFunc).Body, cli_params).Exp
 
         if calledP == nil {
           os.Exit(0)

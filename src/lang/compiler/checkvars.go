@@ -14,7 +14,7 @@ func checkvars(actions []Action, dir string, vars map[string]string) {
 
     if v.Type == "function" {
       for _, p := range v.Value.(OmmFunc).Params { //add the params to the current variables
-        curVars[p.Name] = "local"
+        curVars[p] = "local"
       }
       checkvars(v.Value.(OmmFunc).Body, dir, curVars)
     }

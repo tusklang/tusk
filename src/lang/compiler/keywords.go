@@ -218,13 +218,13 @@ var keywordJSON =
   {
     "name": "async",
     "remove": "async",
-    "pattern": "(async\\s*\\()",
+    "pattern": "(async\\s*\\[)",
     "type": "operation"
   },
   {
     "name": "sync",
     "remove": "sync",
-    "pattern": "(sync\\s*\\()",
+    "pattern": "(sync\\s*\\[)",
     "type": "operation"
   },
   {

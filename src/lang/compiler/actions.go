@@ -23,7 +23,7 @@ func actionizer(operations []Operation, dir string) []Action {
     switch v.Type {
       case "~":
 
-        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return" } //list of statements
+        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await" } //list of statements
 
         var hasStatement bool = false
 
@@ -48,16 +48,20 @@ func actionizer(operations []Operation, dir string) []Action {
                   compilerErr("Expected a => operator to connect the function parameter list and the function body", dir, right[0].Line)
                 }
 
+                var paramList []string
+
                 for _, p := range right[0].First[0].ExpAct {
-                  if p.Type != "var" && p.Type != "let" && p.Type != "variable" {
-                    compilerErr("Function parameter lists can only have let statements and variables", dir, right[0].Line)
+                  if p.Type != "variable" {
+                    compilerErr("Function parameter lists can only have variables", dir, right[0].Line)
                   }
+
+                  paramList = append(paramList, p.Name)
                 }
 
                 actions = append(actions, Action{
                   Type: "function",
                   Value: OmmFunc{
-                    Params: right[0].First[0].ExpAct, //getting the ExpAct because it wont matter if the dev uses a { or a ( because everything will be in the function's scope
+                    Params: paramList,
                     Body: right[0].Second,
                   },
                   File: dir,
