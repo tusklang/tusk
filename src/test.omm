@@ -1,5 +1,3 @@
 var main: fn() => {
-  var a: "fsf"
-  a::0: "s"
-  log a
+  log typeof["A"]
 }

@@ -40,4 +40,20 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
 
     return &inputType
   },
+  "typeof": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+
+    if len(args) != 1 {
+      ommPanic("Function typof requires a parameter count of 1", line, file, stacktrace)
+    }
+
+    typeof := (*args[0]).Type()
+
+    var str OmmString
+    str.FromGoType(typeof)
+
+    //convert to OmmType interface
+    var ommtype OmmType = str
+
+    return &ommtype
+  },
 }
