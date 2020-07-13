@@ -182,4 +182,30 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, stack
 
 		return val1.(OmmHash).At(gostr)
 	},
+	"string + string": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+
+		//convert omm strings to go string
+		gostr1 := val1.(OmmString).ToGoType()
+		gostr2 := val2.(OmmString).ToGoType()
+
+		//convert go string to omm string
+		var finalString OmmString
+		finalString.FromGoType(gostr1 + gostr2)
+
+		var ommtype OmmType = finalString
+		return &ommtype
+	},
+	"string + rune": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+
+		//convert omm strings to go string
+		gostr1 := val1.(OmmString).ToGoType()
+		gorune2 := val2.(OmmRune).ToGoType()
+
+		//convert go string to omm string
+		var finalString OmmString
+		finalString.FromGoType(gostr1 + string(gorune2))
+
+		var ommtype OmmType = finalString
+		return &ommtype
+	},
 }

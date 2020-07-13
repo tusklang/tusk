@@ -1,6 +1,3 @@
 var main: fn() => {
-  defop["+", "string", "number", fn(val1, val2) => {
-    log 's'
-  }]
-  log "a" + 1
+  log "a" + 's'
 }

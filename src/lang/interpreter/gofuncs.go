@@ -91,4 +91,22 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     var tmpundef OmmType = undef
     return &tmpundef //return undefined
   },
+  "append": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+
+    if len(args) != 2 {
+      ommPanic("Function append requires a parameter count of 2", line, file, stacktrace)
+    }
+
+    if (*args[0]).Type() != "array" {
+      ommPanic("Function append requires the first argument to be an array", line, file, stacktrace)
+    }
+
+    appended := append((*args[0]).(OmmArray).Array, args[1])
+    var arr OmmType = OmmArray{
+      Array: appended,
+      Length: uint64(len(appended)),
+    }
+
+    return &arr
+  },
 }
