@@ -55,5 +55,14 @@ func initfuncs() {
     return &promise
   }
 
-  operations["function sync array"], operations["function async array"] = function__sync__array, function__async__array
+  var gofunc__sync__array = func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+    gfn := val1.(OmmGoFunc)
+    arr := val2.(OmmArray)
+
+    return gfn.Function(arr.Array, cli_params, stacktrace, line, file)
+  }
+
+  operations["function sync array"] = function__sync__array
+  operations["function async array"] = function__async__array
+  operations["gofunc sync array"] = gofunc__sync__array
 }

@@ -47,7 +47,7 @@ func Compile(file, dir, filename string) ([]Action, map[string][]Action) {
 
   //also account for the gofuncs
   for k := range interpreter.GoFuncs {
-    vartypes[k] = "global"
+    vartypes["$" + k] = "global"
   }
 
   checkvars(actions, path.Join(dir, filename), vartypes)

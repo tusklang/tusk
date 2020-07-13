@@ -23,9 +23,12 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[
   }
 
   for k, v := range GoFuncs {
+    var gofunc OmmType = OmmGoFunc{
+      Function: v,
+    }
     vars["$" + k] = Variable{
-      Type: "gofunc",
-      GoProc: v,
+      Type: "variable",
+      Value: &gofunc,
     }
   }
 
