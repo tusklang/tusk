@@ -1,3 +1,6 @@
 var main: fn() => {
-  log typeof["A"]
+  defop["+", "string", "number", fn(val1, val2) => {
+    log 's'
+  }]
+  log "a" + 1
 }

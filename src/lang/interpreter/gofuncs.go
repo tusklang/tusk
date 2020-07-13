@@ -43,7 +43,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
   "typeof": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
     if len(args) != 1 {
-      ommPanic("Function typof requires a parameter count of 1", line, file, stacktrace)
+      ommPanic("Function typeof requires a parameter count of 1", line, file, stacktrace)
     }
 
     typeof := (*args[0]).Type()
@@ -55,5 +55,40 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     var ommtype OmmType = str
 
     return &ommtype
+  },
+  "defop": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+
+    if len(args) != 4 {
+      ommPanic("Function defop requires a parameter count of 4", line, file, stacktrace)
+    }
+
+    if (*args[0]).Type() != "string" || (*args[1]).Type() != "string" || (*args[2]).Type() != "string" || (*args[3]).Type() != "function" {
+      ommPanic("Function defop requires [string, string, string, function]", line, file, stacktrace)
+    }
+
+    operation := (*args[0]).(OmmString).ToGoType()
+    operand1 := (*args[1]).(OmmString).ToGoType()
+    operand2 := (*args[2]).(OmmString).ToGoType()
+    function := (*args[3]).(OmmFunc)
+
+    if len(function.Params) != 2 {
+      ommPanic("Expected a parameter count of 2 for the fourth argument of defop", line, file, stacktrace)
+    }
+
+    operations[operand1 + " " + operation + " " + operand2] = func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+      vars[function.Params[0]] = Variable{
+        Type: "arg",
+        Value: &val1,
+      }
+      vars[function.Params[1]] = Variable{
+        Type: "arg",
+        Value: &val2,
+      }
+
+      return interpreter(function.Body, cli_params, stacktrace).Exp
+    }
+
+    var tmpundef OmmType = undef
+    return &tmpundef //return undefined
   },
 }
