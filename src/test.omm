@@ -1,7 +1,7 @@
 var main: fn() => {
-  log await f async [1]
+  g[]
 }
 
-var f: fn(b) => {
-  return f[b]
+var g: fn() => {
+  log g[1, 3]
 }

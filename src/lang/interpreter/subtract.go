@@ -2,7 +2,7 @@ package interpreter
 
 import . "lang/types"
 
-func number__minus__number(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+func number__minus__number(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
   num1, num2 := val1.(OmmNumber), val2.(OmmNumber)
   ensurePrec(&num1, &num2, cli_params)
 
@@ -23,5 +23,5 @@ func number__minus__number(val1, val2 OmmType, cli_params CliParams, line uint64
     (*num2Placeholder.Integer)[k] = -1 * v
   }
 
-  return number__plus__number(num1, num2Placeholder, cli_params, line, file)
+  return number__plus__number(num1, num2Placeholder, cli_params, stacktrace, line, file)
 }

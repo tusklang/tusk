@@ -2,7 +2,7 @@ package interpreter
 
 import . "lang/types"
 
-func naive_mul(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+func naive_mul(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
   num1, num2 := val1.(OmmNumber), val2.(OmmNumber)
   ensurePrec(&num1, &num2, cli_params)
 
@@ -58,7 +58,7 @@ func naive_mul(val1, val2 OmmType, cli_params CliParams, line uint64, file strin
     multFinAct := zero
     multFinAct.Integer = &v
 
-    totalSum = *(*number__plus__number(totalSumAct, multFinAct, cli_params, line, file)).(OmmNumber).Integer
+    totalSum = *(*number__plus__number(totalSumAct, multFinAct, cli_params, stacktrace, line, file)).(OmmNumber).Integer
   }
 
   decimalRet := totalSum[:decPlaceCount]
@@ -72,10 +72,10 @@ func naive_mul(val1, val2 OmmType, cli_params CliParams, line uint64, file strin
   return &returnerType
 }
 
-func number__times__number(num1, num2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+func number__times__number(num1, num2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
   //maybe switch to karatsuba later?
   //look into this: http://www.cburch.com/proj/karat/karat.txt
 
-  return naive_mul(num1, num2, cli_params, line, file)
+  return naive_mul(num1, num2, cli_params, stacktrace, line, file)
 }

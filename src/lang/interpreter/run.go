@@ -18,7 +18,7 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[
   for k, v := range compiledVars {
     vars[k] = Variable{
       Type: "variable",
-      Value: interpreter(v, cli_params).Exp,
+      Value: interpreter(v, cli_params, []string{"at the global interpreter"}).Exp,
     }
   }
 
@@ -38,7 +38,7 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[
       case OmmFunc:
         main := vars["$main"]
 
-        calledP := interpreter((*main.Value).(OmmFunc).Body, cli_params).Exp
+        calledP := interpreter((*main.Value).(OmmFunc).Body, cli_params, []string{"at the entry caller"}).Exp
 
         if calledP == nil {
           os.Exit(0)

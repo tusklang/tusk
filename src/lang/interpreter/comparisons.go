@@ -190,10 +190,10 @@ func isLessOrEqual(val1, val2 OmmNumber) bool {
   return bigdec1.Cmp(bigdec2) <= 0
 }
 
-func abs(val OmmNumber, cli_params CliParams) OmmType {
+func abs(val OmmNumber, stacktrace []string, cli_params CliParams) OmmType {
 
   if isLess(val, zero) {
-    return *number__times__number(val, neg_one, cli_params, 0, "none" /* using this because it will not throw an error */)
+    return *number__times__number(val, neg_one, cli_params, stacktrace, 0, "none" /* using this because it will not throw an error */)
   }
 
   return val

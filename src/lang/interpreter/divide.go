@@ -2,7 +2,7 @@ package interpreter
 
 import . "lang/types"
 
-func number__divide__number(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+func number__divide__number(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
   num1, num2 := val1.(OmmNumber), val2.(OmmNumber)
   ensurePrec(&num1, &num2, cli_params)
 
@@ -14,7 +14,7 @@ func number__divide__number(val1, val2 OmmType, cli_params CliParams, line uint6
   //num1 is the dividend
 
   if isEqual(num2, zero) { //if it is n/0, throw an error
-    ommPanic("Divide by zero error", line, file)
+    ommPanic("Divide by zero error", line, file, stacktrace)
   }
   if isEqual(num1, zero) { //if it is 0/n return 0
     var ztype OmmType = zero
@@ -37,7 +37,7 @@ func number__divide__number(val1, val2 OmmType, cli_params CliParams, line uint6
   curVal := zero //current value under the "house" of the division
   var final []int64 //final value
 
-  num2Abs := abs(num2n, cli_params).(OmmNumber)
+  num2Abs := abs(num2n, stacktrace, cli_params).(OmmNumber)
 
   a = zero
   a.Integer = &num1n
@@ -47,7 +47,7 @@ func number__divide__number(val1, val2 OmmType, cli_params CliParams, line uint6
 
     tmpCV := append([]int64{ v }, *curVal.Integer...)
     curVal.Integer = &tmpCV
-    curValAbs := abs(curVal, cli_params).(OmmNumber)
+    curValAbs := abs(curVal, stacktrace, cli_params).(OmmNumber)
 
     if isLess(curValAbs, num2Abs) {
       final = append([]int64{ 0 }, final...)
@@ -58,21 +58,21 @@ func number__divide__number(val1, val2 OmmType, cli_params CliParams, line uint6
     var added OmmNumber = zero
 
     for addedTemp := added; func() bool {
-      addedTemp = (*number__plus__number(addedTemp, num2Abs, cli_params, line, file)).(OmmNumber)
+      addedTemp = (*number__plus__number(addedTemp, num2Abs, cli_params, stacktrace, line, file)).(OmmNumber)
       return isLessOrEqual(addedTemp, curValAbs)
     }(); added = addedTemp {
-      curQuotient = (*number__plus__number(curQuotient, one, cli_params, line, file)).(OmmNumber) //increment the current quotient
+      curQuotient = (*number__plus__number(curQuotient, one, cli_params, stacktrace, line, file)).(OmmNumber) //increment the current quotient
     }
 
-    apn2 := (*number__plus__number(added, num2Abs, cli_params, line, file)).(OmmNumber)
+    apn2 := (*number__plus__number(added, num2Abs, cli_params, stacktrace, line, file)).(OmmNumber)
 
     if isEqual(apn2, curValAbs) {
       added = apn2
-      curQuotient = (*number__plus__number(curQuotient, one, cli_params, line, file)).(OmmNumber)
+      curQuotient = (*number__plus__number(curQuotient, one, cli_params, stacktrace, line, file)).(OmmNumber)
     }
 
     if isLess(num1, zero) {
-      curQuotient = (*number__times__number(curQuotient, neg_one, cli_params, line, file)).(OmmNumber)
+      curQuotient = (*number__times__number(curQuotient, neg_one, cli_params, stacktrace, line, file)).(OmmNumber)
     }
 
     //remove leading zeros from the curQuotient
@@ -80,14 +80,14 @@ func number__divide__number(val1, val2 OmmType, cli_params CliParams, line uint6
       *curQuotient.Integer = (*curQuotient.Integer)[:len(*curQuotient.Integer) - 1]
     }
 
-    curVal = (*number__minus__number(curValAbs, added, cli_params, line, file)).(OmmNumber)
+    curVal = (*number__minus__number(curValAbs, added, cli_params, stacktrace, line, file)).(OmmNumber)
     final = append(*curQuotient.Integer, final...)
   }
 
   if isLess(num2, zero) { //if num2 is negative, multiply the final by -1
     finalAct := zero
     finalAct.Integer = &final
-    finalAct = (*number__times__number(finalAct, neg_one, cli_params, line, file)).(OmmNumber)
+    finalAct = (*number__times__number(finalAct, neg_one, cli_params, stacktrace, line, file)).(OmmNumber)
     final = *finalAct.Integer
   }
 

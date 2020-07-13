@@ -4,14 +4,14 @@ import "strconv"
 import . "lang/types"
 
 //list of operations
-var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 	"number + number": number__plus__number,
 	"number - number": number__minus__number,
 	"number * number": number__times__number,
 	"number / number": number__divide__number,
 	"number % number": number__mod__number,
 	"number ^ number": number__pow__number,
-	"number = number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"number = number": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		var final = falsev
 
@@ -23,7 +23,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 
 		return &finalType
 	},
-	"number != number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"number != number": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		var final = truev
 
@@ -35,7 +35,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 
 		return &finalType
 	},
-	"string = string": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"string = string": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		var isEqual OmmType = falsev
 
@@ -45,7 +45,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 
 		return &isEqual
 	},
-	"string != string": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"string != string": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		var isEqual OmmType = truev
 
@@ -55,7 +55,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 
 		return &isEqual
 	},
-	"bool = bool": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"bool = bool": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		var isEqual OmmType = falsev
 
@@ -65,7 +65,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 
 		return &isEqual
 	},
-	"bool != bool": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"bool != bool": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		var isEqual OmmType = truev
 
@@ -75,7 +75,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 
 		return &isEqual
 	},
-	"rune = rune": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"rune = rune": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		var isEqual OmmType = falsev
 
@@ -85,7 +85,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 
 		return &isEqual
 	},
-	"rune != rune": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"rune != rune": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		var isEqual OmmType = truev
 
@@ -95,7 +95,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 
 		return &isEqual
 	},
-	"undef ! bool": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"undef ! bool": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		boolean := !val2.(OmmBool).ToGoType()
 
@@ -105,7 +105,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 
 		return &converted
 	},
-	"number > number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"number > number": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		isGreaterv := !isLessOrEqual(val1.(OmmNumber), val2.(OmmNumber))
 		var isGreaterType OmmType = falsev
@@ -116,7 +116,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 
 		return &isGreaterType
 	},
-	"number >= number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"number >= number": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		isGreaterOrEqualv := !isLess(val1.(OmmNumber), val2.(OmmNumber))
 		var isGreaterOrEqualType OmmType = falsev
@@ -127,7 +127,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 
 		return &isGreaterOrEqualType
 	},
-	"number < number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"number < number": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		isLessv := isLess(val1.(OmmNumber), val2.(OmmNumber))
 		var isLessType OmmType = falsev
@@ -138,7 +138,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 
 		return &isLessType
 	},
-	"number <= number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"number <= number": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		isLessOrEqualv := isLessOrEqual(val1.(OmmNumber), val2.(OmmNumber))
 		var isLessOrEqualType OmmType = falsev
@@ -149,33 +149,33 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, line 
 
 		return &isLessOrEqualType
 	},
-	"array :: number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"array :: number": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		//convert to int64
 		idx := int64(val2.(OmmNumber).ToGoType())
 		arr := val1.(OmmArray)
 
 		if !arr.Exists(idx) {
-			ommPanic("Index " + strconv.FormatInt(idx, 10) + " out of range with length " + strconv.FormatUint(arr.Length, 10), line, file)
+			ommPanic("Index " + strconv.FormatInt(idx, 10) + " out of range with length " + strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
 		}
 
 		return arr.At(idx)
 	},
-	"string :: number": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"string :: number": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		//convert to int64
 		idx := int64(val2.(OmmNumber).ToGoType())
 		str := val1.(OmmString)
 
 		if !str.Exists(idx) {
-			ommPanic("Index " + strconv.FormatInt(idx, 10) + " out of range with length " + strconv.FormatUint(str.Length, 10), line, file)
+			ommPanic("Index " + strconv.FormatInt(idx, 10) + " out of range with length " + strconv.FormatUint(str.Length, 10), line, file, stacktrace)
 		}
 
 		var ommtype OmmType = *str.At(idx)
 
 		return &ommtype
 	},
-	"hash :: string": func(val1, val2 OmmType, cli_params CliParams, line uint64, file string) *OmmType {
+	"hash :: string": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		//convert index to go string
 		gostr := val2.(OmmString).ToGoType()
