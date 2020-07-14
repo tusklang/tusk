@@ -1,7 +1,4 @@
-var main: fn() => {
-  var a: stop <~ []
-  await a
-  log thread.wasjoined[a]
+var main: fn() {
+  var i: 0
+  while (true) log i: i + 1
 }
-
-var stop: fn() => {}

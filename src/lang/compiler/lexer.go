@@ -207,7 +207,7 @@ func lexer(file, dirname, filename string) []Lex {
     }
   }
 
-  lex = term_inserter(tilde_inserter(funcLex(lex)))
+  lex = term_inserter(tilde_inserter(insert_arrows(funcLex(lex))))
 
   return lex
 }

@@ -45,7 +45,7 @@ func actionizer(operations []Operation, dir string) []Action {
 
               case "function":
                 if right[0].Type != "=>" {
-                  compilerErr("Expected a => operator to connect the function parameter list and the function body", dir, right[0].Line)
+                  compilerErr("Functions need a parameter count and a function body", dir, right[0].Line)
                 }
 
                 var paramList []string
@@ -71,7 +71,7 @@ func actionizer(operations []Operation, dir string) []Action {
               case "if":
 
                 if right[0].Type != "=>" {
-                  compilerErr("Expected a => operator to connect the if condition and the body", dir, right[0].Line)
+                  compilerErr("If statements need a condition and a body", dir, right[0].Line)
                 }
 
                 actions = append(actions, Action{
@@ -88,7 +88,7 @@ func actionizer(operations []Operation, dir string) []Action {
               case "elif":
 
                 if right[0].Type != "=>" {
-                  compilerErr("Expected a => operator to connect the elif condition and the body", dir, right[0].Line)
+                  compilerErr("Elif statements need a condition and a body", dir, right[0].Line)
                 }
 
                 if len(actions) == 0 || actions[len(actions) - 1].Type != "condition" {
@@ -116,7 +116,7 @@ func actionizer(operations []Operation, dir string) []Action {
 
               case "while":
                 if right[0].Type != "=>" {
-                  compilerErr("Expected a => operator to connect the while condition and the body", dir, right[0].Line)
+                  compilerErr("While loops need a condition and a body", dir, right[0].Line)
                 }
 
                 actions = append(actions, Action{
@@ -129,7 +129,7 @@ func actionizer(operations []Operation, dir string) []Action {
 
               case "each":
                 if right[0].Type != "=>" {
-                  compilerErr("Expected a => operator to connect the each iterator and the body", dir, right[0].Line)
+                  compilerErr("Each loops need a condition and a body", dir, right[0].Line)
                 }
 
                 if len(right[0].First[0].ExpAct) != 3 {
