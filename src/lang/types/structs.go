@@ -8,7 +8,7 @@ type Action struct {
   ExpAct        []Action
 
   Array       [][]Action
-  Hash        map[string][]Action
+  Hash            map[string][]Action
 
   //stuff for operations
 
@@ -18,7 +18,11 @@ type Action struct {
 
   //////////////////////
 
-  Access          string
+  //for compiling structures
+  Static          map[string][]Action
+  Instance        map[string][]Action
+  SelfName        string
+  //////////////////////////
 
   //stuff to panic errors and give stack
 

@@ -182,6 +182,32 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, stack
 
 		return val1.(OmmHash).At(gostr)
 	},
+	"proto :: string": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+
+		//convert field to go string
+		gostr := val2.(OmmString).ToGoType()
+
+		field := val1.(OmmProto).GetStatic(gostr)
+
+		if field == nil {
+			ommPanic("Class does not contain the field \"" + gostr + "\"", line, file, stacktrace)
+		}
+
+		return field
+	},
+	"object :: string": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+
+		//convert field to go string
+		gostr := val2.(OmmString).ToGoType()
+
+		field := val1.(OmmObject).GetInstance(gostr)
+
+		if field == nil {
+			ommPanic("Object does not contain the field \"" + gostr + "\"", line, file, stacktrace)
+		}
+
+		return field
+	},
 	"string + string": func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
 		//convert omm strings to go string

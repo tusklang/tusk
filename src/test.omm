@@ -1,4 +1,13 @@
 var main: fn() {
-  var i: 0
-  while (true) log i: i + 1
+
+  log example_prototype::"example_static"
+
+  var obj: make[example_prototype]
+  log obj::"example_instance"
+
+}
+
+var example_prototype: proto {
+  static var example_static: 2
+  instance var example_instance: 3
 }

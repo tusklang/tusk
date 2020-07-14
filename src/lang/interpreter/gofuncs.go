@@ -202,4 +202,23 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     var tmpfalse OmmType = falsev
     return &tmpfalse
   },
+  "make": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+
+    if len(args) == 1 {
+
+      switch (*args[0]).(type) {
+      case OmmProto:
+          var ommtype OmmType = OmmObject{}.New((*args[0]).(OmmProto))
+          return &ommtype
+        default:
+          ommPanic("Function make requires a structure as the argument", line, file, stacktrace)
+      }
+
+    } else {
+      ommPanic("Function make requires a parameter count of 1", line, file, stacktrace)
+    }
+
+    var tmpundef OmmType = undef
+    return &tmpundef
+  },
 }

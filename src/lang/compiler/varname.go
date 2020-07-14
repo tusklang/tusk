@@ -82,6 +82,30 @@ func changevarnames(actions []Action, newnames_ map[string]string) {
       changevarnames(v.ExpAct, keyandvalvars)
       continue
     }
+    if v.Type == "structure" {
+
+      //copy the newnames
+      var copied = make(map[string]string)
+      for key, name := range newnames {
+        copied[key] = name
+      }
+
+      selfname := "v" + strconv.FormatUint(curvar, 10)
+
+      copied["$self"] = selfname
+      curvar++
+
+      v.SelfName = selfname
+
+      for i := range v.Static {
+        changevarnames(v.Static[i], newnames) //using newnames because self cannot be accessed from a static fn
+      }
+      for i := range v.Instance {
+        changevarnames(v.Instance[i], copied)
+      }
+
+      continue
+    }
 
     //perform checkvars on all of the sub actions
     changevarnames(v.ExpAct, newnames)
@@ -97,6 +121,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) {
       changevarnames(v.Hash[i], newnames)
     }
     //////////////////////////////////////
+
     /////////////////////////////////////////////
 
     if v.Type == "var" {

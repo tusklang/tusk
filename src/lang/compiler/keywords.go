@@ -246,6 +246,42 @@ var keywordJSON =
     "type": "id"
   },
   {
+    "name": "proto",
+    "remove": "proto",
+    "pattern": "(proto(\\s*)\\{)",
+    "type": "id"
+  },
+  {
+    "name": "proto",
+    "remove": "proto",
+    "pattern": "(proto(\\s*)~)",
+    "type": "id_non_tilde"
+  },
+  {
+    "name": "static",
+    "remove": "static",
+    "pattern": "(static(\\s+))",
+    "type": "id"
+  },
+  {
+    "name": "static",
+    "remove": "static",
+    "pattern": "(static(\\s*)~)",
+    "type": "id_non_tilde"
+  },
+  {
+    "name": "instance",
+    "remove": "instance",
+    "pattern": "(instance(\\s+))",
+    "type": "id"
+  },
+  {
+    "name": "instance",
+    "remove": "instance",
+    "pattern": "(instance(\\s*)~)",
+    "type": "id_non_tilde"
+  },
+  {
     "name": ",",
     "remove": ",",
     "pattern": "\\,",

@@ -23,7 +23,7 @@ func actionizer(operations []Operation, dir string) []Action {
     switch v.Type {
       case "~":
 
-        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await" } //list of statements
+        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await", "proto", "static", "instance" } //list of statements
 
         var hasStatement bool = false
 
@@ -152,18 +152,81 @@ func actionizer(operations []Operation, dir string) []Action {
 
               case "var":
 
-                if right[0].Type != "let" {
-                  compilerErr("Expected a assigner statement after var", dir, right[0].Line)
+                if right[0].Type == "variable" { //the dev is declaring is like "var a" (meaning declare a)
+                  actions = append(actions, Action{
+                    Type: "declare",
+                    Name: right[0].Name,
+                    File: dir,
+                    Line: v.Line,
+                  })
+                } else {
+                  if right[0].Type != "let" {
+                    compilerErr("Expected a assigner statement after var", dir, right[0].Line)
+                  }
+
+                  if right[0].First[0].Type != "variable" {
+                    compilerErr("Cannot use :: operator in variable declaration", dir, right[0].Line)
+                  }
+
+                  actions = append(actions, Action{
+                    Type: val,
+                    Name: right[0].First[0].Name,
+                    ExpAct: right[0].ExpAct,
+                    File: dir,
+                    Line: v.Line,
+                  })
                 }
 
-                if right[0].First[0].Type != "variable" {
-                  compilerErr("Cannot use :: operator in variable declaration", dir, right[0].Line)
+              case "proto":
+
+                if len(right) == 0 {
+                  compilerErr("Prototypes require a body", dir, right[0].Line)
+                }
+
+                if right[0].Type != "{" {
+                  compilerErr("Prototype bodies can only be curly brace enclosed", dir, right[0].Line)
+                }
+
+                var (
+                  static = make(map[string][]Action)
+                  instance = make(map[string][]Action)
+                )
+                var body = right[0].ExpAct //get the struct body
+
+                for i := range body {
+
+                  if body[i].Type != "static" && body[i].Type != "instance" { //if it does not name static or instance, automatically make it instance
+                    body[i] = Action{
+                      Type: "instance",
+                      ExpAct: []Action{ body[i] },
+                      File: body[i].File,
+                      Line: body[i].Line,
+                    }
+                  }
+
+                  if body[i].ExpAct[0].Type == "var" {
+
+                    if body[i].Type == "static" {
+                      static[body[i].ExpAct[0].Name] = body[i].ExpAct[0].ExpAct
+                    } else {
+                      instance[body[i].ExpAct[0].Name] = body[i].ExpAct[0].ExpAct
+                    }
+
+                  } else if body[i].ExpAct[0].Type == "declare" {
+                    if body[i].Type == "static" {
+                      static[body[i].ExpAct[0].Name] = []Action{}
+                    } else {
+                      instance[body[i].ExpAct[0].Name] = []Action{}
+                    }
+                  } else {
+                    compilerErr("Prototype bodies can only have variable assignments and declarations", dir, right[0].Line)
+                  }
                 }
 
                 actions = append(actions, Action{
-                  Type: val,
-                  Name: right[0].First[0].Name,
-                  ExpAct: right[0].ExpAct,
+                  Type: "proto",
+                  Static: static,
+                  Instance: instance,
                   File: dir,
                   Line: v.Line,
                 })

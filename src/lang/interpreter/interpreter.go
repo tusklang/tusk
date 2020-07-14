@@ -30,8 +30,25 @@ func interpreter(actions []Action, cli_params CliParams, stacktrace []string) Re
         interpreted := interpreter(v.ExpAct, cli_params, stacktrace)
 
         vars[v.Name] = Variable{
-          Type: v.Type,
+          Type: "var",
           Value: interpreted.Exp,
+        }
+
+        if expReturn {
+          variable := vars[v.Name]
+          return Returner{
+            Type: "expression",
+            Exp: variable.Value,
+          }
+        }
+
+      case "declare":
+
+        var tmpundef OmmType = undef
+
+        vars[v.Name] = Variable{
+          Type: "var",
+          Value: &tmpundef,
         }
 
         if expReturn {
@@ -80,7 +97,7 @@ func interpreter(actions []Action, cli_params CliParams, stacktrace []string) Re
           }
         }
 
-      //arrays and hashes are a bit different
+      //arrays, hashes, and structures are a bit different
       case "array":
 
         var nArr = make([]*OmmType, len(v.Array))
@@ -118,6 +135,31 @@ func interpreter(actions []Action, cli_params CliParams, stacktrace []string) Re
           return Returner{
             Type: "expression",
             Exp: &ommType,
+          }
+        }
+
+      case "proto":
+
+        var static = make(map[string]*OmmType)
+        var instance = make(map[string]*OmmType)
+
+        for k, i := range v.Static {
+          static[k] = interpreter(i, cli_params, stacktrace).Exp
+        }
+        for k, i := range v.Instance {
+          instance[k] = interpreter(i, cli_params, stacktrace).Exp
+        }
+
+        var proto = OmmProto{
+          SelfName: v.SelfName,
+        }
+        proto.Set(static, instance)
+
+        if expReturn {
+          var ommtype OmmType = proto
+          return Returner{
+            Type: "expression",
+            Exp: &ommtype,
           }
         }
 
