@@ -1,13 +1,12 @@
-var main: fn() {
-
-  log example_prototype::"example_static"
-
-  var obj: make[example_prototype]
-  log obj::"example_instance"
-
+var test: proto {
+  instance var a: 9
+  instance var testfunc: fn(self) {
+    self::"a": 2
+  }
 }
 
-var example_prototype: proto {
-  static var example_static: 2
-  instance var example_instance: 3
+var main: fn() {
+  var a: make[test]
+  a::"testfunc"[a]
+  log a::"a"
 }

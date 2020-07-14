@@ -11,6 +11,10 @@ func (f OmmFunc) Format() string {
   return "(PARAM COUNT: " + strconv.Itoa(len(f.Params)) + ") { ... }"
 }
 
-func (arr OmmFunc) Type() string {
+func (f OmmFunc) Type() string {
   return "function"
+}
+
+func (f OmmFunc) TypeOf() string {
+  return f.Type()
 }

@@ -11,3 +11,7 @@ func (ogf OmmGoFunc) Format() string {
 func (ogf OmmGoFunc) Type() string {
   return "gofunc"
 }
+
+func (ogf OmmGoFunc) TypeOf() string {
+  return ogf.Type()
+}

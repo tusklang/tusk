@@ -4,7 +4,8 @@ import "fmt"
 import "os"
 import . "lang/types"
 
-func ommPanic(err string, line uint64, file string, stacktrace []string) {
+//export OmmPanic
+func OmmPanic(err string, line uint64, file string, stacktrace []string) {
   fmt.Println("Panic on line", line, "file", file)
   fmt.Println(err)
   fmt.Println("\nWhen the error was thrown, this was the stack:")
@@ -151,7 +152,7 @@ func interpreter(actions []Action, cli_params CliParams, stacktrace []string) Re
         }
 
         var proto = OmmProto{
-          SelfName: v.SelfName,
+          ProtoName: v.Name,
         }
         proto.Set(static, instance)
 
@@ -226,7 +227,7 @@ func interpreter(actions []Action, cli_params CliParams, stacktrace []string) Re
         operationFunc, exists := operations[(*firstInterpreted.Exp).Type() + " " + v.Type + " " + (*secondInterpreted.Exp).Type()]
 
         if !exists { //if there is no operation for that type, panic
-          ommPanic("Could not find " + v.Type + " operation for types " + (*firstInterpreted.Exp).Type() + " and " + (*secondInterpreted.Exp).Type(), v.Line, v.File, stacktrace)
+          OmmPanic("Could not find " + v.Type + " operation for types " + (*firstInterpreted.Exp).Type() + " and " + (*secondInterpreted.Exp).Type(), v.Line, v.File, stacktrace)
         }
 
         computed := operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, cli_params, stacktrace, v.Line, v.File)

@@ -54,3 +54,7 @@ func (arr OmmArray) Format() string {
 func (arr OmmArray) Type() string {
   return "array"
 }
+
+func (arr OmmArray) TypeOf() string {
+  return arr.Type()
+}

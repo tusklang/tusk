@@ -228,18 +228,6 @@ var keywordJSON =
     "type": "operation"
   },
   {
-    "name": "fargc",
-    "remove": "fargc",
-    "pattern": "(fargc\\s+)",
-    "type": "id"
-  },
-  {
-    "name": "fargc",
-    "remove": "fargc",
-    "pattern": "(fargc\\s*\\~)",
-    "type": "id_non_tilde"
-  },
-  {
     "name": "function",
     "remove": "fn",
     "pattern": "(fn(\\s*)\\()",

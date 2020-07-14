@@ -60,12 +60,16 @@ func changevarnames(actions []Action, newnames_ map[string]string) {
 
     if v.Type == "function" {
 
+      var fn = v.Value.(OmmFunc)
       var params = newnames
 
-      for _, p := range v.Value.(OmmFunc).Params { //add the params to the current variables
-        params[p] = "v" + strconv.FormatUint(curvar, 10)
+      for i, p := range v.Value.(OmmFunc).Params { //add the params to the current variables
+        pname := "v" + strconv.FormatUint(curvar, 10)
+        fn.Params[i] = pname //also modify the parameters in the actual function
+        params[p] = pname
         curvar++
       }
+      v.Value = fn
       changevarnames(v.Value.(OmmFunc).Body, params)
       continue
     }
@@ -82,26 +86,13 @@ func changevarnames(actions []Action, newnames_ map[string]string) {
       changevarnames(v.ExpAct, keyandvalvars)
       continue
     }
-    if v.Type == "structure" {
-
-      //copy the newnames
-      var copied = make(map[string]string)
-      for key, name := range newnames {
-        copied[key] = name
-      }
-
-      selfname := "v" + strconv.FormatUint(curvar, 10)
-
-      copied["$self"] = selfname
-      curvar++
-
-      v.SelfName = selfname
+    if v.Type == "proto" {
 
       for i := range v.Static {
-        changevarnames(v.Static[i], newnames) //using newnames because self cannot be accessed from a static fn
+        changevarnames(v.Static[i], newnames)
       }
       for i := range v.Instance {
-        changevarnames(v.Instance[i], copied)
+        changevarnames(v.Instance[i], newnames)
       }
 
       continue
@@ -132,7 +123,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) {
 
     if v.Type == "variable" {
       if _, exists := newnames[v.Name]; !exists {
-        compilerErr("Variable " + v.Name + " was not declared", v.File, v.Line)
+        compilerErr("Variable " + v.Name[1:] + " was not declared", v.File, v.Line)
       }
       actions[k].Name = newnames[v.Name]
     }

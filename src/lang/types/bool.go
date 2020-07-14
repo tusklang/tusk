@@ -18,6 +18,10 @@ func (b OmmBool) Format() string {
   return strconv.FormatBool(*b.Boolean)
 }
 
-func (arr OmmBool) Type() string {
+func (b OmmBool) Type() string {
   return "bool"
+}
+
+func (b OmmBool) TypeOf() string {
+  return b.Type()
 }

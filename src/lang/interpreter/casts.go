@@ -27,7 +27,7 @@ func cast(val OmmType, nType string, stacktrace []string, line uint64, file stri
 
   }
 
-  ommPanic("Cannot cast a " + val.Type() + " into a " + nType, line, file, stacktrace)
+  OmmPanic("Cannot cast a " + val.Type() + " into a " + nType, line, file, stacktrace)
 
   //here because it wont work without it
   var none OmmType = undef

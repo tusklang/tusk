@@ -67,6 +67,10 @@ func (hash OmmHash) Format() string {
   }() //staring with 2
 }
 
-func (arr OmmHash) Type() string {
+func (hash OmmHash) Type() string {
   return "hash"
+}
+
+func (hash OmmHash) TypeOf() string {
+  return hash.Type()
 }

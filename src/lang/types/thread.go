@@ -40,3 +40,7 @@ func (ot OmmThread) Format() string {
 func (ot OmmThread) Type() string {
   return "thread"
 }
+
+func (ot OmmThread) TypeOf() string {
+  return ot.Type()
+}

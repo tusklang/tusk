@@ -36,6 +36,13 @@ func Compile(file, dir, filename string) ([]Action, map[string][]Action) {
   groups := makeGroups(lex)
   operations := makeOperations(groups)
   actions := actionizer(operations, path.Join(dir, filename))
+
+  //a bunch of validations and initializers
+  has_non_global_prototypes(actions, true)
+  put_proto_types(actions)
+  validate_types(actions)
+  /////////////////////////////////////////
+
   vars := getvars(actions, path.Join(dir, filename))
 
   //make each var have only it's name
@@ -49,6 +56,7 @@ func Compile(file, dir, filename string) ([]Action, map[string][]Action) {
   for k := range interpreter.GoFuncs {
     varnames["$" + k] = "$" + k
   }
+
 
   for k := range vars {
     changevarnames(vars[k], varnames)

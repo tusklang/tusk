@@ -25,11 +25,11 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
           str := (*args[0]).(OmmString).ToGoType()
           fmt.Print(str + ": ")
         default:
-          ommPanic("Expected a string as the argument to input[]", line, file, stacktrace)
+          OmmPanic("Expected a string as the argument to input[]", line, file, stacktrace)
       }
 
     } else {
-      ommPanic("Function input requires a parameter count of 0 or 1", line, file, stacktrace)
+      OmmPanic("Function input requires a parameter count of 0 or 1", line, file, stacktrace)
     }
 
     //get user input and convert it to OmmType
@@ -44,10 +44,10 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
   "typeof": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
     if len(args) != 1 {
-      ommPanic("Function typeof requires a parameter count of 1", line, file, stacktrace)
+      OmmPanic("Function typeof requires a parameter count of 1", line, file, stacktrace)
     }
 
-    typeof := (*args[0]).Type()
+    typeof := (*args[0]).TypeOf()
 
     var str OmmString
     str.FromGoType(typeof)
@@ -60,11 +60,11 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
   "defop": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
     if len(args) != 4 {
-      ommPanic("Function defop requires a parameter count of 4", line, file, stacktrace)
+      OmmPanic("Function defop requires a parameter count of 4", line, file, stacktrace)
     }
 
     if (*args[0]).Type() != "string" || (*args[1]).Type() != "string" || (*args[2]).Type() != "string" || (*args[3]).Type() != "function" {
-      ommPanic("Function defop requires [string, string, string, function]", line, file, stacktrace)
+      OmmPanic("Function defop requires [string, string, string, function]", line, file, stacktrace)
     }
 
     operation := (*args[0]).(OmmString).ToGoType()
@@ -73,7 +73,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     function := (*args[3]).(OmmFunc)
 
     if len(function.Params) != 2 {
-      ommPanic("Expected a parameter count of 2 for the fourth argument of defop", line, file, stacktrace)
+      OmmPanic("Expected a parameter count of 2 for the fourth argument of defop", line, file, stacktrace)
     }
 
     operations[operand1 + " " + operation + " " + operand2] = func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
@@ -95,11 +95,11 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
   "append": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
 
     if len(args) != 2 {
-      ommPanic("Function append requires a parameter count of 2", line, file, stacktrace)
+      OmmPanic("Function append requires a parameter count of 2", line, file, stacktrace)
     }
 
     if (*args[0]).Type() != "array" {
-      ommPanic("Function append requires the first argument to be an array", line, file, stacktrace)
+      OmmPanic("Function append requires the first argument to be an array", line, file, stacktrace)
     }
 
     appended := append((*args[0]).(OmmArray).Array, args[1])
@@ -135,7 +135,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     } else if len(args) == 0 {
       os.Exit(0)
     } else {
-      ommPanic("Function exit requires a parameter count of 1 or 0", line, file, stacktrace)
+      OmmPanic("Function exit requires a parameter count of 1 or 0", line, file, stacktrace)
     }
 
     var tmpundef OmmType = undef
@@ -146,7 +146,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     if len(args) == 1 {
 
       if (*args[0]).Type() != "number" {
-        ommPanic("Function wait requires a number as the argument", line, file, stacktrace)
+        OmmPanic("Function wait requires a number as the argument", line, file, stacktrace)
       }
 
       var amt = (*args[0]).(OmmNumber)
@@ -172,7 +172,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
       }
 
     } else {
-      ommPanic("Function wait requires a parameter count of 1", line, file, stacktrace)
+      OmmPanic("Function wait requires a parameter count of 1", line, file, stacktrace)
     }
 
     var tmpundef OmmType = undef
@@ -192,11 +192,11 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
 
           return &ommtype
         default:
-          ommPanic("Function thread.wasjoined requires a thread as the argument", line, file, stacktrace)
+          OmmPanic("Function thread.wasjoined requires a thread as the argument", line, file, stacktrace)
       }
 
     } else {
-      ommPanic("Function thread.wasjoined requires a parameter count of 1", line, file, stacktrace)
+      OmmPanic("Function thread.wasjoined requires a parameter count of 1", line, file, stacktrace)
     }
 
     var tmpfalse OmmType = falsev
@@ -211,11 +211,11 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
           var ommtype OmmType = OmmObject{}.New((*args[0]).(OmmProto))
           return &ommtype
         default:
-          ommPanic("Function make requires a structure as the argument", line, file, stacktrace)
+          OmmPanic("Function make requires a structure as the argument", line, file, stacktrace)
       }
 
     } else {
-      ommPanic("Function make requires a parameter count of 1", line, file, stacktrace)
+      OmmPanic("Function make requires a parameter count of 1", line, file, stacktrace)
     }
 
     var tmpundef OmmType = undef

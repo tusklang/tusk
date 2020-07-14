@@ -30,9 +30,13 @@ func (o OmmObject) GetInstance(name string) *OmmType {
 }
 
 func (o OmmObject) Format() string {
-  return "{object}"
+  return "{" + o.prototype.ProtoName[1:] + "}"
 }
 
 func (o OmmObject) Type() string {
   return "object"
+}
+
+func (o OmmObject) TypeOf() string {
+  return o.prototype.ProtoName[1:]
 }

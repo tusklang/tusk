@@ -156,7 +156,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, stack
 		arr := val1.(OmmArray)
 
 		if !arr.Exists(idx) {
-			ommPanic("Index " + strconv.FormatInt(idx, 10) + " out of range with length " + strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
+			OmmPanic("Index " + strconv.FormatInt(idx, 10) + " out of range with length " + strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
 		}
 
 		return arr.At(idx)
@@ -168,7 +168,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, stack
 		str := val1.(OmmString)
 
 		if !str.Exists(idx) {
-			ommPanic("Index " + strconv.FormatInt(idx, 10) + " out of range with length " + strconv.FormatUint(str.Length, 10), line, file, stacktrace)
+			OmmPanic("Index " + strconv.FormatInt(idx, 10) + " out of range with length " + strconv.FormatUint(str.Length, 10), line, file, stacktrace)
 		}
 
 		var ommtype OmmType = *str.At(idx)
@@ -190,7 +190,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, stack
 		field := val1.(OmmProto).GetStatic(gostr)
 
 		if field == nil {
-			ommPanic("Class does not contain the field \"" + gostr + "\"", line, file, stacktrace)
+			OmmPanic("Class does not contain the field \"" + gostr + "\"", line, file, stacktrace)
 		}
 
 		return field
@@ -203,7 +203,7 @@ var operations = map[string]func(val1, val2 OmmType, cli_params CliParams, stack
 		field := val1.(OmmObject).GetInstance(gostr)
 
 		if field == nil {
-			ommPanic("Object does not contain the field \"" + gostr + "\"", line, file, stacktrace)
+			OmmPanic("Object does not contain the field \"" + gostr + "\"", line, file, stacktrace)
 		}
 
 		return field

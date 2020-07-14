@@ -2,8 +2,6 @@ package compiler
 
 import . "lang/types"
 
-var types = []string{ "string", "rune", "number", "bool", "hash", "array" }
-
 func actionizer(operations []Operation, dir string) []Action {
 
   var actions []Action
@@ -23,7 +21,7 @@ func actionizer(operations []Operation, dir string) []Action {
     switch v.Type {
       case "~":
 
-        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await", "proto", "static", "instance" } //list of statements
+        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await", "proto", "static", "instance", "fargc" } //list of statements
 
         var hasStatement bool = false
 
@@ -45,7 +43,7 @@ func actionizer(operations []Operation, dir string) []Action {
 
               case "function":
                 if right[0].Type != "=>" {
-                  compilerErr("Functions need a parameter count and a function body", dir, right[0].Line)
+                  compilerErr("Functions need a parameter list and a function body", dir, right[0].Line)
                 }
 
                 var paramList []string
@@ -266,16 +264,6 @@ func actionizer(operations []Operation, dir string) []Action {
       case "->":
 
         castType := v.Left.Item.Token.Name[1:]
-
-        for _, v := range types {
-          if v == castType {
-            goto typeExists
-          }
-        }
-
-        compilerErr(castType + " is not a type", dir, v.Line)
-
-        typeExists:
 
         actions = append(actions, Action{
           Type: "cast",

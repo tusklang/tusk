@@ -56,6 +56,10 @@ func (n OmmNumber) Format() string {
   return str
 }
 
-func (arr OmmNumber) Type() string {
+func (n OmmNumber) Type() string {
   return "number"
+}
+
+func (n OmmNumber) TypeOf() string {
+  return n.Type()
 }

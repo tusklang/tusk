@@ -13,7 +13,7 @@ func initfuncs() {
     var arr = val2.(OmmArray)
 
     if uint64(len(fn.Params)) != arr.Length {
-      ommPanic("Expected " + strconv.Itoa(len(fn.Params)) + " arguments to call function, but instead got " + strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
+      OmmPanic("Expected " + strconv.Itoa(len(fn.Params)) + " arguments to call function, but instead got " + strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
     }
 
     for k, v := range arr.Array {
@@ -33,7 +33,7 @@ func initfuncs() {
     var arr = val2.(OmmArray)
 
     if uint64(len(fn.Params)) != arr.Length {
-      ommPanic("Expected " + strconv.Itoa(len(fn.Params)) + " arguments to call function, but instead got " + strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
+      OmmPanic("Expected " + strconv.Itoa(len(fn.Params)) + " arguments to call function, but instead got " + strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
     }
 
     for k, v := range arr.Array {

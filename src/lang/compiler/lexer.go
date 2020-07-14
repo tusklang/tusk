@@ -156,10 +156,21 @@ func lexer(file, dirname, filename string) []Lex {
       variable := ""
 
       for o := i; o < len(file); o++ {
+
+        if unicode.IsSpace(rune(file[i:][0])) { //if it is a space, do not count it
+          i++
+          break
+        }
+
         for _, v := range keywords {
-          if testkey(v, file, o) || unicode.IsSpace(rune(file[o])) || file[o] == ';' /* it is a comment */ {
-            goto break_var_loop
+
+          //only count operations
+          if v["type"] == "operation" || v["type"] == "?operation" || v["type"] == "?open_brace" || v["type"] == "?close_brace" {
+            if testkey(v, file, o) || unicode.IsSpace(rune(file[o])) || file[o] == ';' /* it is a comment */ {
+              goto break_var_loop
+            }
           }
+
         }
 
         variable+=string(file[o])

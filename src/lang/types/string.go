@@ -41,6 +41,10 @@ func (str OmmString) Format() string {
   return str.ToGoType()
 }
 
-func (arr OmmString) Type() string {
+func (str OmmString) Type() string {
   return "string"
+}
+
+func (str OmmString) TypeOf() string {
+  return str.Type()
 }

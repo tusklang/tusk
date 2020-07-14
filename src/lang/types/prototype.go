@@ -2,7 +2,7 @@ package types
 
 type OmmProto struct {
 
-  SelfName         string
+  ProtoName        string
   static           map[string]*OmmType
   Instance         map[string]*OmmType
 
@@ -24,9 +24,13 @@ func (p OmmProto) GetStatic(name string) *OmmType {
 }
 
 func (p OmmProto) Format() string {
-  return "{prototype}"
+  return "{" + p.ProtoName[1:] + "}"
 }
 
 func (p OmmProto) Type() string {
-  return "proto"
+  return "prototype"
+}
+
+func (p OmmProto) TypeOf() string {
+  return p.ProtoName[1:] /* remove the leading $ */ + " prototype"
 }
