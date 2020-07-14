@@ -178,4 +178,28 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     var tmpundef OmmType = undef
     return &tmpundef
   },
+  "thread.wasjoined": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+
+    if len(args) == 1 {
+
+      switch (*args[0]).(type) {
+        case OmmThread:
+
+          var wasJoined = (*args[0]).(OmmThread).WasJoined
+          var ommtype OmmType = OmmBool{
+            Boolean: &wasJoined,
+          }
+
+          return &ommtype
+        default:
+          ommPanic("Function thread.wasjoined requires a thread as the argument", line, file, stacktrace)
+      }
+
+    } else {
+      ommPanic("Function thread.wasjoined requires a parameter count of 1", line, file, stacktrace)
+    }
+
+    var tmpfalse OmmType = falsev
+    return &tmpfalse
+  },
 }

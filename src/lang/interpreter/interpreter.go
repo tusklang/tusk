@@ -200,14 +200,21 @@ func interpreter(actions []Action, cli_params CliParams, stacktrace []string) Re
 
       case "await":
 
-        interpreted := *interpreter(v.ExpAct, cli_params, stacktrace).Exp
+        interpreted := interpreter(v.ExpAct, cli_params, stacktrace).Exp
         var awaited OmmType
 
-        switch interpreted.(type) {
+        switch (*interpreted).(type) {
           case OmmThread:
-            awaited = *interpreted.(OmmThread).WaitFor().Exp
+
+            //put the new value back into the given interpreted pointer
+            thread := (*interpreted).(OmmThread)
+            thread.WaitFor()
+            *interpreted = thread
+            ///////////////////////////////////////////////////////////
+
+            awaited = *thread.Returned.Exp
           default:
-            awaited = interpreted
+            awaited = *interpreted
         }
 
         if expReturn {

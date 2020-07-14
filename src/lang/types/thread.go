@@ -1,42 +1,38 @@
 package types
 
 type OmmThread struct {
-  Channel   chan Returner
-  Alive     bool
-  returned  Returner
+  Channel    chan Returner
+  WasJoined  bool
+  Returned   Returner
 }
 
 func (ot *OmmThread) FromGoType(val chan Returner) {
   ot.Channel = val
-  ot.Alive = true
+  ot.WasJoined = true
 }
 
 func (ot OmmThread) ToGoType() chan Returner {
   return ot.Channel
 }
 
-func (ot OmmThread) IsAlive() bool {
-  return ot.Alive
-}
+func (ot *OmmThread) WaitFor() Returner {
 
-func (ot OmmThread) WaitFor() Returner {
-
-  if !ot.Alive { //if it is not alive
-    return ot.returned//return none
+  if ot.WasJoined { //if it is not alive
+    return ot.Returned //return the already given value
   }
 
   getter := <- ot.Channel
-  ot.returned = getter
-  ot.Alive = false
+  ot.Returned = getter
+  ot.WasJoined = true
   return getter
 }
 
 func (ot OmmThread) Format() string {
 
-  if ot.Alive {
-    return "{Alive Thread}"
+  if ot.WasJoined {
+    return "{Joined Thread}"
   } else {
-    return "{Dead Thread}"
+    return "{Detached Thread}"
   }
 
 }

@@ -47,7 +47,6 @@ func initfuncs() {
 
     var promise OmmType = OmmThread{
       Channel: channel,
-      Alive: true,
     }
 
     go callAsync(fn.Body, cli_params, append(stacktrace, "asynchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file), channel)

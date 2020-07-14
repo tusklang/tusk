@@ -88,6 +88,15 @@ func changevarnames(actions []Action, newnames_ map[string]string) {
     changevarnames(v.First, newnames)
     changevarnames(v.Second, newnames)
     changevarnames(v.Degree, newnames)
+
+    //also do it for the arrays and hashes
+    for i := range v.Array {
+      changevarnames(v.Array[i], newnames)
+    }
+    for i := range v.Hash {
+      changevarnames(v.Hash[i], newnames)
+    }
+    //////////////////////////////////////
     /////////////////////////////////////////////
 
     if v.Type == "var" {
