@@ -49,6 +49,8 @@ var curvar uint64 = 0
 
 func changevarnames(actions []Action, newnames_ map[string]string) {
 
+  newnames_["$__dirname"] = "$__dirname" //__dirname is a global
+
   var newnames = make(map[string]string)
 
   //make newnames_ not get mutated
@@ -83,6 +85,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) {
       keyandvalvars[val] = "v" + strconv.FormatUint(curvar, 10)
       curvar++
 
+      changevarnames(v.First, keyandvalvars)
       changevarnames(v.ExpAct, keyandvalvars)
       continue
     }

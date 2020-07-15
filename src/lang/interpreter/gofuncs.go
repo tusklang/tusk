@@ -7,6 +7,7 @@ import "bufio"
 import "os"
 import "fmt"
 import "time"
+import "strconv"
 
 import . "lang/types"
 
@@ -216,6 +217,73 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
 
     } else {
       OmmPanic("Function make requires a parameter count of 1", line, file, stacktrace)
+    }
+
+    var tmpundef OmmType = undef
+    return &tmpundef
+  },
+  "len": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+
+    if len(args) != 1 {
+      OmmPanic("Function len requires a parameter count of 1", line, file, stacktrace)
+    }
+
+    switch (*args[0]).(type) {
+      case OmmString:
+        var length = (*args[0]).(OmmString).Length
+
+        var ommnumber_length OmmNumber
+        ommnumber_length.FromString(strconv.FormatUint(length, 10))
+        var ommtype OmmType = ommnumber_length
+        return &ommtype
+
+      case OmmArray:
+        var length = (*args[0]).(OmmArray).Length
+
+        var ommnumber_length OmmNumber
+        ommnumber_length.FromString(strconv.FormatUint(length, 10))
+        var ommtype OmmType = ommnumber_length
+        return &ommtype
+
+      case OmmHash:
+        var length = (*args[0]).(OmmHash).Length
+
+        var ommnumber_length OmmNumber
+        ommnumber_length.FromString(strconv.FormatUint(length, 10))
+        var ommtype OmmType = ommnumber_length
+        return &ommtype
+
+    }
+
+    var tmpzero OmmType = zero
+    return &tmpzero
+  },
+  "clone": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+
+    if len(args) != 1 {
+      OmmPanic("Function len requires a parameter count of 1", line, file, stacktrace)
+    }
+
+    val := *args[0]
+
+    switch val.(type) {
+      case OmmNumber:
+        var number = val.(OmmNumber)
+        ensurePrec(&number, &OmmNumber{}, cli_params) //ensure a nil pointer doesn't happen
+
+        //copy the integer and decimal
+        var integer = append([]int64{}, *number.Integer...)
+        var decimal = append([]int64{}, *number.Decimal...)
+        //////////////////////////////
+
+        var newnum OmmType = OmmNumber{
+          Integer: &integer,
+          Decimal: &decimal,
+        }
+        return &newnum
+
+      default:
+        OmmPanic("Cannot clone type \"" + val.Type() + "\"", line, file, stacktrace)
     }
 
     var tmpundef OmmType = undef

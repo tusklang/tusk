@@ -13,6 +13,15 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[
 
   vars = make(map[string]Variable)
 
+  var dirnameOmmStr OmmString
+  dirnameOmmStr.FromGoType(cli_params["Files"]["DIR"].(string))
+  var dirnameOmmType OmmType = dirnameOmmStr
+
+  vars["$__dirname"] = Variable{
+    Type: "variable",
+    Value: &dirnameOmmType,
+  }
+
   initfuncs()
 
   for k, v := range compiledVars {

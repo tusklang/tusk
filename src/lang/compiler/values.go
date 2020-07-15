@@ -112,7 +112,7 @@ func valueActions(item Item, dir string) Action {
         qrem := val[1:len(val) - 1] //remove quotes
 
         if len(qrem) != 1 {
-          compilerErr("Runes can only be one character long", dir, item.Line)
+          compilerErr("Runes must be one character long", dir, item.Line)
         }
 
         oRune.FromGoType([]rune(qrem)[0])
