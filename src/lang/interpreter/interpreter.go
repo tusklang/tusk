@@ -199,6 +199,7 @@ func interpreter(actions []Action, cli_params CliParams, stacktrace []string) Re
         }
 
       //operations
+      case "::": fallthrough
       case "+": fallthrough
       case "-": fallthrough
       case "*": fallthrough
@@ -216,7 +217,6 @@ func interpreter(actions []Action, cli_params CliParams, stacktrace []string) Re
       case "!": fallthrough
       case "&": fallthrough
       case "|": fallthrough
-      case "::": fallthrough
       case "=>": fallthrough //this is probably not necessary, but i just left it here
       case "<-": fallthrough
       case "<~":

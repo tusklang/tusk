@@ -1,3 +1,7 @@
 var main: fn() {
-
-  log 's'
+  var a: [:
+    "i": "w"
+  :]
+  var i: 0
+  log a::(i)
+}

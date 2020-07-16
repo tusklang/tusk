@@ -274,6 +274,37 @@ func actionizer(operations []Operation, dir string) []Action {
         })
 
       //all of these operations have the same way of appending
+      case "::":
+
+        //if it is ::, and the next action is a variable, then convert to a string
+        //to get index of a variable's value, use ::()
+        //for example,
+        //  var a: [:
+        //    "hello": "world",
+        //  :]
+        //  log a::hello ; would log "world"
+        //
+        //  var idx: "hello"
+        //  log a::(idx) ; would log "world" as well
+        //  log a::idx ; //would cause a panic error
+
+        if len(right) == 0 { //safeguard
+          compilerErr("No value was found right of a :: operator", dir, v.Line)
+        }
+
+
+        if right[0].Type == "variable" {
+          var str = OmmString{}
+          str.FromGoType(right[0].Name[1:]) //remove the $ from the varname
+          right[0] = Action{
+            Type: "string",
+            Value: str,
+            File: right[0].File,
+            Line: right[0].Line,
+          }
+        }
+
+        fallthrough
       case "+": fallthrough
       case "-": fallthrough
       case "*": fallthrough
@@ -289,7 +320,6 @@ func actionizer(operations []Operation, dir string) []Action {
       case "!": fallthrough
       case "&": fallthrough
       case "|": fallthrough
-      case "::": fallthrough
       case "=>": fallthrough
       case "<-": fallthrough
       case "<~":
