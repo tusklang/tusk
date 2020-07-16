@@ -8,8 +8,8 @@ func term_inserter(lex []Lex) []Lex {
   for k, v := range lex {
     nLex = append(nLex, v)
 
-    currentType := v.Type == "operation"
-    nextType := k + 2 <= len(lex) && lex[k + 1].Type == "operation"
+    currentType := v.Type == "operation" || v.Type == "?operation"
+    nextType := k + 2 <= len(lex) && (lex[k + 1].Type == "operation" || lex[k + 1].Type == "?operation")
 
     if v.Type == "?open_brace" { //because opening braces don't need a $term after it
       continue

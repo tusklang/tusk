@@ -118,7 +118,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) {
 
     /////////////////////////////////////////////
 
-    if v.Type == "var" {
+    if v.Type == "var" || v.Type == "declare" {
       newnames[v.Name] = "v" + strconv.FormatUint(curvar, 10)
       actions[k].Name = "v" + strconv.FormatUint(curvar, 10)
       curvar++

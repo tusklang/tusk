@@ -435,6 +435,71 @@ func interpreter(actions []Action, cli_params CliParams, stacktrace []string) Re
 
         }
 
+      case "++":
+
+        variable := interpreter(v.First, cli_params, stacktrace)
+
+        operationFunc, exists := operations[(*variable.Exp).Type() + " + number"]
+
+        if !exists { //if there is no operation for that type, panic
+          OmmPanic("Could not find + operation for types " + (*variable.Exp).Type() + " and number", v.Line, v.File, stacktrace)
+        }
+
+        var onetype OmmType = one
+        *variable.Exp = *operationFunc(*variable.Exp, onetype, cli_params, stacktrace, v.Line, v.File)
+
+        if expReturn {
+          return Returner{
+            Type: "expression",
+            Exp: variable.Exp,
+          }
+        }
+
+      case "--":
+
+        variable := interpreter(v.First, cli_params, stacktrace)
+
+        operationFunc, exists := operations[(*variable.Exp).Type() + " - number"]
+
+        if !exists { //if there is no operation for that type, panic
+          OmmPanic("Could not find - operation for types " + (*variable.Exp).Type() + " and number", v.Line, v.File, stacktrace)
+        }
+
+        var onetype OmmType = one
+        *variable.Exp = *operationFunc(*variable.Exp, onetype, cli_params, stacktrace, v.Line, v.File)
+
+        if expReturn {
+          return Returner{
+            Type: "expression",
+            Exp: variable.Exp,
+          }
+        }
+
+      case "+=":
+      case "-=":
+      case "*=":
+      case "/=":
+      case "%=":
+      case "^=":
+
+        variable := interpreter(v.First, cli_params, stacktrace)
+        interpreted := *interpreter(v.Second, cli_params, stacktrace).Exp
+
+        operationFunc, exists := operations[(*variable.Exp).Type() + " " + string(v.Type[0]) + " " + interpreted.Type()]
+
+        if !exists { //if there is no operation for that type, panic
+          OmmPanic("Could not find " + string(v.Type[0]) + " operation for types " + (*variable.Exp).Type() + " and " + interpreted.Type(), v.Line, v.File, stacktrace)
+        }
+
+        *variable.Exp = *operationFunc(*variable.Exp, interpreted, cli_params, stacktrace, v.Line, v.File)
+
+        if expReturn {
+          return Returner{
+            Type: "expression",
+            Exp: variable.Exp,
+          }
+        }
+
     }
   }
 
