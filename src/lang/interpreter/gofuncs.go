@@ -8,6 +8,8 @@ import "os"
 import "fmt"
 import "time"
 import "strconv"
+import "strings"
+import "os/exec"
 
 import . "lang/types"
 
@@ -305,6 +307,45 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     var err = (*args[0]).(OmmString)
 
     OmmPanic(err.ToGoType(), line, file, stacktrace)
+
+    var tmpundef OmmType = undef
+    return &tmpundef
+  },
+  "exec": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+
+    if len(args) == 1 {
+      if (*args[0]).Type() != "string" {
+        OmmPanic("Function exec requires the argument to be a string", line, file, stacktrace)
+      }
+
+      var cmd = (*args[0]).(OmmString).ToGoType()
+
+      command := exec.Command(cmd)
+      out, _ := command.CombinedOutput()
+
+      var stringValue OmmString
+      stringValue.FromGoType(string(out))
+      var ommtype OmmType = stringValue
+      return &ommtype
+    } else if len(args) == 2 {
+      if (*args[0]).Type() != "string" || (*args[1]).Type() != "string" {
+        OmmPanic("Function exec requires both arguments to be strings", line, file, stacktrace)
+      }
+
+      var cmd = (*args[0]).(OmmString).ToGoType()
+      var stdin = (*args[1]).(OmmString).ToGoType()
+
+      command := exec.Command(cmd)
+      command.Stdin = strings.NewReader(stdin)
+      out, _ := command.CombinedOutput()
+
+      var stringValue OmmString
+      stringValue.FromGoType(string(out))
+      var ommtype OmmType = stringValue
+      return &ommtype
+    } else {
+      OmmPanic("Function exec requires a parameter count of 1 or 2", line, file, stacktrace)
+    }
 
     var tmpundef OmmType = undef
     return &tmpundef
