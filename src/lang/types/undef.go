@@ -1,16 +1,7 @@
 package types
 
 type OmmUndef struct {
-  value struct{}
-}
-
-func (u *OmmUndef) FromGoType(val struct{}) {
-  u.value = struct{}{}
-}
-
-func (u OmmUndef) ToGoType() struct{} {
-  var nilv struct{}
-  return nilv
+  None struct{}
 }
 
 func (u OmmUndef) Format() string {

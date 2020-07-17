@@ -2,9 +2,9 @@ package interpreter
 
 import . "lang/types"
 
-func number__mod__number(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+func number__mod__number(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
   num1, num2 := val1.(OmmNumber), val2.(OmmNumber)
-  ensurePrec(&num1, &num2, cli_params)
+  ensurePrec(&num1, &num2, (*instance).Params)
 
   //ALGORITHM:
   //  num1 - floor(num1 / num2) * num2
@@ -18,9 +18,9 @@ func number__mod__number(val1, val2 OmmType, cli_params CliParams, stacktrace []
   num2P.Integer, num2P.Decimal = &tmpInt, &tmpDec
 
   //if you set the prec to 0 here, it will mutate it
-  divided := (*number__divide__number(num1, num2, cli_params, stacktrace, line, file)).(OmmNumber)
+  divided := (*number__divide__number(num1, num2, instance, stacktrace, line, file)).(OmmNumber)
   *divided.Decimal = nil //round down
 
-  multiplied := (*number__times__number(divided, num2, cli_params, stacktrace, line, file)).(OmmNumber)
-  return number__minus__number(num1, multiplied, cli_params, stacktrace, line, file)
+  multiplied := (*number__times__number(divided, num2, instance, stacktrace, line, file)).(OmmNumber)
+  return number__minus__number(num1, multiplied, instance, stacktrace, line, file)
 }

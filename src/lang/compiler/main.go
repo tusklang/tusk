@@ -5,12 +5,13 @@ import "io/ioutil"
 import "fmt"
 import "os"
 
+import . "lang/types"
 import . "lang/interpreter"
 
 var included = []string{} //list of the imported files from omm
 
 //export Run
-func Run(params map[string]map[string]interface{}) {
+func Run(params CliParams) {
 
   dir := params["Files"]["DIR"]
   fileName := params["Files"]["NAME"]

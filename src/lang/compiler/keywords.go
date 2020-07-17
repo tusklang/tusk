@@ -18,6 +18,18 @@ var keywordJSON =
     "type": "id_non_tilde"
   },
   {
+    "name": "del",
+    "remove": "del",
+    "pattern": "(del(\\s+))",
+    "type": "id"
+  },
+  {
+    "name": "del",
+    "remove": "del",
+    "pattern": "(del(\\s*)\\~)",
+    "type": "id_non_tilde"
+  },
+  {
     "name": "->",
     "remove": "->",
     "pattern": "(\\-\\>)",

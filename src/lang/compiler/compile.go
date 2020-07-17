@@ -8,12 +8,6 @@ import "strconv"
 import "lang/interpreter"
 import . "lang/types"
 
-type OatValues struct {
-  Actions    []Action
-  Variables    map[string][]Action
-  Params       map[string]map[string]interface{}
-}
-
 func compilerErr(msg string, dir string, line uint64) {
 
   //I dont know why regular printing doesnt work
@@ -49,6 +43,10 @@ func Compile(file, dir, filename string) ([]Action, map[string][]Action) {
   var varnames = make(map[string]string)
 
   for k := range vars {
+
+    if vars[k][0].Type != "function" {
+      changevarnames(vars[k], varnames) //ensure none of the globals use the globals from below
+    }
     varnames[k] = k
   }
 

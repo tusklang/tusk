@@ -5,15 +5,16 @@ import "strings"
 import "fmt"
 import "strconv"
 
+import . "lang/types"
+
 //omm addons
 import "lang/compiler" //omm language (compile into go slices and structs)
 
-import "oat/compile" //compile omm to oat
-import "oat/run" //run an oat file
+import "oat"
 
 ////////////
 
-func defaults(cli_params *map[string]map[string]interface{}, name string) {
+func defaults(cli_params *CliParams, name string) {
 
   (*cli_params)["Calc"]["PREC"] = 15
 
@@ -31,7 +32,7 @@ func defaults(cli_params *map[string]map[string]interface{}, name string) {
 func main() {
   args := os.Args;
 
-  var cli_params = make(map[string]map[string]interface{})
+  var cli_params = make(CliParams)
 
   cli_params["Calc"] = map[string]interface{}{}
   cli_params["Package"] = map[string]interface{}{}
@@ -90,9 +91,9 @@ func main() {
     case "lang":
       compiler.Run(cli_params)
     case "compile":
-      oatCompile.Compile(cli_params)
+      oat.Compile(cli_params)
     case "run":
-      oatRun.Run(cli_params)
+      oat.Run(cli_params)
     default:
       fmt.Println("Error: cannot use omm addon", cli_params["Package"]["ADDON"].(string))
   }

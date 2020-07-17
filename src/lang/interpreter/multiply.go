@@ -2,9 +2,9 @@ package interpreter
 
 import . "lang/types"
 
-func naive_mul(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+func naive_mul(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
   num1, num2 := val1.(OmmNumber), val2.(OmmNumber)
-  ensurePrec(&num1, &num2, cli_params)
+  ensurePrec(&num1, &num2, (*instance).Params)
 
   var multFin [][]int64 //store the final values that were multiplied
   trailingZeroCount := 0
@@ -58,7 +58,7 @@ func naive_mul(val1, val2 OmmType, cli_params CliParams, stacktrace []string, li
     multFinAct := zero
     multFinAct.Integer = &v
 
-    totalSum = *(*number__plus__number(totalSumAct, multFinAct, cli_params, stacktrace, line, file)).(OmmNumber).Integer
+    totalSum = *(*number__plus__number(totalSumAct, multFinAct, instance, stacktrace, line, file)).(OmmNumber).Integer
   }
 
   decimalRet := totalSum[:decPlaceCount]
@@ -72,10 +72,10 @@ func naive_mul(val1, val2 OmmType, cli_params CliParams, stacktrace []string, li
   return &returnerType
 }
 
-func number__times__number(num1, num2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+func number__times__number(num1, num2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
 
   //maybe switch to karatsuba later?
   //look into this: http://www.cburch.com/proj/karat/karat.txt
 
-  return naive_mul(num1, num2, cli_params, stacktrace, line, file)
+  return naive_mul(num1, num2, instance, stacktrace, line, file)
 }

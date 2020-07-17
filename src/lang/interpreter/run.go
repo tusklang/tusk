@@ -6,51 +6,56 @@ import "fmt"
 import . "lang/types"
 
 var threads []OmmThread
-var vars map[string]Variable
 
 //export RunInterpreter
-func RunInterpreter(compiledVars map[string][]Action, cli_params map[string]map[string]interface{}) {
-
-  vars = make(map[string]Variable)
+func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
 
   var dirnameOmmStr OmmString
   dirnameOmmStr.FromGoType(cli_params["Files"]["DIR"].(string))
   var dirnameOmmType OmmType = dirnameOmmStr
 
-  vars["$__dirname"] = Variable{
-    Type: "variable",
+  initfuncs()
+
+  var instance Instance
+
+  instance.Params = cli_params
+  instance.vars = make(map[string]*OmmVar)
+  instance.globals = make(map[string]*OmmVar)
+
+  instance.vars["$__dirname"] = &OmmVar{
+    Name: "$__dirname",
     Value: &dirnameOmmType,
   }
 
-  initfuncs()
-
   for k, v := range compiledVars {
-    vars[k] = Variable{
-      Type: "variable",
-      Value: interpreter(v, cli_params, []string{"at the global interpreter"}).Exp,
+    var global = OmmVar{
+      Name: k,
+      Value: instance.interpreter(v, []string{"at the global interpreter"}).Exp,
     }
+    instance.globals[k] = &global
+    instance.vars = instance.globals //copy globals every time because some globals reference each other
   }
 
   for k, v := range GoFuncs {
     var gofunc OmmType = OmmGoFunc{
       Function: v,
     }
-    vars["$" + k] = Variable{
-      Type: "variable",
+    instance.vars["$" + k] = &OmmVar{
+      Name: "$" + k,
       Value: &gofunc,
     }
   }
 
-  if _, exists := vars["$main"]; !exists {
+  if _, exists := instance.vars["$main"]; !exists {
     fmt.Println("Given program has no entry point/main function")
     os.Exit(1)
   } else {
 
-    switch (*vars["$main"].Value).(type) {
+    switch (*instance.vars["$main"].Value).(type) {
       case OmmFunc:
-        main := vars["$main"]
+        main := instance.vars["$main"]
 
-        calledP := interpreter((*main.Value).(OmmFunc).Body, cli_params, []string{"at the entry caller"}).Exp
+        calledP := instance.interpreter((*main.Value).(OmmFunc).Body, []string{"at the entry caller"}).Exp
 
         if calledP == nil {
           os.Exit(0)

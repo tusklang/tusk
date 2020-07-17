@@ -21,7 +21,6 @@ type Action struct {
   //for compiling structures
   Static          map[string][]Action
   Instance        map[string][]Action
-  SelfName        string
   //////////////////////////
 
   //stuff to panic errors and give stack
@@ -32,13 +31,12 @@ type Action struct {
   //////////////////////////////////////
 }
 
-type Variable struct {
-  Type      string
-  Value    *OmmType
-  GoProc    func(args [][]Action, cli_params CliParams, vars map[string]Variable, this_vals []Action, dir string) OmmType
-}
-
 type Returner struct {
   Exp      *OmmType
   Type      string
+}
+
+type Oat struct {
+  Actions    []Action
+  Variables    map[string][]Action
 }

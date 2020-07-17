@@ -1,19 +1,19 @@
 package types
 
 type OmmRune struct {
-  rune *rune
+  Rune *rune
 }
 
 func (r *OmmRune) FromGoType(val rune) {
-  r.rune = &val
+  r.Rune = &val
 }
 
 func (r OmmRune) ToGoType() rune {
-  return *r.rune
+  return *r.Rune
 }
 
 func (r OmmRune) Format() string {
-  return string(*r.rune)
+  return string(*r.Rune)
 }
 
 func (r OmmRune) Type() string {

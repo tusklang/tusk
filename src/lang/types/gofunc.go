@@ -1,7 +1,7 @@
 package types
 
 type OmmGoFunc struct {
-  Function func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType
+  Function func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType
 }
 
 func (ogf OmmGoFunc) Format() string {

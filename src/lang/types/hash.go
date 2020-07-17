@@ -3,7 +3,7 @@ package types
 import "strings"
 
 type OmmHash struct {
-  Hash map[string]*OmmType
+  Hash    map[string]*OmmType
   Length  uint64
 }
 
@@ -18,6 +18,10 @@ func (hash OmmHash) At(idx string) *OmmType {
 }
 
 func (hash *OmmHash) Set(idx string, val OmmType) {
+
+  if hash.Hash == nil {
+    hash.Hash = make(map[string]*OmmType)
+  }
 
   if _, exists := hash.Hash[idx]; !exists {
     hash.Length++

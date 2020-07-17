@@ -12,8 +12,8 @@ import "strconv"
 import . "lang/types"
 
 //export GoFuncs
-var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
-  "input": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+  "input": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
 
     scanner := bufio.NewScanner(os.Stdin)
 
@@ -42,7 +42,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
 
     return &inputType
   },
-  "typeof": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+  "typeof": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
 
     if len(args) != 1 {
       OmmPanic("Function typeof requires a parameter count of 1", line, file, stacktrace)
@@ -58,7 +58,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
 
     return &ommtype
   },
-  "defop": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+  "defop": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
 
     if len(args) != 4 {
       OmmPanic("Function defop requires a parameter count of 4", line, file, stacktrace)
@@ -77,23 +77,23 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
       OmmPanic("Expected a parameter count of 2 for the fourth argument of defop", line, file, stacktrace)
     }
 
-    operations[operand1 + " " + operation + " " + operand2] = func(val1, val2 OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
-      vars[function.Params[0]] = Variable{
-        Type: "arg",
+    operations[operand1 + " " + operation + " " + operand2] = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+      *instance.vars[function.Params[0]] = OmmVar{
+        Name: function.Params[0],
         Value: &val1,
       }
-      vars[function.Params[1]] = Variable{
-        Type: "arg",
+      *instance.vars[function.Params[1]] = OmmVar{
+        Name: function.Params[1],
         Value: &val2,
       }
 
-      return interpreter(function.Body, cli_params, stacktrace).Exp
+      return instance.interpreter(function.Body, stacktrace).Exp
     }
 
     var tmpundef OmmType = undef
     return &tmpundef //return undefined
   },
-  "append": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+  "append": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
 
     if len(args) != 2 {
       OmmPanic("Function append requires a parameter count of 2", line, file, stacktrace)
@@ -111,7 +111,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
 
     return &arr
   },
-  "exit": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+  "exit": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
 
     if len(args) == 1 {
 
@@ -142,7 +142,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     var tmpundef OmmType = undef
     return &tmpundef
   },
-  "wait": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+  "wait": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
 
     if len(args) == 1 {
 
@@ -167,7 +167,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
           in each iteration, it will wait for 2 ^ 32 - 1 milliseconds
         */
 
-        for i := zero; isLess(i, amt); i = (*number__plus__number(i, n4294967295, cli_params, stacktrace, line, file)).(OmmNumber) {
+        for i := zero; isLess(i, amt); i = (*number__plus__number(i, n4294967295, &Instance{}, stacktrace, line, file)).(OmmNumber) {
           time.Sleep(4294967295 * time.Millisecond)
         }
       }
@@ -179,7 +179,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     var tmpundef OmmType = undef
     return &tmpundef
   },
-  "thread.wasjoined": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+  "thread.wasjoined": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
 
     if len(args) == 1 {
 
@@ -203,7 +203,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     var tmpfalse OmmType = falsev
     return &tmpfalse
   },
-  "make": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+  "make": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
 
     if len(args) == 1 {
 
@@ -222,7 +222,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     var tmpundef OmmType = undef
     return &tmpundef
   },
-  "len": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+  "len": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
 
     if len(args) != 1 {
       OmmPanic("Function len requires a parameter count of 1", line, file, stacktrace)
@@ -258,7 +258,7 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     var tmpzero OmmType = zero
     return &tmpzero
   },
-  "clone": func(args []*OmmType, cli_params CliParams, stacktrace []string, line uint64, file string) *OmmType {
+  "clone": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
 
     if len(args) != 1 {
       OmmPanic("Function len requires a parameter count of 1", line, file, stacktrace)
@@ -269,11 +269,15 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
     switch val.(type) {
       case OmmNumber:
         var number = val.(OmmNumber)
-        ensurePrec(&number, &OmmNumber{}, cli_params) //ensure a nil pointer doesn't happen
 
         //copy the integer and decimal
         var integer = append([]int64{}, *number.Integer...)
-        var decimal = append([]int64{}, *number.Decimal...)
+
+        var decimal []int64
+
+        if number.Decimal != nil {
+          decimal = append([]int64{}, *number.Decimal...)
+        }
         //////////////////////////////
 
         var newnum OmmType = OmmNumber{
@@ -285,6 +289,22 @@ var GoFuncs = map[string]func(args []*OmmType, cli_params CliParams, stacktrace 
       default:
         OmmPanic("Cannot clone type \"" + val.Type() + "\"", line, file, stacktrace)
     }
+
+    var tmpundef OmmType = undef
+    return &tmpundef
+  },
+  "panic": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+
+    if len(args) != 1 {
+      OmmPanic("Function panic requires a parameter count of 1", line, file, stacktrace)
+    }
+    if (*args[0]).Type() != "string" {
+      OmmPanic("Function panic requires the argument to be a string", line, file, stacktrace)
+    }
+
+    var err = (*args[0]).(OmmString)
+
+    OmmPanic(err.ToGoType(), line, file, stacktrace)
 
     var tmpundef OmmType = undef
     return &tmpundef

@@ -3,24 +3,13 @@ package compiler
 import "io/ioutil"
 import "path"
 import "strings"
-import "encoding/gob"
-import "os"
+import "oat/helper"
 
 import . "lang/types"
 
 func includeSingle(filename string, line uint64, dir string) []Action {
   if strings.HasSuffix(filename, ".oat") {
-    readfile, e := os.Open(filename)
-
-    var decoded OatValues
-
-    decoder := gob.NewDecoder(readfile)
-    e = decoder.Decode(&decoded)
-
-    if e != nil {
-      compilerErr(filename + " was detected as an oat, but is not oat compatible", dir, line)
-    }
-
+    var decoded = oatHelper.FromOat(filename)
     return decoded.Actions
   } else if strings.HasSuffix(filename, ".omm") {
     filename = strings.TrimSuffix(filename, ".omm")

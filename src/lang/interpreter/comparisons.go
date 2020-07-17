@@ -193,7 +193,9 @@ func isLessOrEqual(val1, val2 OmmNumber) bool {
 func abs(val OmmNumber, stacktrace []string, cli_params CliParams) OmmType {
 
   if isLess(val, zero) {
-    return *number__times__number(val, neg_one, cli_params, stacktrace, 0, "none" /* using this because it will not throw an error */)
+    var tmpInstance Instance
+    tmpInstance.Params = cli_params
+    return *number__times__number(val, neg_one, &tmpInstance, stacktrace, 0, "none" /* using this because it will not throw an error */)
   }
 
   return val
