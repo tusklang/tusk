@@ -350,4 +350,20 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     var tmpundef OmmType = undef
     return &tmpundef
   },
+  "chdir": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+
+    if len(args) != 1 {
+      OmmPanic("Function chdir requires a parameter count of 1", line, file, stacktrace)
+    }
+    if (*args[0]).Type() != "string" {
+      OmmPanic("Function chdir requires the argument to be a string", line, file, stacktrace)
+    }
+
+    var dir = (*args[0]).(OmmString).ToGoType()
+
+    os.Chdir(dir)
+
+    var tmpundef OmmType = undef
+    return &tmpundef
+  },
 }
