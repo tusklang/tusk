@@ -47,7 +47,9 @@ Explanation of why this exists:
 
 var curvar uint64 = 0
 
-func changevarnames(actions []Action, newnames_ map[string]string) {
+func changevarnames(actions []Action, newnames_ map[string]string) CompileErr {
+
+  var e CompileErr
 
   newnames_["$__dirname"] = "$__dirname" //__dirname is a global
 
@@ -72,7 +74,10 @@ func changevarnames(actions []Action, newnames_ map[string]string) {
         curvar++
       }
       v.Value = fn
-      changevarnames(v.Value.(OmmFunc).Body, params)
+      e = changevarnames(v.Value.(OmmFunc).Body, params)
+      if e != nil {
+        return e
+      }
       continue
     }
     if v.Type == "each" { //if it is each, also give the key and value variables
@@ -85,34 +90,64 @@ func changevarnames(actions []Action, newnames_ map[string]string) {
       keyandvalvars[val] = "v" + strconv.FormatUint(curvar, 10)
       curvar++
 
-      changevarnames(v.First, keyandvalvars)
-      changevarnames(v.ExpAct, keyandvalvars)
+      e = changevarnames(v.First, keyandvalvars)
+      if e != nil {
+        return e
+      }
+      e = changevarnames(v.ExpAct, keyandvalvars)
+      if e != nil {
+        return e
+      }
       continue
     }
     if v.Type == "proto" {
 
       for i := range v.Static {
-        changevarnames(v.Static[i], newnames)
+        e = changevarnames(v.Static[i], newnames)
+        if e != nil {
+          return e
+        }
       }
       for i := range v.Instance {
-        changevarnames(v.Instance[i], newnames)
+        e = changevarnames(v.Instance[i], newnames)
+        if e != nil {
+          return e
+        }
       }
 
       continue
     }
 
     //perform checkvars on all of the sub actions
-    changevarnames(v.ExpAct, newnames)
-    changevarnames(v.First, newnames)
-    changevarnames(v.Second, newnames)
-    changevarnames(v.Degree, newnames)
+    e = changevarnames(v.ExpAct, newnames)
+    if e != nil {
+      return e
+    }
+    e = changevarnames(v.First, newnames)
+    if e != nil {
+      return e
+    }
+    e = changevarnames(v.Second, newnames)
+    if e != nil {
+      return e
+    }
+    e = changevarnames(v.Degree, newnames)
+    if e != nil {
+      return e
+    }
 
     //also do it for the arrays and hashes
     for i := range v.Array {
-      changevarnames(v.Array[i], newnames)
+      e = changevarnames(v.Array[i], newnames)
+      if e != nil {
+        return e
+      }
     }
     for i := range v.Hash {
-      changevarnames(v.Hash[i], newnames)
+      e = changevarnames(v.Hash[i], newnames)
+      if e != nil {
+        return e
+      }
     }
     //////////////////////////////////////
 
@@ -126,10 +161,12 @@ func changevarnames(actions []Action, newnames_ map[string]string) {
 
     if v.Type == "variable" {
       if _, exists := newnames[v.Name]; !exists {
-        compilerErr("Variable " + v.Name[1:] + " was not declared", v.File, v.Line)
+        return makeCompilerErr("Variable " + v.Name[1:] + " was not declared", v.File, v.Line)
       }
       actions[k].Name = newnames[v.Name]
     }
 
   }
+
+  return nil
 }

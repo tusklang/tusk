@@ -6,6 +6,7 @@ type Item struct {
   //otherwise, the Token field will be used
 
   Type       string
+  File       string
   Line       uint64
   Group  [][]Item
   Token      Lex
@@ -43,7 +44,7 @@ func makeGroups(lex []Lex) [][]Item {
 
       var line uint64 = 0
 
-      for i++ ;i < len(lex); i++ {
+      for i++; i < len(lex); i++ {
 
         if line == 0 {
           line = lex[i].Line
@@ -68,6 +69,7 @@ func makeGroups(lex []Lex) [][]Item {
       groupedExp := makeGroups(exp)
       groups[len(groups) - 1] = append(groups[len(groups) - 1], Item{
         Type: braceType,
+        File: lex[i].Dir,
         Line: line,
         Group: groupedExp,
       })
@@ -80,6 +82,7 @@ func makeGroups(lex []Lex) [][]Item {
 
       groups[len(groups) - 1] = append(groups[len(groups) - 1], Item{
         Type: lex[i].Type,
+        File: lex[i].Dir,
         Line: lex[i].Line,
         Token: lex[i],
       })

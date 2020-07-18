@@ -21,7 +21,7 @@ var keywords []map[string]string
 
 var _ = json.Unmarshal(keywordJSON, &keywords)
 
-func lexer(file, filename string) []Lex {
+func lexer(file, filename string) ([]Lex, CompileErr) {
 
   var lex []Lex
   curExp := ""
@@ -213,13 +213,13 @@ func lexer(file, filename string) []Lex {
   //detect two operators back to back (which is an error)
   for k, v := range lex {
     if v.Type == "operation" && k + 1 < len(lex) && lex[k + 1].Type == "operation" {
-      compilerErr("Cannot have two operations next to each other \nFound near this expression: " + lex[k + 1].Exp, filename, lex[k + 1].Line)
+      return []Lex{}, makeCompilerErr("Cannot have two operations next to each other \nFound near this expression: " + lex[k + 1].Exp, filename, lex[k + 1].Line)
     }
   }
 
   lex = term_inserter(tilde_inserter(insert_arrows(funcLex(lex))))
 
-  return lex
+  return lex, nil
 }
 
 func testkey(keyword map[string]string, file string, i int) bool {

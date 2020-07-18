@@ -23,7 +23,11 @@ func Run(params CliParams) {
     os.Exit(1)
   }
 
-  _, variables := Compile(string(file), fileName.(string))
+  _, variables, ce := Compile(string(file), fileName.(string))
+
+  if ce != nil {
+    ce.Print()
+  }
 
   RunInterpreter(variables, params)
 }

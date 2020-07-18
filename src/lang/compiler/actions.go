@@ -2,9 +2,10 @@ package compiler
 
 import . "lang/types"
 
-func actionizer(operations []Operation, dir string) []Action {
+func actionizer(operations []Operation) ([]Action, CompileErr) {
 
   var actions []Action
+  var e CompileErr
 
   for _, v := range operations {
 
@@ -12,10 +13,18 @@ func actionizer(operations []Operation, dir string) []Action {
     var right []Action
 
     if v.Left != nil {
-      left = actionizer([]Operation{ *v.Left }, dir)
+      left, e = actionizer([]Operation{ *v.Left })
+
+      if e != nil {
+        return []Action{}, e
+      }
     }
     if v.Right != nil {
-      right = actionizer([]Operation{ *v.Right }, dir)
+      right, e = actionizer([]Operation{ *v.Right })
+
+      if e != nil {
+        return []Action{}, e
+      }
     }
 
     switch v.Type {
@@ -32,10 +41,14 @@ func actionizer(operations []Operation, dir string) []Action {
 
               case "include":
                 if right[0].Type != "string" {
-                  compilerErr("Expected a string after \"include\"", dir, v.Line)
+                  return []Action{}, makeCompilerErr("Expected a string after \"include\"", v.File, v.Line)
                 }
 
-                includeFiles := includer(right[0].Value.(OmmString).ToGoType(), v.Line, dir)
+                includeFiles, e := includer(right[0].Value.(OmmString).ToGoType(), v.Line, v.File)
+
+                if e != nil {
+                  return []Action{}, e
+                }
 
                 for _, acts := range includeFiles {
                   actions = append(actions, acts...)
@@ -43,14 +56,14 @@ func actionizer(operations []Operation, dir string) []Action {
 
               case "function":
                 if right[0].Type != "=>" {
-                  compilerErr("Functions need a parameter list and a function body", dir, right[0].Line)
+                  return []Action{}, makeCompilerErr("Functions need a parameter list and a function body", v.File, right[0].Line)
                 }
 
                 var paramList []string
 
                 for _, p := range right[0].First[0].ExpAct {
                   if p.Type != "variable" {
-                    compilerErr("Function parameter lists can only have variables", dir, right[0].Line)
+                    return []Action{}, makeCompilerErr("Function parameter lists can only have variables", v.File, right[0].Line)
                   }
 
                   paramList = append(paramList, p.Name)
@@ -62,14 +75,14 @@ func actionizer(operations []Operation, dir string) []Action {
                     Params: paramList,
                     Body: right[0].Second,
                   },
-                  File: dir,
+                  File: v.File,
                   Line: v.Line,
                 })
 
               case "if":
 
                 if right[0].Type != "=>" {
-                  compilerErr("If statements need a condition and a body", dir, right[0].Line)
+                  return []Action{}, makeCompilerErr("If statements need a condition and a body", v.File, right[0].Line)
                 }
 
                 actions = append(actions, Action{
@@ -79,18 +92,18 @@ func actionizer(operations []Operation, dir string) []Action {
                     First: right[0].First,
                     ExpAct: right[0].Second,
                   } },
-                  File: dir,
+                  File: v.File,
                   Line: v.Line,
                 })
 
               case "elif":
 
                 if right[0].Type != "=>" {
-                  compilerErr("Elif statements need a condition and a body", dir, right[0].Line)
+                  return []Action{}, makeCompilerErr("Elif statements need a condition and a body", v.File, right[0].Line)
                 }
 
                 if len(actions) == 0 || actions[len(actions) - 1].Type != "condition" {
-                  compilerErr("Unexpected elif statement", dir, right[0].Line)
+                  return []Action{}, makeCompilerErr("Unexpected elif statement", v.File, right[0].Line)
                 }
 
                 //append to the previous conditional statement
@@ -103,7 +116,7 @@ func actionizer(operations []Operation, dir string) []Action {
               case "else":
 
                 if len(actions) == 0 || actions[len(actions) - 1].Type != "condition" {
-                  compilerErr("Unexpected else statement", dir, right[0].Line)
+                  return []Action{}, makeCompilerErr("Unexpected else statement", v.File, right[0].Line)
                 }
 
                 //append to the previous conditional statement
@@ -114,29 +127,29 @@ func actionizer(operations []Operation, dir string) []Action {
 
               case "while":
                 if right[0].Type != "=>" {
-                  compilerErr("While loops need a condition and a body", dir, right[0].Line)
+                  return []Action{}, makeCompilerErr("While loops need a condition and a body", v.File, right[0].Line)
                 }
 
                 actions = append(actions, Action{
                   Type: val,
                   First: right[0].First,
                   ExpAct: right[0].Second,
-                  File: dir,
+                  File: v.File,
                   Line: v.Line,
                 })
 
               case "each":
                 if right[0].Type != "=>" {
-                  compilerErr("Each loops need a condition and a body", dir, right[0].Line)
+                  return []Action{}, makeCompilerErr("Each loops need a condition and a body", v.File, right[0].Line)
                 }
 
                 if len(right[0].First[0].ExpAct) != 3 {
-                  compilerErr("Each loops must look like this: each(iterator, key, value)", dir, right[0].Line)
+                  return []Action{}, makeCompilerErr("Each loops must look like this: each(iterator, key, value)", v.File, right[0].Line)
                 }
 
                 for _, n := range right[0].First[0].ExpAct[1:] {
                   if n.Type != "variable" {
-                    compilerErr("Key or value was not given as a variable", dir, right[0].Line)
+                    return []Action{}, makeCompilerErr("Key or value was not given as a variable", v.File, right[0].Line)
                   }
                 }
 
@@ -144,7 +157,7 @@ func actionizer(operations []Operation, dir string) []Action {
                   Type: val,
                   First: right[0].First[0].ExpAct, //because it doesnt matter if they use a { or (
                   ExpAct: right[0].Second,
-                  File: dir,
+                  File: v.File,
                   Line: v.Line,
                 })
 
@@ -154,23 +167,23 @@ func actionizer(operations []Operation, dir string) []Action {
                   actions = append(actions, Action{
                     Type: "declare",
                     Name: right[0].Name,
-                    File: dir,
+                    File: v.File,
                     Line: v.Line,
                   })
                 } else {
                   if right[0].Type != "let" {
-                    compilerErr("Expected a assigner statement after var", dir, right[0].Line)
+                    return []Action{}, makeCompilerErr("Expected a assigner statement after var", v.File, right[0].Line)
                   }
 
                   if right[0].First[0].Type != "variable" {
-                    compilerErr("Cannot use :: operator in variable declaration", dir, right[0].Line)
+                    return []Action{}, makeCompilerErr("Cannot use :: operator in variable declaration", v.File, right[0].Line)
                   }
 
                   actions = append(actions, Action{
                     Type: val,
                     Name: right[0].First[0].Name,
                     ExpAct: right[0].ExpAct,
-                    File: dir,
+                    File: v.File,
                     Line: v.Line,
                   })
                 }
@@ -178,11 +191,11 @@ func actionizer(operations []Operation, dir string) []Action {
               case "proto":
 
                 if len(right) == 0 {
-                  compilerErr("Prototypes require a body", dir, right[0].Line)
+                  return []Action{}, makeCompilerErr("Prototypes require a body", v.File, right[0].Line)
                 }
 
                 if right[0].Type != "{" {
-                  compilerErr("Prototype bodies can only be curly brace enclosed", dir, right[0].Line)
+                  return []Action{}, makeCompilerErr("Prototype bodies can only be curly brace enclosed", v.File, right[0].Line)
                 }
 
                 var (
@@ -217,7 +230,7 @@ func actionizer(operations []Operation, dir string) []Action {
                       instance[body[i].ExpAct[0].Name] = []Action{}
                     }
                   } else {
-                    compilerErr("Prototype bodies can only have variable assignments and declarations", dir, right[0].Line)
+                    return []Action{}, makeCompilerErr("Prototype bodies can only have variable assignments and declarations", v.File, right[0].Line)
                   }
                 }
 
@@ -225,7 +238,7 @@ func actionizer(operations []Operation, dir string) []Action {
                   Type: "proto",
                   Static: static,
                   Instance: instance,
-                  File: dir,
+                  File: v.File,
                   Line: v.Line,
                 })
 
@@ -234,7 +247,7 @@ func actionizer(operations []Operation, dir string) []Action {
                 actions = append(actions, Action{
                   Type: val,
                   ExpAct: right,
-                  File: dir,
+                  File: v.File,
                   Line: v.Line,
                 })
 
@@ -245,19 +258,19 @@ func actionizer(operations []Operation, dir string) []Action {
         }
 
         if !hasStatement {
-          compilerErr("\"" + (*v.Left).Item.Token.Name + "\" is not a statement", dir, v.Line)
+          return []Action{}, makeCompilerErr("\"" + (*v.Left).Item.Token.Name + "\" is not a statement", v.File, v.Line)
         }
       case ":":
 
         if len(left) == 0 || (left[0].Type != "variable" && left[0].Type != "::")  {
-          compilerErr("Must have a variable before an assigner operator", dir, v.Line)
+          return []Action{}, makeCompilerErr("Must have a variable before an assigner operator", v.File, v.Line)
         }
 
         actions = append(actions, Action{
           Type: "let",
           First: left,
           ExpAct: right,
-          File: dir,
+          File: v.File,
           Line: v.Line,
         })
 
@@ -269,7 +282,7 @@ func actionizer(operations []Operation, dir string) []Action {
           Type: "cast",
           Name: castType, //type to cast into
           ExpAct: right,
-          File: dir,
+          File: v.File,
           Line: v.Line,
         })
 
@@ -289,7 +302,7 @@ func actionizer(operations []Operation, dir string) []Action {
         //  log a::idx ; //would cause a panic error
 
         if len(right) == 0 { //safeguard
-          compilerErr("No value was found right of a :: operator", dir, v.Line)
+          return []Action{}, makeCompilerErr("No value was found right of a :: operator", v.File, v.Line)
         }
 
 
@@ -327,7 +340,10 @@ func actionizer(operations []Operation, dir string) []Action {
         var degree []Action
 
         if v.Degree != nil {
-          degree = actionizer([]Operation{ *v.Degree }, dir)
+          degree, e = actionizer([]Operation{ *v.Degree })
+          if e != nil {
+            return []Action{}, e
+          }
         }
 
         actions = append(actions, Action{
@@ -335,7 +351,7 @@ func actionizer(operations []Operation, dir string) []Action {
           First: left,
           Second: right,
           Degree: degree,
-          File: dir,
+          File: v.File,
           Line: v.Line,
         })
       ////////////////////////////////////////////////////////
@@ -344,13 +360,13 @@ func actionizer(operations []Operation, dir string) []Action {
       case "--":
 
         if len(left) == 0 || (left[0].Type != "variable" && left[0].Type != "::") {
-          compilerErr("Must have a variable before an increment or decrement", dir, v.Line)
+          return []Action{}, makeCompilerErr("Must have a variable before an increment or decrement", v.File, v.Line)
         }
 
         actions = append(actions, Action{
           Type: v.Type,
           First: left,
-          File: dir,
+          File: v.File,
           Line: v.Line,
         })
 
@@ -362,17 +378,17 @@ func actionizer(operations []Operation, dir string) []Action {
       case "^=":
 
         if len(left) == 0 || (left[0].Type != "variable" && left[0].Type != "::") {
-          compilerErr("Must have a variable before an assignment operator", dir, v.Line)
+          return []Action{}, makeCompilerErr("Must have a variable before an assignment operator", v.File, v.Line)
         }
         if len(right) == 0 {
-          compilerErr("Could not find a value after " + v.Type, dir, v.Line)
+          return []Action{}, makeCompilerErr("Could not find a value after " + v.Type, v.File, v.Line)
         }
 
         actions = append(actions, Action{
           Type: v.Type,
           First: left,
           Second: right,
-          File: dir,
+          File: v.File,
           Line: v.Line,
         })
 
@@ -381,16 +397,20 @@ func actionizer(operations []Operation, dir string) []Action {
 
         actions = append(actions, Action{
           Type: v.Type,
-          File: dir,
+          File: v.File,
           Line: v.Line,
         })
 
       case "none":
-        vActs := valueActions(v.Item, dir)
+        vActs, e := valueActions(v.Item)
+
+        if e != nil {
+          return []Action{}, e
+        }
 
         actions = append(actions, vActs)
     }
   }
 
-  return actions
+  return actions, nil
 }

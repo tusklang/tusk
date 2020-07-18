@@ -2,41 +2,69 @@ package compiler
 
 import "fmt"
 import "os"
-import "strconv"
 
 import "lang/interpreter"
 import . "lang/types"
 
-func compilerErr(msg string, dir string, line uint64) {
+type _CompileErr struct {
+  Msg   string
+  FName string
+  Line  uint64
+}
 
-  //I dont know why regular printing doesnt work
-  //(I am on ubuntu, but on windows it works)
-  //(I just switched from windows to ubuntu)
-  fmt.Print("Error while compiling " + dir)
-  fmt.Println()
-  fmt.Print("Error on line " + strconv.FormatUint(line, 10))
-  fmt.Println("\n")
-  fmt.Println(msg)
-  //////////////////////////////////////////////
-
+func (e _CompileErr) Print() {
+  fmt.Println("Error while compiling", e.FName, "on line", e.Line)
+  fmt.Println(e.Msg)
   os.Exit(1)
 }
 
-//export Compile
-func Compile(file, filename string) ([]Action, map[string][]Action) {
+type CompileErr interface {
+  Print()
+}
 
-  lex := lexer(file, filename)
+func makeCompilerErr(msg, fname string, line uint64) CompileErr {
+  return _CompileErr{
+    Msg: msg,
+    FName: fname,
+    Line: line,
+  }
+}
+
+//export Compile
+func Compile(file, filename string) ([]Action, map[string][]Action, CompileErr) {
+
+  var e CompileErr
+
+  lex, e := lexer(file, filename)
+
+  if e != nil {
+    return []Action{}, nil, e
+  }
+
   groups := makeGroups(lex)
   operations := makeOperations(groups)
-  actions := actionizer(operations, filename)
+  actions, e := actionizer(operations)
+
+  if e != nil {
+    return []Action{}, nil, e
+  }
 
   //a bunch of validations and initializers
-  has_non_global_prototypes(actions, true)
+  e = has_non_global_prototypes(actions, true)
+  if e != nil {
+    return []Action{}, nil, e
+  }
   put_proto_types(actions)
-  validate_types(actions)
+  e = validate_types(actions)
+  if e != nil {
+    return []Action{}, nil, e
+  }
   /////////////////////////////////////////
 
-  vars := getvars(actions, filename)
+  vars, e := getvars(actions)
+  if e != nil {
+    return nil, nil, e
+  }
 
   //make each var have only it's name
   var varnames = make(map[string]string)
@@ -56,8 +84,12 @@ func Compile(file, filename string) ([]Action, map[string][]Action) {
 
 
   for k := range vars {
-    changevarnames(vars[k], varnames)
+    e = changevarnames(vars[k], varnames)
+
+    if e != nil {
+      return []Action{}, nil, e
+    }
   }
 
-  return actions, vars
+  return actions, vars, nil
 }

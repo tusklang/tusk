@@ -23,7 +23,11 @@ func Compile(params CliParams) {
     os.Exit(1)
   }
 
-  actions, vars := compiler.Compile(string(file), fileName.(string))
+  actions, vars, ce := compiler.Compile(string(file), fileName.(string))
+
+  if ce != nil {
+    ce.Print()
+  }
 
   var vals = Oat{
     Actions: actions,

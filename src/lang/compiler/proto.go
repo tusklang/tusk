@@ -11,59 +11,99 @@ var protos []string
     }
   }
 */
-func has_non_global_prototypes(actions []Action, firstLayer bool) {
+func has_non_global_prototypes(actions []Action, firstLayer bool) CompileErr {
+
+  var e CompileErr
 
   for _, v := range actions {
 
     if v.Type == "proto" && !firstLayer {
-      compilerErr("Prototypes can only be made at the global scope", v.File, v.Line)
+      return makeCompilerErr("Prototypes can only be made at the global scope", v.File, v.Line)
     }
 
     if v.Type == "proto" {
 
       for i := range v.Static {
-        has_non_global_prototypes(v.Static[i], false)
+        e = has_non_global_prototypes(v.Static[i], false)
+        if e != nil {
+          return e
+        }
       }
       for i := range v.Instance {
-        has_non_global_prototypes(v.Instance[i], false)
+        e = has_non_global_prototypes(v.Instance[i], false)
+        if e != nil {
+          return e
+        }
       }
 
       continue
     }
     if v.Type == "function" {
-      has_non_global_prototypes(v.Value.(OmmFunc).Body, false)
+      e = has_non_global_prototypes(v.Value.(OmmFunc).Body, false)
+      if e != nil {
+        return e
+      }
       continue
     }
 
     if v.Type == "var" {
-      has_non_global_prototypes(v.ExpAct, firstLayer)
+      e = has_non_global_prototypes(v.ExpAct, firstLayer)
+      if e != nil {
+        return e
+      }
       continue
     }
 
     //perform checker on all of the sub actions
-    has_non_global_prototypes(v.ExpAct, false)
-    has_non_global_prototypes(v.First, false)
-    has_non_global_prototypes(v.Second, false)
-    has_non_global_prototypes(v.Degree, false)
+    e = has_non_global_prototypes(v.ExpAct, false)
+    if e != nil {
+      return e
+    }
+    e = has_non_global_prototypes(v.First, false)
+    if e != nil {
+      return e
+    }
+    e = has_non_global_prototypes(v.Second, false)
+    if e != nil {
+      return e
+    }
+    e = has_non_global_prototypes(v.Degree, false)
+    if e != nil {
+      return e
+    }
 
     //also do it for the arrays, hashes, and sub protos
     for _, i := range v.Array {
-      has_non_global_prototypes(i, false)
+      e = has_non_global_prototypes(i, false)
+      if e != nil {
+        return e
+      }
     }
     for _, i := range v.Hash {
-      has_non_global_prototypes(i, false)
+      e = has_non_global_prototypes(i, false)
+      if e != nil {
+        return e
+      }
     }
     for _, i := range v.Static {
-      has_non_global_prototypes(i, false)
+      e = has_non_global_prototypes(i, false)
+      if e != nil {
+        return e
+      }
     }
     for _, i := range v.Instance {
-      has_non_global_prototypes(i, false)
+      e = has_non_global_prototypes(i, false)
+      if e != nil {
+        return e
+      }
     }
     //////////////////////////////////////
 
     ///////////////////////////////////////////
 
   }
+
+  return e
 }
 
 //put the proto names in the "types" slice

@@ -2,6 +2,7 @@ package compiler
 
 type Operation struct {
   Type        string
+  File        string
   Line        uint64
   Left       *Operation
   Right      *Operation
@@ -61,6 +62,7 @@ func normalOpFunc(exp []Item, index int, opType string) Operation {
 
   return Operation{
     Type: opType,
+    File: exp[index].File,
     Line: exp[index].Line,
     Left: &makeOperations([][]Item{ left })[0],
     Right: &makeOperations([][]Item{ right })[0],
@@ -91,6 +93,7 @@ func similarityOpFunc(exp []Item, index int, opType string) Operation {
 
   return Operation{
     Type: opType,
+    File: exp[index].File,
     Line: exp[index].Line,
     Left: &makeOperations([][]Item{ left })[0],
     Right: &makeOperations([][]Item{ right })[0],
@@ -164,6 +167,7 @@ func makeOperations(groups [][]Item) []Operation {
       "!": func(exp []Item, index int, opType string) Operation {
         return Operation{
           Type: opType,
+          File: exp[index].File,
           Line: exp[index].Line,
           Right: &makeOperations([][]Item{ exp[index + 1:] })[0],
         }
@@ -173,6 +177,7 @@ func makeOperations(groups [][]Item) []Operation {
       "++": func(exp []Item, index int, opType string) Operation {
         return Operation{
           Type: opType,
+          File: exp[index].File,
           Line: exp[index].Line,
           Left: &makeOperations([][]Item{ exp[:index] })[0],
         }
@@ -180,6 +185,7 @@ func makeOperations(groups [][]Item) []Operation {
       "--": func(exp []Item, index int, opType string) Operation {
         return Operation{
           Type: opType,
+          File: exp[index].File,
           Line: exp[index].Line,
           Left: &makeOperations([][]Item{ exp[:index] })[0],
         }
@@ -203,6 +209,7 @@ func makeOperations(groups [][]Item) []Operation {
     if !operationIncludes(v) {
       newGroups = append(newGroups, Operation{
         Type: "none",
+        File: v[0].File,
         Line: v[0].Line,
         Item: v[0],
       })

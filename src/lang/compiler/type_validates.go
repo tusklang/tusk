@@ -4,9 +4,11 @@ import . "lang/types"
 
 var types = []string{ "string", "rune", "number", "bool", "hash", "array" }
 
-func validate_types(actions []Action) {
+func validate_types(actions []Action) CompileErr {
 
-  //function to make sure the typecasts (and fargc) work
+  var e CompileErr
+
+  //function to make sure the typecasts
 
   for _, v := range actions {
 
@@ -16,38 +18,65 @@ func validate_types(actions []Action) {
           goto cast_noErr
         }
       }
-      compilerErr("\"" + v.Name + "\" is not a type", v.File, v.Line)
+      return makeCompilerErr("\"" + v.Name + "\" is not a type", v.File, v.Line)
       cast_noErr:
     }
 
     if v.Type == "function" {
-      validate_types(v.Value.(OmmFunc).Body)
+      e = validate_types(v.Value.(OmmFunc).Body)
+      if e != nil {
+        return e
+      }
       continue
     }
     if v.Type == "proto" {
 
       for i := range v.Static {
-        validate_types(v.Static[i])
+        e = validate_types(v.Static[i])
+        if e != nil {
+          return e
+        }
       }
       for i := range v.Instance {
-        validate_types(v.Instance[i])
+        e = validate_types(v.Instance[i])
+        if e != nil {
+          return e
+        }
       }
 
       continue
     }
 
     //perform checkvars on all of the sub actions
-    validate_types(v.ExpAct)
-    validate_types(v.First)
-    validate_types(v.Second)
-    validate_types(v.Degree)
+    e = validate_types(v.ExpAct)
+    if e != nil {
+      return e
+    }
+    e = validate_types(v.First)
+    if e != nil {
+      return e
+    }
+    e = validate_types(v.Second)
+    if e != nil {
+      return e
+    }
+    e = validate_types(v.Degree)
+    if e != nil {
+      return e
+    }
 
     //also do it for the arrays and hashes
     for i := range v.Array {
-      validate_types(v.Array[i])
+      e = validate_types(v.Array[i])
+      if e != nil {
+        return e
+      }
     }
     for i := range v.Hash {
-      validate_types(v.Hash[i])
+      e = validate_types(v.Hash[i])
+      if e != nil {
+        return e
+      }
     }
     //////////////////////////////////////
 
@@ -55,4 +84,5 @@ func validate_types(actions []Action) {
 
   }
 
+  return nil
 }
