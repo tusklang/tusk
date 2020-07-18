@@ -14,16 +14,16 @@ import "lang/compiler" //compiler
 func Compile(params CliParams) {
   oatHelper.InitGob()
 
-  fileName := params["Files"]["NAME"]
+  fileName := params.Name
 
-  file, e := ioutil.ReadFile(fileName.(string))
+  file, e := ioutil.ReadFile(fileName)
 
   if e != nil {
-    fmt.Println("Could not find file:", fileName.(string))
+    fmt.Println("Could not find file:", fileName)
     os.Exit(1)
   }
 
-  actions, vars, ce := compiler.Compile(string(file), fileName.(string))
+  actions, vars, ce := compiler.Compile(string(file), fileName)
 
   if ce != nil {
     ce.Print()
@@ -42,17 +42,17 @@ func Compile(params CliParams) {
   }
 
   nbytes := network.Bytes()
-  writer, e := os.Create(params["Calc"]["O"].(string))
+  writer, e := os.Create(params.Output)
 
   if e != nil {
-    fmt.Println("Could not make file:", fileName.(string))
+    fmt.Println("Could not make file:", fileName)
     os.Exit(1)
   }
 
   _, e = writer.Write(nbytes)
 
   if e != nil {
-    fmt.Println("Could not write file:", fileName.(string))
+    fmt.Println("Could not write file:", fileName)
     os.Exit(1)
   }
 }

@@ -30,7 +30,7 @@ func number__divide__number(val1, val2 OmmType, instance *Instance, stacktrace [
   a := zero
   a.Integer = &num1n
 
-  for i := len(num1n); i < (*instance).Params["Calc"]["PREC"].(int); i++ {
+  for i := len(num1n); uint64(i) < (*instance).Params.Prec; i++ {
     num1n = append([]int64{ 0 }, num1n...)
   }
 

@@ -8,7 +8,7 @@ import . "lang/interpreter"
 //export Run
 func Run(params CliParams) {
 
-  decoded := oatHelper.FromOat(params["Files"]["NAME"].(string))
+  decoded := oatHelper.FromOat(params.Name)
 
   //run the oat
   RunInterpreter(decoded.Variables, params)

@@ -39,11 +39,11 @@ func ensurePrec(num1, num2 *OmmNumber, cli_params CliParams) {
   }
 
   //using cli_params precision + 1 because everything must be a float (and decimal must be >= 1)
-  if len(*(*num1).Decimal) > cli_params["Calc"]["PREC"].(int) + 1 {
-    *(*num1).Decimal = (*(*num1).Decimal)[len(*(*num1).Decimal) - cli_params["Calc"]["PREC"].(int):]
+  if uint64(len(*(*num1).Decimal)) > cli_params.Prec + 1 {
+    *(*num1).Decimal = (*(*num1).Decimal)[uint64(len(*(*num1).Decimal)) - cli_params.Prec:]
   }
-  if len(*(*num2).Decimal) > cli_params["Calc"]["PREC"].(int) + 1 {
-    (*(*num2).Decimal) = (*(*num2).Decimal)[len(*(*num2).Decimal) - cli_params["Calc"]["PREC"].(int):]
+  if uint64(len(*(*num2).Decimal)) > cli_params.Prec + 1 {
+    (*(*num2).Decimal) = (*(*num2).Decimal)[uint64(len(*(*num2).Decimal)) - cli_params.Prec:]
   }
 
 }

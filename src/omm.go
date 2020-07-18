@@ -16,27 +16,23 @@ import "oat"
 
 func defaults(cli_params *CliParams, name string) {
 
-  (*cli_params)["Calc"]["PREC"] = 15
+  (*cli_params).Prec = 15
 
   if strings.LastIndex(name, ".") == -1 {
-    (*cli_params)["Calc"]["O"] = name + ".oat"
+    (*cli_params).Output = name + ".oat"
   } else {
-    (*cli_params)["Calc"]["O"] = name[:strings.LastIndex(name, ".")] + ".oat"
+    (*cli_params).Output = name[:strings.LastIndex(name, ".")] + ".oat"
   }
 
-  (*cli_params)["Package"]["ADDON"] = "lang"
-  (*cli_params)["Files"]["NAME"] = ""
-  (*cli_params)["Files"]["DIR"] = "C:/"
+  (*cli_params).Addon = "lang"
+  (*cli_params).Name = ""
+  (*cli_params).Directory = "C:/"
 }
 
 func main() {
   args := os.Args;
 
-  var cli_params = make(CliParams)
-
-  cli_params["Calc"] = map[string]interface{}{}
-  cli_params["Package"] = map[string]interface{}{}
-  cli_params["Files"] = map[string]interface{}{}
+  var cli_params CliParams
 
   if len(args) <= 2 {
     fmt.Println("Error, no input was given")
@@ -45,8 +41,8 @@ func main() {
 
   defaults(&cli_params, args[2])
 
-  cli_params["Files"]["DIR"] = args[1]
-  cli_params["Files"]["NAME"] = args[2]
+  cli_params.Directory = args[1]
+  cli_params.Name = args[2]
 
   //set the working directory
   os.Chdir(args[1])
@@ -60,7 +56,7 @@ func main() {
       switch strings.ToUpper(v) {
 
         default:
-          cli_params["Package"]["ADDON"] = v[2:]
+          cli_params.Addon = v[2:]
       }
 
     } else if strings.HasPrefix(v, "-") {
@@ -68,25 +64,25 @@ func main() {
       switch strings.ToUpper(v[1:]) {
 
         case "C":
-          cli_params["Package"]["ADDON"] = "compile"
+          cli_params.Addon = "compile"
         case "R":
-          cli_params["Package"]["ADDON"] = "run"
+          cli_params.Addon = "run"
         case "PREC":
-          temp_prec, _ := strconv.Atoi(args[i + 1])
-          cli_params["Calc"]["PREC"] = temp_prec
+          temp_prec, _ := strconv.ParseUint(args[i + 1], 10, 64)
+          cli_params.Prec = temp_prec
           i++
           i++
         case "O":
-          cli_params["Calc"]["O"] = args[i + 1]
+          cli_params.Output = args[i + 1]
           i++
         default:
-          fmt.Println("Caution, there is no cli parameter named", v)
+          fmt.Println("Warning, there is no cli parameter named", v)
           i++
       }
     }
   }
 
-  switch strings.ToLower(cli_params["Package"]["ADDON"].(string)) {
+  switch strings.ToLower(cli_params.Addon) {
 
     case "lang":
       compiler.Run(cli_params)
@@ -95,6 +91,6 @@ func main() {
     case "run":
       oat.Run(cli_params)
     default:
-      fmt.Println("Error: cannot use omm addon", cli_params["Package"]["ADDON"].(string))
+      fmt.Println("Error: cannot use omm addon", cli_params.Addon)
   }
 }

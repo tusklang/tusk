@@ -12,18 +12,18 @@ var included = []string{} //list of the imported files from omm
 //export Run
 func Run(params CliParams) {
 
-  fileName := params["Files"]["NAME"]
+  fileName := params.Name
 
-  included = append(included, fileName.(string))
+  included = append(included, fileName)
 
-  file, e := ioutil.ReadFile(fileName.(string))
+  file, e := ioutil.ReadFile(fileName)
 
   if e != nil {
-    fmt.Println("Could not find", fileName.(string))
+    fmt.Println("Could not find", fileName)
     os.Exit(1)
   }
 
-  _, variables, ce := Compile(string(file), fileName.(string))
+  _, variables, ce := Compile(string(file), fileName)
 
   if ce != nil {
     ce.Print()

@@ -2,8 +2,6 @@ package interpreter
 
 //file that has all of the helper funcs for exponentiation
 
-import "strconv"
-
 import . "lang/types"
 
 func number__pow__integer(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) OmmType {
@@ -54,8 +52,7 @@ func ln(val OmmType, instance *Instance, stacktrace []string, line uint64, file 
 
   //convert precision to omm number
   ommNumberPrec := zero
-  tmpInt, tmpDec := BigNumConverter(strconv.Itoa((*instance).Params["Calc"]["PREC"].(int)))
-  ommNumberPrec.Integer, ommNumberPrec.Decimal = &tmpInt, &tmpDec
+  ommNumberPrec.FromGoType(float64((*instance).Params.Prec))
 
   //calculate taylor series to prec
   for i := one; isLess(i, ommNumberPrec); i = (*number__plus__number(i, two, instance, stacktrace, line, file)).(OmmNumber) {
@@ -106,9 +103,9 @@ func exp(val OmmType, instance *Instance, stacktrace []string, line uint64, file
 
   var series OmmNumber = one
 
+  //convert precision to omm number
   ommNumberPrec := zero
-  tmpInt, tmpDec := BigNumConverter(strconv.Itoa((*instance).Params["Calc"]["PREC"].(int)))
-  ommNumberPrec.Integer, ommNumberPrec.Decimal = &tmpInt, &tmpDec
+  ommNumberPrec.FromGoType(float64((*instance).Params.Prec))
 
   for i := one; isLess(i, ommNumberPrec); i = (*number__plus__number(i, one, instance, stacktrace, line, file)).(OmmNumber) {
     //calculate i!

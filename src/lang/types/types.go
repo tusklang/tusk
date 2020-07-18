@@ -2,7 +2,13 @@ package types
 
 //package to store all of the datatypes in omm
 
-type CliParams map[string]map[string]interface{}
+type CliParams struct {
+  Prec      uint64
+  Output    string
+  Addon     string
+  Name      string
+  Directory string
+}
 
 type OmmType interface {
   Format()  string

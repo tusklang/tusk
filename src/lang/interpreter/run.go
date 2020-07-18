@@ -11,7 +11,7 @@ var threads []OmmThread
 func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
 
   var dirnameOmmStr OmmString
-  dirnameOmmStr.FromGoType(cli_params["Files"]["DIR"].(string))
+  dirnameOmmStr.FromGoType(cli_params.Directory)
   var dirnameOmmType OmmType = dirnameOmmStr
 
   initfuncs()
