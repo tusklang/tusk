@@ -1,13 +1,1 @@
 var main: fn() {}
-
-var abc: proto {
-  instance var self
-
-  var init: fn(this) {
-    this::self: this
-  }
-
-  var example: fn() {
-    log self
-  }
-}

@@ -48,7 +48,6 @@
 }
 .ui.download-btn {
   background-color: #c9a308;
-  font-weight: bolder;
   font-family: 'anklada', monospace;
   color: white;
 }
@@ -68,6 +67,9 @@
 }
 #feature {
   text-align: center;
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
 }
 .feature-head {
   size: 30px;
