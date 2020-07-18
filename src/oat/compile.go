@@ -14,7 +14,6 @@ import "lang/compiler" //compiler
 func Compile(params CliParams) {
   oatHelper.InitGob()
 
-  dir := params["Files"]["DIR"]
   fileName := params["Files"]["NAME"]
 
   file, e := ioutil.ReadFile(fileName.(string))
@@ -24,7 +23,7 @@ func Compile(params CliParams) {
     os.Exit(1)
   }
 
-  actions, vars := compiler.Compile(string(file), dir.(string), fileName.(string))
+  actions, vars := compiler.Compile(string(file), fileName.(string))
 
   var vals = Oat{
     Actions: actions,

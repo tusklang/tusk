@@ -306,7 +306,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
         }
 
         if !exists { //if there is no operation for that type, panic
-          OmmPanic("Could not find " + v.Type + " operation for types " + (*firstInterpreted.Exp).Type() + " and " + (*secondInterpreted.Exp).Type(), v.Line, v.File, stacktrace)
+          OmmPanic("Could not find " + v.Type + " operator for types " + (*firstInterpreted.Exp).TypeOf() + " and " + (*secondInterpreted.Exp).TypeOf(), v.Line, v.File, stacktrace)
         }
 
         computed := operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, ins, stacktrace, v.Line, v.File)

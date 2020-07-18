@@ -1,7 +1,6 @@
 package compiler
 
 import "fmt"
-import "path"
 import "os"
 import "strconv"
 
@@ -24,12 +23,12 @@ func compilerErr(msg string, dir string, line uint64) {
 }
 
 //export Compile
-func Compile(file, dir, filename string) ([]Action, map[string][]Action) {
+func Compile(file, filename string) ([]Action, map[string][]Action) {
 
-  lex := lexer(file, dir, filename)
+  lex := lexer(file, filename)
   groups := makeGroups(lex)
   operations := makeOperations(groups)
-  actions := actionizer(operations, path.Join(dir, filename))
+  actions := actionizer(operations, filename)
 
   //a bunch of validations and initializers
   has_non_global_prototypes(actions, true)
@@ -37,7 +36,7 @@ func Compile(file, dir, filename string) ([]Action, map[string][]Action) {
   validate_types(actions)
   /////////////////////////////////////////
 
-  vars := getvars(actions, path.Join(dir, filename))
+  vars := getvars(actions, filename)
 
   //make each var have only it's name
   var varnames = make(map[string]string)

@@ -1,6 +1,5 @@
 package compiler
 
-import "path"
 import "io/ioutil"
 import "fmt"
 import "os"
@@ -13,10 +12,9 @@ var included = []string{} //list of the imported files from omm
 //export Run
 func Run(params CliParams) {
 
-  dir := params["Files"]["DIR"]
   fileName := params["Files"]["NAME"]
 
-  included = append(included, path.Join(dir.(string), fileName.(string)))
+  included = append(included, fileName.(string))
 
   file, e := ioutil.ReadFile(fileName.(string))
 
@@ -25,7 +23,7 @@ func Run(params CliParams) {
     os.Exit(1)
   }
 
-  _, variables := Compile(string(file), dir.(string), fileName.(string))
+  _, variables := Compile(string(file), fileName.(string))
 
   RunInterpreter(variables, params)
 }

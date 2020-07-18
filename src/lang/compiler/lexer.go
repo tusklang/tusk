@@ -1,6 +1,5 @@
 package compiler
 
-import "path"
 import "strings"
 import "unicode"
 import "encoding/json"
@@ -22,7 +21,7 @@ var keywords []map[string]string
 
 var _ = json.Unmarshal(keywordJSON, &keywords)
 
-func lexer(file, dirname, filename string) []Lex {
+func lexer(file, filename string) []Lex {
 
   var lex []Lex
   curExp := ""
@@ -74,7 +73,7 @@ func lexer(file, dirname, filename string) []Lex {
           Line: line,
           Type: v["type"],
           OName: v["remove"],
-          Dir: path.Join(dirname, filename),
+          Dir: filename,
         })
         goto contOuter
       }
@@ -108,7 +107,7 @@ func lexer(file, dirname, filename string) []Lex {
         Line: line,
         Type: "expression value",
         OName: value,
-        Dir: path.Join(dirname, filename),
+        Dir: filename,
       })
       goto contOuter
     } else if unicode.IsDigit(rune(strings.TrimLeft(file, " ")[i:][0])) || strings.TrimLeft(file, " ")[i:][0] == '+' || strings.TrimLeft(file, " ")[i:][0] == '-' || strings.TrimLeft(file, " ")[i:][0] == '.' {
@@ -145,7 +144,7 @@ func lexer(file, dirname, filename string) []Lex {
         Line: line,
         Type: "expression value",
         OName: num,
-        Dir: path.Join(dirname, filename),
+        Dir: filename,
       })
     } else {
 
@@ -188,7 +187,7 @@ func lexer(file, dirname, filename string) []Lex {
         Line: line,
         Type: "expression value",
         OName: variable,
-        Dir: path.Join(dirname, filename),
+        Dir: filename,
       })
     }
 
@@ -214,7 +213,7 @@ func lexer(file, dirname, filename string) []Lex {
   //detect two operators back to back (which is an error)
   for k, v := range lex {
     if v.Type == "operation" && k + 1 < len(lex) && lex[k + 1].Type == "operation" {
-      compilerErr("Cannot have two operations next to each other \nFound near this expression: " + lex[k + 1].Exp, path.Join(dirname, filename), lex[k + 1].Line)
+      compilerErr("Cannot have two operations next to each other \nFound near this expression: " + lex[k + 1].Exp, filename, lex[k + 1].Line)
     }
   }
 
