@@ -4,6 +4,7 @@ import "os"
 import "strings"
 import "fmt"
 import "strconv"
+import _ "oat"
 
 import . "lang/types"
 

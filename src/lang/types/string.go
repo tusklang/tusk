@@ -1,7 +1,7 @@
 package types
 
 type OmmString struct {
-  string *[]*OmmRune
+  String *[]*OmmRune
   Length     uint64
 }
 
@@ -15,14 +15,14 @@ func (str *OmmString) FromGoType(val string) {
     rarray = append(rarray, &r)
   }
 
-  str.string = &rarray
+  str.String = &rarray
   str.Length = uint64(len(val))
 }
 
 func (str OmmString) ToGoType() string {
   var gostr string
 
-  for _, v := range *str.string {
+  for _, v := range *str.String {
     gostr+=string((*v).ToGoType())
   }
 
@@ -34,7 +34,7 @@ func (str OmmString) Exists(idx int64) bool {
 }
 
 func (str OmmString) At(idx int64) *OmmRune {
-  return (*str.string)[idx]
+  return (*str.String)[idx]
 }
 
 func (str OmmString) Format() string {

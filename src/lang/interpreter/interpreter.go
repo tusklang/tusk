@@ -9,6 +9,7 @@ func OmmPanic(err string, line uint64, file string, stacktrace []string) {
   fmt.Println("Panic on line", line, "file", file)
   fmt.Println(err)
   fmt.Println("\nWhen the error was thrown, this was the stack:")
+  fmt.Println("  at line", line, "in file", file)
   for i := len(stacktrace) - 1; i >= 0; i-- { //print the stacktrace
     fmt.Println("  " + stacktrace[i])
   }
@@ -91,9 +92,23 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
       case "log":
         interpreted := ins.interpreter(v.ExpAct, stacktrace)
         fmt.Println((*interpreted.Exp).Format())
+
+        if expReturn {
+          return Returner{
+            Type: "expression",
+            Exp: interpreted.Exp,
+          }
+        }
       case "print":
         interpreted := ins.interpreter(v.ExpAct, stacktrace)
         fmt.Print((*interpreted.Exp).Format())
+
+        if expReturn {
+          return Returner{
+            Type: "expression",
+            Exp: interpreted.Exp,
+          }
+        }
 
       //all of the types
       case "string": fallthrough
@@ -225,20 +240,70 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
       case "<": fallthrough
       case ">=": fallthrough
       case "<=": fallthrough
-      case "~~": fallthrough
-      case "~~~": fallthrough
       case "!": fallthrough
-      case "&": fallthrough
-      case "|": fallthrough
       case "::": fallthrough
+      case "|": fallthrough
+      case "&": fallthrough
       case "=>": fallthrough //this is probably not necessary, but i just left it here
       case "<-": fallthrough
       case "<~":
 
-        firstInterpreted := ins.interpreter(v.First, stacktrace)
-        secondInterpreted := ins.interpreter(v.Second, stacktrace)
+        var firstInterpreted Returner
+        var secondInterpreted Returner
+
+        //& and | can be a bit different for bool and bool
+        if v.Type == "&" || v.Type == "|" {
+          firstInterpreted = ins.interpreter(v.First, stacktrace)
+          var computed OmmType
+
+          if (*firstInterpreted.Exp).Type() == "bool" {
+
+            var assumeVal bool
+
+            if v.Type == "&" {
+              assumeVal = !isTruthy(*firstInterpreted.Exp)
+            } else {
+              assumeVal = isTruthy(*firstInterpreted.Exp)
+            }
+
+            if assumeVal {
+              var retVal = v.Type == "|"
+              computed = OmmBool{
+                Boolean: &retVal,
+              }
+            } else {
+              secondInterpreted = ins.interpreter(v.Second, stacktrace)
+
+              if (*secondInterpreted.Exp).Type() == "bool" {
+                var gobool = isTruthy(*secondInterpreted.Exp)
+                computed = OmmBool{
+                  Boolean: &gobool,
+                }
+              } else {
+                goto and_or_skip
+              }
+
+            }
+
+            if expReturn {
+              return Returner{
+                Type: "expression",
+                Exp: &computed,
+              }
+            }
+          }
+        }
+        //////////////////////////////////////////////////
+
+        firstInterpreted = ins.interpreter(v.First, stacktrace)
+        secondInterpreted = ins.interpreter(v.Second, stacktrace)
+        and_or_skip:
 
         operationFunc, exists := operations[(*firstInterpreted.Exp).Type() + " " + v.Type + " " + (*secondInterpreted.Exp).Type()]
+
+        if !exists { //if it does not exist, also check the typeof (for protos and objects)
+          operationFunc, exists = operations[(*firstInterpreted.Exp).TypeOf() + " " + v.Type + " " + (*secondInterpreted.Exp).TypeOf()]
+        }
 
         if !exists { //if there is no operation for that type, panic
           OmmPanic("Could not find " + v.Type + " operation for types " + (*firstInterpreted.Exp).Type() + " and " + (*secondInterpreted.Exp).Type(), v.Line, v.File, stacktrace)

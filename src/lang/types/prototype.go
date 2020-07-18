@@ -28,7 +28,7 @@ func (p OmmProto) Format() string {
 }
 
 func (p OmmProto) Type() string {
-  return "prototype"
+  return "proto"
 }
 
 func (p OmmProto) TypeOf() string {
