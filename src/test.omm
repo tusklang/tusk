@@ -1,1 +1,3 @@
-var main: fn() {}
+var main: fn() {
+  
+}

@@ -14,7 +14,6 @@ type Action struct {
 
   First         []Action
   Second        []Action
-  Degree        []Action
 
   //////////////////////
 

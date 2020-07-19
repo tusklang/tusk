@@ -131,10 +131,6 @@ func changevarnames(actions []Action, newnames_ map[string]string) CompileErr {
     if e != nil {
       return e
     }
-    e = changevarnames(v.Degree, newnames)
-    if e != nil {
-      return e
-    }
 
     //also do it for the arrays and hashes
     for i := range v.Array {

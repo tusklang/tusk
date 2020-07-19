@@ -337,20 +337,10 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
       case "<-": fallthrough
       case "<~":
 
-        var degree []Action
-
-        if v.Degree != nil {
-          degree, e = actionizer([]Operation{ *v.Degree })
-          if e != nil {
-            return []Action{}, e
-          }
-        }
-
         actions = append(actions, Action{
           Type: v.Type,
           First: left,
           Second: right,
-          Degree: degree,
           File: v.File,
           Line: v.Line,
         })

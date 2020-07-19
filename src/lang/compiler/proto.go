@@ -67,10 +67,6 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) CompileErr {
     if e != nil {
       return e
     }
-    e = has_non_global_prototypes(v.Degree, false)
-    if e != nil {
-      return e
-    }
 
     //also do it for the arrays, hashes, and sub protos
     for _, i := range v.Array {

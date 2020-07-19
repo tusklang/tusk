@@ -60,10 +60,6 @@ func validate_types(actions []Action) CompileErr {
     if e != nil {
       return e
     }
-    e = validate_types(v.Degree)
-    if e != nil {
-      return e
-    }
 
     //also do it for the arrays and hashes
     for i := range v.Array {
