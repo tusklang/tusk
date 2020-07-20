@@ -1,3 +1,4 @@
 package goat
 
-//just all of the bindings of go to omm in one convenient package
+//goat is omm's ffi
+//named goat because of (go + oat = goat) (oat is what omm compiles into)

@@ -17,9 +17,9 @@ type Lex struct {
 //length of each error expression
 const EXPRESSION_LEN = 30
 
-var keywords []map[string]string
+var tokens []map[string]string
 
-var _ = json.Unmarshal(keywordJSON, &keywords)
+var _ = json.Unmarshal(tokensJSON, &tokens)
 
 func lexer(file, filename string) ([]Lex, CompileErr) {
 
@@ -62,7 +62,7 @@ func lexer(file, filename string) ([]Lex, CompileErr) {
     //while the curExp is too long, pop the front
     for ;len(curExp) > EXPRESSION_LEN; curExp = curExp[1:] {}
 
-    for _, v := range keywords {
+    for _, v := range tokens {
       if testkey(v, file, i) {
         curExp+=v["remove"] + " "
         i+=len(v["remove"]) - 1
@@ -161,7 +161,7 @@ func lexer(file, filename string) ([]Lex, CompileErr) {
           break
         }
 
-        for _, v := range keywords {
+        for _, v := range tokens {
 
           //only count operations
           if v["type"] == "operation" || v["type"] == "?operation" || v["type"] == "?open_brace" || v["type"] == "?close_brace" {
@@ -222,16 +222,16 @@ func lexer(file, filename string) ([]Lex, CompileErr) {
   return lex, nil
 }
 
-func testkey(keyword map[string]string, file string, i int) bool {
-  re, _ := regexp.Compile("^(" + keyword["pattern"] + ")")
+func testkey(token map[string]string, file string, i int) bool {
+  re, _ := regexp.Compile("^(" + token["pattern"] + ")")
   matched := re.MatchString(file[i:])
 
   if matched {
-    if keyword["name"] == "+" || keyword["name"] == "-" {
+    if token["name"] == "+" || token["name"] == "-" {
       //because + and - can also be used as signs
-      //if +/- comes after a keyword or operation, it must be a sign
+      //if +/- comes after a token or operation, it must be a sign
 
-      for _, v := range keywords {
+      for _, v := range tokens {
         re, _ := regexp.Compile("(" + v["pattern"] + ")$")
         matched := re.MatchString(file[:i])
 

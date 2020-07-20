@@ -18,8 +18,10 @@ type Action struct {
   //////////////////////
 
   //for compiling structures
+
   Static          map[string][]Action
   Instance        map[string][]Action
+
   //////////////////////////
 
   //stuff to panic errors and give stack

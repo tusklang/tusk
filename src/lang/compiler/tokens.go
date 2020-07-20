@@ -1,7 +1,7 @@
 package compiler
 
 //list of keywords in json
-var keywordJSON =
+var tokensJSON =
 []byte(
 `
 [

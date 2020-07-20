@@ -6,14 +6,14 @@ import "oat/helper"
 import . "lang/types"
 
 //export CompileFile
-func CompileFile(filename string) (Oat, CompileErr) {
+func CompileFile(filename string) (Oat, compiler.CompileErr) {
   f, _ := ioutil.ReadFile(filename)
   actions, vars, e := compiler.Compile(string(f), "goat compile")
   return Oat{ actions, vars }, e
 }
 
 //export CompileString
-func CompileString(script string) (Oat, CompileErr) {
+func CompileString(script string) (Oat, compiler.CompileErr) {
   actions, vars, e := compiler.Compile(script, "goat compile")
   return Oat{ actions, vars }, e
 }

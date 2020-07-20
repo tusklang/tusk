@@ -8,16 +8,16 @@ func cast(val OmmType, nType string, stacktrace []string, line uint64, file stri
     return &val
   }
 
-  switch val.Type() + "->" + nType {
+  switch nType + "->" + val.Type() {
 
-    case "number->string":
+  case "string->number":
       str := NumNormalize(val.(OmmNumber)) //convert to string
       var ommstr OmmString //create an ommstring
       ommstr.FromGoType(str)
       var ommtype OmmType = ommstr //create an ommtype interface
       return &ommtype
 
-    case "string->number":
+    case "number->string":
       integer, decimal := BigNumConverter(val.(OmmString).ToGoType())
       var newNum OmmType = OmmNumber{
         Integer: &integer,

@@ -1,2 +1,4 @@
 src/omm
 src/omm.exe
+# *.dll
+# *.so
