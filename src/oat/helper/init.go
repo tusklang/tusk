@@ -10,7 +10,6 @@ func InitGob() {
   gob.Register(OmmArray{})
   gob.Register(OmmBool{})
   gob.Register(OmmFunc{})
-  gob.Register(OmmGoFunc{})
   gob.Register(OmmHash{})
   gob.Register(OmmNumber{})
   gob.Register(OmmObject{})

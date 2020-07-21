@@ -262,10 +262,6 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
         }
       case ":":
 
-        if len(left) == 0 || (left[0].Type != "variable" && left[0].Type != "::")  {
-          return []Action{}, makeCompilerErr("Must have a variable before an assigner operator", v.File, v.Line)
-        }
-
         actions = append(actions, Action{
           Type: "let",
           First: left,

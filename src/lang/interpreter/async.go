@@ -7,7 +7,7 @@ func callAsync(actions []Action, instance *Instance, stacktrace []string, ret ch
   ret <- instance.interpreter(actions, stacktrace)
 }
 
-func initfuncs() {
+func init() { //initialize the operations that require the use of the interpreter
   var function__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
     var fn = val1.(OmmFunc)
     var arr = val2.(OmmArray)
@@ -58,7 +58,7 @@ func initfuncs() {
     gfn := val1.(OmmGoFunc)
     arr := val2.(OmmArray)
 
-    return gfn.Function(arr.Array, stacktrace, line, file)
+    return gfn.Function(arr.Array, stacktrace, line, file, instance)
   }
 
   operations["function <- array"] = function__sync__array

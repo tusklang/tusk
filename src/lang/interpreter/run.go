@@ -14,8 +14,6 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
   dirnameOmmStr.FromGoType(cli_params.Directory)
   var dirnameOmmType OmmType = dirnameOmmStr
 
-  initfuncs()
-
   var instance Instance
 
   instance.Params = cli_params

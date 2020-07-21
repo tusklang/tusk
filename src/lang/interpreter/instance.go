@@ -2,6 +2,8 @@ package interpreter
 
 import "strconv"
 import "oat/helper"
+import "path/filepath"
+import "os"
 import . "lang/types"
 
 //this file is for goat (go to omm/oat binding)
@@ -72,6 +74,27 @@ func (ins *Instance) FromOat(filename string) {
 
   ins.globals = interpreted
   ins.vars = interpreted
+
+  var dirnameOmmStr OmmString
+  __d, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+  dirnameOmmStr.FromGoType(__d)
+  var dirnameOmmType OmmType = dirnameOmmStr
+
+  ins.vars["$__dirname"] = &OmmVar{ //put the dirname
+    Name: "$__dirname",
+    Value: &dirnameOmmType,
+  }
+
+  //also account for the GoFuncs
+  for k, v := range GoFuncs {
+    var gofunc OmmType = OmmGoFunc{
+      Function: v,
+    }
+    ins.vars["$" + k] = &OmmVar{
+      Name: "$" + k,
+      Value: &gofunc,
+    }
+  }
 }
 
 func (ins *Instance) FromOatStruct(oat Oat) {
@@ -86,4 +109,25 @@ func (ins *Instance) FromOatStruct(oat Oat) {
 
   ins.globals = interpreted
   ins.vars = interpreted
+
+  var dirnameOmmStr OmmString
+  __d, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+  dirnameOmmStr.FromGoType(__d)
+  var dirnameOmmType OmmType = dirnameOmmStr
+
+  ins.vars["$__dirname"] = &OmmVar{ //put the dirname
+    Name: "$__dirname",
+    Value: &dirnameOmmType,
+  }
+
+  //also account for the GoFuncs
+  for k, v := range GoFuncs {
+    var gofunc OmmType = OmmGoFunc{
+      Function: v,
+    }
+    ins.vars["$" + k] = &OmmVar{
+      Name: "$" + k,
+      Value: &gofunc,
+    }
+  }
 }

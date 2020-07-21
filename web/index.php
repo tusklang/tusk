@@ -24,7 +24,7 @@
     <link rel='stylesheet' href='styles.css'>
   </head>
 
-  <div id='navbar' class='ui inverted labeled icon large nine item menu'>
+  <div id='navbar' class='ui inverted labeled icon nine item menu'>
 
     <a class='item menu-item' href='/index.php'>
       <i class='fas fa-home fa-2x'></i>
@@ -83,44 +83,49 @@
     </div>
   </div>
 
-  <div id='feature' class='ui segment inverted'>
+  <div id='features'>
 
-    <h1 class='feature-head'>Object Oriented</h1>
-    <div class='ui horizontal divider'>
-      <i class='fas fa-copy fa-2x feature-ico'></i>
+    <div class='ui segment inverted feature'>
+
+      <h1 class='feature-head'>Object Oriented</h1>
+      <div class='ui horizontal divider'>
+        <i class='fas fa-copy fa-2x feature-ico'></i>
+      </div>
+
+      <p class='description'>
+        Omm is an object oriented language, and can create a more scalable and re-usable infrastructure.
+      </p>
+
     </div>
 
-    <p class='description'>
-      Omm is an object oriented language, and can create a more scalable and re-usable infrastructure.
-    </p>
+    <div class='ui segment inverted feature'>
+
+      <h1 class='feature-head'>Precision</h1>
+      <div class='ui horizontal divider'>
+        <i class='fas fa-calculator fa-2x feature-ico'></i>
+      </div>
+
+      <p class='description'>
+        Omm has arbitrary integer and decimal precision. This means that Omm is not capped by the 64 bit limit, but rather the system's memory.
+      </p>
+
+    </div>
+
+    <div class='ui segment inverted feature'>
+
+      <h1 class='feature-head'>Learning</h1>
+      <div class='ui horizontal divider'>
+        <i class='fas fa-brain fa-2x feature-ico'></i>
+      </div>
+
+      <p class='description'>
+        Omm has easy and intuitive syntax which makes it easy to learn.
+      </p>
+
+    </div>
 
   </div>
 
-  <div id='feature' class='ui segment inverted'>
-
-    <h1 class='feature-head'>Precision</h1>
-    <div class='ui horizontal divider'>
-      <i class='fas fa-calculator fa-2x feature-ico'></i>
-    </div>
-
-    <p class='description'>
-      Omm has arbitrary integer and decimal precision. This means that Omm is not capped by the 64 bit limit, but rather the system's memory.
-    </p>
-
-  </div>
-
-  <div id='feature' class='ui segment inverted'>
-
-    <h1 class='feature-head'>Learning</h1>
-    <div class='ui horizontal divider'>
-      <i class='fas fa-brain fa-2x feature-ico'></i>
-    </div>
-
-    <p class='description'>
-      Omm has easy and intuitive syntax which makes it easy to learn.
-    </p>
-
-  </div>
 </body>
 
 </html>

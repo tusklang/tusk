@@ -13,9 +13,26 @@ import "os/exec"
 
 import . "lang/types"
 
+type OmmGoFunc struct {
+  Function func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType
+}
+
+func (ogf OmmGoFunc) Format() string {
+  return "{native gofunc}"
+}
+
+func (ogf OmmGoFunc) Type() string {
+  return "gofunc"
+}
+
+func (ogf OmmGoFunc) TypeOf() string {
+  return ogf.Type()
+}
+
+
 //export GoFuncs
-var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
-  "input": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+  "input": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     scanner := bufio.NewScanner(os.Stdin)
 
@@ -44,7 +61,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 
     return &inputType
   },
-  "typeof": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+  "typeof": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     if len(args) != 1 {
       OmmPanic("Function typeof requires a parameter count of 1", line, file, stacktrace)
@@ -60,7 +77,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 
     return &ommtype
   },
-  "defop": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+  "defop": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     if len(args) != 4 {
       OmmPanic("Function defop requires a parameter count of 4", line, file, stacktrace)
@@ -95,7 +112,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     var tmpundef OmmType = undef
     return &tmpundef //return undefined
   },
-  "append": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+  "append": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     if len(args) != 2 {
       OmmPanic("Function append requires a parameter count of 2", line, file, stacktrace)
@@ -113,7 +130,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 
     return &arr
   },
-  "exit": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+  "exit": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     if len(args) == 1 {
 
@@ -144,7 +161,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     var tmpundef OmmType = undef
     return &tmpundef
   },
-  "wait": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+  "wait": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     if len(args) == 1 {
 
@@ -181,7 +198,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     var tmpundef OmmType = undef
     return &tmpundef
   },
-  "thread.wasjoined": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+  "thread.wasjoined": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     if len(args) == 1 {
 
@@ -205,7 +222,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     var tmpfalse OmmType = falsev
     return &tmpfalse
   },
-  "make": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+  "make": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     if len(args) == 1 {
 
@@ -224,7 +241,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     var tmpundef OmmType = undef
     return &tmpundef
   },
-  "len": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+  "len": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     if len(args) != 1 {
       OmmPanic("Function len requires a parameter count of 1", line, file, stacktrace)
@@ -260,7 +277,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     var tmpzero OmmType = zero
     return &tmpzero
   },
-  "clone": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+  "clone": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     if len(args) != 1 {
       OmmPanic("Function len requires a parameter count of 1", line, file, stacktrace)
@@ -295,7 +312,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     var tmpundef OmmType = undef
     return &tmpundef
   },
-  "panic": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+  "panic": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     if len(args) != 1 {
       OmmPanic("Function panic requires a parameter count of 1", line, file, stacktrace)
@@ -311,7 +328,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     var tmpundef OmmType = undef
     return &tmpundef
   },
-  "exec": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+  "exec": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     if len(args) == 1 {
       if (*args[0]).Type() != "string" {
@@ -350,7 +367,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     var tmpundef OmmType = undef
     return &tmpundef
   },
-  "chdir": func(args []*OmmType, stacktrace []string, line uint64, file string) *OmmType {
+  "chdir": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     if len(args) != 1 {
       OmmPanic("Function chdir requires a parameter count of 1", line, file, stacktrace)
@@ -363,7 +380,16 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 
     os.Chdir(dir)
 
+    instance.vars["$__dirname"] = &OmmVar{ //change the __dirname variable too
+      Name: "$__dirname",
+      Value: args[0],
+    }
+
     var tmpundef OmmType = undef
     return &tmpundef
   },
+  //osm functions
+  "osm.start": OSM_start,
+  "osm.handle": OSM_handle,
+  ///////////////
 }

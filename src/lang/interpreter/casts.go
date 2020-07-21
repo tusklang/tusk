@@ -8,7 +8,7 @@ func cast(val OmmType, nType string, stacktrace []string, line uint64, file stri
     return &val
   }
 
-  switch nType + "->" + val.Type() {
+  switch nType + "->" + val.TypeOf() {
 
   case "string->number":
       str := NumNormalize(val.(OmmNumber)) //convert to string

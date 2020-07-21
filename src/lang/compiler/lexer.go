@@ -232,11 +232,13 @@ func testkey(token map[string]string, file string, i int) bool {
       //if +/- comes after a token or operation, it must be a sign
 
       for _, v := range tokens {
-        re, _ := regexp.Compile("(" + v["pattern"] + ")$")
-        matched := re.MatchString(file[:i])
+        if v["type"] == "operation" || v["type"] == "?operation" || v["type"] == "?open_brace" {
+          re, _ := regexp.Compile("(" + v["pattern"] + ")$")
+          matched := re.MatchString(strings.TrimRight(file[:i], " "))
 
-        if matched {
-          return false
+          if matched {
+            return false
+          }
         }
       }
 

@@ -1,4 +1,6 @@
 src/omm
-src/omm.exe
-# *.dll
-# *.so
+*.exe
+*.dll
+*.so
+*.a
+*.lib
