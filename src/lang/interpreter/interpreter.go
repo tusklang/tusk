@@ -299,10 +299,10 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
         secondInterpreted = ins.interpreter(v.Second, stacktrace)
         and_or_skip:
 
-        operationFunc, exists := operations[(*firstInterpreted.Exp).Type() + " " + v.Type + " " + (*secondInterpreted.Exp).Type()]
+        operationFunc, exists := Operations[(*firstInterpreted.Exp).Type() + " " + v.Type + " " + (*secondInterpreted.Exp).Type()]
 
         if !exists { //if it does not exist, also check the typeof (for protos and objects)
-          operationFunc, exists = operations[(*firstInterpreted.Exp).TypeOf() + " " + v.Type + " " + (*secondInterpreted.Exp).TypeOf()]
+          operationFunc, exists = Operations[(*firstInterpreted.Exp).TypeOf() + " " + v.Type + " " + (*secondInterpreted.Exp).TypeOf()]
         }
 
         if !exists { //if there is no operation for that type, panic
@@ -518,7 +518,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
         variable := ins.interpreter(v.First, stacktrace)
 
-        operationFunc, exists := operations[(*variable.Exp).Type() + " + number"]
+        operationFunc, exists := Operations[(*variable.Exp).Type() + " + number"]
 
         if !exists { //if there is no operation for that type, panic
           OmmPanic("Could not find + operation for types " + (*variable.Exp).Type() + " and number", v.Line, v.File, stacktrace)
@@ -538,7 +538,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
         variable := ins.interpreter(v.First, stacktrace)
 
-        operationFunc, exists := operations[(*variable.Exp).Type() + " - number"]
+        operationFunc, exists := Operations[(*variable.Exp).Type() + " - number"]
 
         if !exists { //if there is no operation for that type, panic
           OmmPanic("Could not find - operation for types " + (*variable.Exp).Type() + " and number", v.Line, v.File, stacktrace)
@@ -564,7 +564,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
         variable := ins.interpreter(v.First, stacktrace)
         interpreted := *ins.interpreter(v.Second, stacktrace).Exp
 
-        operationFunc, exists := operations[(*variable.Exp).Type() + " " + string(v.Type[0]) + " " + interpreted.Type()]
+        operationFunc, exists := Operations[(*variable.Exp).Type() + " " + string(v.Type[0]) + " " + interpreted.Type()]
 
         if !exists { //if there is no operation for that type, panic
           OmmPanic("Could not find " + string(v.Type[0]) + " operation for types " + (*variable.Exp).Type() + " and " + interpreted.Type(), v.Line, v.File, stacktrace)

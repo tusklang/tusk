@@ -4,7 +4,8 @@ import "strconv"
 import . "lang/types"
 
 //list of operations
-var operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+//export Operations
+var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
 	"number + number": number__plus__number,
 	"number - number": number__minus__number,
 	"number * number": number__times__number,

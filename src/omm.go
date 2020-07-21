@@ -1,4 +1,4 @@
-tpackage main
+package main
 
 import "os"
 import "strings"

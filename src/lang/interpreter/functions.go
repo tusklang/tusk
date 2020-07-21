@@ -61,7 +61,7 @@ func init() { //initialize the operations that require the use of the interprete
     return gfn.Function(arr.Array, stacktrace, line, file, instance)
   }
 
-  operations["function <- array"] = function__sync__array
-  operations["function <~ array"] = function__async__array
-  operations["gofunc <- array"] = gofunc__sync__array
+  Operations["function <- array"] = function__sync__array
+  Operations["function <~ array"] = function__async__array
+  Operations["gofunc <- array"] = gofunc__sync__array
 }

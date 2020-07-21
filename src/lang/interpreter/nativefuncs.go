@@ -96,7 +96,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
       OmmPanic("Expected a parameter count of 2 for the fourth argument of defop", line, file, stacktrace)
     }
 
-    operations[operand1 + " " + operation + " " + operand2] = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+    Operations[operand1 + " " + operation + " " + operand2] = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
       *instance.vars[function.Params[0]] = OmmVar{
         Name: function.Params[0],
         Value: &val1,
