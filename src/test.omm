@@ -1,17 +1,6 @@
 var main: fn() {
-  var test: make[a]
-  test::init[test]
-  test::test[]
-}
-
-var a: proto {
-  instance var self
-
-  var init: fn(self) {
-    self::self: self
-  }
-
-  var test: fn() {
-    log self
-  }
+  var a: 3
+  var b: clone[a]
+  b: 4
+  log a
 }

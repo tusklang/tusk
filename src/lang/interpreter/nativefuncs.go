@@ -286,6 +286,46 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     val := *args[0]
 
     switch val.(type) {
+
+      case OmmArray:
+
+        var arr = val.(OmmArray).Array
+        var cloned = append([]*OmmType{}, arr...) //append it to nothing (to clone it)
+        var ommtype OmmType = OmmArray{
+          Array: cloned,
+          Length: val.(OmmArray).Length,
+        }
+
+        return &ommtype
+
+      case OmmBool:
+
+        //take inderect of the bool, and place it in a temporary variable
+        var tmp = *val.(OmmBool).Boolean
+
+        var returner OmmType = OmmBool{
+          Boolean: &tmp, //take address of tmp and place it into `Boolean` field of returner
+        }
+
+        return &returner
+
+      case OmmHash:
+        var hash = val.(OmmHash).Hash
+
+        //clone it into `cloned`
+        var cloned = make(map[string]*OmmType)
+        for k, v := range hash {
+          cloned[k] = v
+        }
+        ////////////////////////
+
+        var ommtype OmmType = OmmHash{
+          Hash: cloned,
+          Length: val.(OmmHash).Length,
+        }
+
+        return &ommtype
+
       case OmmNumber:
         var number = val.(OmmNumber)
 
@@ -304,6 +344,47 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
           Decimal: &decimal,
         }
         return &newnum
+
+      case OmmObject:
+
+        //almost the same as hash (just clone the instance)
+        var instance = val.(OmmObject).Instance
+
+        //clone it into `cloned`
+        var cloned = make(map[string]*OmmType)
+        for k, v := range instance {
+          cloned[k] = v
+        }
+        ////////////////////////
+
+        var ommtype OmmType = OmmObject{
+          Name: val.(OmmObject).Name,
+          Instance: cloned,
+        }
+
+        return &ommtype
+
+      case OmmRune:
+
+        //take inderect of the rune, and place it in a temporary variable
+        var tmp = *val.(OmmRune).Rune
+
+        var returner OmmType = OmmRune{
+          Rune: &tmp, //take address of tmp and place it into `Rune` field of returner
+        }
+
+        return &returner
+
+      case OmmString:
+
+        var tmp = val.(OmmString).ToGoType() //convert it to a go type
+
+        var returner OmmType = OmmString{
+          String: &tmp,
+          Length: val.(OmmString).Length,
+        }
+
+        return &returner
 
       default:
         OmmPanic("Cannot clone type \"" + val.Type() + "\"", line, file, stacktrace)

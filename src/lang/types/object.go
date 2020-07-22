@@ -1,17 +1,17 @@
 package types
 
 type OmmObject struct {
-  prototype  OmmProto
-  instance   map[string]*OmmType
+  Name       string
+  Instance   map[string]*OmmType
 }
 
 func (o OmmObject) New(proto OmmProto) OmmObject { //factory to create a new object
-  o.prototype = proto
-  o.instance = make(map[string]*OmmType)
+  o.Name = proto.ProtoName
+  o.Instance = make(map[string]*OmmType)
 
   //copy the default instance to the object
   for k, v := range proto.Instance {
-    o.instance[k] = v
+    o.Instance[k] = v
   }
   /////////////////////////////////////////
 
@@ -20,7 +20,7 @@ func (o OmmObject) New(proto OmmProto) OmmObject { //factory to create a new obj
 
 func (o OmmObject) GetInstance(name string) *OmmType {
 
-  v, exists := o.instance["$" + name]
+  v, exists := o.Instance["$" + name]
 
   if !exists {
     return nil
@@ -30,7 +30,7 @@ func (o OmmObject) GetInstance(name string) *OmmType {
 }
 
 func (o OmmObject) Format() string {
-  return "{" + o.prototype.ProtoName[1:] + "}"
+  return "{" + o.Name[1:] + "}"
 }
 
 func (o OmmObject) Type() string {
@@ -38,5 +38,5 @@ func (o OmmObject) Type() string {
 }
 
 func (o OmmObject) TypeOf() string {
-  return o.prototype.ProtoName[1:]
+  return o.Name[1:]
 }
