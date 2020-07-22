@@ -1,6 +1,17 @@
 var main: fn() {
-  osm.handle["/s", fn(req, res) {
-    res::send["test2"]
-  }]
-  osm.start[80]
+  var test: make[a]
+  test::init[test]
+  test::test[]
+}
+
+var a: proto {
+  instance var self
+
+  var init: fn(self) {
+    self::self: self
+  }
+
+  var test: fn() {
+    log self
+  }
 }

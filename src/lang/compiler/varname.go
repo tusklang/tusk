@@ -47,7 +47,7 @@ Explanation of why this exists:
 
 var curvar uint64 = 0
 
-func changevarnames(actions []Action, newnames_ map[string]string) CompileErr {
+func changevarnames(actions []Action, newnames_ map[string]string) (map[string]string, CompileErr) {
 
   var e CompileErr
 
@@ -74,9 +74,9 @@ func changevarnames(actions []Action, newnames_ map[string]string) CompileErr {
         curvar++
       }
       v.Value = fn
-      e = changevarnames(v.Value.(OmmFunc).Body, params)
+      _, e = changevarnames(v.Value.(OmmFunc).Body, params)
       if e != nil {
-        return e
+        return nil, e
       }
       continue
     }
@@ -90,59 +90,80 @@ func changevarnames(actions []Action, newnames_ map[string]string) CompileErr {
       keyandvalvars[val] = "v" + strconv.FormatUint(curvar, 10)
       curvar++
 
-      e = changevarnames(v.First, keyandvalvars)
+      _, e = changevarnames(v.First, keyandvalvars)
       if e != nil {
-        return e
+        return nil, e
       }
-      e = changevarnames(v.ExpAct, keyandvalvars)
+      _, e = changevarnames(v.ExpAct, keyandvalvars)
       if e != nil {
-        return e
+        return nil, e
       }
       continue
     }
     if v.Type == "proto" {
 
       for i := range v.Static {
-        e = changevarnames(v.Static[i], newnames)
+        _, e = changevarnames(v.Static[i], newnames)
         if e != nil {
-          return e
+          return nil, e
         }
       }
+
+      var instanceproto map[string]string
       for i := range v.Instance {
-        e = changevarnames(v.Instance[i], newnames)
+        protonames, e := changevarnames(v.Instance[i], newnames)
+
+        /* Image we have this proto
+
+            proto {
+              instance var self
+              var init: fn(self) {
+                self::self: self
+              }
+              var testf: fn() {
+                log self ; without the following, this would cause an error
+              }
+            }
+        */
+        newnames = protonames
+        instanceproto = protonames
         if e != nil {
-          return e
+          return nil, e
         }
+      }
+
+      for k := range instanceproto {
+        delete(newnames, k) //prevent outside of the proto from using proto variables
       }
 
       continue
     }
 
     //perform checkvars on all of the sub actions
-    e = changevarnames(v.ExpAct, newnames)
+    _, e = changevarnames(v.ExpAct, newnames)
     if e != nil {
-      return e
+      return nil, e
     }
-    e = changevarnames(v.First, newnames)
+    _, e = changevarnames(v.First, newnames)
     if e != nil {
-      return e
+      return nil, e
     }
-    e = changevarnames(v.Second, newnames)
+    _, e = changevarnames(v.Second, newnames)
     if e != nil {
-      return e
+      return nil, e
     }
 
     //also do it for the arrays and hashes
     for i := range v.Array {
-      e = changevarnames(v.Array[i], newnames)
+      _, e = changevarnames(v.Array[i], newnames)
       if e != nil {
-        return e
+        return nil, e
       }
     }
     for i := range v.Hash {
-      e = changevarnames(v.Hash[i], newnames)
+      _, e = changevarnames(v.Hash[i], newnames)
       if e != nil {
-        return e
+        return nil, e
       }
     }
     //////////////////////////////////////
@@ -157,12 +178,12 @@ func changevarnames(actions []Action, newnames_ map[string]string) CompileErr {
 
     if v.Type == "variable" {
       if _, exists := newnames[v.Name]; !exists {
-        return makeCompilerErr("Variable " + v.Name[1:] + " was not declared", v.File, v.Line)
+        return nil, makeCompilerErr("Variable " + v.Name[1:] + " was not declared", v.File, v.Line)
       }
       actions[k].Name = newnames[v.Name]
     }
 
   }
 
-  return nil
+  return newnames, e
 }
