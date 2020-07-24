@@ -7,22 +7,12 @@ type Action struct {
   Value           OmmType
   ExpAct        []Action
 
-  Array       [][]Action
-  Hash            map[string][]Action
-
   //stuff for operations
 
   First         []Action
   Second        []Action
 
   //////////////////////
-
-  //for compiling structures
-
-  Static          map[string][]Action
-  Instance        map[string][]Action
-
-  //////////////////////////
 
   //stuff to panic errors and give stack
 

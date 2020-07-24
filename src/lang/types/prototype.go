@@ -3,18 +3,18 @@ package types
 type OmmProto struct {
 
   ProtoName        string
-  static           map[string]*OmmType
+  Static           map[string]*OmmType
   Instance         map[string]*OmmType
 
 }
 
 func (p *OmmProto) Set(static, instance map[string]*OmmType) {
-  p.static, p.Instance = static, instance
+  p.Static, p.Instance = static, instance
 }
 
 func (p OmmProto) GetStatic(name string) *OmmType {
 
-  v, exists := p.static["$" + name]
+  v, exists := p.Static["$" + name]
 
   if !exists {
     return nil

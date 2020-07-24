@@ -31,16 +31,24 @@ func validate_types(actions []Action) CompileErr {
     }
     if v.Type == "proto" {
 
-      for i := range v.Static {
-        e = validate_types(v.Static[i])
-        if e != nil {
-          return e
+      for i := range v.Value.(OmmProto).Static {
+        var val = *v.Value.(OmmProto).Static[i]
+
+        if val.Type() == "function" {
+          e = validate_types(val.(OmmFunc).Body)
+          if e != nil {
+            return e
+          }
         }
       }
-      for i := range v.Instance {
-        e = validate_types(v.Instance[i])
-        if e != nil {
-          return e
+      for i := range v.Value.(OmmProto).Instance {
+        var val = *v.Value.(OmmProto).Instance[i]
+
+        if val.Type() == "function" {
+          e = validate_types(val.(OmmFunc).Body,)
+          if e != nil {
+            return e
+          }
         }
       }
 
@@ -60,22 +68,6 @@ func validate_types(actions []Action) CompileErr {
     if e != nil {
       return e
     }
-
-    //also do it for the arrays and hashes
-    for i := range v.Array {
-      e = validate_types(v.Array[i])
-      if e != nil {
-        return e
-      }
-    }
-    for i := range v.Hash {
-      e = validate_types(v.Hash[i])
-      if e != nil {
-        return e
-      }
-    }
-    //////////////////////////////////////
-
     /////////////////////////////////////////////
 
   }

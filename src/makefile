@@ -1,2 +1,2 @@
 build:
-	go build -a omm.go
+	go build omm.go

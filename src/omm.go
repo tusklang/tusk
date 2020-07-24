@@ -16,7 +16,7 @@ import "oat"
 
 func defaults(cli_params *CliParams, name string) {
 
-  (*cli_params).Prec = 15
+  (*cli_params).Prec = 30
 
   if strings.LastIndex(name, ".") == -1 {
     (*cli_params).Output = name + ".oat"

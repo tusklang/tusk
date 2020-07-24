@@ -61,18 +61,8 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
           }
         }
 
-      case "del":
-
-        var val = ins.interpreter(v.ExpAct, stacktrace).Exp
-        *val = undef //setting to undef makes it nil
-
-        if expReturn {
-          var tmpundef OmmType = undef
-          return Returner{
-            Type: "expression",
-            Exp: &tmpundef,
-          }
-        }
+      case "delete": //the `delete` statement is inserted at compile-time by the garbage collector
+        defer delete(ins.vars, v.Name)
 
       case "let":
 
@@ -111,12 +101,15 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
         }
 
       //all of the types
-      case "string": fallthrough
-      case "rune": fallthrough
-      case "number": fallthrough
-      case "bool": fallthrough
+      case "string":   fallthrough
+      case "rune":     fallthrough
+      case "number":   fallthrough
+      case "bool":     fallthrough
       case "function": fallthrough
-      case "undef": fallthrough
+      case "undef":    fallthrough
+      case "array":    fallthrough
+      case "hash":     fallthrough
+      case "proto":    fallthrough
       case "thread":
 
         if expReturn {
@@ -125,75 +118,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
             Exp: &v.Value,
           }
         }
-
-      //arrays, hashes, and structures are a bit different
-      case "array":
-
-        var nArr = make([]*OmmType, len(v.Array))
-
-        for k, i := range v.Array {
-          nArr[k] = ins.interpreter(i, stacktrace).Exp
-        }
-
-        var ommType OmmType = OmmArray{
-          Array: nArr,
-          Length: uint64(len(v.Array)),
-        }
-
-        if expReturn {
-          return Returner{
-            Type: "expression",
-            Exp: &ommType,
-          }
-        }
-
-      case "hash":
-
-        var nHash = make(map[string]*OmmType)
-
-        for k, i := range v.Hash {
-          nHash[k] = ins.interpreter(i, stacktrace).Exp
-        }
-
-        var ommType OmmType = OmmHash{
-          Hash: nHash,
-          Length: uint64(len(v.Hash)),
-        }
-
-        if expReturn {
-          return Returner{
-            Type: "expression",
-            Exp: &ommType,
-          }
-        }
-
-      case "proto":
-
-        var static = make(map[string]*OmmType)
-        var instance = make(map[string]*OmmType)
-
-        for k, i := range v.Static {
-          static[k] = ins.interpreter(i, stacktrace).Exp
-        }
-        for k, i := range v.Instance {
-          instance[k] = ins.interpreter(i, stacktrace).Exp
-        }
-
-        var proto = OmmProto{
-          ProtoName: v.Name,
-        }
-        proto.Set(static, instance)
-
-        if expReturn {
-          var ommtype OmmType = proto
-          return Returner{
-            Type: "expression",
-            Exp: &ommtype,
-          }
-        }
-
       //////////////////
-
 
       case "variable":
 
@@ -424,11 +349,11 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
               var ommtypeKey OmmType = ommtypeKeyn
 
-              *ins.vars[keyName] = OmmVar{
+              ins.vars[keyName] = &OmmVar{
                 Name: keyName,
                 Value: &ommtypeKey,
               }
-              *ins.vars[valName] = OmmVar{
+              ins.vars[valName] = &OmmVar{
                 Name: valName,
                 Value: val,
               }
@@ -460,11 +385,11 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
               var ommtypeKey OmmType = ommtypeKeyn
 
-              *ins.vars[keyName] = OmmVar{
+              ins.vars[keyName] = &OmmVar{
                 Name: keyName,
                 Value: &ommtypeKey,
               }
-              *ins.vars[valName] = OmmVar{
+              ins.vars[valName] = &OmmVar{
                 Name: valName,
                 Value: val,
               }
@@ -492,11 +417,11 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
               var ommtypeKey OmmType = ommtypeKeyn
               var ommtypeVal OmmType = ommtypeValr
 
-              *ins.vars[keyName] = OmmVar{
+              ins.vars[keyName] = &OmmVar{
                 Name: keyName,
                 Value: &ommtypeKey,
               }
-              *ins.vars[valName] = OmmVar{
+              ins.vars[valName] = &OmmVar{
                 Name: valName,
                 Value: &ommtypeVal,
               }

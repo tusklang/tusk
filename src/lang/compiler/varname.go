@@ -65,7 +65,13 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
     if v.Type == "function" {
 
       var fn = v.Value.(OmmFunc)
-      var params = newnames
+
+      var params = make(map[string]string)
+
+      //clone `newnames` into `params` which is a list of variables that are passed into the function
+      for k, v := range newnames {
+        params[k] = v
+      }
 
       for i, p := range v.Value.(OmmFunc).Params { //add the params to the current variables
         pname := "v" + strconv.FormatUint(curvar, 10)
@@ -84,13 +90,22 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
       key := v.First[1].Name
       val := v.First[2].Name
 
-      var keyandvalvars = newnames
+      var keyandvalvars = make(map[string]string)
+
+      //clone newnames into keyandvalvars
+      for key, val := range newnames {
+        keyandvalvars[key] = val
+      }
+      ///////////////////////////////////
+
       keyandvalvars[key] = "v" + strconv.FormatUint(curvar, 10)
+      v.First[1].Name = "v" + strconv.FormatUint(curvar, 10)
       curvar++
       keyandvalvars[val] = "v" + strconv.FormatUint(curvar, 10)
+      v.First[2].Name = "v" + strconv.FormatUint(curvar, 10)
       curvar++
 
-      _, e = changevarnames(v.First, keyandvalvars)
+      _, e = changevarnames([]Action{ v.First[0] }, keyandvalvars)
       if e != nil {
         return nil, e
       }
@@ -102,34 +117,80 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
     }
     if v.Type == "proto" {
 
-      for i := range v.Static {
-        _, e = changevarnames(v.Static[i], newnames)
-        if e != nil {
-          return nil, e
+      for i := range v.Value.(OmmProto).Static {
+
+        var val = *v.Value.(OmmProto).Static[i]
+
+        if val.Type() == "function" {
+
+          var fn = val.(OmmFunc)
+
+          var params = make(map[string]string)
+
+          //clone `newnames` into `params` which is a list of variables that are passed into the function
+          for k, v := range newnames {
+            params[k] = v
+          }
+
+          for i, p := range v.Value.(OmmFunc).Params { //add the params to the current variables
+            pname := "v" + strconv.FormatUint(curvar, 10)
+            fn.Params[i] = pname //also modify the parameters in the actual function
+            params[p] = pname
+            curvar++
+          }
+
+          _, e = changevarnames(fn.Body, params)
+          if e != nil {
+            return nil, e
+          }
         }
+
       }
 
       var instanceproto map[string]string
-      for i := range v.Instance {
-        protonames, e := changevarnames(v.Instance[i], newnames)
+      for i := range v.Value.(OmmProto).Instance {
 
-        /* Image we have this proto
+        var val = *v.Value.(OmmProto).Static[i]
 
-            proto {
-              instance var self
-              var init: fn(self) {
-                self::self: self
+        if val.Type() == "function" {
+
+          var fn = val.(OmmFunc)
+
+          var params = make(map[string]string)
+
+          //clone `newnames` into `params` which is a list of variables that are passed into the function
+          for k, v := range newnames {
+            params[k] = v
+          }
+
+          for i, p := range v.Value.(OmmFunc).Params { //add the params to the current variables
+            pname := "v" + strconv.FormatUint(curvar, 10)
+            fn.Params[i] = pname //also modify the parameters in the actual function
+            params[p] = pname
+            curvar++
+          }
+
+          protonames, e := changevarnames(fn.Body, newnames)
+
+          /* Image we have this proto
+
+              proto {
+                instance var self
+                var init: fn(self) {
+                  self::self: self
+                }
+                var testf: fn() {
+                  log self ; without the following, this would cause an error
+                }
               }
-              var testf: fn() {
-                log self ; without the following, this would cause an error
-              }
-            }
-        */
-        newnames = protonames
-        instanceproto = protonames
-        if e != nil {
-          return nil, e
+          */
+          newnames = protonames
+          instanceproto = protonames
+          if e != nil {
+            return nil, e
+          }
         }
+
       }
 
       for k := range instanceproto {
@@ -152,22 +213,6 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
     if e != nil {
       return nil, e
     }
-
-    //also do it for the arrays and hashes
-    for i := range v.Array {
-      _, e = changevarnames(v.Array[i], newnames)
-      if e != nil {
-        return nil, e
-      }
-    }
-    for i := range v.Hash {
-      _, e = changevarnames(v.Hash[i], newnames)
-      if e != nil {
-        return nil, e
-      }
-    }
-    //////////////////////////////////////
-
     /////////////////////////////////////////////
 
     if v.Type == "var" || v.Type == "declare" {

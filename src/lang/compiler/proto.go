@@ -23,17 +23,29 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) CompileErr {
 
     if v.Type == "proto" {
 
-      for i := range v.Static {
-        e = has_non_global_prototypes(v.Static[i], false)
-        if e != nil {
-          return e
+      for i := range v.Value.(OmmProto).Static {
+
+        var val = *v.Value.(OmmProto).Static[i]
+
+        if val.Type() == "function" {
+          e = has_non_global_prototypes(val.(OmmFunc).Body, false)
+          if e != nil {
+            return e
+          }
         }
+
       }
-      for i := range v.Instance {
-        e = has_non_global_prototypes(v.Instance[i], false)
-        if e != nil {
-          return e
+      for i := range v.Value.(OmmProto).Instance {
+
+        var val = *v.Value.(OmmProto).Instance[i]
+
+        if val.Type() == "function" {
+          e = has_non_global_prototypes(val.(OmmFunc).Body, false)
+          if e != nil {
+            return e
+          }
         }
+
       }
 
       continue
@@ -67,34 +79,6 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) CompileErr {
     if e != nil {
       return e
     }
-
-    //also do it for the arrays, hashes, and sub protos
-    for _, i := range v.Array {
-      e = has_non_global_prototypes(i, false)
-      if e != nil {
-        return e
-      }
-    }
-    for _, i := range v.Hash {
-      e = has_non_global_prototypes(i, false)
-      if e != nil {
-        return e
-      }
-    }
-    for _, i := range v.Static {
-      e = has_non_global_prototypes(i, false)
-      if e != nil {
-        return e
-      }
-    }
-    for _, i := range v.Instance {
-      e = has_non_global_prototypes(i, false)
-      if e != nil {
-        return e
-      }
-    }
-    //////////////////////////////////////
-
     ///////////////////////////////////////////
 
   }

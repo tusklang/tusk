@@ -45,7 +45,7 @@ func valueActions(item Item) (Action, CompileErr) {
       }, nil
     case "[:":
 
-      hash := map[string][]Action{}
+      hash := make(map[string]*OmmType)
 
       for _, v := range item.Group {
         oper := makeOperations([][]Item{ v })[0]
@@ -79,18 +79,25 @@ func valueActions(item Item) (Action, CompileErr) {
           return Action{}, makeCompilerErr("Expected some value as after ':'", item.File, oper.Line)
         }
 
-        hash[key] = value
+        if value[0].Value == nil || value[0].Type == "function" || value[0].Type == "proto" {
+          return Action{}, makeCompilerErr("Hashes and arrays can only have basic values in their declarations. Try setting a complex value after the declaration using ::", item.File, item.Line)
+        }
+
+        hash[key] = &value[0].Value
       }
 
       return Action{
         Type: "hash",
-        Hash: hash,
+        Value: OmmHash{
+          Hash: hash,
+          Length: uint64(len(hash)),
+        },
         File: item.File,
         Line: item.Line,
       }, nil
     case "[":
 
-      var arr [][]Action
+      var arr []*OmmType
 
       for _, v := range item.Group {
         oper := makeOperations([][]Item{ v })[0]
@@ -104,12 +111,19 @@ func valueActions(item Item) (Action, CompileErr) {
           return Action{}, makeCompilerErr("Each entry in the array must have a value", item.File, item.Line)
         }
 
-        arr = append(arr, value)
+        if value[0].Value == nil || value[0].Type == "function" || value[0].Type == "proto" {
+          return Action{}, makeCompilerErr("Hashes and arrays can only have basic values in their declarations. Try setting a complex value after the declaration using ::", item.File, item.Line)
+        }
+
+        arr = append(arr, &value[0].Value)
       }
 
       return Action{
         Type: "array",
-        Array: arr,
+        Value: OmmArray{
+          Array: arr,
+          Length: uint64(len(arr)),
+        },
         File: item.File,
         Line: item.Line,
       }, nil

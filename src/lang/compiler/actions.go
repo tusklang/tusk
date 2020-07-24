@@ -30,7 +30,7 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
     switch v.Type {
       case "~":
 
-        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await", "proto", "static", "instance", "del" } //list of statements
+        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await", "proto", "static", "instance" } //list of statements
 
         var hasStatement bool = false
 
@@ -199,8 +199,8 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
                 }
 
                 var (
-                  static = make(map[string][]Action)
-                  instance = make(map[string][]Action)
+                  static = make(map[string]*OmmType)
+                  instance = make(map[string]*OmmType)
                 )
                 var body = right[0].ExpAct //get the struct body
 
@@ -217,27 +217,38 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
 
                   if body[i].ExpAct[0].Type == "var" {
 
+                    var value = body[i].ExpAct[0].ExpAct[0]
+
+                    if value.Value == nil || value.Type == "proto" {
+                      return []Action{}, makeCompilerErr("Prototypes can only have basic values in the declaration. If you want to use complex values, try setting them in an initalizer function.", v.File, v.Line)
+                    }
+
                     if body[i].Type == "static" {
-                      static[body[i].ExpAct[0].Name] = body[i].ExpAct[0].ExpAct
+                      static[body[i].ExpAct[0].Name] = &value.Value
                     } else {
-                      instance[body[i].ExpAct[0].Name] = body[i].ExpAct[0].ExpAct
+                      instance[body[i].ExpAct[0].Name] = &value.Value
                     }
 
                   } else if body[i].ExpAct[0].Type == "declare" {
+
+                    var undef OmmType = OmmUndef{}
+
                     if body[i].Type == "static" {
-                      static[body[i].ExpAct[0].Name] = []Action{}
+                      static[body[i].ExpAct[0].Name] = &undef
                     } else {
-                      instance[body[i].ExpAct[0].Name] = []Action{}
+                      instance[body[i].ExpAct[0].Name] = &undef
                     }
                   } else {
                     return []Action{}, makeCompilerErr("Prototype bodies can only have variable assignments and declarations", v.File, right[0].Line)
                   }
                 }
 
+                var proto OmmProto
+                proto.Set(static, instance)
+
                 actions = append(actions, Action{
                   Type: "proto",
-                  Static: static,
-                  Instance: instance,
+                  Value: proto,
                   File: v.File,
                   Line: v.Line,
                 })
