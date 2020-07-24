@@ -13,9 +13,11 @@ var zero = OmmNumber{
 }
 var one = OmmNumber{
   Integer: &[]int64{1},
+  Decimal: &[]int64{0},
 }
 var neg_one = OmmNumber{
   Integer: &[]int64{-1},
+  Decimal: &[]int64{0},
 }
 var falsev = OmmBool{
   Boolean: &tmpFalse,
