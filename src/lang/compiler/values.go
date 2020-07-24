@@ -9,11 +9,13 @@ func valueActions(item Item) (Action, CompileErr) {
 
     case "{":
 
-      acts, e := actionizer(
-        makeOperations(
-          item.Group,
-        ),
-      )
+      oper, e := makeOperations(item.Group)
+
+      if e != nil {
+        return Action{}, e
+      }
+
+      acts, e := actionizer(oper)
 
       if e != nil {
         return Action{}, e
@@ -27,11 +29,13 @@ func valueActions(item Item) (Action, CompileErr) {
       }, nil
     case "(":
 
-      acts, e := actionizer(
-        makeOperations(
-          item.Group,
-        ),
-      )
+      oper, e := makeOperations(item.Group)
+
+      if e != nil {
+        return Action{}, e
+      }
+
+      acts, e := actionizer(oper)
 
       if e != nil {
         return Action{}, e
@@ -51,7 +55,13 @@ func valueActions(item Item) (Action, CompileErr) {
       var hashtype = "c-hash" //compile time hash
 
       for _, v := range item.Group {
-        oper := makeOperations([][]Item{ v })[0]
+        _oper, e := makeOperations([][]Item{ v })
+
+        if e != nil {
+          return Action{} , e
+        }
+
+        oper := _oper[0]
 
         //give errors
         if oper.Type != ":" {
@@ -123,7 +133,14 @@ func valueActions(item Item) (Action, CompileErr) {
       var arrtype = "c-array" //compile time array
 
       for _, v := range item.Group {
-        oper := makeOperations([][]Item{ v })[0]
+        _oper, e := makeOperations([][]Item{ v })
+
+        if e != nil {
+          return Action{} , e
+        }
+
+        oper := _oper[0]
+
         value, e := actionizer([]Operation{ oper })
 
         if e != nil {

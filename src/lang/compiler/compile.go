@@ -42,7 +42,12 @@ func Compile(file, filename string) ([]Action, map[string][]Action, CompileErr) 
   }
 
   groups := makeGroups(lex)
-  operations := makeOperations(groups)
+  operations, e := makeOperations(groups)
+
+  if e != nil {
+    return []Action{}, nil, e
+  }
+
   actions, e := actionizer(operations)
 
   if e != nil {
