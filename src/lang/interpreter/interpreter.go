@@ -185,6 +185,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
         }
 
       //////////////////
+
       //////////////////
 
       case "variable":

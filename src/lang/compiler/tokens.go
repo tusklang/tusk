@@ -18,6 +18,12 @@ var tokensJSON =
     "type": "id_non_tilde"
   },
   {
+    "name": ":=",
+    "remove": ":=",
+    "pattern": "(\\:\\=)",
+    "type": "operation"
+  },
+  {
     "name": "->",
     "remove": "->",
     "pattern": "(\\-\\>)",

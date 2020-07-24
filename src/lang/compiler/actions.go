@@ -260,6 +260,21 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
         if !hasStatement {
           return []Action{}, makeCompilerErr("\"" + (*v.Left).Item.Token.Name + "\" is not a statement", v.File, v.Line)
         }
+
+      case ":=":
+
+        if left[0].Type != "variable" {
+          return []Action{}, makeCompilerErr("Expected a variable statement before := operator", v.File, right[0].Line)
+        }
+
+        actions = append(actions, Action{
+          Type: "var",
+          Name: left[0].Name,
+          ExpAct: right,
+          File: v.File,
+          Line: v.Line,
+        })
+
       case ":":
 
         actions = append(actions, Action{

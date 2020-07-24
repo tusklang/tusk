@@ -1,5 +1,3 @@
-var main: fn() {
-  var arr: 3
-
-  log [1, 2, arr]
+main := fn() {
+  log a := 3
 }

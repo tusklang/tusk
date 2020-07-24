@@ -120,6 +120,7 @@ func makeOperations(groups [][]Item) []Operation {
     map[string]func(exp []Item, index int, opType string) Operation { //these ones start from left to right
       "~": normalOpFunc,
       ":": normalOpFunc,
+      ":=": normalOpFunc,
       "=>": normalOpFunc,
     },
     map[string]func(exp []Item, index int, opType string) Operation {
