@@ -107,9 +107,8 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
       case "bool":     fallthrough
       case "function": fallthrough
       case "undef":    fallthrough
-      case "array":    fallthrough
-      case "hash":     fallthrough
-      case "proto":    fallthrough
+      case "c-array":  fallthrough //compile-time calculated array
+      case "c-hash":   fallthrough //compile-time calculated hash
       case "thread":
 
         if expReturn {
@@ -118,6 +117,74 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
             Exp: &v.Value,
           }
         }
+
+      //arrays, hashes, and protos are a bit different
+      case "r-array":
+
+        var nArr = make([]*OmmType, len(v.Array))
+
+        for k, i := range v.Array {
+          nArr[k] = ins.interpreter(i, stacktrace).Exp
+        }
+
+        var ommType OmmType = OmmArray{
+          Array: nArr,
+          Length: uint64(len(v.Array)),
+        }
+
+        if expReturn {
+          return Returner{
+            Type: "expression",
+            Exp: &ommType,
+          }
+        }
+
+      case "r-hash":
+
+        var nHash = make(map[string]*OmmType)
+
+        for k, i := range v.Hash {
+          nHash[k] = ins.interpreter(i, stacktrace).Exp
+        }
+
+        var ommType OmmType = OmmHash{
+          Hash: nHash,
+          Length: uint64(len(v.Hash)),
+        }
+
+        if expReturn {
+          return Returner{
+            Type: "expression",
+            Exp: &ommType,
+          }
+        }
+
+      case "proto":
+
+        var static = make(map[string]*OmmType)
+        var instance = make(map[string]*OmmType)
+
+        for k, i := range v.Static {
+          static[k] = ins.interpreter(i, stacktrace).Exp
+        }
+        for k, i := range v.Instance {
+          instance[k] = ins.interpreter(i, stacktrace).Exp
+        }
+
+        var proto = OmmProto{
+          ProtoName: v.Name,
+        }
+        proto.Set(static, instance)
+
+        if expReturn {
+          var ommtype OmmType = proto
+          return Returner{
+            Type: "expression",
+            Exp: &ommtype,
+          }
+        }
+
+      //////////////////
       //////////////////
 
       case "variable":
@@ -360,6 +427,11 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
               interpreted := ins.interpreter(v.ExpAct, stacktrace)
 
+              //free the key and val spaces
+              delete(ins.vars, keyName)
+              delete(ins.vars, valName)
+              /////////////////////////////
+
               if interpreted.Type == "return" {
                 return Returner{
                   Type: interpreted.Type,
@@ -396,11 +468,23 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
               interpreted := ins.interpreter(v.ExpAct, stacktrace)
 
-              if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
+              //free the key and val spaces
+              delete(ins.vars, keyName)
+              delete(ins.vars, valName)
+              /////////////////////////////
+
+              if interpreted.Type == "return" {
                 return Returner{
                   Type: interpreted.Type,
                   Exp: interpreted.Exp,
                 }
+              }
+
+              if interpreted.Type == "break" {
+                break
+              }
+              if interpreted.Type == "continue" {
+                continue;
               }
 
             }
@@ -428,11 +512,23 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
               interpreted := ins.interpreter(v.ExpAct, stacktrace)
 
-              if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
+              //free the key and val spaces
+              delete(ins.vars, keyName)
+              delete(ins.vars, valName)
+              /////////////////////////////
+
+              if interpreted.Type == "return" {
                 return Returner{
                   Type: interpreted.Type,
                   Exp: interpreted.Exp,
                 }
+              }
+
+              if interpreted.Type == "break" {
+                break
+              }
+              if interpreted.Type == "continue" {
+                continue;
               }
 
             }

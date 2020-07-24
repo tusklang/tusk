@@ -45,7 +45,10 @@ func valueActions(item Item) (Action, CompileErr) {
       }, nil
     case "[:":
 
-      hash := make(map[string]*OmmType)
+      var hash = make(map[string][]Action)
+      var chash = make(map[string]*OmmType)
+
+      var hashtype = "c-hash" //compile time hash
 
       for _, v := range item.Group {
         oper := makeOperations([][]Item{ v })[0]
@@ -79,25 +82,45 @@ func valueActions(item Item) (Action, CompileErr) {
           return Action{}, makeCompilerErr("Expected some value as after ':'", item.File, oper.Line)
         }
 
-        if value[0].Value == nil || value[0].Type == "function" || value[0].Type == "proto" {
-          return Action{}, makeCompilerErr("Hashes and arrays can only have basic values in their declarations. Try setting a complex value after the declaration using ::", item.File, item.Line)
+        if value[0].Type == "proto" {
+          return Action{}, makeCompilerErr("Cannot have protos outside of the global scope", item.File, item.Line)
         }
 
-        hash[key] = &value[0].Value
+        if value[0].Value == nil {
+          hash[key] = value
+          hashtype = "r-hash" ///make it a runtime hash
+          continue
+        }
+
+        hash[key] = value
+        chash[key] = &value[0].Value
       }
 
-      return Action{
-        Type: "hash",
-        Value: OmmHash{
+      if hashtype == "c-hash" {
+        return Action{
+          Type: hashtype,
+          Value: OmmHash{
+            Hash: chash,
+            Length: uint64(len(chash)),
+          },
+          File: item.File,
+          Line: item.Line,
+        }, nil
+      } else {
+        return Action{
+          Type: hashtype,
           Hash: hash,
-          Length: uint64(len(hash)),
-        },
-        File: item.File,
-        Line: item.Line,
-      }, nil
+          File: item.File,
+          Line: item.Line,
+        }, nil
+      }
+
     case "[":
 
-      var arr []*OmmType
+      var arr [][]Action
+      var carr []*OmmType
+
+      var arrtype = "c-array" //compile time array
 
       for _, v := range item.Group {
         oper := makeOperations([][]Item{ v })[0]
@@ -111,22 +134,39 @@ func valueActions(item Item) (Action, CompileErr) {
           return Action{}, makeCompilerErr("Each entry in the array must have a value", item.File, item.Line)
         }
 
-        if value[0].Value == nil || value[0].Type == "function" || value[0].Type == "proto" {
-          return Action{}, makeCompilerErr("Hashes and arrays can only have basic values in their declarations. Try setting a complex value after the declaration using ::", item.File, item.Line)
+        if value[0].Type == "proto" {
+          return Action{}, makeCompilerErr("Cannot have protos outside of the global scope", item.File, item.Line)
         }
 
-        arr = append(arr, &value[0].Value)
+        if value[0].Value == nil || value[0].Type == "function" {
+          arr = append(arr, value)
+          arrtype = "r-array" ///make it a runtime array
+          continue
+        }
+
+        arr = append(arr, value)
+        carr = append(carr, &value[0].Value)
       }
 
-      return Action{
-        Type: "array",
-        Value: OmmArray{
+      if arrtype == "c-array" {
+        return Action{
+          Type: arrtype,
+          Value: OmmArray{
+            Array: carr,
+            Length: uint64(len(carr)),
+          },
+          File: item.File,
+          Line: item.Line,
+        }, nil
+      } else {
+        return Action{
+          Type: arrtype,
           Array: arr,
-          Length: uint64(len(arr)),
-        },
-        File: item.File,
-        Line: item.Line,
-      }, nil
+          File: item.File,
+          Line: item.Line,
+        }, nil
+      }
+
     case "expression value":
 
       var val = item.Token.Name

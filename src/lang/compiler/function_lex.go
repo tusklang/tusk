@@ -13,7 +13,7 @@ func funcLex(lex []Lex) ([]Lex, CompileErr) {
   for k, v := range lex {
     nLex = append(nLex, v)
 
-    if (v.Type != "operation" && v.Type != "?operation" && v.Type != "?open_brace" && v.Type != "id" && v.Type != "id_non_tilde") && k + 2 <= len(lex) && lex[k + 1].Name == "[" {
+    if (v.Type != "operation" && v.Type != "?operation" && v.Type != "?open_brace" && v.Type != "id" && v.Type != "id_non_tilde") && k + 2 <= len(lex) && lex[k + 1].Name == "(" {
       return []Lex{}, makeCompilerErr("Expected a [ instead of a ( for a function call", lex[k + 2].Dir, lex[k + 2].Line)
     }
 

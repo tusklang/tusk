@@ -79,11 +79,12 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
         params[p] = pname
         curvar++
       }
-      v.Value = fn
-      _, e = changevarnames(v.Value.(OmmFunc).Body, params)
+      _, e = changevarnames(fn.Body, params)
+      actions[k].Value = fn
       if e != nil {
         return nil, e
       }
+
       continue
     }
     if v.Type == "each" { //if it is each, also give the key and value variables
@@ -117,9 +118,11 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
     }
     if v.Type == "proto" {
 
-      for i := range v.Value.(OmmProto).Static {
+      prototype := v.Value.(OmmProto)
 
-        var val = *v.Value.(OmmProto).Static[i]
+      for i := range prototype.Static {
+
+        var val = *prototype.Static[i]
 
         if val.Type() == "function" {
 
@@ -132,7 +135,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
             params[k] = v
           }
 
-          for i, p := range v.Value.(OmmFunc).Params { //add the params to the current variables
+          for i, p := range val.(OmmFunc).Params { //add the params to the current variables
             pname := "v" + strconv.FormatUint(curvar, 10)
             fn.Params[i] = pname //also modify the parameters in the actual function
             params[p] = pname
@@ -140,6 +143,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
           }
 
           _, e = changevarnames(fn.Body, params)
+          *prototype.Static[i] = fn
           if e != nil {
             return nil, e
           }
@@ -148,9 +152,9 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
       }
 
       var instanceproto map[string]string
-      for i := range v.Value.(OmmProto).Instance {
+      for i := range prototype.Instance {
 
-        var val = *v.Value.(OmmProto).Static[i]
+        var val = *prototype.Instance[i]
 
         if val.Type() == "function" {
 
@@ -163,7 +167,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
             params[k] = v
           }
 
-          for i, p := range v.Value.(OmmFunc).Params { //add the params to the current variables
+          for i, p := range val.(OmmFunc).Params { //add the params to the current variables
             pname := "v" + strconv.FormatUint(curvar, 10)
             fn.Params[i] = pname //also modify the parameters in the actual function
             params[p] = pname
@@ -171,6 +175,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
           }
 
           protonames, e := changevarnames(fn.Body, newnames)
+          *prototype.Static[i] = fn
 
           /* Image we have this proto
 
@@ -197,22 +202,40 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
         delete(newnames, k) //prevent outside of the proto from using proto variables
       }
 
+      actions[k].Value = prototype
+
       continue
     }
 
     //perform checkvars on all of the sub actions
-    _, e = changevarnames(v.ExpAct, newnames)
+    _, e = changevarnames(actions[k].ExpAct, newnames)
     if e != nil {
       return nil, e
     }
-    _, e = changevarnames(v.First, newnames)
+    _, e = changevarnames(actions[k].First, newnames)
     if e != nil {
       return nil, e
     }
-    _, e = changevarnames(v.Second, newnames)
+    _, e = changevarnames(actions[k].Second, newnames)
     if e != nil {
       return nil, e
     }
+
+    //also do it for the (runtime) arrays and hashes
+    for i := range v.Array {
+      _, e = changevarnames(v.Array[i], newnames)
+      if e != nil {
+        return nil, e
+      }
+    }
+    for i := range v.Hash {
+      _, e = changevarnames(v.Hash[i], newnames)
+      if e != nil {
+        return nil, e
+      }
+    }
+    ////////////////////////////////////////////////
+
     /////////////////////////////////////////////
 
     if v.Type == "var" || v.Type == "declare" {

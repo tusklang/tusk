@@ -36,10 +36,61 @@ func insert_garbage_collectors(actions []Action) []Action {
       })
     }
 
+    if v.Type == "function" {
+
+      var fn = v.Value.(OmmFunc)
+      fn.Body = insert_garbage_collectors(fn.Body)
+      actions[k].Value = fn
+
+      continue
+    }
+    if v.Type == "proto" {
+
+      prototype := v.Value.(OmmProto)
+
+      for i := range prototype.Static {
+
+        var val = *prototype.Static[i]
+
+        if val.Type() == "function" {
+          var fn = val.(OmmFunc)
+          fn.Body = insert_garbage_collectors(fn.Body)
+          *prototype.Static[i] = fn
+        }
+
+      }
+
+      for i := range prototype.Instance {
+
+        var val = *prototype.Instance[i]
+
+        if val.Type() == "function" {
+          var fn = val.(OmmFunc)
+          fn.Body = insert_garbage_collectors(fn.Body)
+          *prototype.Static[i] = fn
+        }
+
+      }
+
+      actions[k].Value = prototype
+
+      continue
+    }
+
     //perform insert_garbage_collectors on all of the sub actions
     actions[k].ExpAct = insert_garbage_collectors(v.ExpAct)
     actions[k].First = insert_garbage_collectors(v.First)
     actions[k].Second = insert_garbage_collectors(v.Second)
+
+    //also do it for the (runtime) arrays and hashes
+    for i := range v.Array {
+      v.Array[i] = insert_garbage_collectors(v.Array[i])
+    }
+    for i := range v.Hash {
+      v.Hash[i] = insert_garbage_collectors(v.Hash[i])
+    }
+    ////////////////////////////////////////////////
+
     /////////////////////////////////////////////////////////////
 
   }

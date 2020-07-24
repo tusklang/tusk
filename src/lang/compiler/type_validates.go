@@ -68,6 +68,22 @@ func validate_types(actions []Action) CompileErr {
     if e != nil {
       return e
     }
+
+    //also do it for the (runtime) arrays and hashes
+    for i := range v.Array {
+      e = validate_types(v.Array[i])
+      if e != nil {
+        return e
+      }
+    }
+    for i := range v.Hash {
+      e = validate_types(v.Hash[i])
+      if e != nil {
+        return e
+      }
+    }
+    ////////////////////////////////////////////////
+
     /////////////////////////////////////////////
 
   }

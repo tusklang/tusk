@@ -79,6 +79,22 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) CompileErr {
     if e != nil {
       return e
     }
+
+    //also do it for the (runtime) arrays and hashes
+    for i := range v.Array {
+      e = has_non_global_prototypes(v.Array[i], false)
+      if e != nil {
+        return e
+      }
+    }
+    for i := range v.Hash {
+      e = has_non_global_prototypes(v.Hash[i], false)
+      if e != nil {
+        return e
+      }
+    }
+    ////////////////////////////////////////////////
+
     ///////////////////////////////////////////
 
   }

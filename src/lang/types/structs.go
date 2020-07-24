@@ -14,6 +14,20 @@ type Action struct {
 
   //////////////////////
 
+  //stuff for runtime arrays and hashes
+
+  Array       [][]Action
+  Hash            map[string][]Action
+
+  /////////////////////////////////////
+
+  //stuff to evaluate protos
+
+  Static          map[string][]Action
+  Instance        map[string][]Action
+
+  //////////////////////////
+
   //stuff to panic errors and give stack
 
   File            string
