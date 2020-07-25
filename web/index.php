@@ -75,7 +75,23 @@
         Omm is a general purpose language with arbitrary precision
       </p>
 
-      <button class='ui download-btn button'>Download Latest Version (v1.0.0)</button>
+      <button class='ui download-btn button' onclick='download()'>Download Latest Version (v1.0.0)</button>
+
+      <script>
+
+        function download() {
+
+          switch (navigator.platform) {
+            case "Win32":
+              window.location.href = '/versions/1.0.0/setup.msi'
+              break;
+            default:
+              alert("Sorry, but Omm is not available on your platform")
+          }
+
+        }
+
+      </script>
 
       <div id='index-background-div' class='ui large disabled medium right floated image'>
         <img id='index-background' src='Logos/in-use/index-background.png'>

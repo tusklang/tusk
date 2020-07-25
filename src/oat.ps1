@@ -1,6 +1,7 @@
 #!/usr/bin/env pwsh
+
 $basedir = Split-Path $MyInvocation.MyCommand.Definition -Parent
-$calldir = $PSScriptRoot.replace("\", "/") #convert to slash seperated
+$calldir = ("$PWD").replace("\", "/") #convert to slash seperated
 
 function CallScript {
 

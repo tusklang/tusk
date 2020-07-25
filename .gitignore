@@ -1,8 +1,10 @@
 .idea/
 .vs/
 src/omm
-*.exe
+src/*.exe
 *.dll
 *.so
 *.a
 *.lib
+*.wixobj
+*.wixpdb

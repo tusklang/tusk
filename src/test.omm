@@ -1,3 +1,10 @@
 main := fn() {
-  log number -> false
+  fab := 0
+  prev := 1
+
+  while (true) {
+    fab: fab + prev
+    log fab
+    prev: fab - prev
+  }
 }
