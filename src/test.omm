@@ -2,7 +2,7 @@ main := fn() {
   fab := 0
   prev := 1
 
-  while (true) {
+  while (;) {
     fab: fab + prev
     log fab
     prev: fab - prev

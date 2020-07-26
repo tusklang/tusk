@@ -7,8 +7,8 @@ if ($args[0] -eq "get") {
 
   $_, $args_pop = $args
 
-  if ($calldir -notmatch "\\$") {
-    $calldir+="\"
+  if ($calldir -notmatch "/$") {
+    $calldir+="/"
   }
 
   & "$basedir/omm.exe" "$calldir" $args_pop "--mango-get"
@@ -16,8 +16,8 @@ if ($args[0] -eq "get") {
 
   $_, $args_pop = $args
 
-  if ($calldir -notmatch "\\$") {
-    $calldir+="\"
+  if ($calldir -notmatch "/$") {
+    $calldir+="/"
   }
 
   & "$basedir/omm.exe" "$calldir" $args_pop "--mango-rm"
@@ -25,8 +25,8 @@ if ($args[0] -eq "get") {
 
   $_, $args_pop = $args
 
-  if ($calldir -notmatch "\\$") {
-    $calldir+="\"
+  if ($calldir -notmatch "/$") {
+    $calldir+="/"
   }
 
   & "$basedir/omm.exe" "$calldir" $args_pop "--mango-wipe"

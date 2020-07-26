@@ -19,7 +19,7 @@ var braceMatcher = map[string]string{
   ")": "(",
 }
 
-func makeGroups(lex []Lex) [][]Item {
+func makeGroups(lex []Lex) ([][]Item, CompileErr) {
 
   var groups = [][]Item{ []Item{} }
 
@@ -38,7 +38,8 @@ func makeGroups(lex []Lex) [][]Item {
       }
       /////////////
 
-      braceType := lex[i].Name
+      var openBrace = lex[i]
+      braceType := openBrace.Name
 
       braceTypes[braceType]++
 
@@ -66,7 +67,22 @@ func makeGroups(lex []Lex) [][]Item {
         exp = append(exp, lex[i])
       }
 
-      groupedExp := makeGroups(exp)
+      if func() bool { //if any braces were not matched, return an error
+        for _, v := range braceTypes {
+          if v != 0 {
+            return true
+          }
+        }
+
+        return false
+      }() {
+        return [][]Item{}, makeCompilerErr("No brace found to match: " + braceType, openBrace.Dir, openBrace.Line)
+      }
+
+      groupedExp, e := makeGroups(exp)
+      if e != nil {
+        return groupedExp, e
+      }
       groups[len(groups) - 1] = append(groups[len(groups) - 1], Item{
         Type: braceType,
         File: lex[i].Dir,
@@ -99,5 +115,5 @@ func makeGroups(lex []Lex) [][]Item {
     }
   }
 
-  return filteredGroups
+  return filteredGroups, nil
 }
