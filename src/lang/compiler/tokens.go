@@ -306,12 +306,6 @@ var tokensJSON =
     "type": "id"
   },
   {
-    "name": "?",
-    "remove": "?",
-    "pattern": "(\\?)",
-    "type": "operation"
-  },
-  {
     "name": "if",
     "remove": "if",
     "pattern": "(if\\s*\\()",
