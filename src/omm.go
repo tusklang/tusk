@@ -18,7 +18,9 @@ func defaults(cli_params *CliParams, name string) {
 
   (*cli_params).Prec = 30
 
-  if strings.LastIndex(name, ".") == -1 {
+  if strings.HasSuffix(name, "*") || strings.HasSuffix(name, "*/") { //detect a directory compile
+    (*cli_params).Output = "all.oat"
+  } else if strings.LastIndex(name, ".") == -1 {
     (*cli_params).Output = name + ".oat"
   } else {
     (*cli_params).Output = name[:strings.LastIndex(name, ".")] + ".oat"

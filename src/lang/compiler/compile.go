@@ -2,6 +2,8 @@ package compiler
 
 import "fmt"
 import "os"
+import "io/ioutil"
+import "strings"
 
 import "lang/interpreter"
 import . "lang/types"
@@ -31,7 +33,7 @@ func makeCompilerErr(msg, fname string, line uint64) CompileErr {
 }
 
 //export Compile
-func Compile(file, filename string) ([]Action, map[string][]Action, CompileErr) {
+func Compile(file, filename string, compileall bool) ([]Action, map[string][]Action, CompileErr) {
 
   var e CompileErr
 
@@ -39,6 +41,35 @@ func Compile(file, filename string) ([]Action, map[string][]Action, CompileErr) 
 
   if e != nil {
     return []Action{}, nil, e
+  }
+
+  if compileall { //if the dev wants to compile the entire directory
+
+    files, _ := ioutil.ReadDir(".")
+
+    for _, v := range files {
+      if strings.HasSuffix(v.Name(), ".omm") {
+        lex = append([]Lex{
+          Lex{
+            Name: "include",
+            Type: "keyword",
+          },
+          Lex{
+            Name: "~",
+            Type: "operation",
+          },
+          Lex{
+            Name: "\"" + v.Name() + "\"",
+            Type: "expression value",
+          },
+          Lex{
+            Name: "$term",
+            Type: "?none",
+          },
+        }, lex...)
+      }
+    }
+
   }
 
   groups, e := makeGroups(lex)

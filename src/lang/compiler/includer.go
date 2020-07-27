@@ -33,7 +33,7 @@ func includeSingle(filename string, line uint64, dir string) ([]Action, CompileE
     return []Action{}, makeCompilerErr("Could not find file: " + filename, dir, line)
   }
 
-  compiled, _, e := Compile(string(content), filename)
+  compiled, _, e := Compile(string(content), filename, false)
 
   if e != nil {
     return []Action{}, e

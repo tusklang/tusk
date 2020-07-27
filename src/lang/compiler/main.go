@@ -3,6 +3,7 @@ package compiler
 import "io/ioutil"
 import "fmt"
 import "os"
+import "strings"
 
 import . "lang/types"
 import . "lang/interpreter"
@@ -14,6 +15,12 @@ func Run(params CliParams) {
 
   fileName := params.Name
 
+  var compileall = false
+  if strings.HasSuffix(fileName, "*") || strings.HasSuffix(fileName, "*/") {
+    compileall = true
+    fileName = "main.omm"
+  }
+
   included = append(included, fileName)
 
   file, e := ioutil.ReadFile(fileName)
@@ -23,7 +30,7 @@ func Run(params CliParams) {
     os.Exit(1)
   }
 
-  _, variables, ce := Compile(string(file), fileName)
+  _, variables, ce := Compile(string(file), fileName, compileall)
 
   if ce != nil {
     ce.Print()

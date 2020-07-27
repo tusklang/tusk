@@ -6,6 +6,7 @@ import "io/ioutil"
 import "encoding/gob"
 import "bytes"
 import "oat/helper"
+import "strings"
 
 import . "lang/types"
 import "lang/compiler" //compiler
@@ -23,7 +24,13 @@ func Compile(params CliParams) {
     os.Exit(1)
   }
 
-  actions, vars, ce := compiler.Compile(string(file), fileName)
+  var compileall = false
+  if strings.HasSuffix(fileName, "*") || strings.HasSuffix(fileName, "*/") {
+    compileall = true
+    fileName = "main.omm"
+  }
+
+  actions, vars, ce := compiler.Compile(string(file), fileName, compileall)
 
   if ce != nil {
     ce.Print()
