@@ -32,7 +32,6 @@
   user-select: none;
 }
 #omm-body {
-  font-weight: bolder;
   font-family: 'anklada', monospace;
   color: white;
   z-index: 1;
@@ -56,10 +55,13 @@
   background-color: #9e8006;
   color: #cccaca;
 }
-#navbar {
-  width: 100%;
+#prenav {
   margin-top: 0;
-  margin-bottom: 5;
+  margin-bottom: 14px;
+  border-radius: 0;
+  width: 100%;
+}
+#navbar {
   border-radius: 0;
 }
 #index-background-div {
