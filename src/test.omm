@@ -1,6 +1,6 @@
 var main: fn() {
   a := 1
   b := a
-  b: 4
+  b+=2
   log a
 }
