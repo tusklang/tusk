@@ -1,6 +1,6 @@
 # First Steps
 
-Every Omm program must have a main function. This style in shown in languages like, C, Go, Java, Rust, and many more. The main function looks like:
+Every Omm program must have a main function. This style is shown in languages like, C, Go, Java, Rust, and many more. The main function looks like:
 
 ```
 var main: fn() {
