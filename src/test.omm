@@ -1,0 +1,6 @@
+var main: fn() {
+  a := 1
+  b := a
+  b: 4
+  log a
+}
