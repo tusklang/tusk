@@ -96,3 +96,14 @@ body {
 body::-webkit-scrollbar {
   display: none;
 }
+#downloads {
+  margin: auto;
+  width: 60%;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+}
+#download_version:hover {
+  cursor: pointer;
+}

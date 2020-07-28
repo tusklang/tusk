@@ -26,6 +26,37 @@
     <script src='include_nav.js'></script>
   </div>
 
+  <table id='downloads' class='ui inverted black striped celled padded table'>
+    <thead>
+      <tr>
+        <th>Version</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <a id='download_version' onclick='downloadv("1.0.0")'>v1.0.0</a>
+        </td>
+        <td>
+          First Omm Version
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script>
+    function downloadv(version) {
+      switch (navigator.platform) {
+        case "Win32":
+          window.location.href = '/versions/' + version + '/setup.msi'
+          break;
+        default:
+          alert("Sorry, but Omm is not available on your platform")
+      }
+    }
+  </script>
+
 </body>
 
 </html>

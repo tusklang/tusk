@@ -22,6 +22,10 @@
     <link rel='stylesheet' href='styles.css'>
   </head>
 
+  <div id='prenav'>
+    <script src='include_nav.js'></script>
+  </div>
+
 </body>
 
 </html>
