@@ -1,0 +1,5 @@
+;nostdlib
+
+var test: fn() {
+  log "SSS"
+}

@@ -82,23 +82,9 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
       case "log":
         interpreted := ins.interpreter(v.ExpAct, stacktrace)
         fmt.Println((*interpreted.Exp).Format())
-
-        if expReturn {
-          return Returner{
-            Type: "expression",
-            Exp: interpreted.Exp,
-          }
-        }
       case "print":
         interpreted := ins.interpreter(v.ExpAct, stacktrace)
         fmt.Print((*interpreted.Exp).Format())
-
-        if expReturn {
-          return Returner{
-            Type: "expression",
-            Exp: interpreted.Exp,
-          }
-        }
 
       //all of the types
       case "string":   fallthrough

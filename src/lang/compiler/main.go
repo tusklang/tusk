@@ -9,10 +9,12 @@ import . "lang/types"
 import . "lang/interpreter"
 
 var included = []string{} //list of the imported files from omm
+var ommbasedir string //directory of the omm installation
 
 //export Run
 func Run(params CliParams) {
 
+  ommbasedir = params.OmmDirname
   fileName := params.Name
 
   var compileall = false

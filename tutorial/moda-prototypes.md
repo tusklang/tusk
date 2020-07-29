@@ -16,10 +16,18 @@ Now let us fill this prototype with an instance
 var test_proto: proto {
   instance var a
   instance var b
+  instance var self
 
   instance var initialize: fn(self, av, bv) {
+    self::self: self ;this line is to set the `this` or `self` value of the prototype
     self::a: av
     self::b: bv
+  }
+
+  instance var somefunc: fn() {
+    log self::a ;would log the value of the proto's `a`
+    log a ;would also work
+    log self ;this would log the prototype
   }
 }
 ```
@@ -41,6 +49,7 @@ var test_proto: proto {
   instance var somefunc: fn() {
     log self::a ;would log the value of the proto's `a`
     log a ;would also work
+    log self ;this would log the prototype
   }
 
   static var c: 12

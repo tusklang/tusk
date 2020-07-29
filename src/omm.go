@@ -41,10 +41,16 @@ func main() {
     os.Exit(1)
   }
 
+  _ = ""
+
   defaults(&cli_params, args[2])
 
   cli_params.Directory = args[1]
   cli_params.Name = args[2]
+
+  __dirname, _ := os.Getwd()
+
+  cli_params.OmmDirname = __dirname
 
   //set the working directory
   os.Chdir(args[1])

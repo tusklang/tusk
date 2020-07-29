@@ -4,7 +4,6 @@ package interpreter
 
 import "strconv"
 import "net/http"
-import "io/ioutil"
 import "time"
 import . "lang/types"
 

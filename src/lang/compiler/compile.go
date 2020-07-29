@@ -4,6 +4,8 @@ import "fmt"
 import "os"
 import "io/ioutil"
 import "strings"
+import "oat/helper"
+import "path"
 
 import "lang/interpreter"
 import . "lang/types"
@@ -85,6 +87,12 @@ func Compile(file, filename string, compileall bool) ([]Action, map[string][]Act
   }
 
   actions, e := actionizer(operations)
+
+  //include the stdlib
+  if !strings.HasPrefix(file, ";nostdlib") { //if it begins with ;nostdlib, do not include the stdlib
+    var stdlib = oatHelper.FromOat(path.Join(ommbasedir, "stdlib/lib.oat"))
+    actions = append(stdlib.Actions, actions...)
+  }
 
   if e != nil {
     return []Action{}, nil, e
