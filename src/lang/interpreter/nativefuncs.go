@@ -131,6 +131,24 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 
     return &arr
   },
+  "prepend": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+
+    if len(args) != 2 {
+      OmmPanic("Function prepend requires a parameter count of 2", line, file, stacktrace)
+    }
+
+    if (*args[0]).Type() != "array" {
+      OmmPanic("Function prepend requires the first argument to be an array", line, file, stacktrace)
+    }
+
+    prepended := append([]*OmmType{ args[1] }, (*args[0]).(OmmArray).Array...)
+    var arr OmmType = OmmArray{
+      Array: prepended,
+      Length: uint64(len(prepended)),
+    }
+
+    return &arr
+  },
   "exit": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
     if len(args) == 1 {

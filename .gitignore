@@ -2,9 +2,5 @@
 .vs/
 src/omm
 src/*.exe
-*.dll
-*.so
-*.a
-*.lib
 *.wixobj
 *.wixpdb

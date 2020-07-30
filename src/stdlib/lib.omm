@@ -1,5 +1,2 @@
 ;nostdlib
-
-var test: fn() {
-  log "SSS"
-}
+;nostdlib is just a way to not including the stdlib in the stdlib
