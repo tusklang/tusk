@@ -10,6 +10,7 @@ import "time"
 import "strconv"
 import "strings"
 import "os/exec"
+import "runtime"
 
 import . "lang/types"
 
@@ -444,6 +445,13 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 
     var tmpundef OmmType = undef
     return &tmpundef
+  },
+  "getos": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+    var os = runtime.GOOS
+    var ommstr OmmString
+    ommstr.FromGoType(os);
+    var ommtype OmmType = ommstr
+    return &ommtype
   },
   //osm functions
   "osm.start": OSM_start,

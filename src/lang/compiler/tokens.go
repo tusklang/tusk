@@ -18,6 +18,30 @@ var tokensJSON =
     "type": "id_non_tilde"
   },
   {
+    "name": "ifwin",
+    "remove": "ifwin",
+    "pattern": "(ifwin(\\s+))",
+    "type": "id"
+  },
+  {
+    "name": "ifwin",
+    "remove": "ifwin",
+    "pattern": "(ifwin(\\s*)\\~)",
+    "type": "id_non_tilde"
+  },
+  {
+    "name": "ifnwin",
+    "remove": "ifnwin",
+    "pattern": "(ifnwin(\\s+))",
+    "type": "id"
+  },
+  {
+    "name": "ifnwin",
+    "remove": "ifnwin",
+    "pattern": "(ifnwin(\\s*)\\~)",
+    "type": "id_non_tilde"
+  },
+  {
     "name": ":=",
     "remove": ":=",
     "pattern": "(\\:\\=)",

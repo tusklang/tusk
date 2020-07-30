@@ -1,5 +1,6 @@
 package compiler
 
+import "runtime"
 import . "lang/types"
 
 func actionizer(operations []Operation) ([]Action, CompileErr) {
@@ -30,7 +31,7 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
     switch v.Type {
       case "~":
 
-        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await", "proto", "static", "instance" } //list of statements
+        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await", "proto", "static", "instance", "ifwin", "ifnwin" } //list of statements
 
         var hasStatement bool = false
 
@@ -241,6 +242,18 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
                   File: v.File,
                   Line: v.Line,
                 })
+
+              case "ifwin":
+
+                if runtime.GOOS == "windows" {
+                  actions = append(actions, right...)
+                }
+
+              case "ifnwin":
+
+                if runtime.GOOS != "windows" {
+                  actions = append(actions, right...)
+                }
 
               default:
 
