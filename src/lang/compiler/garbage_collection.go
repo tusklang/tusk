@@ -46,33 +46,31 @@ func insert_garbage_collectors(actions []Action) []Action {
     }
     if v.Type == "proto" {
 
-      prototype := v.Value.(OmmProto)
+      for i := range v.Static {
 
-      for i := range prototype.Static {
+        var val = v.Static[i][0]
 
-        var val = *prototype.Static[i]
-
-        if val.Type() == "function" {
-          var fn = val.(OmmFunc)
+        if val.Type == "function" {
+          var fn = val.Value.(OmmFunc)
           fn.Body = insert_garbage_collectors(fn.Body)
-          *prototype.Static[i] = fn
+          v.Static[i][0].Value = fn
         }
 
       }
 
-      for i := range prototype.Instance {
+      for i := range v.Instance {
 
-        var val = *prototype.Instance[i]
+        var val = v.Instance[i][0]
 
-        if val.Type() == "function" {
-          var fn = val.(OmmFunc)
+        if val.Type == "function" {
+          var fn = val.Value.(OmmFunc)
           fn.Body = insert_garbage_collectors(fn.Body)
-          *prototype.Static[i] = fn
+          v.Instance[i][0].Value = fn
         }
 
       }
 
-      actions[k].Value = prototype
+      actions[k] = v
 
       continue
     }

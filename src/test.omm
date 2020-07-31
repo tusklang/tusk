@@ -1,3 +1,10 @@
 var main: fn() {
-  log getos[]
+  log t
+}
+
+var t: proto {
+  var a: 3
+  var b: fn() {
+    log "SS"
+  }
 }

@@ -118,91 +118,49 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
     }
     if v.Type == "proto" {
 
-      prototype := v.Value.(OmmProto)
+      for i := range v.Static {
+        var val = v.Static[i][0]
 
-      for i := range prototype.Static {
+        var passvals = make(map[string]string)
 
-        var val = *prototype.Static[i]
-
-        if val.Type() == "function" {
-
-          var fn = val.(OmmFunc)
-
-          var params = make(map[string]string)
-
-          //clone `newnames` into `params` which is a list of variables that are passed into the function
-          for k, v := range newnames {
-            params[k] = v
-          }
-
-          for i, p := range val.(OmmFunc).Params { //add the params to the current variables
-            pname := "v" + strconv.FormatUint(curvar, 10)
-            fn.Params[i] = pname //also modify the parameters in the actual function
-            params[p] = pname
-            curvar++
-          }
-
-          _, e = changevarnames(fn.Body, params)
-          *prototype.Static[i] = fn
-          if e != nil {
-            return nil, e
-          }
+        for k, v := range newnames {
+          passvals[k] = v
         }
 
+        var passarr = []Action{ val }
+        changevarnames(passarr, passvals)
+        actions[k].Static[i] = passarr
       }
 
-      var instanceproto map[string]string
-      for i := range prototype.Instance {
+      var instanceproto = make(map[string]string)
 
-        var val = *prototype.Instance[i]
+      for _, val := range v.Instance {
+        instanceproto[val[0].Name] = "v" + strconv.FormatUint(curvar, 10)
+        curvar++
+      }
 
-        if val.Type() == "function" {
+      for i := range v.Instance {
+        var val = v.Instance[i][0]
 
-          var fn = val.(OmmFunc)
+        var passvals = make(map[string]string)
 
-          var params = make(map[string]string)
-
-          //clone `newnames` into `params` which is a list of variables that are passed into the function
-          for k, v := range newnames {
-            params[k] = v
-          }
-
-          for i, p := range val.(OmmFunc).Params { //add the params to the current variables
-            pname := "v" + strconv.FormatUint(curvar, 10)
-            fn.Params[i] = pname //also modify the parameters in the actual function
-            params[p] = pname
-            curvar++
-          }
-
-          protonames, e := changevarnames(fn.Body, newnames)
-          *prototype.Static[i] = fn
-
-          /* Image we have this proto
-
-              proto {
-                instance var self
-                var init: fn(self) {
-                  self::self: self
-                }
-                var testf: fn() {
-                  log self ; without the following, this would cause an error
-                }
-              }
-          */
-          newnames = protonames
-          instanceproto = protonames
-          if e != nil {
-            return nil, e
-          }
+        for k, v := range instanceproto {
+          passvals[k] = v
+        }
+        for k, v := range newnames {
+          passvals[k] = v
         }
 
+        var passarr = []Action{ val }
+        changevarnames(passarr, passvals)
+        actions[k].Instance[i] = passarr
       }
 
       for k := range instanceproto {
         delete(newnames, k) //prevent outside of the proto from using proto variables
       }
 
-      actions[k].Value = prototype
+      actions[k] = v
 
       continue
     }

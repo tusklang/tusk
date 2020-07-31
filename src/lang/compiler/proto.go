@@ -8,6 +8,7 @@ var protos []string
 /*
   var main: fn() {
     var test: proto { ; would cause an error
+
     }
   }
 */
@@ -23,29 +24,23 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) CompileErr {
 
     if v.Type == "proto" {
 
-      for i := range v.Value.(OmmProto).Static {
+      for i := range v.Static {
 
-        var val = *v.Value.(OmmProto).Static[i]
+        var val = v.Static[i][0]
 
-        if val.Type() == "function" {
-          e = has_non_global_prototypes(val.(OmmFunc).Body, false)
-          if e != nil {
-            return e
-          }
+        e = has_non_global_prototypes([]Action{ val }, false)
+        if e != nil {
+          return e
         }
-
       }
-      for i := range v.Value.(OmmProto).Instance {
+      for i := range v.Instance {
 
-        var val = *v.Value.(OmmProto).Instance[i]
+        var val = v.Instance[i][0]
 
-        if val.Type() == "function" {
-          e = has_non_global_prototypes(val.(OmmFunc).Body, false)
-          if e != nil {
-            return e
-          }
+        e = has_non_global_prototypes([]Action{ val }, false)
+        if e != nil {
+          return e
         }
-
       }
 
       continue

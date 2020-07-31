@@ -31,21 +31,21 @@ func validate_types(actions []Action) CompileErr {
     }
     if v.Type == "proto" {
 
-      for i := range v.Value.(OmmProto).Static {
-        var val = *v.Value.(OmmProto).Static[i]
+      for i := range v.Static {
+        var val = v.Static[i][0]
 
-        if val.Type() == "function" {
-          e = validate_types(val.(OmmFunc).Body)
+        if val.Type == "function" {
+          e = validate_types(val.Value.(OmmFunc).Body)
           if e != nil {
             return e
           }
         }
       }
-      for i := range v.Value.(OmmProto).Instance {
-        var val = *v.Value.(OmmProto).Instance[i]
+      for i := range v.Instance {
+        var val = v.Instance[i][0]
 
-        if val.Type() == "function" {
-          e = validate_types(val.(OmmFunc).Body,)
+        if val.Type == "function" {
+          e = validate_types(val.Value.(OmmFunc).Body,)
           if e != nil {
             return e
           }

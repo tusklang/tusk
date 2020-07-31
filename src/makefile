@@ -9,11 +9,13 @@ endif
 GOPATH_DIR := $(CURDIR)/../
 
 build: omm.go
-	$(SET_GOPATH) go build omm.go
+	$(SET_GOPATH)
+	go build omm.go
 	$(OMM_CMD) ./ stdlib/lib.omm -c
 
 test: omm.go
-	$(SET_GOPATH) go build omm.go
+	$(SET_GOPATH)
+	go build omm.go
 	$(OMM_CMD) ./ stdlib/lib.omm -c
 
 	@echo ---------------------------------- 

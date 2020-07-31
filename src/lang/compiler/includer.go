@@ -43,6 +43,7 @@ func includeSingle(filename string, line uint64, dir string) ([]Action, CompileE
 }
 
 func includer(filename string, line uint64, dir string) ([][]Action, CompileErr) {
+
   if strings.HasSuffix(filename, "*") {
 
     files, e := ioutil.ReadDir(strings.TrimSuffix(filename, "*"))
@@ -55,7 +56,7 @@ func includer(filename string, line uint64, dir string) ([][]Action, CompileErr)
 
     for _, v := range files {
 
-      if !strings.HasSuffix(v.Name(), ".omm") || !strings.HasSuffix(v.Name(), ".oat") {
+      if !strings.HasSuffix(v.Name(), ".omm") && !strings.HasSuffix(v.Name(), ".oat") { //if it is not an omm or an oat file, skip it
         continue
       }
 
