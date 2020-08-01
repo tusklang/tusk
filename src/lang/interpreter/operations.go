@@ -188,6 +188,10 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		//convert field to go string
 		gostr := val2.(OmmString).ToGoType()
 
+		if gostr[0] == '_' { //if it is a private field
+			OmmPanic("Cannot access private field \"" + gostr + "\"", line, file, stacktrace)
+		}
+
 		field := val1.(OmmProto).GetStatic(gostr)
 
 		if field == nil {
@@ -200,6 +204,10 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		//convert field to go string
 		gostr := val2.(OmmString).ToGoType()
+
+		if gostr[0] == '_' { //if it is a private field
+			OmmPanic("Cannot access private field \"" + gostr + "\"", line, file, stacktrace)
+		}
 
 		field := val1.(OmmObject).GetInstance(gostr)
 

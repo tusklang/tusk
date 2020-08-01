@@ -1,5 +1,0 @@
-var osm: {
-    static var start: fn(port) {
-
-    }
-}
