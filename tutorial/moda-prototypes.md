@@ -81,7 +81,7 @@ var test_proto: proto {
 
 Now we can use this prototype!
 
-```
+```clojure
 var main: fn() {
   log test_proto::c ;would log 12
   obj := make[test_proto] ;create an object from the proto `test_proto`

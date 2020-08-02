@@ -2,7 +2,7 @@
 
 Every Omm program must have a main function. This style is shown in languages like, C, Go, Java, Rust, and many more. The main function looks like:
 
-```
+```clojure
 var main: fn() {
   ; program goes here
 }

@@ -17,6 +17,6 @@ The Omm languages comes default with 5 datatypes:
 The `typeof` function can be used to get the type of a value
 To convert between types, you can use the `->` operator
 
-```
-var converted: string -> 123; convert 123 to "123"
+```clojure
+var converted: string -> 123 ;convert 123 to "123"
 ```
