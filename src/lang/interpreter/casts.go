@@ -10,7 +10,7 @@ func cast(val OmmType, nType string, stacktrace []string, line uint64, file stri
 
   switch nType + "->" + val.TypeOf() {
 
-  case "string->number":
+    case "string->number":
       str := NumNormalize(val.(OmmNumber)) //convert to string
       var ommstr OmmString //create an ommstring
       ommstr.FromGoType(str)
@@ -48,6 +48,13 @@ func cast(val OmmType, nType string, stacktrace []string, line uint64, file stri
         var ommtype OmmType = zero
         return &ommtype
       }
+
+    case "string->rune":
+      var gostring = string(val.(OmmRune).ToGoType())
+      var ommstr OmmString
+      ommstr.FromGoType(gostring)
+      var ommtype OmmType = ommstr
+      return &ommtype
 
   }
 

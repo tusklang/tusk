@@ -32,7 +32,7 @@ func Run(params CliParams) {
     os.Exit(1)
   }
 
-  _, variables, ce := Compile(string(file), fileName, compileall)
+  _, variables, ce := Compile(string(file), fileName, compileall, true)
 
   if ce != nil {
     ce.Print()

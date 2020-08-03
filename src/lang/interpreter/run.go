@@ -31,8 +31,8 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
       Value: instance.interpreter(v, []string{"at the global interpreter"}).Exp,
     }
     instance.globals[k] = &global
-    instance.vars = instance.globals //copy globals every time because some globals reference each other
   }
+  instance.vars = instance.globals //copy the globals into the vars
 
   for k, v := range GoFuncs {
     var gofunc OmmType = OmmGoFunc{

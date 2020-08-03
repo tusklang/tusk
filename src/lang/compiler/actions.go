@@ -218,6 +218,10 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
 
                   if body[i].ExpAct[0].Type == "var" {
 
+                    if body[i].ExpAct[0].ExpAct[0].Type == "variable" {
+                      return []Action{}, makeCompilerErr("Prototype variables cannot refernce directly from outside of the prototype", v.File, right[0].Line)
+                    }
+
                     if body[i].Type == "static" {
                       static[body[i].ExpAct[0].Name] = body[i].ExpAct[0].ExpAct
                     } else {

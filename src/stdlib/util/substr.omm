@@ -1,0 +1,12 @@
+var substr: fn(str, amt) {
+    substringed := ""
+
+    camt := clone[amt] - 1
+
+    while (camt >= 0) {
+        substringed: (string -> (str::(camt))) + substringed
+        camt--
+    }
+
+    return substringed
+}

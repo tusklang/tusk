@@ -1,0 +1,6 @@
+var starts_with: fn(str, starts) {
+
+    if (len[starts] > len[str]) return false
+
+    return substr[str, len[starts]] = starts
+}

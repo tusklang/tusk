@@ -1,10 +1,3 @@
 var main: fn() {
-  log t::_a
-}
-
-var t: proto {
-  var _a: 3
-  var _b: fn() {
-    log "SS"
-  }
+    log url::get["hi"]
 }

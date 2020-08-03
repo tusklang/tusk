@@ -114,6 +114,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
       if e != nil {
         return nil, e
       }
+
       continue
     }
     if v.Type == "proto" {
@@ -128,7 +129,12 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
         }
 
         var passarr = []Action{ val }
-        changevarnames(passarr, passvals)
+        _, e := changevarnames(passarr, passvals)
+
+        if e != nil {
+          return nil, e
+        }
+
         actions[k].Static[i] = passarr
       }
 
@@ -152,7 +158,12 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
         }
 
         var passarr = []Action{ val }
-        changevarnames(passarr, passvals)
+        _, e := changevarnames(passarr, passvals)
+
+        if e != nil {
+          return nil, e
+        }
+
         actions[k].Instance[i] = passarr
       }
 
@@ -162,6 +173,17 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 
       actions[k] = v
 
+      continue
+    }
+
+    if v.Type == "var" || v.Type == "declare" {
+      newnames[v.Name] = "v" + strconv.FormatUint(curvar, 10)
+      actions[k].Name = "v" + strconv.FormatUint(curvar, 10)
+      curvar++
+      _, e = changevarnames(actions[k].ExpAct, newnames)
+      if e != nil {
+       return nil, e
+      }
       continue
     }
 
@@ -195,12 +217,6 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
     ////////////////////////////////////////////////
 
     /////////////////////////////////////////////
-
-    if v.Type == "var" || v.Type == "declare" {
-      newnames[v.Name] = "v" + strconv.FormatUint(curvar, 10)
-      actions[k].Name = "v" + strconv.FormatUint(curvar, 10)
-      curvar++
-    }
 
     if v.Type == "variable" {
       if _, exists := newnames[v.Name]; !exists {

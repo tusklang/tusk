@@ -30,7 +30,7 @@ func Compile(params CliParams) {
     fileName = "main.omm"
   }
 
-  actions, vars, ce := compiler.Compile(string(file), fileName, compileall)
+  actions, vars, ce := compiler.Compile(string(file), fileName, compileall, true)
 
   if ce != nil {
     ce.Print()

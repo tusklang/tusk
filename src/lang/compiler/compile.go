@@ -34,15 +34,12 @@ func makeCompilerErr(msg, fname string, line uint64) CompileErr {
   }
 }
 
-//export Compile
-func Compile(file, filename string, compileall bool) ([]Action, map[string][]Action, CompileErr) {
-
-  var e CompileErr
+func inclCompile(file, filename string, compileall bool) ([]Action, CompileErr) {
 
   lex, e := lexer(file, filename)
 
   if e != nil {
-    return []Action{}, nil, e
+    return []Action{}, e
   }
 
   if compileall { //if the dev wants to compile the entire directory
@@ -77,19 +74,33 @@ func Compile(file, filename string, compileall bool) ([]Action, map[string][]Act
   groups, e := makeGroups(lex)
 
   if e != nil {
-    return []Action{}, nil, e
+    return []Action{}, e
   }
 
   operations, e := makeOperations(groups)
 
   if e != nil {
-    return []Action{}, nil, e
+    return []Action{}, e
   }
 
   actions, e := actionizer(operations)
 
+  return actions, e
+}
+
+//export Compile
+func Compile(file, filename string, compileall, usestdlib bool) ([]Action, map[string][]Action, CompileErr) {
+
+  var e CompileErr
+
+  actions, e := inclCompile(file, filename, compileall)
+
+  if e != nil {
+    return nil, nil, e
+  }
+
   //include the stdlib
-  if !strings.HasPrefix(file, ";nostdlib") { //if it begins with ;nostdlib, do not include the stdlib
+  if !strings.HasPrefix(file, ";nostdlib") && usestdlib { //if it begins with ;nostdlib, do not include the stdlib
     var stdlib = oatHelper.FromOat(path.Join(ommbasedir, "stdlib/lib.oat"))
     actions = append(stdlib.Actions, actions...)
   }
@@ -129,9 +140,11 @@ func Compile(file, filename string, compileall bool) ([]Action, map[string][]Act
       continue
     }
 
-    if vars[k][0].Type != "function" {
-      changevarnames(vars[k], varnames) //ensure none of the globals use the globals from below
+    //ensure that the globals do not have any compound types (such as operations)
+    if vars[k][0].Value == nil && vars[k][0].Type != "proto" && vars[k][0].Type != "r-array" && vars[k][0].Type != "r-hash" {
+      return nil, nil, makeCompilerErr("Cannot have compound types at the golabl scope", vars[k][0].File, vars[k][0].Line)
     }
+
     varnames[k] = k
   }
 
@@ -142,7 +155,6 @@ func Compile(file, filename string, compileall bool) ([]Action, map[string][]Act
 
   for k := range vars {
     _, e = changevarnames(vars[k], varnames)
-
     if e != nil {
       return []Action{}, nil, e
     }
