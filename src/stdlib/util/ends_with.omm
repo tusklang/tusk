@@ -1,3 +1,6 @@
-var end_with: fn(str, ends) {
+var ends_with: fn(str, ends) {
 
+    if (len[ends] > len[str]) return false
+
+    return rmbegin[str, len[str] - len[ends]] == ends
 }

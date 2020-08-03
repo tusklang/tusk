@@ -47,6 +47,11 @@ func isTruthy(val OmmType) bool {
 
   switch val.(type) {
     case OmmBool:
+
+      if val.(OmmBool).Boolean == nil {
+        return false
+      }
+
       return *val.(OmmBool).Boolean
     case OmmUndef:
       return false

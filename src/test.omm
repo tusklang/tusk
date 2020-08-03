@@ -1,3 +1,4 @@
 var main: fn() {
-    log url::get["hi"]
+    log split["hdbevvvvemlllllllle", "e"]
 }
+

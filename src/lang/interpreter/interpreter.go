@@ -562,11 +562,11 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
           }
         }
 
-      case "+=":
-      case "-=":
-      case "*=":
-      case "/=":
-      case "%=":
+      case "+=": fallthrough
+      case "-=": fallthrough
+      case "*=": fallthrough
+      case "/=": fallthrough
+      case "%=": fallthrough
       case "^=":
 
         variable := ins.interpreter(v.First, stacktrace)

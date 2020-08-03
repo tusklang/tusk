@@ -1,3 +1,0 @@
-var split: fn(str, del) {
-
-}

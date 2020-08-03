@@ -24,6 +24,16 @@ func NumNormalize(num OmmNumber) string {
         finally, return the result
   */
 
+  tmp := make([]int64, 1)
+
+  if num.Integer == nil {
+    num.Integer = &tmp
+  }
+
+  if num.Decimal == nil {
+    num.Decimal = &tmp
+  }
+
   integer := *num.Integer
   decimal := *num.Decimal
 

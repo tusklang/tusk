@@ -1,4 +1,18 @@
-var substr: fn(str, amt) {
+var rmbegin: fn(str, amt) {
+    substringed := ""
+
+    strl := len[str] - 1
+    camt := clone[amt]
+
+    while (strl >= camt) {
+        substringed: (string -> (str::(strl))) + substringed
+        strl--
+    }
+
+    return substringed
+}
+
+var rmend: fn(str, amt) {
     substringed := ""
 
     camt := clone[amt] - 1

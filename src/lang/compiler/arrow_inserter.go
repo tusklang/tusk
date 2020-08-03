@@ -1,6 +1,6 @@
 package compiler
 
-var arrow_ids = []string{ "if", "elif", "else", "while", "each", "function" }
+var arrow_ids = []string{ "if", "elif", "while", "each", "function" }
 
 func insert_arrows(lex []Lex) []Lex {
 

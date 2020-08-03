@@ -2,4 +2,4 @@
 ;nostdlib is just a way to not including the stdlib in the stdlib
 
 include "url/*"
-;include "util/*"
+include "util/*"

@@ -1,3 +1,23 @@
-var includes: fn(str, inc) {
+var searchfor: fn(str, inc) { ;switch to rabin karp later
 
+    ;got from here https://coderscat.com/kmp-string-search-algorithm#:~:text=%20KMP%20String%20Search%20Algorithm%20%201%20Naive,the%20common...%203%20KMP%20algorithm.%20%20More%20
+
+    strlen := len[str]
+    inclen := len[inc]
+
+    i := 0;
+    o := 0
+
+    while (i < strlen & o < inclen) {
+        if (str::(i) == inc::(o)) {
+            i++
+            o++
+        } else {
+            i: i - o + 1
+            o: 0 term
+        }
+    }
+
+    if (o = inclen) return i - o
+    else return (-1)
 }

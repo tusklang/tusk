@@ -46,7 +46,11 @@ func (arr OmmArray) Format() string {
   for _, v := range arr.Array {
     formatted+=(*v).Format() + ", "
   }
-  formatted = formatted[:len(formatted) - 2] //remove the trailing ", "
+
+  if len(formatted) > 1 {
+    formatted = formatted[:len(formatted) - 2] //remove the trailing ", "
+  }
+
   formatted+="]"
   return formatted
 }

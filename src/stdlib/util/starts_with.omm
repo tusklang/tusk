@@ -2,5 +2,5 @@ var starts_with: fn(str, starts) {
 
     if (len[starts] > len[str]) return false
 
-    return substr[str, len[starts]] = starts
+    return rmend[str, len[starts]] = starts
 }

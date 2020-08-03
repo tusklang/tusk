@@ -80,7 +80,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		var isEqual OmmType = falsev
 
-		if val1.(OmmBool).ToGoType() == val2.(OmmBool).ToGoType() {
+		if val1.(OmmRune).ToGoType() == val2.(OmmRune).ToGoType() {
 			isEqual = truev
 		}
 
