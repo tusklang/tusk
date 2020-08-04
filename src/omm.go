@@ -41,8 +41,6 @@ func main() {
     os.Exit(1)
   }
 
-  _ = ""
-
   defaults(&cli_params, args[2])
 
   cli_params.Directory = args[1]

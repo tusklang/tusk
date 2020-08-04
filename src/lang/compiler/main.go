@@ -9,12 +9,13 @@ import . "lang/types"
 import . "lang/interpreter"
 
 var included = []string{} //list of the imported files from omm
-var ommbasedir string //directory of the omm installation
+
+//export Ommbasedir
+var Ommbasedir string //directory of the omm installation
 
 //export Run
 func Run(params CliParams) {
 
-  ommbasedir = params.OmmDirname
   fileName := params.Name
 
   var compileall = false
@@ -32,7 +33,9 @@ func Run(params CliParams) {
     os.Exit(1)
   }
 
+  Ommbasedir = params.OmmDirname
   _, variables, ce := Compile(string(file), fileName, compileall, true)
+  Ommbasedir = "" //reset Ommbasedir
 
   if ce != nil {
     ce.Print()

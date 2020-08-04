@@ -12,7 +12,7 @@ func FromOat(fileName string) Oat {
   readfile, e := os.Open(fileName)
 
   if e != nil {
-    fmt.Println("Error, could not access given oat file")
+    fmt.Println("Error, could not access given oat file:", fileName)
     os.Exit(1)
   }
 
@@ -22,7 +22,7 @@ func FromOat(fileName string) Oat {
   e = decoder.Decode(&decoded)
 
   if e != nil {
-    fmt.Println("Error, the given file is not oat compatible")
+    fmt.Println("Error, the given file is not oat compatible:", fileName)
     os.Exit(1)
   }
 

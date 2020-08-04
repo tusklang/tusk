@@ -101,7 +101,7 @@ func Compile(file, filename string, compileall, usestdlib bool) ([]Action, map[s
 
   //include the stdlib
   if !strings.HasPrefix(file, ";nostdlib") && usestdlib { //if it begins with ;nostdlib, do not include the stdlib
-    var stdlib = oatHelper.FromOat(path.Join(ommbasedir, "stdlib/lib.oat"))
+    var stdlib = oatHelper.FromOat(path.Join(Ommbasedir, "stdlib/lib.oat"))
     actions = append(stdlib.Actions, actions...)
   }
 
