@@ -2,13 +2,13 @@ package compiler
 
 import . "lang/types"
 
-var types = []string{ "string", "rune", "number", "bool", "hash", "array" }
+var types = []string{ "string", "rune", "number", "bool", "hash", "array", "any" }
 
 func validate_types(actions []Action) CompileErr {
 
   var e CompileErr
 
-  //function to make sure the typecasts
+  //function to make sure the typecasts and paramlists have valid types
 
   for _, v := range actions {
 
@@ -23,7 +23,21 @@ func validate_types(actions []Action) CompileErr {
     }
 
     if v.Type == "function" {
-      e = validate_types(v.Value.(OmmFunc).Body)
+
+      //check the parameter list
+      for _, vv := range v.Value.(OmmFunc).Overloads[0].Types {
+        for _, t := range types {
+          if t == vv {
+            goto plist_noErr
+          }
+        }
+
+        return makeCompilerErr("\"" + vv + "\" is not a type", v.File, v.Line)
+
+        plist_noErr:
+      }
+
+      e = validate_types(v.Value.(OmmFunc).Overloads[0].Body)
       if e != nil {
         return e
       }
@@ -35,7 +49,7 @@ func validate_types(actions []Action) CompileErr {
         var val = v.Static[i][0]
 
         if val.Type == "function" {
-          e = validate_types(val.Value.(OmmFunc).Body)
+          e = validate_types([]Action{ val })
           if e != nil {
             return e
           }
@@ -45,7 +59,7 @@ func validate_types(actions []Action) CompileErr {
         var val = v.Instance[i][0]
 
         if val.Type == "function" {
-          e = validate_types(val.Value.(OmmFunc).Body,)
+          e = validate_types([]Action{ val })
           if e != nil {
             return e
           }

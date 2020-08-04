@@ -93,21 +93,21 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     operand2 := (*args[2]).(OmmString).ToGoType()
     function := (*args[3]).(OmmFunc)
 
-    if len(function.Params) != 2 {
+    if len(function.Overloads[0].Params) != 2 {
       OmmPanic("Expected a parameter count of 2 for the fourth argument of defop", line, file, stacktrace)
     }
 
     Operations[operand1 + " " + operation + " " + operand2] = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
-      *instance.vars[function.Params[0]] = OmmVar{
-        Name: function.Params[0],
+      *instance.vars[function.Overloads[0].Params[0]] = OmmVar{
+        Name: function.Overloads[0].Params[0],
         Value: &val1,
       }
-      *instance.vars[function.Params[1]] = OmmVar{
-        Name: function.Params[1],
+      *instance.vars[function.Overloads[0].Params[1]] = OmmVar{
+        Name: function.Overloads[0].Params[1],
         Value: &val2,
       }
 
-      return instance.interpreter(function.Body, stacktrace).Exp
+      return instance.interpreter(function.Overloads[0].Body, stacktrace).Exp
     }
 
     var tmpundef OmmType = undef

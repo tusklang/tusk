@@ -131,10 +131,6 @@ func Compile(file, filename string, compileall, usestdlib bool) ([]Action, map[s
 
   for k := range vars {
 
-    if _, exists := varnames[k]; exists { //if the given global name already exists, throw an error
-      return []Action{}, nil, makeCompilerErr("Duplicate global name was detected", vars[k][0].File, vars[k][0].Line)
-    }
-
     if len(vars[k]) == 0 { //skip for declares
       varnames[k] = k
       continue

@@ -1,14 +1,17 @@
 package types
 
-import "strconv"
-
-type OmmFunc struct {
+type Overload struct {
   Params []string
+  Types  []string
   Body   []Action
 }
 
+type OmmFunc struct {
+  Overloads []Overload
+}
+
 func (f OmmFunc) Format() string {
-  return "(PARAM COUNT: " + strconv.Itoa(len(f.Params)) + ") { ... }"
+  return "(function) { ... }"
 }
 
 func (f OmmFunc) Type() string {

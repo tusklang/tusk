@@ -1,4 +1,12 @@
 var main: fn() {
     log "HELLO WORLD"
+    log test[]
 }
 
+var test: fn(any -> a) {
+    log a
+}
+
+ovld test: fn() {
+    log "SSS"
+}

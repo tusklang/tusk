@@ -31,7 +31,7 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
     switch v.Type {
       case "~":
 
-        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await", "proto", "static", "instance", "ifwin", "ifnwin" } //list of statements
+        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await", "proto", "static", "instance", "ifwin", "ifnwin", "ovld" } //list of statements
 
         var hasStatement bool = false
 
@@ -60,21 +60,28 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
                   return []Action{}, makeCompilerErr("Functions need a parameter list and a function body", v.File, right[0].Line)
                 }
 
+                var typeList []string
                 var paramList []string
 
                 for _, p := range right[0].First[0].ExpAct {
-                  if p.Type != "variable" {
-                    return []Action{}, makeCompilerErr("Function parameter lists can only have variables", v.File, right[0].Line)
+                  if p.Type != "cast" || p.ExpAct[0].Type != "variable" {
+                    return []Action{}, makeCompilerErr("Function parameter lists can only have typed variables", v.File, right[0].Line)
                   }
 
-                  paramList = append(paramList, p.Name)
+                  typeList = append(typeList, p.Name)
+                  paramList = append(paramList, p.ExpAct[0].Name)
                 }
 
                 actions = append(actions, Action{
                   Type: "function",
                   Value: OmmFunc{
-                    Params: paramList,
-                    Body: right[0].Second,
+                    Overloads: []Overload{
+                      Overload{
+                        Params: paramList,
+                        Types: typeList,
+                        Body: right[0].Second,
+                      },
+                    },
                   },
                   File: v.File,
                   Line: v.Line,
@@ -258,6 +265,30 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
                 if runtime.GOOS != "windows" {
                   actions = append(actions, right...)
                 }
+
+              case "ovld":
+
+                if right[0].Type != "let" {
+                  return []Action{}, makeCompilerErr("Expected a assigner statement after ovld", v.File, right[0].Line)
+                }
+
+                if right[0].First[0].Type != "variable" {
+                  return []Action{}, makeCompilerErr("Cannot use :: operator in an overloader", v.File, right[0].Line)
+                }
+
+                if right[0].ExpAct[0].Type != "function" {
+                  return []Action{}, makeCompilerErr("Cannot overload a " + right[0].Second[0].Type, v.File, right[0].Line)
+                }
+
+                right[0].Type = "ovld"
+
+                actions = append(actions, Action{
+                  Type: val,
+                  Name: right[0].First[0].Name,
+                  ExpAct: right[0].ExpAct,
+                  File: v.File,
+                  Line: v.Line,
+                })
 
               default:
 

@@ -1,8 +1,8 @@
 package interpreter
 
-import "strconv"
 import "oat/helper"
 import "path/filepath"
+import "path"
 import "os"
 import . "lang/types"
 
@@ -43,21 +43,12 @@ func (ins *Instance) CallFunc(name string, args... *OmmType) *OmmType {
     panic("Given global is not a function: " + name)
   }
 
-  var body = fn.(OmmFunc).Body
-  var params = fn.(OmmFunc).Params
-
-  if len(params) != len(args) {
-    panic("Function " + name + " requires " + strconv.Itoa(len(params)) + " arguments, but was given " + strconv.Itoa(len(args)) + " instead")
+  var argarr = OmmArray{
+    Array: args,
+    Length: uint64(len(args)),
   }
 
-  for k, v := range params {
-    ins.vars[v] = &OmmVar{
-      Name: v,
-      Value: args[k],
-    }
-  }
-
-  return ins.interpreter(body, []string{ "at goat caller" }).Exp
+  return Operations["function <- array"](fn, argarr, ins, []string{ "at goat caller" }, 0, path.Join(ins.Params.Directory, ins.Params.Name))
 }
 
 func (ins *Instance) FromOat(filename string) {

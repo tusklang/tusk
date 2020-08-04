@@ -44,6 +44,27 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
           }
         }
 
+      case "ovld":
+
+        interpreted := ins.interpreter(v.ExpAct, stacktrace)
+
+        if (*(*ins.vars[v.Name]).Value).Type() != "function" {
+          OmmPanic("Can only overload a function", v.Line, v.File, stacktrace)
+        }
+
+        ins.vars[v.Name] = &OmmVar{
+          Name: v.Name,
+          Value: interpreted.Exp,
+        }
+
+        if expReturn {
+          variable := *ins.vars[v.Name]
+          return Returner{
+            Type: "expression",
+            Exp: variable.Value,
+          }
+        }
+
       case "declare":
 
         var tmpundef OmmType = undef

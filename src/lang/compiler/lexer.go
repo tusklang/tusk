@@ -238,7 +238,7 @@ func testkey(token map[string]string, file string, i int) bool {
       //if +/- comes after a token or operation, it must be a sign
 
       for _, v := range tokens {
-        if v["type"] == "operation" || v["type"] == "?operation" || v["type"] == "?open_brace" {
+        if v["type"] == "operation" || v["type"] == "?operation" || v["type"] == "?open_brace" || v["type"] == "id" {
           re, _ := regexp.Compile("(" + v["pattern"] + ")$")
           matched := re.MatchString(strings.TrimRight(file[:i], " "))
 

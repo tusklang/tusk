@@ -46,7 +46,7 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) CompileErr {
       continue
     }
     if v.Type == "function" {
-      e = has_non_global_prototypes(v.Value.(OmmFunc).Body, false)
+      e = has_non_global_prototypes(v.Value.(OmmFunc).Overloads[0].Body, false)
       if e != nil {
         return e
       }

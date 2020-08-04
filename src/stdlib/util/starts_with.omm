@@ -1,4 +1,4 @@
-var starts_with: fn(str, starts) {
+var starts_with: fn(string -> str, string -> starts) {
 
     if (len[starts] > len[str]) return false
 

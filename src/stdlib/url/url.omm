@@ -1,12 +1,12 @@
 var url: proto {
 
-    static var get: fn(uri) {
+    static var get: fn(string -> uri) {
         return _url_get_fn[uri]
     }
-    static var post: fn(uri, data) {
+    static var post: fn(string -> uri, hash -> data) {
         return _url_post_fn[uri, data]
     }
-    static var parse: fn(uri) {
+    static var parse: fn(string -> uri) {
         return _url_parse_fn[uri]
     }
 

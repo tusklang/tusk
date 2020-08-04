@@ -11,47 +11,76 @@ func init() { //initialize the operations that require the use of the interprete
   var function__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
     var fn = val1.(OmmFunc)
     var arr = val2.(OmmArray)
-
-    if uint64(len(fn.Params)) != arr.Length {
-      OmmPanic("Expected " + strconv.Itoa(len(fn.Params)) + " arguments to call function, but instead got " + strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
-    }
-
-    for k, v := range arr.Array {
-      instance.vars[fn.Params[k]] = &OmmVar{
-        Name: fn.Params[k],
-        Value: v,
+    
+    for _, v := range fn.Overloads {
+      if uint64(len(v.Params)) != arr.Length {
+        continue
       }
+
+      for k, vv := range v.Types {
+        if vv != (*arr.At(int64(k))).TypeOf() && vv != "any" {
+          goto not_exists
+        }
+      }
+
+      for k, vv := range arr.Array {
+        instance.vars[v.Params[k]] = &OmmVar{
+          Name: v.Params[k],
+          Value: vv,
+        }
+      }
+  
+      return instance.interpreter(v.Body, append(stacktrace, "synchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file)).Exp
+      not_exists:
     }
 
-    returnVal := instance.interpreter(fn.Body, append(stacktrace, "synchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file))
+    OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
 
-    return returnVal.Exp
+    var tmp OmmType = undef
+    return &tmp
   }
 
   var function__async__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
     var fn = val1.(OmmFunc)
     var arr = val2.(OmmArray)
 
-    if uint64(len(fn.Params)) != arr.Length {
-      OmmPanic("Expected " + strconv.Itoa(len(fn.Params)) + " arguments to call function, but instead got " + strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
-    }
+    for _, v := range fn.Overloads {
+      if uint64(len(v.Params)) != arr.Length {
+        continue
+      }
 
-    for k, v := range arr.Array {
-      instance.vars[fn.Params[k]] = &OmmVar{
-        Name: fn.Params[k],
-        Value: v,
+      var not_exists bool = false
+
+      for k, vv := range v.Types {
+        if vv != (*arr.At(int64(k))).TypeOf() && vv != "any" {
+          not_exists = true
+          break
+        }
+      }
+
+      for k, vv := range arr.Array {
+        instance.vars[v.Params[k]] = &OmmVar{
+          Name: v.Params[k],
+          Value: vv,
+        }
+      }
+
+      if !not_exists {
+        channel := make(chan Returner)
+        var promise OmmType = OmmThread{
+          Channel: channel,
+        }
+        
+        go callAsync(v.Body, instance, append(stacktrace, "asynchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file), channel)
+        
+        return &promise
       }
     }
 
-    channel := make(chan Returner)
+    OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
 
-    var promise OmmType = OmmThread{
-      Channel: channel,
-    }
-
-    go callAsync(fn.Body, instance, append(stacktrace, "asynchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file), channel)
-
-    return &promise
+    var tmp OmmType = undef
+    return &tmp
   }
 
   var gofunc__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {

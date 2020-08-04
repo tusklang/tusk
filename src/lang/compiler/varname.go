@@ -73,13 +73,13 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
         params[k] = v
       }
 
-      for i, p := range v.Value.(OmmFunc).Params { //add the params to the current variables
+      for i, p := range v.Value.(OmmFunc).Overloads[0].Params { //add the params to the current variables
         pname := "v" + strconv.FormatUint(curvar, 10)
-        fn.Params[i] = pname //also modify the parameters in the actual function
+        fn.Overloads[0].Params[i] = pname //also modify the parameters in the actual function
         params[p] = pname
         curvar++
       }
-      _, e = changevarnames(fn.Body, params)
+      _, e = changevarnames(fn.Overloads[0].Body, params)
       actions[k].Value = fn
       if e != nil {
         return nil, e
@@ -218,7 +218,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 
     /////////////////////////////////////////////
 
-    if v.Type == "variable" {
+    if v.Type == "variable" || v.Type == "ovld" {
       if _, exists := newnames[v.Name]; !exists {
         return nil, makeCompilerErr("Variable " + v.Name[1:] + " was not declared", v.File, v.Line)
       }

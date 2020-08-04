@@ -2,6 +2,7 @@ package interpreter
 
 import "os"
 import "fmt"
+import "strings"
 
 import . "lang/types"
 
@@ -25,13 +26,29 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
     Value: &dirnameOmmType,
   }
 
+  var doafter = make(map[string][]Action)
+
   for k, v := range compiledVars {
+
+    if strings.HasPrefix(k, "ovld/") {
+      //Using this, because the order of the map is not maintained, so this can cause a nil pointer
+      doafter[k] = v
+      continue
+    }
+
     var global = OmmVar{
       Name: k,
       Value: instance.interpreter(v, []string{"at the global interpreter"}).Exp,
     }
     instance.globals[k] = &global
   }
+
+  for k, v := range doafter {
+    var fn = (*instance.globals[strings.TrimPrefix(k, "ovld/")].Value).(OmmFunc)
+    fn.Overloads = append(fn.Overloads, v[0].Value.(OmmFunc).Overloads[0])
+    *instance.globals[strings.TrimPrefix(k, "ovld/")].Value = fn
+  }
+
   instance.vars = instance.globals //copy the globals into the vars
 
   for k, v := range GoFuncs {
@@ -53,7 +70,7 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
       case OmmFunc:
         main := instance.vars["$main"]
 
-        calledP := instance.interpreter((*main.Value).(OmmFunc).Body, []string{"at the entry caller"}).Exp
+        calledP := instance.interpreter((*main.Value).(OmmFunc).Overloads[0].Body, []string{"at the entry caller"}).Exp
 
         if calledP == nil {
           os.Exit(0)

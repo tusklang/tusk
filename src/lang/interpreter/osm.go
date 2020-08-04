@@ -41,7 +41,7 @@ func OSM_handle(args []*OmmType, stacktrace []string, line uint64, file string, 
   var path = (*args[0]).(OmmString).ToGoType()
   var cb = (*args[1]).(OmmFunc)
 
-  if len(cb.Params) != 2 {
+  if len(cb.Overloads[0].Params) != 2 {
     OmmPanic("Function osm.handle requires a callback with 2 parameters", line, file, stacktrace)
   }
 
@@ -180,15 +180,15 @@ func OSM_handle(args []*OmmType, stacktrace []string, line uint64, file string, 
       ommtype_req OmmType = oreq
       ommtype_res OmmType = ores
     )
-    instance.vars[cb.Params[0]] = &OmmVar{
-      Name: cb.Params[0],
+    instance.vars[cb.Overloads[0].Params[0]] = &OmmVar{
+      Name: cb.Overloads[0].Params[0],
       Value: &ommtype_req,
     }
-    instance.vars[cb.Params[1]] = &OmmVar{
-      Name: cb.Params[1],
+    instance.vars[cb.Overloads[0].Params[1]] = &OmmVar{
+      Name: cb.Overloads[0].Params[1],
       Value: &ommtype_res,
     }
-    instance.interpreter(cb.Body, append(stacktrace, "osm handler callback at line " + strconv.FormatUint(line, 10) + " in file " + file))
+    instance.interpreter(cb.Overloads[0].Body, append(stacktrace, "osm handler callback at line " + strconv.FormatUint(line, 10) + " in file " + file))
   })
 
   //return undef

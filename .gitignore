@@ -4,4 +4,4 @@ src/omm
 src/*.exe
 *.wixobj
 *.wixpdb
-src/*.oat
+src/stdlib/lib.oat

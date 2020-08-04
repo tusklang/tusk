@@ -39,7 +39,7 @@ func insert_garbage_collectors(actions []Action) []Action {
     if v.Type == "function" {
 
       var fn = v.Value.(OmmFunc)
-      fn.Body = insert_garbage_collectors(fn.Body)
+      fn.Overloads[0].Body = insert_garbage_collectors(fn.Overloads[0].Body)
       actions[k].Value = fn
 
       continue
@@ -52,7 +52,7 @@ func insert_garbage_collectors(actions []Action) []Action {
 
         if val.Type == "function" {
           var fn = val.Value.(OmmFunc)
-          fn.Body = insert_garbage_collectors(fn.Body)
+          fn.Overloads[0].Body = insert_garbage_collectors(fn.Overloads[0].Body)
           v.Static[i][0].Value = fn
         }
 
@@ -64,7 +64,7 @@ func insert_garbage_collectors(actions []Action) []Action {
 
         if val.Type == "function" {
           var fn = val.Value.(OmmFunc)
-          fn.Body = insert_garbage_collectors(fn.Body)
+          fn.Overloads[0].Body = insert_garbage_collectors(fn.Overloads[0].Body)
           v.Instance[i][0].Value = fn
         }
 
