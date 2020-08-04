@@ -1,3 +1,5 @@
 var main: fn() {
-    log url::post("HI" [::])
+
+    var main: "SS"
+
 }

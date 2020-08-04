@@ -177,6 +177,12 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
     }
 
     if v.Type == "var" || v.Type == "declare" {
+
+      //check if it already exists
+      if _, exists := newnames[v.Name]; exists {
+        return nil, makeCompilerErr("Variable " + v.Name[1:] + " was already declared", v.File, v.Line)
+      }
+
       newnames[v.Name] = "v" + strconv.FormatUint(curvar, 10)
       actions[k].Name = "v" + strconv.FormatUint(curvar, 10)
       curvar++
