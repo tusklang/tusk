@@ -11,6 +11,11 @@ func (b *OmmBool) FromGoType(val bool) {
 }
 
 func (b OmmBool) ToGoType() bool {
+
+  if b.Boolean == nil {
+    return false
+  }
+
   return *b.Boolean
 }
 

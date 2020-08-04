@@ -33,7 +33,7 @@ clean:
 
 .SILENT: clean_no_echo
 clean_no_echo:
-	make clean
+	@make -s clean
 
 $(BINARY): 
 	$(SET_GOPATH)

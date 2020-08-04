@@ -96,6 +96,14 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isEqual
 	},
+	"undef = undef": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+		var tmp OmmType = truev
+		return &tmp
+	},
+	"undef != undef": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+		var tmp OmmType = falsev
+		return &tmp
+	},
 	"undef ! bool": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
 
 		boolean := !val2.(OmmBool).ToGoType()
