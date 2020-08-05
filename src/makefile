@@ -9,13 +9,13 @@ ifeq ($(OS),Windows_NT)
 	CLEAN_CMD = del
 	LIB_OAT = stdlib\lib.oat
 else
-	BINARY = ./omm
+	BINARY = omm
 	COMPILE_ALL = @GOPATH=$(GOPATH_DIR) go build omm.go
 	CLEAN_CMD = rm -f
 	LIB_OAT = stdlib/lib.oat
 endif
 
-GOPATH_DIR := $(CURDIR)/../
+GOPATH_DIR = $(CURDIR)/../
 
 .PHONY: all
 all: $(BINARY) $(LIB_OAT)
@@ -25,7 +25,7 @@ test: $(BINARY) $(LIB_OAT)
 	@echo ------------------------------------
 	@echo --------- Start Test File ---------- 
 	@echo ------------------------------------
-	-$(BINARY) ./ ./test.omm
+	-./$(BINARY) ./ ./test.omm
 	@echo ------------------------------------
 	@make -s clean_no_echo
 
@@ -43,4 +43,4 @@ $(BINARY):
 	$(COMPILE_ALL)
 
 $(LIB_OAT):
-	-$(BINARY) ./stdlib ./lib.omm -c
+	-./$(BINARY) ./stdlib ./lib.omm -c

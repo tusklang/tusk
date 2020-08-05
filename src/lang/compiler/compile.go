@@ -129,6 +129,9 @@ func Compile(file, filename string, compileall, isoat bool) ([]Action, map[strin
   //make each var have only it's name
   var varnames = make(map[string]string)
 
+  varnames["$__dirname"] = "$__dirname"
+  varnames["$argv"] = "$argv"
+
   for k := range vars {
 
     if len(vars[k]) == 0 { //skip for declares

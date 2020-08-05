@@ -26,9 +26,28 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
   instance.vars = make(map[string]*OmmVar)
   instance.globals = make(map[string]*OmmVar)
 
-  instance.vars["$__dirname"] = &OmmVar{
+  instance.globals["$__dirname"] = &OmmVar{
     Name: "$__dirname",
     Value: &dirnameOmmType,
+  }
+
+  var argv = make([]*OmmType, len(os.Args))
+
+  for k, v := range os.Args {
+    var ommstr OmmString
+    ommstr.FromGoType(v)
+    var ommtype OmmType = ommstr
+    argv[k] = &ommtype
+  }
+
+  var arr OmmType = OmmArray{
+    Array: argv,
+    Length: uint64(len(os.Args)),
+  }
+
+  instance.globals["$argv"] = &OmmVar{
+    Name: "$argv",
+    Value: &arr,
   }
 
   var doafter = make([]overload_after, 0)

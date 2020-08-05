@@ -51,8 +51,6 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 
   var e CompileErr
 
-  newnames_["$__dirname"] = "$__dirname" //__dirname is a global
-
   var newnames = make(map[string]string)
 
   //make newnames_ not get mutated
