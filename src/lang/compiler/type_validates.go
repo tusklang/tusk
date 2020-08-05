@@ -46,6 +46,11 @@ func validate_types(actions []Action) CompileErr {
     if v.Type == "proto" {
 
       for i := range v.Static {
+
+        if len(v.Static[i]) == 0 {
+          continue
+        }
+
         var val = v.Static[i][0]
 
         if val.Type == "function" {
@@ -56,6 +61,11 @@ func validate_types(actions []Action) CompileErr {
         }
       }
       for i := range v.Instance {
+
+        if len(v.Instance[i]) == 0 {
+          continue
+        }
+
         var val = v.Instance[i][0]
 
         if val.Type == "function" {

@@ -1,3 +1,5 @@
 var main = fn() {
-    log argv
+    log (json::marshal)([:
+        ss = true
+    :])
 }

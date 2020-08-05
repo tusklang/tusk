@@ -1,0 +1,7 @@
+var fs = proto {
+
+    static var readfile = fn(string -> filename) {
+        return fsreadfile(filename)
+    }
+
+}

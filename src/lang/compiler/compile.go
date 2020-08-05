@@ -153,7 +153,7 @@ func Compile(file, filename string, compileall, isoat bool) ([]Action, map[strin
   }
 
   for k := range vars {
-    _, e = changevarnames(vars[k], varnames)
+    // _, e = changevarnames(vars[k], varnames)
     if e != nil {
       return []Action{}, nil, e
     }

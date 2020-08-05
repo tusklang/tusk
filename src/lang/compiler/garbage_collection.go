@@ -48,6 +48,10 @@ func insert_garbage_collectors(actions []Action) []Action {
 
       for i := range v.Static {
 
+        if len(v.Static[i]) == 0 {
+          continue
+        }
+
         var val = v.Static[i][0]
 
         if val.Type == "function" {
@@ -59,6 +63,10 @@ func insert_garbage_collectors(actions []Action) []Action {
       }
 
       for i := range v.Instance {
+
+        if len(v.Static[i]) == 0 {
+          continue
+        }
 
         var val = v.Instance[i][0]
 

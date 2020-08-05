@@ -1,0 +1,11 @@
+var json = proto {
+
+    static var marshal = fn(any -> v) {
+        return json_marshal(v)
+    }
+
+    static var parse = fn(string -> v) {
+        return json_parse(v)
+    }
+
+}

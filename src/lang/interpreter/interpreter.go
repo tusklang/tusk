@@ -2,6 +2,7 @@ package interpreter
 
 import "fmt"
 import "os"
+import "strings"
 import . "lang/types"
 
 //export OmmPanic
@@ -49,12 +50,16 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
         interpreted := ins.interpreter(v.ExpAct, stacktrace)
 
         if (*(*ins.vars[v.Name]).Value).Type() != "function" {
-          OmmPanic("Can only overload a function", v.Line, v.File, stacktrace)
+          *(*ins.vars[v.Name]).Value = OmmFunc{}
+        }
+
+        var appended_ovld OmmType = OmmFunc{
+          Overloads: append((*(*ins.vars[v.Name]).Value).(OmmFunc).Overloads, (*interpreted.Exp).(OmmFunc).Overloads[0]),
         }
 
         ins.vars[v.Name] = &OmmVar{
           Name: v.Name,
-          Value: interpreted.Exp,
+          Value: &appended_ovld,
         }
 
         if expReturn {
@@ -171,11 +176,40 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
         var static = make(map[string]*OmmType)
         var instance = make(map[string]*OmmType)
 
+        var overload = func(place map[string]*OmmType, k string, i []Action) {
+
+          if strings.HasPrefix(k, "ovld/") { //if it is overloaded
+
+            k = strings.TrimSpace(strings.TrimPrefix(k, "ovld/"))
+
+            var orig = place[k]
+
+            if orig == nil {
+              var tmp OmmType = OmmFunc{}
+              orig = &tmp
+            }
+
+            switch (*orig).(type) {
+              case OmmFunc: //ignore it
+              default: //otherwise force it to a function
+                *orig = OmmFunc{}
+            }
+
+            var tmp = (*orig).(OmmFunc)
+            tmp.Overloads = append(tmp.Overloads, (*ins.interpreter(i, stacktrace).Exp).(OmmFunc).Overloads...)
+            *orig = tmp
+
+          } else {
+            place[k] = ins.interpreter(i, stacktrace).Exp
+          }
+
+        }
+
         for k, i := range v.Static {
-          static[k] = ins.interpreter(i, stacktrace).Exp
+          overload(static, k, i)
         }
         for k, i := range v.Instance {
-          instance[k] = ins.interpreter(i, stacktrace).Exp
+          overload(instance, k, i)
         }
 
         var proto = OmmProto{

@@ -26,6 +26,10 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) CompileErr {
 
       for i := range v.Static {
 
+        if len(v.Static[i]) == 0 {
+          continue
+        }
+
         var val = v.Static[i][0]
 
         e = has_non_global_prototypes([]Action{ val }, false)
@@ -34,6 +38,10 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) CompileErr {
         }
       }
       for i := range v.Instance {
+
+        if len(v.Instance[i]) == 0 {
+          continue
+        }
 
         var val = v.Instance[i][0]
 

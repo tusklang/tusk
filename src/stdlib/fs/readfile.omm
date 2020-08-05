@@ -1,0 +1,3 @@
+var fsreadfile = fn(string -> filename) {
+    
+}

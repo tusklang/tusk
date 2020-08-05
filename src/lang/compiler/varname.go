@@ -120,6 +120,11 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
     if v.Type == "proto" {
 
       for i := range v.Static {
+
+        if len(v.Static[i]) == 0 {
+          continue
+        }
+
         var val = v.Static[i][0]
 
         var passvals = make(map[string]string)
@@ -146,6 +151,11 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
       }
 
       for i := range v.Instance {
+
+        if len(v.Instance[i]) == 0 {
+          continue
+        }
+
         var val = v.Instance[i][0]
 
         var passvals = make(map[string]string)

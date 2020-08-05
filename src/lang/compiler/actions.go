@@ -223,23 +223,22 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
                     }
                   }
 
+                  name := body[i].ExpAct[0].Name
+
                   if body[i].ExpAct[0].Type == "var" {
 
-                    if body[i].ExpAct[0].ExpAct[0].Type == "variable" {
-                      return []Action{}, makeCompilerErr("Prototype variables cannot refernce directly from outside of the prototype", v.File, right[0].Line)
-                    }
-
                     if body[i].Type == "static" {
-                      static[body[i].ExpAct[0].Name] = body[i].ExpAct[0].ExpAct
+                      static[name] = body[i].ExpAct[0].ExpAct
                     } else {
-                      instance[body[i].ExpAct[0].Name] = body[i].ExpAct[0].ExpAct
+                      instance[name] = body[i].ExpAct[0].ExpAct
                     }
 
                   } else if body[i].ExpAct[0].Type == "declare" {
+
                     if body[i].Type == "static" {
-                      static[body[i].ExpAct[0].Name] = []Action{}
+                      static[name] = []Action{}
                     } else {
-                      instance[body[i].ExpAct[0].Name] = []Action{}
+                      instance[name] = []Action{}
                     }
                   } else {
                     return []Action{}, makeCompilerErr("Prototype bodies can only have variable assignments and declarations", v.File, right[0].Line)
@@ -277,7 +276,13 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
                 }
 
                 if right[0].ExpAct[0].Type != "function" {
-                  return []Action{}, makeCompilerErr("Cannot overload a " + right[0].Second[0].Type, v.File, right[0].Line)
+                  return []Action{}, makeCompilerErr("Cannot overload a " + right[0].ExpAct[0].Type, v.File, right[0].Line)
+                }
+
+                for _, p := range right[0].ExpAct[0].Value.(OmmFunc).Overloads[0].Types {
+                  if p == "any" {
+                    return []Action{}, makeCompilerErr("Cannot use \"any\" type in a overload (may cause bugs)", v.File, right[0].Line)
+                  }
                 }
 
                 right[0].Type = "ovld"

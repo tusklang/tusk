@@ -64,8 +64,8 @@ func valueActions(item Item) (Action, CompileErr) {
         oper := _oper[0]
 
         //give errors
-        if oper.Type != ":" {
-          return Action{}, makeCompilerErr("Expected a ':' for a hash key", item.File, oper.Line)
+        if oper.Type != "=" {
+          return Action{}, makeCompilerErr("Expected a '=' for a hash key", item.File, oper.Line)
         }
         if oper.Left.Type != "none" {
           return Action{}, makeCompilerErr("Only basic types can be used as hash indexes", item.File, oper.Line)
