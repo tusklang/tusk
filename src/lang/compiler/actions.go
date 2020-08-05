@@ -323,7 +323,7 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
           Line: v.Line,
         })
 
-      case ":":
+      case "=":
 
         actions = append(actions, Action{
           Type: "let",
@@ -383,7 +383,7 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
       case "/": fallthrough
       case "%": fallthrough
       case "^": fallthrough
-      case "=": fallthrough
+      case "==": fallthrough
       case "!=": fallthrough
       case ">": fallthrough
       case "<": fallthrough

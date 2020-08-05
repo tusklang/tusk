@@ -5,7 +5,7 @@ In Omm, every variable is a reference (pointer). Lets take an example
 ```clojure
 a := 1
 b := a
-b: 5
+b = 5
 ;a is is now 5
 ```
 
@@ -22,6 +22,6 @@ Omm can do this with the `clone[]` built in function.
 ```clojure
 a := 1
 b := clone[a]
-b: 4
+b = 4
 ;a stays as 1
 ```

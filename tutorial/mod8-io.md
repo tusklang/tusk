@@ -27,7 +27,7 @@ input_value := input["hello world: "]
 And you would see
 
 ```
-hello world:
+hello world: 
 ```
 
 and you can input a value to the console

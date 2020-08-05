@@ -9,7 +9,7 @@ include "test2.omm"
 
 ```clojure
 ;test2.omm
-var main: fn() {
+var main = fn() {
   log "hello world"
 }
 ```

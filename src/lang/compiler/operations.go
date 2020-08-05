@@ -87,7 +87,7 @@ func normalOpFunc(exp []Item, index int, opType string) (Operation, CompileErr) 
 }
 
 //ODO is
-// ~, ?, cb-ob, and :
+// ~, ?, =>, and =
 // break and continue
 // boolean operations (except not gate)
 // comparisons
@@ -104,7 +104,7 @@ func makeOperations(groups [][]Item) ([]Operation, CompileErr) {
   operations = []map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) {
     map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) { //these ones start from left to right
       "~": normalOpFunc,
-      ":": normalOpFunc,
+      "=": normalOpFunc,
       ":=": normalOpFunc,
       "=>": normalOpFunc,
     },

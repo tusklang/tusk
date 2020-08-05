@@ -11,12 +11,12 @@ Omm, like most programming languages, uses operators to perform tasks. The list 
 |%|Modulus|
 |^|Exponentiation|
 |::|Indexing|
-|:|Assignment|
+|=|Assignment|
 |:=|Declaration|
 |->|Type casts|
 |<-|Synchronous call|
 |<~|Asynchronous call|
-|=|Equality|
+|==|Equality|
 |!=|Inequality|
 |<|Less than|
 |>|Greater than|

@@ -8,7 +8,7 @@ The Omm languages comes default with 5 datatypes:
 - Boolean: a boolean is either `true` or `false` and can be written by just writing true or false, e.g. true, false
 - Undefined: an undefined value is a value with no value, and can be written by just writing `undef`
 - Array: an array is a list of values and can be written by writing [] with the values inside, e.g. [], [1, 2, 3], ["hello", 123, true, undef], [1 2 3]
-- Hash: a hash is a list of values (like an array) but with key/value pairs, and can be written like: [: "a": 1, "b": 2, 3: "c" :]
+- Hash: a hash is a list of values (like an array) but with key/value pairs, and can be written like: [: "a" = 1, "b" = 2, 3 = "c" :]
 - Prototype: a prototype is Omm's for OOP, and you can learn about them in the prototypes module
 - Object: an object is an instance of a prototype, and you can learn about them in the prototypes module
 - Thread: a thread is the way to do asynchronous programming in Omm based on goroutines, and you can make them using the asynchronous operator (<~)

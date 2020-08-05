@@ -234,7 +234,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
       case "/": fallthrough
       case "%": fallthrough
       case "^": fallthrough
-      case "=": fallthrough
+      case "==": fallthrough
       case "!=": fallthrough
       case ">": fallthrough
       case "<": fallthrough

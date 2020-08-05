@@ -1,13 +1,13 @@
 var split
 
 
-ovld split: fn(string -> str, string -> del) {
+ovld split = fn(string -> str, string -> del) {
     each (str, k, v) {
         
     }
 }
 
-ovld split: fn(string -> str, rune -> del) {
+ovld split = fn(string -> str, rune -> del) {
     
     splitted := []
 

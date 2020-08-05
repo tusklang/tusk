@@ -18,8 +18,8 @@ var test_proto: proto {
   instance var b
 
   instance var initialize: fn(av, bv) {
-    a: av
-    b: bv
+    a = av
+    b = bv
   }
 
   instance var somefunc: fn() {

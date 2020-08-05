@@ -54,6 +54,18 @@ var tokensJSON =
     "type": "id_non_tilde"
   },
   {
+    "name": "!=",
+    "remove": "!=",
+    "pattern": "(\\!\\=)",
+    "type": "operation"
+  },
+  {
+    "name": "==",
+    "remove": "==",
+    "pattern": "\\=\\=",
+    "type": "operation"
+  },
+  {
     "name": ":=",
     "remove": ":=",
     "pattern": "(\\:\\=)",
@@ -180,9 +192,9 @@ var tokensJSON =
     "type": "operation"
   },
   {
-    "name": ":",
-    "remove": ":",
-    "pattern": "\\:",
+    "name": "=",
+    "remove": "=",
+    "pattern": "\\=",
     "type": "operation"
   },
   {
@@ -429,24 +441,6 @@ var tokensJSON =
     "name": "<",
     "remove": "<",
     "pattern": "\\<",
-    "type": "operation"
-  },
-  {
-    "name": "!=",
-    "remove": "!=",
-    "pattern": "(\\!\\=)",
-    "type": "operation"
-  },
-  {
-    "name": "=",
-    "remove": "==",
-    "pattern": "(\\=\\=)",
-    "type": "operation"
-  },
-  {
-    "name": "=",
-    "remove": "=",
-    "pattern": "\\=",
     "type": "operation"
   },
   {
