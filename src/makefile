@@ -4,7 +4,7 @@ define newline #define a newline
 endef
 
 ifeq ($(OS),Windows_NT)
-	BINARY = ./omm.exe
+	BINARY = omm.exe
 	COMPILE_ALL = set GOPATH=$(GOPATH_DIR) $(newline) go build omm.go
 	CLEAN_CMD = del
 	LIB_OAT = stdlib\lib.oat

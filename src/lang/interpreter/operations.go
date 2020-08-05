@@ -12,7 +12,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 	"number / number": number__divide__number,
 	"number % number": number__mod__number,
 	"number ^ number": number__pow__number,
-	"number = number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"number == number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
 
 		var final = falsev
 
@@ -36,7 +36,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &finalType
 	},
-	"string = string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"string == string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
 
 		var isEqual OmmType = falsev
 
@@ -56,7 +56,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isEqual
 	},
-	"bool = bool": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"bool == bool": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
 
 		var isEqual OmmType = falsev
 
@@ -76,7 +76,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isEqual
 	},
-	"rune = rune": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"rune == rune": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
 
 		var isEqual OmmType = falsev
 
@@ -96,7 +96,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isEqual
 	},
-	"undef = undef": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"undef == undef": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
 		var tmp OmmType = truev
 		return &tmp
 	},

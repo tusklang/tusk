@@ -75,7 +75,6 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 
     //convert to OmmType interface
     var ommtype OmmType = str
-
     return &ommtype
   },
   "defop": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {

@@ -1,3 +1,5 @@
 var main = fn(string -> a) {
-    
+    log map([1, 2, 3], fn(any -> a, any -> i) {
+        return a == 1
+    })
 }

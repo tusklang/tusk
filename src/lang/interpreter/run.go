@@ -6,6 +6,11 @@ import "strings"
 
 import . "lang/types"
 
+type overload_after struct {
+  name   string
+  val  []Action
+}
+
 var threads []OmmThread
 
 //export RunInterpreter
@@ -26,13 +31,16 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
     Value: &dirnameOmmType,
   }
 
-  var doafter = make(map[string][]Action)
+  var doafter = make([]overload_after, 0)
 
   for k, v := range compiledVars {
 
     if strings.HasPrefix(k, "ovld/") {
       //Using this, because the order of the map is not maintained, so this can cause a nil pointer
-      doafter[k] = v
+      doafter = append(doafter, overload_after{
+        name: strings.TrimSpace(strings.TrimPrefix(k, "ovld/")),
+        val: v,
+      })
       continue
     }
 
@@ -43,20 +51,22 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
     instance.globals[k] = &global
   }
 
-  for k, v := range doafter {
+  for _, v := range doafter {
 
-    var _fn = (*instance.globals[strings.TrimPrefix(k, "ovld/")].Value)
+    var _fn = *instance.globals[strings.TrimPrefix(v.name, "ovld/")].Value
 
     //if it not a function, force it to be one
     switch _fn.(type) {
       case OmmFunc: //ignore
       default:
-        _fn = OmmFunc{}
+        _fn = OmmFunc{
+          Overloads: []Overload{},
+        }
     }
 
     var fn = _fn.(OmmFunc)
-    fn.Overloads = append(fn.Overloads, v[0].Value.(OmmFunc).Overloads[0])
-    *instance.globals[strings.TrimPrefix(k, "ovld/")].Value = fn
+    fn.Overloads = append(fn.Overloads, v.val[0].Value.(OmmFunc).Overloads[0])
+    *instance.globals[v.name].Value = fn
   }
 
   instance.vars = instance.globals //copy the globals into the vars

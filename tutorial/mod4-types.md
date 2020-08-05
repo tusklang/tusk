@@ -18,5 +18,5 @@ The `typeof` function can be used to get the type of a value
 To convert between types, you can use the `->` operator
 
 ```clojure
-var converted: string -> 123 ;convert 123 to "123"
+var converted = string -> 123 ;convert 123 to "123"
 ```

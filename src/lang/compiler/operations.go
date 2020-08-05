@@ -125,7 +125,7 @@ func makeOperations(groups [][]Item) ([]Operation, CompileErr) {
       "|": normalOpFunc,
     },
     map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) {
-      "=": normalOpFunc,
+      "==": normalOpFunc,
       "!=": normalOpFunc,
       ">": normalOpFunc,
       ">=": normalOpFunc,

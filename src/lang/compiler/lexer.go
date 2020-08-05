@@ -200,7 +200,7 @@ func lexer(file, filename string) ([]Lex, CompileErr) {
     if v.Type == "newlineN" {
       continue
     }
-    if v.Name == "$false" || v.Name == "$true" || v.Name == "$undef" || v.Name == "$null" { //account for true, false, undef, and null values
+    if v.Name == "$false" || v.Name == "$true" || v.Name == "$undef" { //account for true, false, undef values
       v.Name = v.Name[1:]
       newLex = append(newLex, v)
       continue
