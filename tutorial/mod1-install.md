@@ -11,7 +11,7 @@ The Omm installations can be found [here](http://omm.zone/downloads.php) (Curren
 
 If you do not have windows, or if you prefer building from source, you can go to the [Omm github page](https://github.com/Ankizle/Omm), clone the repo, and run this in the cli.
 ```
-cd `Directory to Omm installation`/src
+cd src/
 make
 ```
 (Note that you must have [Go 1.14+](https://golang.org/doc/go1.14) to build from the source, and a version of GNU make)

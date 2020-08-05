@@ -217,13 +217,7 @@ func lexer(file, filename string) ([]Lex, CompileErr) {
     }
   }
 
-  var sync_inserted, e = funcLex(lex)
-
-  if e != nil {
-    return []Lex{}, e
-  }
-
-  lex = term_inserter(tilde_inserter(insert_arrows(sync_inserted)))
+  lex = term_inserter(tilde_inserter(insert_arrows(lex)))
 
   return lex, nil
 }

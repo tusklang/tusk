@@ -75,8 +75,8 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 
       for i, p := range v.Value.(OmmFunc).Overloads[0].Params { //add the params to the current variables
         pname := "v" + strconv.FormatUint(curvar, 10)
-        fn.Overloads[0].Params[i] = pname //also modify the parameters in the actual function
         params[p] = pname
+        fn.Overloads[0].Params[i] = pname //also modify the parameters in the actual function
         curvar++
       }
       _, e = changevarnames(fn.Overloads[0].Body, params)
@@ -106,7 +106,9 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
       v.First[2].Name = "v" + strconv.FormatUint(curvar, 10)
       curvar++
 
-      _, e = changevarnames([]Action{ v.First[0] }, keyandvalvars)
+      tmp := []Action{ v.First[0] }
+      _, e = changevarnames(tmp, keyandvalvars)
+      v.First[0] = tmp[0]
       if e != nil {
         return nil, e
       }

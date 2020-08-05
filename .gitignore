@@ -5,4 +5,4 @@ src/*.exe
 *.wixobj
 *.wixpdb
 src/stdlib/lib.oat
-src/mango/mango.oat
+mango/mango.oat

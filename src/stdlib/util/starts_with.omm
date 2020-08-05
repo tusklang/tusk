@@ -1,6 +1,6 @@
 var starts_with: fn(string -> str, string -> starts) {
 
-    if (len[starts] > len[str]) return false
+    if (len(starts) > len(str)) return false
 
-    return rmend[str, len[starts]] = starts
+    return rmend(str, len(starts)) = starts
 }

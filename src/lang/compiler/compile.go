@@ -89,7 +89,7 @@ func inclCompile(file, filename string, compileall bool) ([]Action, CompileErr) 
 }
 
 //export Compile
-func Compile(file, filename string, compileall, usestdlib bool) ([]Action, map[string][]Action, CompileErr) {
+func Compile(file, filename string, compileall, isoat bool) ([]Action, map[string][]Action, CompileErr) {
 
   var e CompileErr
 
@@ -100,7 +100,7 @@ func Compile(file, filename string, compileall, usestdlib bool) ([]Action, map[s
   }
 
   //include the stdlib
-  if !strings.HasPrefix(file, ";nostdlib") && usestdlib { //if it begins with ;nostdlib, do not include the stdlib
+  if !strings.HasPrefix(file, ";nostdlib") && isoat { //if it begins with ;nostdlib, do not include the stdlib
     var stdlib = oatHelper.FromOat(path.Join(Ommbasedir, "stdlib/lib.oat"))
     actions = append(stdlib.Actions, actions...)
   }

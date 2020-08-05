@@ -16,6 +16,78 @@ func insert_arrows(lex []Lex) []Lex {
 
     nLex = append(nLex, lex[i])
 
+    //insert the function arrow (func_name[] or func_name() because func_name <- [])
+    {
+      k := i
+      v := lex[k]
+
+      if (v.Type != "operation" && v.Type != "?operation" && v.Type != "?open_brace" && v.Type != "id" && v.Type != "id_non_tilde") && k + 2 <= len(lex) && lex[k + 1].Name == "(" { //if the dev used a ( for a function call instead of a [
+
+        //insert a "sync"
+        nLex = append(nLex, Lex{
+          Name: "<-",
+          Exp: v.Exp,
+          Line: v.Line,
+          Type: "operation",
+          OName: "sync",
+          Dir: v.Dir,
+        })
+
+        //insert a "["
+        nLex = append(nLex, Lex{
+          Name: "[",
+          Exp: v.Exp,
+          Line: v.Line,
+          Type: "?open_brace",
+          OName: "[",
+          Dir: v.Dir,
+        })
+
+        pCnt := 1
+
+        for k+=2; k < len(lex); k++ {
+
+          if lex[k].Name == "(" {
+            pCnt++
+          }
+          if lex[k].Name == ")" {
+            pCnt--
+          }
+
+          if pCnt == 0 {
+            break
+          }
+
+          nLex = append(nLex, lex[k])
+
+        }
+
+        //insert a "]"
+        nLex = append(nLex, Lex{
+          Name: "]",
+          Exp: v.Exp,
+          Line: v.Line,
+          Type: "?close_brace",
+          OName: "[",
+          Dir: v.Dir,
+        })
+      
+        continue
+      }
+
+      if (v.Type != "operation" && v.Type != "?operation" && v.Type != "?open_brace" && v.Type != "id" && v.Type != "id_non_tilde") && k + 2 <= len(lex) && lex[k + 1].Name == "[" {
+        //insert a "sync"
+        nLex = append(nLex, Lex{
+          Name: "<-",
+          Exp: v.Exp,
+          Line: v.Line,
+          Type: "operation",
+          OName: "sync",
+          Dir: v.Dir,
+        })
+      }
+    }
+
     if func() bool { //if the current token is an arrow id
       for _, id := range arrow_ids {
         if id == lex[i].Name {

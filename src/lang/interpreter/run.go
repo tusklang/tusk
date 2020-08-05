@@ -44,7 +44,17 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
   }
 
   for k, v := range doafter {
-    var fn = (*instance.globals[strings.TrimPrefix(k, "ovld/")].Value).(OmmFunc)
+
+    var _fn = (*instance.globals[strings.TrimPrefix(k, "ovld/")].Value)
+
+    //if it not a function, force it to be one
+    switch _fn.(type) {
+      case OmmFunc: //ignore
+      default:
+        _fn = OmmFunc{}
+    }
+
+    var fn = _fn.(OmmFunc)
     fn.Overloads = append(fn.Overloads, v[0].Value.(OmmFunc).Overloads[0])
     *instance.globals[strings.TrimPrefix(k, "ovld/")].Value = fn
   }

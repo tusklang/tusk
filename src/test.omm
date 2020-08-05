@@ -1,5 +1,3 @@
-var main: fn() {
-
-    var main: "SS"
-
+var main: fn(string -> a) {
+    
 }
