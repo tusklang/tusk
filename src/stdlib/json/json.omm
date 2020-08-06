@@ -4,8 +4,4 @@ var json = proto {
         return json_marshal(v)
     }
 
-    static var parse = fn(string -> v) {
-        return json_parse(v)
-    }
-
 }

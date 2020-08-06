@@ -22,30 +22,8 @@ var test_proto: proto {
     b = bv
   }
 
-  instance var somefunc: fn() {
-    log a ;this would print a from the instance
-  }
-}
-```
-
-If you come from object oriented statically typed languages, like Java, C++, Go, C#, etc, then you will know about public and private variables. Omm, despite being dynammically typed, also has this feature. To create a private variable in a prototype, you can prefix the variable name with an uderscore.
-
-```
-var test_proto: proto {
-  instance var a
-  instance var b
-
-  instance var initialize: fn(av, bv) {
-    a: av
-    b: bv
-  }
-
-  instance var somefunc: fn() {
-    log a ;this would print a from the instance
-  }
-
-  instance var _private: fn() { ;this method is private
-    log "Coming from a private method"
+  instance var somefunc: fn(self) {
+    log self::a ;this would print a from the instance
   }
 }
 ```
@@ -57,17 +35,13 @@ var test_proto: proto {
   instance var a
   instance var b
 
-  instance var initialize: fn(av, bv) {
-    a: av
-    b: bv
+  instance var initialize: fn(self, av, bv) {
+    self::a: av
+    self::b: bv
   }
 
-  instance var somefunc: fn() {
-    log a ;this would print a from the instance
-  }
-
-  instance var _private: fn() { ;this method is private
-    log "Coming from a private method"
+  instance var somefunc: fn(self) {
+    log self::a ;this would print a from the instance
   }
 
   static var c: 13
@@ -85,8 +59,10 @@ Now we can use this prototype!
 var main: fn() {
   log test_proto::c ;would log 12
   obj := make[test_proto] ;create an object from the proto `test_proto`
-  obj::initialize("value for a", "value for b") ;run the initialize function
-  obj::somefunc() ;would print the object's `a` variable
+  obj::initialize(obj, "value for a", "value for b") ;run the initialize function
+  obj::somefunc(obj) ;would print the object's `a` variable
   obj::_private() ;would cause an error
 }
 ```
+
+In Omm, it is important to pass the `self` parameter to the instance to access the other variables in the instance. 
