@@ -86,12 +86,12 @@ func lexer(file, filename string) ([]Lex, CompileErr) {
       escaped := false
 
       for i++; i < len(file); i++ {
-        value+=string(strings.TrimLeft(file, " ")[i:][0])
 
         if !escaped && strings.TrimLeft(file, " ")[i:][0] == '\\' {
           escaped = true
           continue
         }
+        value+=string(strings.TrimLeft(file, " ")[i:][0])
 
         if !escaped && strings.TrimLeft(file, " ")[i:][0] == qType {
           break

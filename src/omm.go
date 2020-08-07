@@ -28,10 +28,11 @@ func defaults(cli_params *CliParams, name string) {
 
   (*cli_params).Addon = "lang"
   (*cli_params).Name = ""
-  (*cli_params).Directory = "C:/"
+  (*cli_params).Directory = ""
 }
 
 func main() {
+
   args := os.Args;
 
   var cli_params CliParams

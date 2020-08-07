@@ -7,8 +7,6 @@ import . "lang/types"
 
 //export FromOat
 func FromOat(fileName string) Oat {
-  InitGob()
-
   readfile, e := os.Open(fileName)
 
   if e != nil {

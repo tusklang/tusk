@@ -5,7 +5,6 @@ import "fmt"
 import "io/ioutil"
 import "encoding/gob"
 import "bytes"
-import "oat/helper"
 import "strings"
 
 import . "lang/types"
@@ -13,8 +12,6 @@ import "lang/compiler" //compiler
 
 //export Compile
 func Compile(params CliParams) {
-  oatHelper.InitGob()
-
   fileName := params.Name
 
   file, e := ioutil.ReadFile(fileName)
