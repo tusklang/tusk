@@ -195,6 +195,10 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		//convert field to go string
 		gostr := val2.(OmmString).ToGoType()
+
+		if gostr[0] == '_' {
+			OmmPanic("Cannot access private member: " + gostr, line, file, stacktrace)
+		}
 		
 		field := val1.(OmmProto).GetStatic(gostr)
 
@@ -208,6 +212,10 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		//convert field to go string
 		gostr := val2.(OmmString).ToGoType()
+
+		if gostr[0] == '_' {
+			OmmPanic("Cannot access private member: " + gostr, line, file, stacktrace)
+		}
 
 		field := val1.(OmmObject).GetInstance(gostr)
 

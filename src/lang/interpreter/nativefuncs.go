@@ -226,6 +226,12 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
           var proto = (*args[0]).(OmmProto)
           var nins Instance
           nins.globals = make(map[string]*OmmVar)
+          nins.vars = make(map[string]*OmmVar)
+
+          //copy the original globals
+          for k, v := range instance.globals {
+            nins.globals[k] = v
+          }
 
           for k, v := range proto.Instance {
             nins.globals[k] = &OmmVar{
@@ -240,6 +246,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
                 *v = tmp
             }
           }
+          
           nins.vars = nins.globals
 
           var ommtype OmmType = OmmObject{

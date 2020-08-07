@@ -1,12 +1,12 @@
 var main = fn() {
     b := make[a]
-    b::f()
+    log b::_t
 }
 
 var a = proto {
-    var t = 2
+    var _t = 2
 
     var f = fn() {
-        log t
+        log _t
     }
 }
