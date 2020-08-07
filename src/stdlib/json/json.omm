@@ -3,5 +3,4 @@ var json = proto {
     static var marshal = fn(any -> v) {
         return json_marshal(v)
     }
-    
 }
