@@ -1,13 +1,18 @@
-package types
+package interpreter
+
+//type-function and type-object files are here because they use the `Interpreter` structure
+
+import . "lang/types"
 
 type Overload struct {
-  Params []string
-  Types  []string
-  Body   []Action
+  Params    []string
+  Types     []string
+  Body      []Action
 }
 
 type OmmFunc struct {
   Overloads []Overload
+  Instance   *Instance
 }
 
 func (f OmmFunc) Format() string {

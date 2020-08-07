@@ -3,6 +3,7 @@ package compiler
 import "strconv"
 
 import . "lang/types"
+import . "lang/interpreter"
 
 /*
 Explanation of why this exists:
@@ -145,8 +146,8 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 
       var instanceproto = make(map[string]string)
 
-      for _, val := range v.Instance {
-        instanceproto[val[0].Name] = "v" + strconv.FormatUint(curvar, 10)
+      for k := range v.Instance {
+        instanceproto[k] = k
         curvar++
       }
 
@@ -175,10 +176,6 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
         }
 
         actions[k].Instance[i] = passarr
-      }
-
-      for k := range instanceproto {
-        delete(newnames, k) //prevent outside of the proto from using proto variables
       }
 
       actions[k] = v

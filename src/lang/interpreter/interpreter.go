@@ -117,7 +117,6 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
       case "rune":     fallthrough
       case "number":   fallthrough
       case "bool":     fallthrough
-      case "function": fallthrough
       case "undef":    fallthrough
       case "c-array":  fallthrough //compile-time calculated array
       case "c-hash":   fallthrough //compile-time calculated hash
@@ -127,6 +126,18 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
           return Returner{
             Type: "expression",
             Exp: &v.Value,
+          }
+        }
+
+      case "function":
+        //for a function, add the instance
+        var nf = v.Value.(OmmFunc)
+        nf.Instance = ins
+        var ommtype OmmType = nf
+        if expReturn {
+          return Returner{
+            Type: "expression",
+            Exp: &ommtype,
           }
         }
 

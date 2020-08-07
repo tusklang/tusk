@@ -1,9 +1,12 @@
-package oatHelper
+package oatInitGob
 
 import "encoding/gob"
-import . "lang/types"
 
-func init() {
+import . "lang/types"
+import . "lang/interpreter"
+
+//export InitGob
+func InitGob() {
 	//register the value types
 	gob.Register(OmmArray{})
 	gob.Register(OmmBool{})

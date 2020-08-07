@@ -1,3 +1,12 @@
 var main = fn() {
-    log "\""
+    b := make[a]
+    b::f()
+}
+
+var a = proto {
+    var t = 2
+
+    var f = fn() {
+        log t
+    }
 }

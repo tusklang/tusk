@@ -222,7 +222,30 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 
       switch (*args[0]).(type) {
       case OmmProto:
-          var ommtype OmmType = OmmObject{}.New((*args[0]).(OmmProto))
+
+          var proto = (*args[0]).(OmmProto)
+          var nins Instance
+          nins.globals = make(map[string]*OmmVar)
+
+          for k, v := range proto.Instance {
+            nins.globals[k] = &OmmVar{
+              Name: k,
+              Value: v,
+            }
+
+            switch (*v).(type) {
+              case OmmFunc: //if it is a function, change the instance
+                tmp := (*v).(OmmFunc)
+                tmp.Instance = &nins
+                *v = tmp
+            }
+          }
+          nins.vars = nins.globals
+
+          var ommtype OmmType = OmmObject{
+            Name: proto.ProtoName,
+            Instance: nins,
+          }
           return &ommtype
         default:
           OmmPanic("Function make requires a structure as the argument", line, file, stacktrace)
@@ -345,15 +368,23 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
         var instance = val.(OmmObject).Instance
 
         //clone it into `cloned`
-        var cloned = make(map[string]*OmmType)
-        for k, v := range instance {
-          cloned[k] = v
+        var clonedg = make(map[string]*OmmVar)
+        for k, v := range instance.globals {
+          clonedg[k] = v
+        }
+        var clonedl = make(map[string]*OmmVar)
+        for k, v := range instance.vars {
+          clonedl[k] = v
         }
         ////////////////////////
 
         var ommtype OmmType = OmmObject{
           Name: val.(OmmObject).Name,
-          Instance: cloned,
+          Instance: Instance{
+            Params: instance.Params,
+            vars: clonedl,
+            globals: clonedg,
+          },
         }
 
         return &ommtype

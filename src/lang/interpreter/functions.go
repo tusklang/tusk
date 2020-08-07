@@ -30,7 +30,7 @@ func init() { //initialize the operations that require the use of the interprete
         }
       }
   
-      return instance.interpreter(v.Body, append(stacktrace, "synchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file)).Exp
+      return fn.Instance.interpreter(v.Body, append(stacktrace, "synchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file)).Exp
       not_exists:
     }
 
@@ -71,7 +71,7 @@ func init() { //initialize the operations that require the use of the interprete
           Channel: channel,
         }
         
-        go callAsync(v.Body, instance, append(stacktrace, "asynchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file), channel)
+        go callAsync(v.Body, fn.Instance, append(stacktrace, "asynchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file), channel)
         
         return &promise
       }

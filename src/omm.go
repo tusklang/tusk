@@ -11,6 +11,7 @@ import . "lang/types"
 import "lang/compiler" //omm language (compile into go slices and structs)
 
 import "oat"
+import "oat/helper/init"
 
 ////////////
 
@@ -32,6 +33,8 @@ func defaults(cli_params *CliParams, name string) {
 }
 
 func main() {
+
+  oatInitGob.InitGob()
 
   args := os.Args;
 

@@ -2,6 +2,7 @@ package compiler
 
 import "runtime"
 import . "lang/types"
+import . "lang/interpreter"
 
 func actionizer(operations []Operation) ([]Action, CompileErr) {
 
