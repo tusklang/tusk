@@ -140,8 +140,8 @@ func Compile(file, filename string, compileall, isoat bool) ([]Action, map[strin
     }
 
     //ensure that the globals do not have any compound types (such as operations)
-    if vars[k][0].Value == nil && vars[k][0].Type != "proto" && vars[k][0].Type != "r-array" && vars[k][0].Type != "r-hash" {
-      return nil, nil, makeCompilerErr("Cannot have compound types at the golabl scope", vars[k][0].File, vars[k][0].Line)
+    if vars[k][0].Value == nil && vars[k][0].Type != "proto" {
+      return nil, nil, makeCompilerErr("Cannot have compound types at the global scope", vars[k][0].File, vars[k][0].Line)
     }
 
     varnames[k] = k

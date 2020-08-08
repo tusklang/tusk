@@ -208,8 +208,8 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
                 }
 
                 var (
-                  static = make(map[string][]Action)
-                  instance = make(map[string][]Action)
+                  static = make(map[string]*OmmType)
+                  instance = make(map[string]*OmmType)
                 )
                 var body = right[0].ExpAct //get the struct body
 
@@ -228,18 +228,24 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
 
                   if body[i].ExpAct[0].Type == "var" {
 
+                    if len(body[i].ExpAct[0].ExpAct) == 0 || body[i].ExpAct[0].ExpAct[0].Value == nil {
+                      return []Action{}, makeCompilerErr("Cannot have compound types at the golabl scope of a prototype", v.File, right[0].Line)
+                    }
+
                     if body[i].Type == "static" {
-                      static[name] = body[i].ExpAct[0].ExpAct
+                      static[name] = &body[i].ExpAct[0].ExpAct[0].Value
                     } else {
-                      instance[name] = body[i].ExpAct[0].ExpAct
+                      instance[name] = &body[i].ExpAct[0].ExpAct[0].Value
                     }
 
                   } else if body[i].ExpAct[0].Type == "declare" {
 
+                    var tmp OmmType = OmmUndef{}
+
                     if body[i].Type == "static" {
-                      static[name] = []Action{}
+                      static[name] = &tmp
                     } else {
-                      instance[name] = []Action{}
+                      instance[name] = &tmp
                     }
                   } else {
                     return []Action{}, makeCompilerErr("Prototype bodies can only have variable assignments and declarations", v.File, right[0].Line)
@@ -248,8 +254,10 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
 
                 actions = append(actions, Action{
                   Type: "proto",
-                  Static: static,
-                  Instance: instance,
+                  Value: OmmProto{
+                    Static: static,
+                    Instance: instance,
+                  },
                   File: v.File,
                   Line: v.Line,
                 })

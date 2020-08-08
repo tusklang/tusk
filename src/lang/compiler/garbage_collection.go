@@ -47,34 +47,24 @@ func insert_garbage_collectors(actions []Action) []Action {
     }
     if v.Type == "proto" {
 
-      for i := range v.Static {
+      for i := range v.Value.(OmmProto).Static {
+        var val = *v.Value.(OmmProto).Static[i]
 
-        if len(v.Static[i]) == 0 {
-          continue
-        }
-
-        var val = v.Static[i][0]
-
-        if val.Type == "function" {
-          var fn = val.Value.(OmmFunc)
+        if val.Type() == "function" {
+          var fn = val.(OmmFunc)
           fn.Overloads[0].Body = insert_garbage_collectors(fn.Overloads[0].Body)
-          v.Static[i][0].Value = fn
+          *v.Value.(OmmProto).Static[i] = fn
         }
 
       }
 
-      for i := range v.Instance {
+      for i := range v.Value.(OmmProto).Instance {
+        var val = *v.Value.(OmmProto).Instance[i]
 
-        if len(v.Static[i]) == 0 {
-          continue
-        }
-
-        var val = v.Instance[i][0]
-
-        if val.Type == "function" {
-          var fn = val.Value.(OmmFunc)
+        if val.Type() == "function" {
+          var fn = val.(OmmFunc)
           fn.Overloads[0].Body = insert_garbage_collectors(fn.Overloads[0].Body)
-          v.Instance[i][0].Value = fn
+          *v.Value.(OmmProto).Instance[i] = fn
         }
 
       }

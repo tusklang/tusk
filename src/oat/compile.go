@@ -3,8 +3,8 @@ package oat
 import "os"
 import "fmt"
 import "io/ioutil"
-import "encoding/gob"
-import "bytes"
+// import "encoding/gob"
+// import "bytes"
 import "strings"
 
 import . "lang/types"
@@ -40,25 +40,27 @@ func Compile(params CliParams) {
     Variables: vars,
   }
 
-  var network bytes.Buffer
-  encoder := gob.NewEncoder(&network)
+  OatEncode(params.Output, vals)
 
-  if err := encoder.Encode(vals); err != nil {
-    panic(err)
-  }
+  // var network bytes.Buffer
+  // encoder := gob.NewEncoder(&network)
 
-  nbytes := network.Bytes()
-  writer, e := os.Create(params.Output)
+  // if err := encoder.Encode(vals); err != nil {
+  //   panic(err)
+  // }
 
-  if e != nil {
-    fmt.Println("Could not make file:", fileName)
-    os.Exit(1)
-  }
+  // nbytes := network.Bytes()
+  // writer, e := os.Create(params.Output)
 
-  _, e = writer.Write(nbytes)
+  // if e != nil {
+  //   fmt.Println("Could not make file:", fileName)
+  //   os.Exit(1)
+  // }
 
-  if e != nil {
-    fmt.Println("Could not write file:", fileName)
-    os.Exit(1)
-  }
+  // _, e = writer.Write(nbytes)
+
+  // if e != nil {
+  //   fmt.Println("Could not write file:", fileName)
+  //   os.Exit(1)
+  // }
 }

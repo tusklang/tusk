@@ -412,7 +412,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
         var tmp = val.(OmmString).ToGoType() //convert it to a go type
 
         var returner OmmType = OmmString{
-          String: &tmp,
+          String: []rune(tmp),
           Length: val.(OmmString).Length,
         }
 

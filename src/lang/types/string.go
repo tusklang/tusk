@@ -1,12 +1,19 @@
 package types
 
 type OmmString struct {
-  String    *string
+  String   []rune
   Length     uint64
 }
 
 func (str *OmmString) FromGoType(val string) {
-  str.String = &val
+
+  var arr = make([]rune, len(val))
+
+  for k, v := range val {
+    arr[k] = rune(v)
+  }
+
+  str.String = arr
   str.Length = uint64(len(val))
 }
 
@@ -16,7 +23,13 @@ func (str OmmString) ToGoType() string {
     return ""
   }
 
-  return *str.String
+  var gostr string
+  
+  for _, v := range str.String {
+    gostr+=string(v)
+  }
+
+  return gostr
 }
 
 func (str OmmString) Exists(idx int64) bool {
@@ -25,7 +38,7 @@ func (str OmmString) Exists(idx int64) bool {
 
 func (str OmmString) At(idx int64) *OmmRune {
 
-  var gotype = rune((*str.String)[idx])
+  var gotype = str.String[idx]
   var ommrune OmmRune
   ommrune.FromGoType(gotype)
 

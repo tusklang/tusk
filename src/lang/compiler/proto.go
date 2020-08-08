@@ -25,30 +25,30 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) CompileErr {
 
     if v.Type == "proto" {
 
-      for i := range v.Static {
+      for i := range v.Value.(OmmProto).Static {
+        var val = *v.Value.(OmmProto).Static[i]
 
-        if len(v.Static[i]) == 0 {
-          continue
-        }
-
-        var val = v.Static[i][0]
-
-        e = has_non_global_prototypes([]Action{ val }, false)
-        if e != nil {
-          return e
+        if val.Type() == "function" {
+          e = has_non_global_prototypes([]Action{ Action{
+            Type: "function",
+            Value: val,
+          } }, false)
+          if e != nil {
+            return e
+          }
         }
       }
-      for i := range v.Instance {
+      for i := range v.Value.(OmmProto).Instance {
+        var val = *v.Value.(OmmProto).Instance[i]
 
-        if len(v.Instance[i]) == 0 {
-          continue
-        }
-
-        var val = v.Instance[i][0]
-
-        e = has_non_global_prototypes([]Action{ val }, false)
-        if e != nil {
-          return e
+        if val.Type() == "function" {
+          e = has_non_global_prototypes([]Action{ Action{
+            Type: "function",
+            Value: val,
+          } }, false)
+          if e != nil {
+            return e
+          }
         }
       }
 

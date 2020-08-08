@@ -2,7 +2,6 @@ package interpreter
 
 import "fmt"
 import "os"
-import "strings"
 import . "lang/types"
 
 //export OmmPanic
@@ -120,6 +119,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
       case "undef":    fallthrough
       case "c-array":  fallthrough //compile-time calculated array
       case "c-hash":   fallthrough //compile-time calculated hash
+      case "proto": fallthrough
       case "thread":
 
         if expReturn {
@@ -141,7 +141,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
           }
         }
 
-      //arrays, hashes, and protos are a bit different
+      //arrays, hashes are a bit different
       case "r-array":
 
         var nArr = make([]*OmmType, len(v.Array))
@@ -182,63 +182,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
           }
         }
 
-      case "proto":
-
-        var static = make(map[string]*OmmType)
-        var instance = make(map[string]*OmmType)
-
-        var overload = func(place map[string]*OmmType, k string, i []Action) {
-
-          if strings.HasPrefix(k, "ovld/") { //if it is overloaded
-
-            k = strings.TrimSpace(strings.TrimPrefix(k, "ovld/"))
-
-            var orig = place[k]
-
-            if orig == nil {
-              var tmp OmmType = OmmFunc{}
-              orig = &tmp
-            }
-
-            switch (*orig).(type) {
-              case OmmFunc: //ignore it
-              default: //otherwise force it to a function
-                *orig = OmmFunc{}
-            }
-
-            var tmp = (*orig).(OmmFunc)
-            tmp.Overloads = append(tmp.Overloads, (*ins.interpreter(i, stacktrace).Exp).(OmmFunc).Overloads...)
-            *orig = tmp
-
-          } else {
-            place[k] = ins.interpreter(i, stacktrace).Exp
-          }
-
-        }
-
-        for k, i := range v.Static {
-          overload(static, k, i)
-        }
-        for k, i := range v.Instance {
-          overload(instance, k, i)
-        }
-
-        var proto = OmmProto{
-          ProtoName: v.Name,
-        }
-        proto.Set(static, instance)
-
-        if expReturn {
-          var ommtype OmmType = proto
-          return Returner{
-            Type: "expression",
-            Exp: &ommtype,
-          }
-        }
-
-      //////////////////
-
-      //////////////////
+      ////////////////////////////////////
 
       case "variable":
 

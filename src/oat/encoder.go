@@ -1,40 +1,44 @@
 package oat
 
 import "os"
+import "reflect"
 import . "lang/types"
 
-func OatEncode(filename string, data Oat) {
+func OatEncode(filename string, data Oat) error {
 
 	acts := EncodeActions(data.Actions)
 
-	f, _ := os.Create(filename)
-	f.Write(acts)
+	f, e := os.Create(filename)
 
+	if e != nil {
+		return e
+	}
+
+	f.Write([]byte(string(acts)))
+	f.Close()
+
+	return nil
 }
 
-func EncodeActions(data []Action) []byte {
+func EncodeActions(data []Action) []rune {
 
-	var final string
+	var final []rune
 
 	for _, v := range data {
-		final+=string(rune(hash(v.Name))) + "("
+		final = append(final, actionids[v.Type])
+		final = append(final, '(')
 
+		s := reflect.TypeOf(v)
 
+		for i := 1; i < s.NumField(); i++ {
+			field := s.Field(i)
 
-		final+=")"
+			//add the tag to the final resp
+			final = append(final, []rune{ []rune(field.Tag.Get("oat"))[0], ' ' }...)
+		}
+
+		final = append(final, ')')
 	}
 
-	return []byte(final)
-}
-
-func hash(name string) int32 { //a hash function to hash an action type (because giving each one a unique id is so much work)
-
-	var hash int32 = 1
-	var c int32
-
-	for c = 0; int(c) < len(name); c++ {
-		hash = ((hash << 2) + hash) + int32(name[c])
-	}
-
-	return hash
+	return final
 }

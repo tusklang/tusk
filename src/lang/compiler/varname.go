@@ -120,13 +120,9 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
     }
     if v.Type == "proto" {
 
-      for i := range v.Static {
+      for i := range v.Value.(OmmProto).Static {
 
-        if len(v.Static[i]) == 0 {
-          continue
-        }
-
-        var val = v.Static[i][0]
+        var val = v.Value.(OmmProto).Static[i]
 
         var passvals = make(map[string]string)
 
@@ -134,30 +130,32 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
           passvals[k] = v
         }
 
-        var passarr = []Action{ val }
+        var passarr = []Action{ Action{
+          Type: (*val).Type(),
+          Value: *val,
+        } }
         _, e := changevarnames(passarr, passvals)
+        *val = passarr[0].Value
 
         if e != nil {
           return nil, e
         }
 
-        actions[k].Static[i] = passarr
+        var tmp = actions[k].Value.(OmmProto)
+        tmp.Static[i] = val
+        actions[k].Value = tmp
       }
 
       var instanceproto = make(map[string]string)
 
-      for k := range v.Instance {
+      for k := range v.Value.(OmmProto).Instance {
         instanceproto[k] = k
         curvar++
       }
 
-      for i := range v.Instance {
+      for i := range v.Value.(OmmProto).Instance {
 
-        if len(v.Instance[i]) == 0 {
-          continue
-        }
-
-        var val = v.Instance[i][0]
+        var val = v.Value.(OmmProto).Instance[i]
 
         var passvals = make(map[string]string)
 
@@ -168,14 +166,20 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
           passvals[k] = v
         }
 
-        var passarr = []Action{ val }
+        var passarr = []Action{ Action{
+          Type: (*val).Type(),
+          Value: *val,
+        } }
         _, e := changevarnames(passarr, passvals)
+        *val = passarr[0].Value
 
         if e != nil {
           return nil, e
         }
 
-        actions[k].Instance[i] = passarr
+        var tmp = actions[k].Value.(OmmProto)
+        tmp.Instance[i] = val
+        actions[k].Value = tmp
       }
 
       actions[k] = v

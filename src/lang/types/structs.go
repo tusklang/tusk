@@ -2,36 +2,29 @@ package types
 
 //export Action
 type Action struct {
-  Type            string
-  Name            string
-  Value           OmmType
-  ExpAct        []Action
+  Type            string              `oat:"t"`
+  Name            string              `oat:"n"`
+  Value           OmmType             `oat:"v"`
+  ExpAct        []Action              `oat:"e"`
 
   //stuff for operations
 
-  First         []Action
-  Second        []Action
+  First         []Action              `oat:"f"`
+  Second        []Action              `oat:"s"`
 
   //////////////////////
 
   //stuff for runtime arrays and hashes
 
-  Array       [][]Action
-  Hash            map[string][]Action
+  Array       [][]Action              `oat:"a"`
+  Hash            map[string][]Action `oat:"h"`
 
   /////////////////////////////////////
 
-  //stuff to evaluate protos
-
-  Static          map[string][]Action
-  Instance        map[string][]Action
-
-  //////////////////////////
-
   //stuff to panic errors and give stack
 
-  File            string
-  Line            uint64
+  File            string              `oat:"f"`
+  Line            uint64              `oat:"l"`
 
   //////////////////////////////////////
 }
