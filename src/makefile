@@ -5,12 +5,12 @@ endef
 
 ifeq ($(OS),Windows_NT)
 	BINARY = omm.exe
-	COMPILE_ALL = set GOPATH=$(GOPATH_DIR) $(newline) go build omm.go
+	SET_GOPATH = set GOPATH=$(GOPATH_DIR) $(newline)
 	CLEAN_CMD = del
 	LIB_OAT = stdlib\lib.oat
 else
 	BINARY = omm
-	COMPILE_ALL = @GOPATH=$(GOPATH_DIR) go build omm.go
+	SET_GOPATH = export GOPATH=$(GOPATH_DIR)
 	CLEAN_CMD = rm -f
 	LIB_OAT = stdlib/lib.oat
 endif
@@ -40,7 +40,18 @@ clean_no_echo:
 	@make -s clean
 
 $(BINARY):
-	$(COMPILE_ALL)
+	$(SET_GOPATH)
+	go build omm.go
 
 $(LIB_OAT):
 	-./$(BINARY) ./stdlib ./lib.omm -c
+
+.PHONY: gccgo
+gccgo:
+	$(SET_GOPATH)
+	cd lang/types && gccgo -c -o types.o *
+	cd oat/helper && gccgo -c -o helper.o *
+	cd oat && gccgo -c -o oat.o *
+	cd lang/interpreter && gccgo -c -o interpreter.o *
+	cd lang/compiler && gccgo -c -o compiler.o *
+	gccgo -c omm.go

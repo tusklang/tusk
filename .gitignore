@@ -1,8 +1,9 @@
 .idea/
 .vs/
+.vscode/
 src/omm
 src/*.exe
 *.wixobj
 *.wixpdb
 src/stdlib/lib.oat
-mango/mango.oat
+*.o

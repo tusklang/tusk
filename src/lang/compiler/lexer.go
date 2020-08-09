@@ -171,7 +171,7 @@ func lexer(file, filename string) ([]Lex, CompileErr) {
           }
 
         }
-
+        
         variable+=string(file[o])
         i++
       }

@@ -1,6 +1,6 @@
 package interpreter
 
-//type-function and type-object files are here because they use the `Interpreter` structure
+//type-function and type-object files are here because they use the `Instance` structure
 
 import . "lang/types"
 

@@ -4,8 +4,6 @@ import "fmt"
 import "os"
 import "io/ioutil"
 import "strings"
-import "oat/helper"
-import "path"
 
 import "lang/interpreter"
 import . "lang/types"
@@ -99,12 +97,6 @@ func Compile(file, filename string, compileall, isoat bool) ([]Action, map[strin
     return nil, nil, e
   }
 
-  //include the stdlib
-  if !strings.HasPrefix(file, ";nostdlib") && isoat { //if it begins with ;nostdlib, do not include the stdlib
-    var stdlib = oatHelper.FromOat(path.Join(Ommbasedir, "stdlib/lib.oat"))
-    actions = append(stdlib.Actions, actions...)
-  }
-
   if e != nil {
     return []Action{}, nil, e
   }
@@ -140,7 +132,7 @@ func Compile(file, filename string, compileall, isoat bool) ([]Action, map[strin
     }
 
     //ensure that the globals do not have any compound types (such as operations)
-    if vars[k][0].Value == nil && vars[k][0].Type != "proto" {
+    if vars[k][0].Value == nil {
       return nil, nil, makeCompilerErr("Cannot have compound types at the global scope", vars[k][0].File, vars[k][0].Line)
     }
 
