@@ -16,7 +16,7 @@ char* getCmdExe() {
 
         //add the drive
         char* drive = getenv("SystemDrive"); //get the default drive
-        char total[strlen(drive) + strlen(plc) - 1];
+        char total[strlen(drive) + strlen(plc) - 1]; //alocate the space
 
         strcpy(total, drive);
         strcat(total, plc);
