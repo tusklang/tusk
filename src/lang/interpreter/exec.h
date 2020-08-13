@@ -15,14 +15,14 @@ char* getCmdExe() {
         char* plc = "\\windows\\system32\\cmd.exe"; //the location (not in any drive yet)
 
         //add the drive
-        char* drive = getenv("SystemDrive"); //get the default drive
+        const char* drive = getenv("SystemDrive"); //get the default drive
         char total[strlen(drive) + strlen(plc) - 1]; //alocate the space
 
         strcpy(total, drive);
         strcat(total, plc);
 
         //add it to the heap
-        char* heap_added = calloc(strlen(total), sizeof(char*));
+        char* heap_added = (char*) calloc(strlen(total), sizeof(char*));
         strcpy(heap_added, total);
 
         return heap_added;

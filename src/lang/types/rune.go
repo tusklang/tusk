@@ -1,5 +1,7 @@
 package types
 
+import "fmt"
+
 type OmmRune struct {
   Rune *rune
 }
@@ -13,7 +15,7 @@ func (r OmmRune) ToGoType() rune {
 }
 
 func (r OmmRune) Format() string {
-  return string(*r.Rune)
+  return fmt.Sprintf("%c", *r.Rune)
 }
 
 func (r OmmRune) Type() string {

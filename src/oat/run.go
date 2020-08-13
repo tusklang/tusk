@@ -1,15 +1,17 @@
 package oat
 
-import "oat/helper"
-
+import "fmt"
+import "os"
+import "lang/interpreter"
 import . "lang/types"
-import . "lang/interpreter"
 
 //export Run
 func Run(params CliParams) {
+  d, e := OatDecode(params.Name, 0)
+  if e != nil {
+    fmt.Println(e)
+    os.Exit(1)
+  }
 
-  decoded := oatHelper.FromOat(params.Name)
-
-  //run the oat
-  RunInterpreter(decoded.Variables, params)
+  interpreter.RunInterpreter(d, params)
 }

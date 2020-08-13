@@ -28,19 +28,19 @@ func Compile(params CliParams) {
   }
 
   compiler.Ommbasedir = params.OmmDirname
-  actions, vars, ce := compiler.Compile(string(file), fileName, compileall, true)
+  _, vars, ce := compiler.Compile(string(file), fileName, compileall, true)
   compiler.Ommbasedir = "" //reset Ommbasedir
 
   if ce != nil {
     ce.Print()
   }
 
-  var vals = Oat{
-    Actions: actions,
-    Variables: vars,
-  }
+  // var vals = Oat{
+  //   Actions: actions,
+  //   Variables: vars,
+  // }
 
-  OatEncode(params.Output, vals)
+  OatEncode(params.Output, vars)
 
   // var network bytes.Buffer
   // encoder := gob.NewEncoder(&network)

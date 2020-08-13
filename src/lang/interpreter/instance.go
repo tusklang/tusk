@@ -29,13 +29,6 @@ func (ins *Instance) GetGlobal(name string) *OmmType {
   return variable.Value
 }
 
-func (ins *Instance) SetLcl(name string, value *OmmType) {
-  ins.vars[name] = &OmmVar{
-    Name: name,
-    Value: value,
-  }
-}
-
 func (ins *Instance) CallFunc(name string, args... *OmmType) *OmmType {
 
   _fn, exists := ins.globals["$" + name]

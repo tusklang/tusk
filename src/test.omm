@@ -1,3 +1,5 @@
-var t = fn() {
-    log "S"
+var main = fn() {
+    log [:
+        a = main
+    :]
 }

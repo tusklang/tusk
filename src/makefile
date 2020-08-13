@@ -10,7 +10,7 @@ ifeq ($(OS),Windows_NT)
 	LIB_OAT = stdlib\lib.oat
 else
 	BINARY = omm
-	SET_GOPATH = export GOPATH=$(GOPATH_DIR)
+	SET_GOPATH = @GOPATH=$(GOPATH_DIR)
 	CLEAN_CMD = rm -f
 	LIB_OAT = stdlib/lib.oat
 endif
@@ -39,10 +39,11 @@ clean:
 clean_no_echo:
 	@make -s clean
 
+.PHONY: $(BINARY)
 $(BINARY):
-	$(SET_GOPATH)
-	go build omm.go
+	$(SET_GOPATH) go build omm.go
 
+.PHONY: $(LIB_OAT)
 $(LIB_OAT):
 	-./$(BINARY) ./stdlib ./lib.omm -c
 

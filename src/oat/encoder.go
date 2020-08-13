@@ -9,9 +9,7 @@ import . "lang/types"
 import . "lang/interpreter"
 
 //export OatEncode
-func OatEncode(filename string, data Oat) error {
-
-	acts := EncodeActions(data.Actions)
+func OatEncode(filename string, data map[string][]Action) error {
 
 	f, e := os.Create(filename)
 
@@ -19,15 +17,32 @@ func OatEncode(filename string, data Oat) error {
 		return e
 	}
 
-	//versioning
-	fmt.Fprint(f, "OAT")
-	fmt.Fprintln(f, string(reserved["MAJOR"]) + OMM_MAJOR)
-	fmt.Fprintln(f, string(reserved["MINOR"]) + OMM_MINOR)
-	fmt.Fprintln(f, string(reserved["BUG"]) + OMM_BUG)
-	////////////
+	//versioning and magic #
+	fmt.Fprint(f, MAGIC)
+	fmt.Fprintf(f, "%d.%d.%d\n", OMM_MAJOR, OMM_MINOR, OMM_BUG)
+	////////////////////////
 
-	f.Write([]byte(string(acts)))
-	f.Close()
+	for k, v := range data {
+
+		var name = EncodeStr([]rune(k))
+		var nameinter = make([]interface{}, len(name))
+		var format = ""
+		for k, v := range name {
+			format+="%c"
+			nameinter[k] = v
+		}
+
+		fmt.Fprintf(f, format, nameinter...)
+		fmt.Fprintf(f, "%c", reserved["set global"])
+
+		var encoded = EncodeActions(v)
+
+		for _, v := range encoded {
+			fmt.Fprintf(f, "%c", v)
+		}
+
+		fmt.Fprintf(f, "%c", reserved["new global"])
+	}
 
 	return nil
 }
@@ -38,8 +53,6 @@ func EncodeActions(data []Action) []rune {
 	var final []rune
 
 	for _, v := range data {
-
-		// fieldv := reflect.ValueOf(v)
 		fieldt := reflect.TypeOf(v)
 
 		for i := 0; i < fieldt.NumField(); i++ {
@@ -70,18 +83,16 @@ func EncodeActions(data []Action) []rune {
 
 							case OmmArray:
 
-								final = append(final, reserved["start c-array"])
+								final = append(final, reserved["make c-array"])
 
 								for _, v := range v.(OmmArray).Array {
 									final = append(final, putval(*v)...)
 									final = append(final, reserved["value seperator"])
 								}
 
-								final = append(final, reserved["end c-array"])
-
 							case OmmBool:
 
-								final = append(final, reserved["make bool"])
+								final = append(final, reserved["make bool"], reserved["escaper"])
 								if v.(OmmBool).ToGoType() {
 									final = append(final, 1)
 								} else {
@@ -90,7 +101,7 @@ func EncodeActions(data []Action) []rune {
 
 							case OmmHash:
 
-								final = append(final, reserved["start c-hash"])
+								final = append(final, reserved["make c-hash"])
 
 								for k, v := range v.(OmmHash).Hash {
 									final = append(final, EncodeStr([]rune(k))...)
@@ -99,23 +110,20 @@ func EncodeActions(data []Action) []rune {
 									final = append(final, reserved["value seperator"])
 								}
 
-								final = append(final, reserved["start c-hash"])
-
 							case OmmNumber:
 
 								final = append(final, reserved["start number"])
 
-								if v.(OmmNumber).Integer != nil {
+								if v.(OmmNumber).Integer != nil && len(*v.(OmmNumber).Integer) != 0 {
 									for _, v := range *v.(OmmNumber).Integer {
-										final = append(final, rune(v))
+										final = append(final, reserved["escaper"], rune(v))
 									}
 								}
 
-								final = append(final, reserved["decimal place"])
-
-								if v.(OmmNumber).Decimal != nil {
+								if v.(OmmNumber).Decimal != nil && len(*v.(OmmNumber).Decimal) != 0 {
+									final = append(final, reserved["decimal place"])
 									for _, v := range *v.(OmmNumber).Decimal {
-										final = append(final, rune(v))
+										final = append(final, reserved["escaper"], rune(v))
 									}
 								}
 
@@ -124,10 +132,12 @@ func EncodeActions(data []Action) []rune {
 							case OmmProto:
 
 								final = append(final, reserved["start proto"])
-								final = append(final, reserved["start proto name"])
 
 								//put the name
+								final = append(final, reserved["start proto name"])
 								final = append(final, EncodeStr([]rune(v.(OmmProto).ProtoName))...)
+								final = append(final, reserved["end proto name"])
+								//////////////
 
 								final = append(final, reserved["start proto static"])
 								for k, v := range v.(OmmProto).Static {
@@ -145,11 +155,11 @@ func EncodeActions(data []Action) []rune {
 								}
 								final = append(final, reserved["end proto instance"])
 
-								final = append(final, reserved["start proto"])
+								final = append(final, reserved["end proto"])
 
 							case OmmRune:
 
-								final = append(final, reserved["make rune"])
+								final = append(final, reserved["make rune"], reserved["escaper"])
 								final = append(final, v.(OmmRune).ToGoType())
 
 							case OmmString:
@@ -166,17 +176,14 @@ func EncodeActions(data []Action) []rune {
 								final = append(final, reserved["start function"])
 
 								for _, v := range v.(OmmFunc).Overloads {
-									final = append(final, reserved["start overload"])
-
-									final = append(final, reserved["start params"])
 									for k := range v.Params {
 										final = append(final, EncodeStr([]rune(v.Types[k]))...)
 										final = append(final, reserved["seperate type-param"])
 										final = append(final, EncodeStr([]rune(v.Params[k]))...)
+										final = append(final, reserved["value seperator"])
 									}
-									final = append(final, reserved["end params"])
+									final = append(final, reserved["param body split"])
 									final = append(final, EncodeActions(v.Body)...)
-									final = append(final, reserved["end overload"])
 								}
 
 								final = append(final, reserved["end function"])
@@ -190,26 +197,43 @@ func EncodeActions(data []Action) []rune {
 
 				case "ExpAct":
 
-					final = append(final, reserved["start multi action"])
-					final = append(final, EncodeActions(v.ExpAct)...)
-					final = append(final, reserved["end multi action"])
+					if len(v.ExpAct) != 0 {
+						final = append(final, reserved["start multi action"])
+						final = append(final, EncodeActions(v.ExpAct)...)
+						final = append(final, reserved["end multi action"])
+					}
 
 				case "First":
 
-					final = append(final, reserved["start multi action"])
-					final = append(final, EncodeActions(v.ExpAct)...)
-					final = append(final, reserved["end multi action"])
+					if len(v.First) != 0 {
+						final = append(final, reserved["start multi action"])
+						final = append(final, EncodeActions(v.First)...)
+						final = append(final, reserved["end multi action"])
+					}
 
 				case "Second":
 
-					final = append(final, reserved["start multi action"])
-					final = append(final, EncodeActions(v.ExpAct)...)
-					final = append(final, reserved["end multi action"])
+					if len(v.Second) != 0 {
+						final = append(final, reserved["start multi action"])
+						final = append(final, EncodeActions(v.Second)...)
+						final = append(final, reserved["end multi action"])
+					}
+
+				case "Array":
+
+					final = append(final, reserved["start r-array"])
+
+					for _, v := range v.Array {
+						final = append(final, EncodeActions(v)...)
+						final = append(final, reserved["value seperator"])
+					}
+
+					final = append(final, reserved["end r-array"])
 
 				case "Hash":
 
 					final = append(final, reserved["start r-hash"])
-
+					
 					for k, v := range v.Hash {
 						final = append(final, EncodeStr([]rune(k))...)
 						final = append(final, reserved["hash key seperator"])
@@ -219,24 +243,13 @@ func EncodeActions(data []Action) []rune {
 
 					final = append(final, reserved["end r-hash"])
 
-				case "Array":
-
-					final = append(final, reserved["start r-array"])
-
-					for _, v := range v.Hash {
-						final = append(final, EncodeActions(v)...)
-						final = append(final, reserved["value seperator"])
-					}
-
-					final = append(final, reserved["end r-array"])
-
 				case "File":
 
 					final = append(final, EncodeStr([]rune(v.File))...)
 
 				case "Line":
 
-					final = append(final, rune(v.Line))
+					final = append(final, reserved["escaper"], rune(v.Line))
 
 			}
 
@@ -244,7 +257,7 @@ func EncodeActions(data []Action) []rune {
 
 		}
 
-		final = append(final, reserved["new action"])
+		final = append(final, reserved["next action"])
 	}
 
 	return final
@@ -252,19 +265,18 @@ func EncodeActions(data []Action) []rune {
 
 //export EncodeStr
 func EncodeStr(splitted []rune) []rune {
-	var neg1_multiplied []rune
+	var slc []rune
 	for _, v := range splitted {
 
-		negated := -1 * v
-
-		for _, v := range reserved {
-			if v == negated {
-				neg1_multiplied = append(neg1_multiplied, reserved["escaper"])
+		for _, vv := range reserved {
+			if vv == v {
+				slc = append(slc, reserved["escaper"])
+				break
 			}
 		}
 
 
-		neg1_multiplied = append(neg1_multiplied, negated)
+		slc = append(slc, v)
 	}
-	return neg1_multiplied
+	return slc
 }
