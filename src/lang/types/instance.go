@@ -3,22 +3,6 @@ package types
 type Instance struct {
   Params   CliParams
   vars     map[string]*OmmVar
-  Globals  map[string]*OmmVar
-}
-
-func (ins *Instance) HasGlobal(name string) bool {
-  _, exists := ins.Globals["$" + name]
-  return exists
-}
-
-func (ins *Instance) GetGlobal(name string) *OmmType {
-  variable, exists := ins.Globals["$" + name]
-
-  if !exists {
-    panic("Given global does not exists: " + name)
-  }
-
-  return variable.Value
 }
 
 func (ins *Instance) Allocate(name string, value *OmmType) {

@@ -220,15 +220,15 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 
           var proto = (*args[0]).(OmmProto)
           var nins Instance
-          nins.Globals = make(map[string]*OmmVar)
+          globals := make(map[string]*OmmVar)
 
           //copy the original globals
-          for k, v := range instance.Globals {
-            nins.Globals[k] = v
+          for k, v := range globals {
+            globals[k] = v
           }
 
           for k, v := range proto.Instance {
-            nins.Globals[k] = &OmmVar{
+            globals[k] = &OmmVar{
               Name: k,
               Value: v,
             }
@@ -242,7 +242,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
           }
 
           //also allocate to the locals
-          for k, v := range nins.Globals {
+          for k, v := range globals {
             nins.Allocate(k, v.Value)
           }
 
@@ -252,7 +252,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
           }
           return &ommtype
         default:
-          OmmPanic("Function make requires a structure as the argument", line, file, stacktrace)
+          OmmPanic("Function make requires a prototype as the argument", line, file, stacktrace)
       }
 
     } else {

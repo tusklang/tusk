@@ -23,9 +23,9 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
   var instance Instance
 
   instance.Params = cli_params
-  instance.Globals = make(map[string]*OmmVar)
-
-  instance.Globals["$__dirname"] = &OmmVar{
+  globals := make(map[string]*OmmVar)
+  
+  globals["$__dirname"] = &OmmVar{
     Name: "$__dirname",
     Value: &dirnameOmmType,
   }
@@ -44,7 +44,7 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
     Length: uint64(len(os.Args)),
   }
 
-  instance.Globals["$argv"] = &OmmVar{
+  globals["$argv"] = &OmmVar{
     Name: "$argv",
     Value: &arr,
   }
@@ -66,12 +66,12 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
       Name: k,
       Value: Interpreter(&instance, v, []string{"at the global interpreter"}).Exp,
     }
-    instance.Globals[k] = &global
+    globals[k] = &global
   }
 
   for _, v := range doafter {
 
-    var _fn = *instance.Globals[strings.TrimPrefix(v.name, "ovld/")].Value
+    var _fn = *globals[strings.TrimPrefix(v.name, "ovld/")].Value
 
     //if it not a function, force it to be one
     switch _fn.(type) {
@@ -84,11 +84,11 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
 
     var fn = _fn.(OmmFunc)
     fn.Overloads = append(fn.Overloads, v.val[0].Value.(OmmFunc).Overloads[0])
-    *instance.Globals[v.name].Value = fn
+    *globals[v.name].Value = fn
   }
 
   //also allocate to the locals
-  for k, v := range instance.Globals {
+  for k, v := range globals {
     instance.Allocate(k, v.Value)
   }
 
@@ -100,14 +100,14 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
     instance.Allocate("$" + k, &gofunc)
   }
 
-  if _, exists := instance.Globals["$main"]; !exists {
+  if _, exists := globals["$main"]; !exists {
     fmt.Println("Given program has no entry point/main function")
     os.Exit(1)
   } else {
 
-    switch (*instance.Globals["$main"].Value).(type) {
+    switch (*globals["$main"].Value).(type) {
       case OmmFunc:
-        main := instance.Globals["$main"]
+        main := globals["$main"]
 
         calledP := Interpreter(&instance, (*main.Value).(OmmFunc).Overloads[0].Body, []string{"at the entry caller"}).Exp
 

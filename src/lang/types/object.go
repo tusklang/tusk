@@ -7,7 +7,7 @@ type OmmObject struct {
 
 func (o OmmObject) GetInstance(name string) *OmmType {
 
-  v, exists := o.Instance.Globals["$" + name]
+  v, exists := o.Instance.vars["$" + name]
 
   if !exists {
     return nil
