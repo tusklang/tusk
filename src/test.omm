@@ -1,8 +1,5 @@
-var main = fn() {
-    log make(a)
-}
+include `*`
 
-var a = proto {
-    var b
-    static var c
+var main = fn() {
+
 }

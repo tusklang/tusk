@@ -1,12 +1,5 @@
 var split
 
-
-ovld split = fn(string -> str, string -> del) {
-    each (str, k, v) {
-        
-    }
-}
-
 ovld split = fn(string -> str, rune -> del) {
     
     splitted := []
@@ -14,7 +7,7 @@ ovld split = fn(string -> str, rune -> del) {
     log str
 
     each (str, k, v) {
-        if (v = del) splitted = append(splitted, "")
+        if (v == del) splitted = append(splitted, "")
 
         splitted::(len(splitted) - 1) = splitted::(len(splitted) - 1) + v
     }

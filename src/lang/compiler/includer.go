@@ -7,7 +7,8 @@ import "oat/helper"
 
 import . "lang/types"
 
-func includeSingle(filename string, line uint64, dir string) ([]Action, CompileErr) {
+func includeSingle(filename string, line uint64, dir string, fromstd bool) ([]Action, CompileErr) {
+
   if strings.HasSuffix(filename, ".oat") {
     var decoded = oatHelper.FromOat(filename)
     return decoded.Actions, nil
@@ -42,9 +43,13 @@ func includeSingle(filename string, line uint64, dir string) ([]Action, CompileE
   return compiled, nil
 }
 
-func includer(filename string, line uint64, dir string) ([][]Action, CompileErr) {
+func includer(filename string, line uint64, dir string, fromstd bool) ([][]Action, CompileErr) {
 
   if strings.HasSuffix(filename, "*") {
+
+    if fromstd {
+      filename = path.Join(path.Join(Ommbasedir, "stdlib"), filename)
+    }
 
     files, e := ioutil.ReadDir(strings.TrimSuffix(filename, "*"))
 
@@ -61,7 +66,7 @@ func includer(filename string, line uint64, dir string) ([][]Action, CompileErr)
       }
 
       if v.IsDir() {
-        inc, e := includer(path.Join(strings.TrimSuffix(filename, "*"), v.Name() + "/*"), line, dir)
+        inc, e := includer(path.Join(strings.TrimSuffix(filename, "*"), v.Name() + "/*"), line, dir, fromstd)
 
         if e != nil {
           return [][]Action{}, e
@@ -69,7 +74,7 @@ func includer(filename string, line uint64, dir string) ([][]Action, CompileErr)
 
         actions = append(actions, inc...)
       } else {
-        inc, e := includeSingle(path.Join(strings.TrimSuffix(filename, "*"), v.Name()), line, dir)
+        inc, e := includeSingle(path.Join(strings.TrimSuffix(filename, "*"), v.Name()), line, dir, fromstd)
 
         if e != nil {
           return [][]Action{}, e
@@ -81,7 +86,7 @@ func includer(filename string, line uint64, dir string) ([][]Action, CompileErr)
 
     return actions, nil
   } else {
-    inc, e := includeSingle(filename, line, dir)
+    inc, e := includeSingle(filename, line, dir, fromstd)
 
     if e != nil {
       return [][]Action{}, e

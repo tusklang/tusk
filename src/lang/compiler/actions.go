@@ -42,11 +42,18 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
             switch val {
 
               case "include":
+
+                var fromstd = false
+
+                if (*v.Right).Item.Token.Name[0] == '`' {
+                  fromstd = true
+                }
+
                 if right[0].Type != "string" {
                   return []Action{}, makeCompilerErr("Expected a string after \"include\"", v.File, v.Line)
                 }
 
-                includeFiles, e := includer(right[0].Value.(OmmString).ToGoType(), v.Line, v.File)
+                includeFiles, e := includer(right[0].Value.(OmmString).ToGoType(), v.Line, v.File, fromstd)
 
                 if e != nil {
                   return []Action{}, e

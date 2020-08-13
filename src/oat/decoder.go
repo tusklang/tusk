@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"io"
 	"reflect"
+	"fmt"
 	. "lang/types"
 	. "lang/interpreter"
 )
@@ -124,7 +125,22 @@ func OatDecode(filename string, mode int) (map[string][]Action, error) {
 		decodedvars[string(DecodeStr(v[0]))] = decodedV
 	}
 
-	return decodedvars, nil
+	if mode == 0 {
+		return decodedvars, nil
+	} else {
+		var all []Action
+		for k, v := range decodedvars {
+			all = append(all, Action{
+				Type: "var",
+				Name: k,
+				ExpAct: v,
+			})
+		}
+		return map[string][]Action{
+			"all": all,
+		}, nil
+	}
+
 }
 
 func DecodeVariable(encoded []rune) ([]Action, error) {
@@ -153,6 +169,8 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 		var matchers = map[string]int{}
 
 		for ;i < len(encoded); i++ {
+
+			fmt.Println(escaped, encoded[i])
 
 			if escaped {
 				curval = append(curval, encoded[i])
@@ -194,6 +212,8 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 		return nil, NOT_OAT
 
 		nextfield:
+
+		fmt.Println()
 
 		switch s.Elem().Type().Field(curpos).Name {
 			case "Type":

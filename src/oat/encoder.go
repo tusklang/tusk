@@ -3,8 +3,6 @@ package oat
 import "os"
 import "reflect"
 import "fmt"
-import "strings"
-import "strconv"
 import . "lang/types"
 import . "lang/interpreter"
 
@@ -64,13 +62,7 @@ func EncodeActions(data []Action) []rune {
 
 				case "Name":
 
-					if strings.HasPrefix(v.Name, "v ") {
-						n, _ := strconv.Atoi(strings.TrimPrefix(v.Name, "v "))
-						final = append(final, reserved["varname start"])
-						final = append(final, rune(n))
-					} else {
-						final = append(final, EncodeStr([]rune(v.Name))...)
-					}
+					final = append(final, EncodeStr([]rune(v.Name))...)
 
 				case "Value":
 

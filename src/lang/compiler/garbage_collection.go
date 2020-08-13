@@ -32,7 +32,7 @@ func insert_garbage_collectors(actions []Action) []Action {
 
     if v.Type == "var" || v.Type == "declare" {
       inserted = append(inserted, Action{
-        Type: "delete",
+        Type: "",
         Name: v.Name,
       })
     }
