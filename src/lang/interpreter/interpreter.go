@@ -86,7 +86,9 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
           }
         }
 
-      case "delete": //the `delete` statement is inserted at compile-time by the garbage collector
+      case "delete":
+        //the `delete` statement is inserted at compile-time by the garbage collector
+        //also this happens after the variable goes out of scope
         defer delete(ins.vars, v.Name)
 
       case "let":

@@ -1,5 +1,8 @@
 var main = fn() {
-    log [:
-        1 + 2 = 1
-    :]
+    log make(a)
+}
+
+var a = proto {
+    var b
+    static var c
 }

@@ -16,7 +16,7 @@ char* getCmdExe() {
 
         //add the drive
         const char* drive = getenv("SystemDrive"); //get the default drive
-        char total[strlen(drive) + strlen(plc) - 1]; //alocate the space
+        char* total = (char*) calloc(strlen(drive) + strlen(plc) - 1, sizeof(char)); //alocate the space
 
         strcpy(total, drive);
         strcat(total, plc);

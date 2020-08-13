@@ -113,7 +113,10 @@ func put_proto_types(actions []Action) {
   for k, v := range actions {
     if v.Type == "var" && v.ExpAct[0].Type == "proto" {
       types = append(types, v.Name[1:])
-      actions[k].ExpAct[0].Name = v.Name
+
+      var proto = v.ExpAct[0].Value.(OmmProto)
+      proto.ProtoName = v.Name
+      actions[k].ExpAct[0].Value = proto
     }
   }
 
