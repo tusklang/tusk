@@ -1,4 +1,4 @@
-package oat
+package oatenc
 
 import (
 	"errors"
@@ -9,14 +9,14 @@ import (
 	"strconv"
 	"io"
 	"reflect"
-	"fmt"
 	. "lang/types"
-	. "lang/interpreter"
 )
 
-var NOT_OAT = errors.New("Given file is not an oat")
+var NOT_OAT error
 
 func OatDecode(filename string, mode int) (map[string][]Action, error) {
+
+	NOT_OAT = errors.New("Given file is not an oat: " + filename) 
 
 	file, e := os.Open(filename)
 
@@ -170,8 +170,6 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 
 		for ;i < len(encoded); i++ {
 
-			fmt.Println(escaped, encoded[i])
-
 			if escaped {
 				curval = append(curval, encoded[i])
 				escaped = false
@@ -212,8 +210,6 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 		return nil, NOT_OAT
 
 		nextfield:
-
-		fmt.Println()
 
 		switch s.Elem().Type().Field(curpos).Name {
 			case "Type":
@@ -433,26 +429,27 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 									continue
 								}
 
-								if strings.HasPrefix(getReservedFromRune(encoded[i]), "start ") {
-									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "start ")]++
-								} else if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
+								if strings.HasPrefix(getReservedFromRune(v), "start ") {
+									matchers[strings.TrimPrefix(getReservedFromRune(v), "start ")]++
+								} else if strings.HasPrefix(getReservedFromRune(v), "end ") {
 					
-									if matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")] <= 0 {
+									if matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")] <= 0 {
+
+										if v == reserved["end proto name"] {
+											k++
+											break
+										}
+										
 										return nil, NOT_OAT
 									}
 					
-									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")]--
+									matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")]--
 								}
 					
 								for _, v := range matchers {
 									if v != 0 {
 										goto protoname_esc
 									}
-								}
-
-								if v == reserved["end proto name"] {
-									k++
-									break
 								}
 								
 								protoname_esc:
@@ -485,15 +482,21 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 									goto protostatic_esc
 								}
 
-								if strings.HasPrefix(getReservedFromRune(encoded[i]), "start ") {
-									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "start ")]++
-								} else if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
+								if strings.HasPrefix(getReservedFromRune(v), "start ") {
+									matchers[strings.TrimPrefix(getReservedFromRune(v), "start ")]++
+								} else if strings.HasPrefix(getReservedFromRune(v), "end ") {
 					
-									if matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")] <= 0 {
+									if matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")] <= 0 {
+
+										if v == reserved["end proto static"] {
+											k++
+											break
+										}
+
 										return nil, NOT_OAT
 									}
 					
-									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")]--
+									matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")]--
 								}
 					
 								for _, v := range matchers {
@@ -507,13 +510,9 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 									continue
 								}
 								if v == reserved["value seperator"] {
+									staticparts = append(staticparts, [2][]rune{})
 									curp = true
 									continue
-								}
-
-								if v == reserved["end proto static"] {
-									k++
-									break
 								}
 
 								protostatic_esc:
@@ -523,9 +522,10 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 									staticparts[len(staticparts) - 1][1] = append(staticparts[len(staticparts) - 1][1], v)
 								}
 							}
+							staticparts = staticparts[:len(staticparts) - 1]
 
 							if k + 1 >= len(cv) {
-								return nil, NOT_OAT
+								goto noins
 							}
 
 							cv = cv[k + 1:]
@@ -545,15 +545,21 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 									goto protoinstance_esc
 								}
 
-								if strings.HasPrefix(getReservedFromRune(encoded[i]), "start ") {
-									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "start ")]++
-								} else if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
+								if strings.HasPrefix(getReservedFromRune(v), "start ") {
+									matchers[strings.TrimPrefix(getReservedFromRune(v), "start ")]++
+								} else if strings.HasPrefix(getReservedFromRune(v), "end ") {
 					
-									if matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")] <= 0 {
+									if matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")] <= 0 {
+
+										if v == reserved["end proto instance"] {
+											k++
+											break
+										}
+										
 										return nil, NOT_OAT
 									}
 					
-									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")]--
+									matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")]--
 								}
 					
 								for _, v := range matchers {
@@ -567,13 +573,9 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 									continue
 								}
 								if v == reserved["value seperator"] {
+									instanceparts = append(instanceparts, [2][]rune{})
 									curp = true
 									continue
-								}
-
-								if v == reserved["end proto static"] {
-									k++
-									break
 								}
 
 								protoinstance_esc:
@@ -584,6 +586,8 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 								}
 							}
 
+							noins:
+							instanceparts = instanceparts[:len(instanceparts) - 1]
 							var nstaticp = make(map[string]*OmmType)
 							var ninstancep = make(map[string]*OmmType)
 
@@ -602,7 +606,7 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 								}
 								ninstancep[string(DecodeStr(v[0]))] = &value
 							}
-
+							
 							return OmmProto{
 								ProtoName: name,
 								Static: nstaticp,

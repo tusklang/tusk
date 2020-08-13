@@ -1,4 +1,4 @@
-package oat
+package oatenc
 
 const MAGIC = "OAT"
 

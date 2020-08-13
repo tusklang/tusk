@@ -7,21 +7,19 @@ ifeq ($(OS),Windows_NT)
 	BINARY = omm.exe
 	SET_GOPATH = set GOPATH=$(GOPATH_DIR) $(newline)
 	CLEAN_CMD = del
-	LIB_OAT = stdlib\lib.oat
 else
 	BINARY = omm
 	SET_GOPATH = @GOPATH=$(GOPATH_DIR)
 	CLEAN_CMD = rm -f
-	LIB_OAT = stdlib/lib.oat
 endif
 
 GOPATH_DIR = $(CURDIR)/../
 
 .PHONY: all
-all: $(BINARY) $(LIB_OAT)
+all: $(BINARY)
 
 .PHONY: test
-test: $(BINARY) $(LIB_OAT)
+test: $(BINARY)
 	@echo ------------------------------------
 	@echo --------- Start Test File ---------- 
 	@echo ------------------------------------
@@ -32,7 +30,6 @@ test: $(BINARY) $(LIB_OAT)
 .PHONY: clean
 clean:
 	-$(CLEAN_CMD) $(BINARY)
-	-$(CLEAN_CMD) $(LIB_OAT)
 
 .SILENT: clean_no_echo
 .PHONY: clean_no_echo
@@ -42,10 +39,6 @@ clean_no_echo:
 .PHONY: $(BINARY)
 $(BINARY):
 	$(SET_GOPATH) go build omm.go
-
-.PHONY: $(LIB_OAT)
-$(LIB_OAT):
-	-./$(BINARY) ./stdlib ./lib.omm -c
 
 .PHONY: gccgo
 gccgo:

@@ -3,6 +3,7 @@ package oat
 import "fmt"
 import "os"
 import "lang/interpreter"
+import . "oat/encoding"
 import . "lang/types"
 
 //export Run

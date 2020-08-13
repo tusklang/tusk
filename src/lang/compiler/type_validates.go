@@ -1,7 +1,6 @@
 package compiler
 
 import . "lang/types"
-import . "lang/interpreter"
 
 var types = []string{ "string", "rune", "number", "bool", "hash", "array", "function", "any" }
 

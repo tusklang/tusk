@@ -1,7 +1,6 @@
 package compiler
 
 import . "lang/types"
-import . "lang/interpreter"
 
 var protos []string
 

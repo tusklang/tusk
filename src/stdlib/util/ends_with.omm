@@ -1,3 +1,5 @@
+include `util/substr.omm`
+
 var ends_with = fn(string -> str, string -> ends) {
 
     if (len(ends) > len(str)) return false

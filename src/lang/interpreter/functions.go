@@ -4,7 +4,7 @@ import "strconv"
 import . "lang/types"
 
 func callAsync(actions []Action, instance *Instance, stacktrace []string, ret chan Returner) {
-  ret <- instance.interpreter(actions, stacktrace)
+  ret <- Interpreter(instance, actions, stacktrace)
 }
 
 func init() { //initialize the operations that require the use of the interpreter
@@ -24,13 +24,10 @@ func init() { //initialize the operations that require the use of the interprete
       }
 
       for k, vv := range arr.Array {
-        instance.vars[v.Params[k]] = &OmmVar{
-          Name: v.Params[k],
-          Value: vv,
-        }
+        instance.Allocate(v.Params[k], vv)
       }
   
-      return fn.Instance.interpreter(v.Body, append(stacktrace, "synchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file)).Exp
+      return Interpreter(fn.Instance, v.Body, append(stacktrace, "synchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file)).Exp
       not_exists:
     }
 
@@ -59,10 +56,7 @@ func init() { //initialize the operations that require the use of the interprete
       }
 
       for k, vv := range arr.Array {
-        instance.vars[v.Params[k]] = &OmmVar{
-          Name: v.Params[k],
-          Value: vv,
-        }
+        instance.Allocate(v.Params[k], vv)
       }
 
       if !not_exists {

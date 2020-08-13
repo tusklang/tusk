@@ -1,7 +1,6 @@
 package compiler
 
 import . "lang/types"
-import . "lang/interpreter"
 
 /*
   Omm's garbage collector works like so:

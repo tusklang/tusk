@@ -1,10 +1,10 @@
-include `*`
+include `util/*`
 
 var main = fn() {
-    log make(a)
+    log "hi"
 }
 
-var a = proto {
-    var b
-    static var c
+var json = proto {
+
+    static var marshal = fn(any -> v) {}
 }

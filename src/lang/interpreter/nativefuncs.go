@@ -97,16 +97,11 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     }
 
     Operations[operand1 + " " + operation + " " + operand2] = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
-      *instance.vars[function.Overloads[0].Params[0]] = OmmVar{
-        Name: function.Overloads[0].Params[0],
-        Value: &val1,
-      }
-      *instance.vars[function.Overloads[0].Params[1]] = OmmVar{
-        Name: function.Overloads[0].Params[1],
-        Value: &val2,
-      }
 
-      return instance.interpreter(function.Overloads[0].Body, stacktrace).Exp
+      instance.Allocate(function.Overloads[0].Params[0], &val1)
+      instance.Allocate(function.Overloads[0].Params[1], &val2)
+
+      return Interpreter(instance, function.Overloads[0].Body, stacktrace).Exp
     }
 
     var tmpundef OmmType = undef
@@ -225,16 +220,15 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 
           var proto = (*args[0]).(OmmProto)
           var nins Instance
-          nins.globals = make(map[string]*OmmVar)
-          nins.vars = make(map[string]*OmmVar)
+          nins.Globals = make(map[string]*OmmVar)
 
           //copy the original globals
-          for k, v := range instance.globals {
-            nins.globals[k] = v
+          for k, v := range instance.Globals {
+            nins.Globals[k] = v
           }
 
           for k, v := range proto.Instance {
-            nins.globals[k] = &OmmVar{
+            nins.Globals[k] = &OmmVar{
               Name: k,
               Value: v,
             }
@@ -246,8 +240,11 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
                 *v = tmp
             }
           }
-          
-          nins.vars = nins.globals
+
+          //also allocate to the locals
+          for k, v := range nins.Globals {
+            nins.Allocate(k, v.Value)
+          }
 
           var ommtype OmmType = OmmObject{
             Name: proto.ProtoName,
@@ -368,34 +365,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
           Decimal: &decimal,
         }
         return &newnum
-
-      case OmmObject:
-
-        //almost the same as hash (just clone the instance)
-        var instance = val.(OmmObject).Instance
-
-        //clone it into `cloned`
-        var clonedg = make(map[string]*OmmVar)
-        for k, v := range instance.globals {
-          clonedg[k] = v
-        }
-        var clonedl = make(map[string]*OmmVar)
-        for k, v := range instance.vars {
-          clonedl[k] = v
-        }
-        ////////////////////////
-
-        var ommtype OmmType = OmmObject{
-          Name: val.(OmmObject).Name,
-          Instance: Instance{
-            Params: instance.Params,
-            vars: clonedl,
-            globals: clonedg,
-          },
-        }
-
-        return &ommtype
-
+        
       case OmmRune:
 
         //take inderect of the rune, and place it in a temporary variable
@@ -493,10 +463,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 
     os.Chdir(dir)
 
-    instance.vars["$__dirname"] = &OmmVar{ //change the __dirname variable too
-      Name: "$__dirname",
-      Value: args[0],
-    }
+    instance.Allocate("$__dirname", args[0])
 
     var tmpundef OmmType = undef
     return &tmpundef

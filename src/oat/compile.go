@@ -8,6 +8,7 @@ import "io/ioutil"
 import "strings"
 
 import . "lang/types"
+import . "oat/encoding"
 import "lang/compiler" //compiler
 
 //export Compile

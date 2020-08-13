@@ -2,10 +2,22 @@ package types
 
 //export Action
 type Action struct {
+
+  //stuff to panic errors and give stack
+
+  File            string
+  Line            uint64
+
+  //////////////////////////////////////
+
+  //stuff for regular actions
+
   Type            string
   Name            string
   Value           OmmType
   ExpAct        []Action
+
+  ///////////////////////////
 
   //stuff for operations
 
@@ -21,12 +33,6 @@ type Action struct {
 
   /////////////////////////////////////
 
-  //stuff to panic errors and give stack
-
-  File            string
-  Line            uint64
-
-  //////////////////////////////////////
 }
 
 type Returner struct {

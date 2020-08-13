@@ -1,8 +1,4 @@
-package interpreter
-
-//type-function and type-object files are here because they use the `Instance` structure
-
-import . "lang/types"
+package types
 
 type OmmObject struct {
   Name       string
@@ -11,7 +7,7 @@ type OmmObject struct {
 
 func (o OmmObject) GetInstance(name string) *OmmType {
 
-  v, exists := o.Instance.globals["$" + name]
+  v, exists := o.Instance.Globals["$" + name]
 
   if !exists {
     return nil

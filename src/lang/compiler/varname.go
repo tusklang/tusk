@@ -3,7 +3,6 @@ package compiler
 import "strconv"
 
 import . "lang/types"
-import . "lang/interpreter"
 
 /*
 Explanation of why this exists:

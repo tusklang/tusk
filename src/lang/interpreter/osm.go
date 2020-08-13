@@ -180,15 +180,10 @@ func OSM_handle(args []*OmmType, stacktrace []string, line uint64, file string, 
       ommtype_req OmmType = oreq
       ommtype_res OmmType = ores
     )
-    instance.vars[cb.Overloads[0].Params[0]] = &OmmVar{
-      Name: cb.Overloads[0].Params[0],
-      Value: &ommtype_req,
-    }
-    instance.vars[cb.Overloads[0].Params[1]] = &OmmVar{
-      Name: cb.Overloads[0].Params[1],
-      Value: &ommtype_res,
-    }
-    instance.interpreter(cb.Overloads[0].Body, append(stacktrace, "osm handler callback at line " + strconv.FormatUint(line, 10) + " in file " + file))
+
+    instance.Allocate(cb.Overloads[0].Params[0], &ommtype_req)
+    instance.Allocate(cb.Overloads[0].Params[1], &ommtype_res)
+    Interpreter(instance, cb.Overloads[0].Body, append(stacktrace, "osm handler callback at line " + strconv.FormatUint(line, 10) + " in file " + file))
   })
 
   //return undef

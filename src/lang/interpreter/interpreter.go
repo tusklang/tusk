@@ -16,7 +16,7 @@ func OmmPanic(err string, line uint64, file string, stacktrace []string) {
   os.Exit(1)
 }
 
-func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner {
+func Interpreter(ins *Instance, actions []Action, stacktrace []string) Returner {
 
   var expReturn = false //if it is inside an expression
 
@@ -29,43 +29,37 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
       case "var":
 
-        interpreted := ins.interpreter(v.ExpAct, stacktrace)
+        interpreted := Interpreter(ins, v.ExpAct, stacktrace)
 
-        ins.vars[v.Name] = &OmmVar{
-          Name: v.Name,
-          Value: interpreted.Exp,
-        }
+        ins.Allocate(v.Name, interpreted.Exp)
 
         if expReturn {
-          variable := *ins.vars[v.Name]
+          variable := interpreted.Exp
           return Returner{
             Type: "expression",
-            Exp: variable.Value,
+            Exp: variable,
           }
         }
 
       case "ovld":
 
-        interpreted := ins.interpreter(v.ExpAct, stacktrace)
+        interpreted := Interpreter(ins, v.ExpAct, stacktrace)
 
-        if (*(*ins.vars[v.Name]).Value).Type() != "function" {
-          *(*ins.vars[v.Name]).Value = OmmFunc{}
+        if (*(*ins.Fetch(v.Name)).Value).Type() != "function" {
+          *(*ins.Fetch(v.Name)).Value = OmmFunc{}
         }
 
         var appended_ovld OmmType = OmmFunc{
-          Overloads: append((*(*ins.vars[v.Name]).Value).(OmmFunc).Overloads, (*interpreted.Exp).(OmmFunc).Overloads[0]),
+          Overloads: append((*(*ins.Fetch(v.Name)).Value).(OmmFunc).Overloads, (*interpreted.Exp).(OmmFunc).Overloads[0]),
         }
 
-        ins.vars[v.Name] = &OmmVar{
-          Name: v.Name,
-          Value: &appended_ovld,
-        }
+        ins.Allocate(v.Name, &appended_ovld)
 
         if expReturn {
-          variable := *ins.vars[v.Name]
+          variable := &appended_ovld
           return Returner{
             Type: "expression",
-            Exp: variable.Value,
+            Exp: variable,
           }
         }
 
@@ -73,29 +67,26 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
         var tmpundef OmmType = undef
 
-        ins.vars[v.Name] = &OmmVar{
-          Name: v.Name,
-          Value: &tmpundef,
-        }
+        ins.Allocate(v.Name, &tmpundef)
 
         if expReturn {
-          variable := *ins.vars[v.Name]
+          variable := ins.Fetch(v.Name).Value
           return Returner{
             Type: "expression",
-            Exp: variable.Value,
+            Exp: variable,
           }
         }
 
       case "delete":
         //the `delete` statement is inserted at compile-time by the garbage collector
         //also this happens after the variable goes out of scope
-        defer delete(ins.vars, v.Name)
+        defer ins.Deallocate(v.Name)
 
       case "let":
 
-        interpreted := *ins.interpreter(v.ExpAct, stacktrace).Exp
+        interpreted := *Interpreter(ins, v.ExpAct, stacktrace).Exp
 
-        variable := ins.interpreter(v.First, stacktrace)
+        variable := Interpreter(ins, v.First, stacktrace)
 
         *variable.Exp = interpreted
 
@@ -107,10 +98,10 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
         }
 
       case "log":
-        interpreted := ins.interpreter(v.ExpAct, stacktrace)
+        interpreted := Interpreter(ins, v.ExpAct, stacktrace)
         fmt.Println((*interpreted.Exp).Format())
       case "print":
-        interpreted := ins.interpreter(v.ExpAct, stacktrace)
+        interpreted := Interpreter(ins, v.ExpAct, stacktrace)
         fmt.Print((*interpreted.Exp).Format())
 
       //all of the types
@@ -149,7 +140,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
         var nArr = make([]*OmmType, len(v.Array))
 
         for k, i := range v.Array {
-          nArr[k] = ins.interpreter(i, stacktrace).Exp
+          nArr[k] = Interpreter(ins, i, stacktrace).Exp
         }
 
         var ommType OmmType = OmmArray{
@@ -169,7 +160,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
         var nHash = make(map[string]*OmmType)
 
         for _, i := range v.Hash {
-          nHash[(*ins.interpreter(i[0], stacktrace).Exp).Format()] = ins.interpreter(i[1], stacktrace).Exp
+          nHash[(*Interpreter(ins, i[0], stacktrace).Exp).Format()] = Interpreter(ins, i[1], stacktrace).Exp
         }
 
         var ommType OmmType = OmmHash{
@@ -191,14 +182,14 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
         if expReturn {
           return Returner{
             Type: "expression",
-            Exp: ins.vars[v.Name].Value,
+            Exp: ins.Fetch(v.Name).Value,
           }
         }
 
       case "{": fallthrough
       case "(":
 
-        groupRet := ins.interpreter(v.ExpAct, stacktrace)
+        groupRet := Interpreter(ins, v.ExpAct, stacktrace)
 
         if expReturn {
           return Returner{
@@ -209,7 +200,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
       case "cast":
 
-        casted := cast(*ins.interpreter(v.ExpAct, stacktrace).Exp, v.Name, stacktrace, v.Line, v.File)
+        casted := cast(*Interpreter(ins, v.ExpAct, stacktrace).Exp, v.Name, stacktrace, v.Line, v.File)
 
         if expReturn {
           return Returner{
@@ -244,7 +235,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
         //& and | can be a bit different for bool and bool
         if v.Type == "&" || v.Type == "|" {
-          firstInterpreted = ins.interpreter(v.First, stacktrace)
+          firstInterpreted = Interpreter(ins, v.First, stacktrace)
           var computed OmmType
 
           if (*firstInterpreted.Exp).Type() == "bool" {
@@ -263,7 +254,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
                 Boolean: &retVal,
               }
             } else {
-              secondInterpreted = ins.interpreter(v.Second, stacktrace)
+              secondInterpreted = Interpreter(ins, v.Second, stacktrace)
 
               if (*secondInterpreted.Exp).Type() == "bool" {
                 var gobool = isTruthy(*secondInterpreted.Exp)
@@ -286,8 +277,8 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
         }
         //////////////////////////////////////////////////
 
-        firstInterpreted = ins.interpreter(v.First, stacktrace)
-        secondInterpreted = ins.interpreter(v.Second, stacktrace)
+        firstInterpreted = Interpreter(ins, v.First, stacktrace)
+        secondInterpreted = Interpreter(ins, v.Second, stacktrace)
         and_or_skip:
 
         operationFunc, exists := Operations[(*firstInterpreted.Exp).Type() + " " + v.Type + " " + (*secondInterpreted.Exp).Type()]
@@ -313,7 +304,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
       case "await":
 
-        interpreted := ins.interpreter(v.ExpAct, stacktrace).Exp
+        interpreted := Interpreter(ins, v.ExpAct, stacktrace).Exp
         var awaited OmmType
 
         switch (*interpreted).(type) {
@@ -348,7 +339,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
         return Returner{
           Type: "return",
-          Exp: ins.interpreter(v.ExpAct, stacktrace).Exp,
+          Exp: Interpreter(ins, v.ExpAct, stacktrace).Exp,
         }
 
       case "condition":
@@ -358,12 +349,12 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
           truthy := true
 
           if v.Type == "if" {
-            condition := ins.interpreter(v.First, stacktrace)
+            condition := Interpreter(ins, v.First, stacktrace)
             truthy = isTruthy(*condition.Exp)
           }
 
           if truthy {
-            interpreted := ins.interpreter(v.ExpAct, stacktrace)
+            interpreted := Interpreter(ins, v.ExpAct, stacktrace)
 
             if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
               return Returner{
@@ -378,11 +369,11 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
       case "while":
 
-        cond := ins.interpreter(v.First, stacktrace)
+        cond := Interpreter(ins, v.First, stacktrace)
 
-        for ;isTruthy(*cond.Exp); cond = ins.interpreter(v.First, stacktrace) {
+        for ;isTruthy(*cond.Exp); cond = Interpreter(ins, v.First, stacktrace) {
 
-          interpreted := ins.interpreter(v.ExpAct, stacktrace)
+          interpreted := Interpreter(ins, v.ExpAct, stacktrace)
 
           if interpreted.Type == "return" {
             return Returner{
@@ -401,7 +392,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
       case "each":
 
-        it := *ins.interpreter([]Action{ v.First[0] }, stacktrace).Exp
+        it := *Interpreter(ins, []Action{ v.First[0] }, stacktrace).Exp
         keyName := v.First[1].Name //get name of key
         valName := v.First[2].Name //get name of val
 
@@ -415,20 +406,14 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
               var ommtypeKey OmmType = ommtypeKeyn
 
-              ins.vars[keyName] = &OmmVar{
-                Name: keyName,
-                Value: &ommtypeKey,
-              }
-              ins.vars[valName] = &OmmVar{
-                Name: valName,
-                Value: val,
-              }
+              ins.Allocate(keyName, &ommtypeKey)
+              ins.Allocate(valName, val)
 
-              interpreted := ins.interpreter(v.ExpAct, stacktrace)
+              interpreted := Interpreter(ins, v.ExpAct, stacktrace)
 
               //free the key and val spaces
-              delete(ins.vars, keyName)
-              delete(ins.vars, valName)
+              ins.Deallocate(keyName)
+              ins.Deallocate(valName)
               /////////////////////////////
 
               if interpreted.Type == "return" {
@@ -456,20 +441,14 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
               var ommtypeKey OmmType = ommtypeKeyn
 
-              ins.vars[keyName] = &OmmVar{
-                Name: keyName,
-                Value: &ommtypeKey,
-              }
-              ins.vars[valName] = &OmmVar{
-                Name: valName,
-                Value: val,
-              }
+              ins.Allocate(keyName, &ommtypeKey)
+              ins.Allocate(valName, val)
 
-              interpreted := ins.interpreter(v.ExpAct, stacktrace)
+              interpreted := Interpreter(ins, v.ExpAct, stacktrace)
 
               //free the key and val spaces
-              delete(ins.vars, keyName)
-              delete(ins.vars, valName)
+              ins.Deallocate(keyName)
+              ins.Deallocate(valName)
               /////////////////////////////
 
               if interpreted.Type == "return" {
@@ -500,20 +479,14 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
               var ommtypeKey OmmType = ommtypeKeyn
               var ommtypeVal OmmType = ommtypeValr
 
-              ins.vars[keyName] = &OmmVar{
-                Name: keyName,
-                Value: &ommtypeKey,
-              }
-              ins.vars[valName] = &OmmVar{
-                Name: valName,
-                Value: &ommtypeVal,
-              }
+              ins.Allocate(keyName, &ommtypeKey)
+              ins.Allocate(valName, &ommtypeVal)
 
-              interpreted := ins.interpreter(v.ExpAct, stacktrace)
+              interpreted := Interpreter(ins, v.ExpAct, stacktrace)
 
               //free the key and val spaces
-              delete(ins.vars, keyName)
-              delete(ins.vars, valName)
+              ins.Deallocate(keyName)
+              ins.Deallocate(valName)
               /////////////////////////////
 
               if interpreted.Type == "return" {
@@ -536,7 +509,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
       case "++":
 
-        variable := ins.interpreter(v.First, stacktrace)
+        variable := Interpreter(ins, v.First, stacktrace)
 
         operationFunc, exists := Operations[(*variable.Exp).Type() + " + number"]
 
@@ -556,7 +529,7 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
       case "--":
 
-        variable := ins.interpreter(v.First, stacktrace)
+        variable := Interpreter(ins, v.First, stacktrace)
 
         operationFunc, exists := Operations[(*variable.Exp).Type() + " - number"]
 
@@ -581,8 +554,8 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
       case "%=": fallthrough
       case "^=":
 
-        variable := ins.interpreter(v.First, stacktrace)
-        interpreted := *ins.interpreter(v.Second, stacktrace).Exp
+        variable := Interpreter(ins, v.First, stacktrace)
+        interpreted := *Interpreter(ins, v.Second, stacktrace).Exp
 
         operationFunc, exists := Operations[(*variable.Exp).Type() + " " + string(v.Type[0]) + " " + interpreted.Type()]
 

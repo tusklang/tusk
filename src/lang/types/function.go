@@ -1,8 +1,4 @@
-package interpreter
-
-//type-function and type-object files are here because they use the `Instance` structure
-
-import . "lang/types"
+package types
 
 type Overload struct {
   Params    []string

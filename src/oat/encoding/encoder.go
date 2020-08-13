@@ -1,10 +1,9 @@
-package oat
+package oatenc
 
 import "os"
 import "reflect"
 import "fmt"
 import . "lang/types"
-import . "lang/interpreter"
 
 //export OatEncode
 func OatEncode(filename string, data map[string][]Action) error {
@@ -136,6 +135,7 @@ func EncodeActions(data []Action) []rune {
 									final = append(final, EncodeStr([]rune(k))...)
 									final = append(final, reserved["hash key seperator"])
 									final = append(final, putval(*v)...)
+									final = append(final, reserved["value seperator"])
 								}
 								final = append(final, reserved["end proto static"])
 
@@ -144,6 +144,7 @@ func EncodeActions(data []Action) []rune {
 									final = append(final, EncodeStr([]rune(k))...)
 									final = append(final, reserved["hash key seperator"])
 									final = append(final, putval(*v)...)
+									final = append(final, reserved["value seperator"])
 								}
 								final = append(final, reserved["end proto instance"])
 
