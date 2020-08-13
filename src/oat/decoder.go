@@ -13,8 +13,6 @@ import (
 	. "lang/interpreter"
 )
 
-
-
 var NOT_OAT = errors.New("Given file is not an oat")
 
 func OatDecode(filename string, mode int) (map[string][]Action, error) {
@@ -84,34 +82,35 @@ func OatDecode(filename string, mode int) (map[string][]Action, error) {
 
 	for _, v := range data {
 
-		if v == reserved["escaper"] {
-			escaped = true
+		if escaped {
+			escaped = false
+			goto escaped
 		}
 
-		if escaped {
-			if isOnName {
-				encodedVars[len(encodedVars) - 1][0] = append(encodedVars[len(encodedVars) - 1][0], v)
-			} else {
-				encodedVars[len(encodedVars) - 1][1] = append(encodedVars[len(encodedVars) - 1][1], v)
-			}
-			escaped = false
-			continue
+		if v == reserved["escaper"] {
+			escaped = true
+			goto escaped
 		}
 
 		if v == reserved["set global"] {
 			isOnName = false
 			continue
 		} else if v == reserved["new global"] {
+			encodedVars = append(encodedVars, [2][]rune{})
 			isOnName = true
 			continue
 		}
 
+		escaped:
 		if isOnName {
 			encodedVars[len(encodedVars) - 1][0] = append(encodedVars[len(encodedVars) - 1][0], v)
 		} else {
 			encodedVars[len(encodedVars) - 1][1] = append(encodedVars[len(encodedVars) - 1][1], v)
 		}
 	}
+
+	//remove the trailing
+	encodedVars = encodedVars[:len(encodedVars) - 1]
 
 	var decodedvars = make(map[string][]Action)
 
@@ -400,15 +399,35 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 							var k int
 							var v rune
 
+							var matchers = make(map[string]int)
+
 							for k, v = range cv {
 
 								if escaped {
+									escaped = false
 									goto protoname_esc
 								}
 
 								if v == reserved["escaper"] {
 									escaped = true
-									goto protoname_esc
+									continue
+								}
+
+								if strings.HasPrefix(getReservedFromRune(encoded[i]), "start ") {
+									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "start ")]++
+								} else if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
+					
+									if matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")] <= 0 {
+										return nil, NOT_OAT
+									}
+					
+									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")]--
+								}
+					
+								for _, v := range matchers {
+									if v != 0 {
+										goto protoname_esc
+									}
 								}
 
 								if v == reserved["end proto name"] {
@@ -421,6 +440,154 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 							}
 
 							cv = cv[k:]
+
+							if len(cv) < 4 || cv[0] != reserved["start proto static"] || cv[len(cv) - 1] != reserved["end proto instance"] {
+								return nil, NOT_OAT
+							}
+
+							cv = cv[1:len(cv) - 1]
+
+							matchers = make(map[string]int)
+
+							var staticparts = make([][2][]rune, 1)
+							var instanceparts = make([][2][]rune, 1)
+							var curp = true
+
+							for k, v = range cv {
+
+								if escaped {
+									escaped = false
+									goto protostatic_esc
+								}
+
+								if v == reserved["escaper"] {
+									escaped = true
+									goto protostatic_esc
+								}
+
+								if strings.HasPrefix(getReservedFromRune(encoded[i]), "start ") {
+									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "start ")]++
+								} else if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
+					
+									if matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")] <= 0 {
+										return nil, NOT_OAT
+									}
+					
+									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")]--
+								}
+					
+								for _, v := range matchers {
+									if v != 0 {
+										goto protostatic_esc
+									}
+								}
+
+								if v == reserved["hash key seperator"] {
+									curp = false
+									continue
+								}
+								if v == reserved["value seperator"] {
+									curp = true
+									continue
+								}
+
+								if v == reserved["end proto static"] {
+									k++
+									break
+								}
+
+								protostatic_esc:
+								if curp {
+									staticparts[len(staticparts) - 1][0] = append(staticparts[len(staticparts) - 1][0], v)
+								} else {
+									staticparts[len(staticparts) - 1][1] = append(staticparts[len(staticparts) - 1][1], v)
+								}
+							}
+
+							if k + 1 >= len(cv) {
+								return nil, NOT_OAT
+							}
+
+							cv = cv[k + 1:]
+
+							matchers = make(map[string]int)
+							curp = true
+
+							for k, v = range cv {
+
+								if escaped {
+									escaped = false
+									goto protoinstance_esc
+								}
+
+								if v == reserved["escaper"] {
+									escaped = true
+									goto protoinstance_esc
+								}
+
+								if strings.HasPrefix(getReservedFromRune(encoded[i]), "start ") {
+									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "start ")]++
+								} else if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
+					
+									if matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")] <= 0 {
+										return nil, NOT_OAT
+									}
+					
+									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")]--
+								}
+					
+								for _, v := range matchers {
+									if v != 0 {
+										goto protoinstance_esc
+									}
+								}
+
+								if v == reserved["hash key seperator"] {
+									curp = false
+									continue
+								}
+								if v == reserved["value seperator"] {
+									curp = true
+									continue
+								}
+
+								if v == reserved["end proto static"] {
+									k++
+									break
+								}
+
+								protoinstance_esc:
+								if curp {
+									instanceparts[len(instanceparts) - 1][0] = append(instanceparts[len(instanceparts) - 1][0], v)
+								} else {
+									instanceparts[len(instanceparts) - 1][1] = append(instanceparts[len(instanceparts) - 1][1], v)
+								}
+							}
+
+							var nstaticp = make(map[string]*OmmType)
+							var ninstancep = make(map[string]*OmmType)
+
+							for _, v := range staticparts {
+								value, e := decval(v[1])
+								if e != nil {
+									return nil, e
+								}
+								nstaticp[string(DecodeStr(v[0]))] = &value
+							}
+
+							for _, v := range instanceparts {
+								value, e := decval(v[1])
+								if e != nil {
+									return nil, e
+								}
+								ninstancep[string(DecodeStr(v[0]))] = &value
+							}
+
+							return OmmProto{
+								ProtoName: name,
+								Static: nstaticp,
+								Instance: ninstancep,
+							}, nil
 
 						case reserved["make rune"]:
 							if len(cv) != 3 {
@@ -527,8 +694,6 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 						default:
 							return nil, NOT_OAT
 					}
-
-					return nil, nil
 				}
 
 				if len(curval) != 0 {
