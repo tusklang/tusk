@@ -234,10 +234,12 @@ func EncodeActions(data []Action) []rune {
 
 					final = append(final, reserved["start r-hash"])
 					
-					for k, v := range v.Hash {
-						final = append(final, EncodeStr([]rune(k))...)
+					for _, v := range v.Hash {
+						final = append(final, reserved["start multi action"])
+						final = append(final, EncodeActions(v[0])...)
+						final = append(final, reserved["end multi action"])
 						final = append(final, reserved["hash key seperator"])
-						final = append(final, EncodeActions(v)...)
+						final = append(final, EncodeActions(v[1])...)
 						final = append(final, reserved["value seperator"])
 					}
 

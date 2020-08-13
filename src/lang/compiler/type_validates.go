@@ -98,7 +98,8 @@ func validate_types(actions []Action) CompileErr {
       }
     }
     for i := range v.Hash {
-      e = validate_types(v.Hash[i])
+      e = validate_types(v.Hash[i][0])
+      e = validate_types(v.Hash[i][1])
       if e != nil {
         return e
       }

@@ -17,7 +17,7 @@ type Action struct {
   //stuff for runtime arrays and hashes
 
   Array       [][]Action
-  Hash            map[string][]Action
+  Hash     [][2][]Action
 
   /////////////////////////////////////
 

@@ -92,7 +92,8 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) CompileErr {
       }
     }
     for i := range v.Hash {
-      e = has_non_global_prototypes(v.Hash[i], false)
+      e = has_non_global_prototypes(v.Hash[i][0], false)
+      e = has_non_global_prototypes(v.Hash[i][1], false)
       if e != nil {
         return e
       }

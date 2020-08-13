@@ -1,5 +1,5 @@
 var main = fn() {
     log [:
-        a = main
+        1 + 2 = 1
     :]
 }

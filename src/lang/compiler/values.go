@@ -49,7 +49,7 @@ func valueActions(item Item) (Action, CompileErr) {
       }, nil
     case "[:":
 
-      var hash = make(map[string][]Action)
+      var hash = make([][2][]Action, 0)
       var chash = make(map[string]*OmmType)
 
       var hashtype = "c-hash" //compile time hash
@@ -67,19 +67,12 @@ func valueActions(item Item) (Action, CompileErr) {
         if oper.Type != "=" {
           return Action{}, makeCompilerErr("Expected a '=' for a hash key", item.File, oper.Line)
         }
-        if oper.Left.Type != "none" {
-          return Action{}, makeCompilerErr("Only basic types can be used as hash indexes", item.File, oper.Line)
-        }
         /////////////
 
-        key := (*oper.Left).Item.Token.Name
+        key, e := actionizer([]Operation{ *oper.Left })
 
-        //if it is a string or rune, remove the quotes
-        if key[0] == '\'' || key[0] == '"' || key[0] == '`' {
-          key = key[1:len(key) - 1]
-        }
-        if key[0] == '$' { //if it is a variable, remove the $
-          key = key[1:]
+        if e != nil {
+          return Action{}, e
         }
 
         value, e := actionizer([]Operation{ *oper.Right })
@@ -96,14 +89,18 @@ func valueActions(item Item) (Action, CompileErr) {
           return Action{}, makeCompilerErr("Cannot have protos outside of the global scope", item.File, item.Line)
         }
 
-        if value[0].Value == nil {
-          hash[key] = value
+        if key[0].Value == nil || value[0].Value == nil {
           hashtype = "r-hash" ///make it a runtime hash
-          continue
+          goto runthash
+        } else {
+          chash[key[0].Value.Format()] = &value[0].Value
         }
 
-        hash[key] = value
-        chash[key] = &value[0].Value
+        runthash:
+        hash = append(hash, [2][]Action{
+          key,
+          value,
+        })
       }
 
       if hashtype == "c-hash" {

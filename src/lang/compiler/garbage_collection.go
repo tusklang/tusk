@@ -84,7 +84,8 @@ func insert_garbage_collectors(actions []Action) []Action {
       v.Array[i] = insert_garbage_collectors(v.Array[i])
     }
     for i := range v.Hash {
-      v.Hash[i] = insert_garbage_collectors(v.Hash[i])
+      v.Hash[i][0] = insert_garbage_collectors(v.Hash[i][0])
+      v.Hash[i][1] = insert_garbage_collectors(v.Hash[i][1])
     }
     ////////////////////////////////////////////////
 

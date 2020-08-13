@@ -226,7 +226,8 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
       }
     }
     for i := range v.Hash {
-      _, e = changevarnames(v.Hash[i], newnames)
+      _, e = changevarnames(v.Hash[i][0], newnames)
+      _, e = changevarnames(v.Hash[i][1], newnames)
       if e != nil {
         return nil, e
       }

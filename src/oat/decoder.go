@@ -456,6 +456,8 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 							var o int
 							var escaped = false
 
+							var matchers = make(map[string]int)
+
 							for o = 0; o < len(cv); o++ {
 
 								if escaped {
@@ -465,6 +467,23 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 								if cv[o] == reserved["escaper"] {
 									escaped = true
 									continue
+								}
+
+								if strings.HasPrefix(getReservedFromRune(encoded[i]), "start ") {
+									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "start ")]++
+								} else if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
+					
+									if matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")] <= 0 {
+										return nil, NOT_OAT
+									}
+					
+									matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")]--
+								}
+					
+								for _, v := range matchers {
+									if v != 0 {
+										goto isescaped
+									}
 								}
 
 								if cv[o] == reserved["param body split"] {
@@ -561,6 +580,8 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 					return nil, NOT_OAT
 				}
 
+				var matchers = make(map[string]int)
+
 				for o := 1; o < len(curval) - 1; o++ {
 
 					for ;o < len(curval); o++ {
@@ -573,6 +594,23 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 						if curval[o] == reserved["escaper"] {
 							escaped = true
 							goto arr_esc
+						}
+
+						if strings.HasPrefix(getReservedFromRune(encoded[i]), "start ") {
+							matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "start ")]++
+						} else if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
+			
+							if matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")] <= 0 {
+								return nil, NOT_OAT
+							}
+			
+							matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")]--
+						}
+			
+						for _, v := range matchers {
+							if v != 0 {
+								goto arr_esc
+							}
 						}
 
 						if getReservedFromRune(curval[o]) == "value seperator" {
@@ -595,7 +633,7 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 
 			case "Hash":
 
-				var hash = make(map[string][]Action)
+				var hash = make([][2][]Action, 0)
 				var currentk []rune
 				var currentv []rune
 
@@ -605,6 +643,8 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 				if len(curval) < 2 {
 					return nil, NOT_OAT
 				}
+
+				var matchers = make(map[string]int)
 
 				for o := 1; o < len(curval) - 1; o++ {
 
@@ -618,6 +658,23 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 						if curval[o] == reserved["escaper"] {
 							escaped = true
 							goto hash_esc
+						}
+
+						if strings.HasPrefix(getReservedFromRune(encoded[i]), "start ") {
+							matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "start ")]++
+						} else if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
+			
+							if matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")] <= 0 {
+								return nil, NOT_OAT
+							}
+			
+							matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")]--
+						}
+			
+						for _, v := range matchers {
+							if v != 0 {
+								goto hash_esc
+							}
 						}
 
 						if getReservedFromRune(curval[o]) == "hash key seperator" {
@@ -644,11 +701,19 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 						}
 					}
 
-					val, e := DecodeVariable(currentv)
+					deckey, e :=  DecodeVariable(currentk[1:len(currentk) - 2])
 					if e != nil {
 						return nil, e
 					}
-					hash[string(DecodeStr(currentk))] = val
+					decval, e :=  DecodeVariable(currentv)
+					if e != nil {
+						return nil, e
+					}
+
+					hash = append(hash, [2][]Action{
+						deckey,
+						decval,
+					})
 
 					//clear both currents
 					currentk = nil

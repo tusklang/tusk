@@ -166,8 +166,8 @@ func (ins *Instance) interpreter(actions []Action, stacktrace []string) Returner
 
         var nHash = make(map[string]*OmmType)
 
-        for k, i := range v.Hash {
-          nHash[k] = ins.interpreter(i, stacktrace).Exp
+        for _, i := range v.Hash {
+          nHash[(*ins.interpreter(i[0], stacktrace).Exp).Format()] = ins.interpreter(i[1], stacktrace).Exp
         }
 
         var ommType OmmType = OmmHash{
