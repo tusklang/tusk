@@ -34,7 +34,7 @@ func Run(params CliParams) {
   }
 
   Ommbasedir = params.OmmDirname
-  _, variables, ce := Compile(string(file), fileName, compileall, true)
+  variables, ce := Compile(string(file), fileName, compileall, true)
   Ommbasedir = "" //reset Ommbasedir
 
   if ce != nil {

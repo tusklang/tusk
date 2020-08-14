@@ -29,7 +29,7 @@ func Compile(params CliParams) {
   }
 
   compiler.Ommbasedir = params.OmmDirname
-  _, vars, ce := compiler.Compile(string(file), fileName, compileall, true)
+  vars, ce := compiler.Compile(string(file), fileName, compileall, true)
   compiler.Ommbasedir = "" //reset Ommbasedir
 
   if ce != nil {

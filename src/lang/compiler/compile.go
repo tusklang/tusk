@@ -87,35 +87,35 @@ func inclCompile(file, filename string, compileall bool) ([]Action, CompileErr) 
 }
 
 //export Compile
-func Compile(file, filename string, compileall, isoat bool) ([]Action, map[string][]Action, CompileErr) {
+func Compile(file, filename string, compileall, isoat bool) (map[string][]Action, CompileErr) {
 
   var e CompileErr
 
   actions, e := inclCompile(file, filename, compileall)
 
   if e != nil {
-    return nil, nil, e
+    return nil, e
   }
 
   if e != nil {
-    return []Action{}, nil, e
+    return nil, e
   }
 
   //a bunch of validations and initializers
   e = has_non_global_prototypes(actions, true)
   if e != nil {
-    return []Action{}, nil, e
+    return nil, e
   }
   put_proto_types(actions)
   e = validate_types(actions)
   if e != nil {
-    return []Action{}, nil, e
+    return nil, e
   }
   /////////////////////////////////////////
 
   vars, e := getvars(actions)
   if e != nil {
-    return nil, nil, e
+    return nil, e
   }
 
   //make each var have only it's name
@@ -133,7 +133,7 @@ func Compile(file, filename string, compileall, isoat bool) ([]Action, map[strin
 
     //ensure that the globals do not have any compound types (such as operations)
     if vars[k][0].Value == nil {
-      return nil, nil, makeCompilerErr("Cannot have compound types at the global scope", vars[k][0].File, vars[k][0].Line)
+      return nil, makeCompilerErr("Cannot have compound types at the global scope", vars[k][0].File, vars[k][0].Line)
     }
 
     varnames[k] = k
@@ -147,11 +147,11 @@ func Compile(file, filename string, compileall, isoat bool) ([]Action, map[strin
   for k := range vars {
     _, e = changevarnames(vars[k], varnames)
     if e != nil {
-      return []Action{}, nil, e
+      return nil, e
     }
 
     vars[k] = insert_garbage_collectors(vars[k])
   }
 
-  return actions, vars, nil
+  return vars, nil
 }

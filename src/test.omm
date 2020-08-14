@@ -1,10 +1,12 @@
-include `util/*`
-
 var main = fn() {
-    log "hi"
+
+    log test <- [] <- []
+
 }
 
-var json = proto {
-
-    static var marshal = fn(any -> v) {}
+var test = fn() {
+    var a = 1
+    return fn() {
+        return a
+    }
 }
