@@ -53,6 +53,12 @@ The key difference is that omm names a type before an argument. This is because 
 fn(any -> a, any -> b) ;accepts any type for a and b
 ```
 
+But again, the omm compiler can automatically assume the type:
+
+```clojure
+fn(a, b) ;automatically gets converted to fn(any -> a, any -> b)
+```
+
 Now lets look at the previous example, but with wrong types
 
 ```clojure

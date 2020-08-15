@@ -304,7 +304,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string) Returner 
       case "await":
 
         interpreted := Interpreter(ins, v.ExpAct, stacktrace).Exp
-        var awaited OmmType
+		var awaited OmmType
 
         switch (*interpreted).(type) {
           case OmmThread:

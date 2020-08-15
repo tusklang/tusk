@@ -263,15 +263,17 @@ func EncodeStr(splitted []rune) []rune {
 	var slc []rune
 	for _, v := range splitted {
 
+		encodedr := v + 500000
+
 		for _, vv := range reserved {
-			if vv == v {
+			if vv == encodedr {
 				slc = append(slc, reserved["escaper"])
 				break
 			}
 		}
 
 
-		slc = append(slc, v)
+		slc = append(slc, encodedr)
 	}
 	return slc
 }

@@ -625,8 +625,11 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 						case reserved["make string"]:
 							cv = cv[1:]
 
+							decoded := DecodeStr(cv)
+
 							return OmmString{
-								String: DecodeStr(cv),
+								String: decoded,
+								Length: uint64(len(decoded)),
 							}, nil
 
 						case reserved["make undef"]:
@@ -949,12 +952,14 @@ func DecodeStr(str []rune) []rune {
 
 	for _, v := range str {
 
-		if !escaped && v == reserved["escaper"] {
+		decodedr := v - 500000
+
+		if !escaped && decodedr == reserved["escaper"] {
 			escaped = true
 			continue
 		}
 
-		final = append(final, v)
+		final = append(final, decodedr)
 
 		escaped = false
 	}

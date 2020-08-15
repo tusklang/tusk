@@ -123,14 +123,18 @@ func insert_arrows(lex []Lex) []Lex {
         nLex = append(nLex, lex[i])
 
         if braceCnt == 0 {
-          nLex = append(nLex, Lex{
-            Name: "=>",
-            Exp: lex[i].Exp,
-            Line: lex[i].Line,
-            Type: "operation",
-            OName: "=>",
-            Dir: lex[i].Dir,
-          })
+
+          if i + 1 < len(lex) && lex[i + 1].Name != "=>" {
+            nLex = append(nLex, Lex{
+              Name: "=>",
+              Exp: lex[i].Exp,
+              Line: lex[i].Line,
+              Type: "operation",
+              OName: "=>",
+              Dir: lex[i].Dir,
+            })
+          }
+
           break
         }
 

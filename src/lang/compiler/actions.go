@@ -71,7 +71,14 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
                 var paramList []string
 
                 for _, p := range right[0].First[0].ExpAct {
-                  if p.Type != "cast" || p.ExpAct[0].Type != "variable" {
+                  if p.Type == "variable" {
+                    //automatically infer that it is type "any"
+                    typeList = append(typeList, "any")
+                    paramList = append(paramList, p.Name)
+                    continue
+                  }
+                  
+                  if p.ExpAct[0].Type != "variable" {
                     return []Action{}, makeCompilerErr("Function parameter lists can only have typed variables", v.File, right[0].Line)
                   }
 

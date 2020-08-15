@@ -36,32 +36,5 @@ func Compile(params CliParams) {
     ce.Print()
   }
 
-  // var vals = Oat{
-  //   Actions: actions,
-  //   Variables: vars,
-  // }
-
   OatEncode(params.Output, vars)
-
-  // var network bytes.Buffer
-  // encoder := gob.NewEncoder(&network)
-
-  // if err := encoder.Encode(vals); err != nil {
-  //   panic(err)
-  // }
-
-  // nbytes := network.Bytes()
-  // writer, e := os.Create(params.Output)
-
-  // if e != nil {
-  //   fmt.Println("Could not make file:", fileName)
-  //   os.Exit(1)
-  // }
-
-  // _, e = writer.Write(nbytes)
-
-  // if e != nil {
-  //   fmt.Println("Could not write file:", fileName)
-  //   os.Exit(1)
-  // }
 }
