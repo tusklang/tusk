@@ -340,9 +340,20 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string) Returner 
 
         defer func() { //free the excess variables
           for _, v := range varnames {
-            if (*value).Type() != "function" { //if it is a curryed function, make sure it does not garbage collect the vars used
-              ins.Deallocate(v)
+            if (*value).Type() == "function" { //if it is a curryed function, make sure it does not garbage collect the vars used
+
+              for _, vv := range (*value).(OmmFunc).Overloads {
+				  for _, vvv := range vv.VarRefs {
+					  if vvv == v {
+						  goto nodealloc
+					  }
+				  }
+              }
+
             }
+
+			ins.Deallocate(v)
+			nodealloc:
           }
         }()
         return Returner{
