@@ -17,6 +17,10 @@ func (str *OmmString) FromGoType(val string) {
   str.Length = uint64(len(val))
 }
 
+func (str *OmmString) FromRuneList(val []rune) {
+  str.String = val
+}
+
 func (str OmmString) ToGoType() string {
 
   if str.String == nil {
@@ -30,6 +34,10 @@ func (str OmmString) ToGoType() string {
   }
 
   return gostr
+}
+
+func (str OmmString) ToRuneList() []rune {
+  return str.String
 }
 
 func (str OmmString) Exists(idx int64) bool {

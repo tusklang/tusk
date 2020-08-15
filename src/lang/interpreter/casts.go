@@ -50,9 +50,9 @@ func cast(val OmmType, nType string, stacktrace []string, line uint64, file stri
       }
 
     case "string->rune":
-      var gostring = string(val.(OmmRune).ToGoType())
+      var runelist = val.(OmmRune).ToGoType()
       var ommstr OmmString
-      ommstr.FromGoType(gostring)
+      ommstr.FromRuneList([]rune{ runelist })
       var ommtype OmmType = ommstr
       return &ommtype
 

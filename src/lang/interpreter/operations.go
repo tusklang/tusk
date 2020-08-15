@@ -227,28 +227,46 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 	},
 	"string + string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
 
-		//convert omm strings to go string
-		gostr1 := val1.(OmmString).ToGoType()
-		gostr2 := val2.(OmmString).ToGoType()
+		//alloc the space
+		var space = make([]rune, val1.(OmmString).Length + val2.(OmmString).Length)
 
-		//convert go string to omm string
-		var finalString OmmString
-		finalString.FromGoType(gostr1 + gostr2)
+		var i uint
+		var o uint
 
-		var ommtype OmmType = finalString
+		val1l := val1.(OmmString).ToRuneList()
+		val12 := val2.(OmmString).ToRuneList()
+
+		for ;uint64(i) < val1.(OmmString).Length; i, o = i + 1, o + 1 {
+			space[i] = val1l[i]
+		}
+
+		for ;uint64(i) < val1.(OmmString).Length; i, o = i + 1, o + 1 {
+			space[i] = val12[i - o]
+		}
+
+		var ommstr OmmString
+		ommstr.FromRuneList(space)
+		var ommtype OmmType = ommstr
 		return &ommtype
 	},
 	"string + rune": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
 
-		//convert omm strings to go string
-		gostr1 := val1.(OmmString).ToGoType()
-		gorune2 := val2.(OmmRune).ToGoType()
+		//alloc the space
+		var space = make([]rune, val1.(OmmString).Length + 1)
 
-		//convert go string to omm string
-		var finalString OmmString
-		finalString.FromGoType(gostr1 + string(gorune2))
+		var i uint
 
-		var ommtype OmmType = finalString
+		val1l := val1.(OmmString).ToRuneList()
+
+		for ;uint64(i) < val1.(OmmString).Length; i++ {
+			space[i] = val1l[i]
+		}
+
+		space[i] = val2.(OmmRune).ToGoType()
+
+		var ommstr OmmString
+		ommstr.FromRuneList(space)
+		var ommtype OmmType = ommstr
 		return &ommtype
 	},
 }
