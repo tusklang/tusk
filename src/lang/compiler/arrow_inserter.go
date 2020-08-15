@@ -9,7 +9,10 @@ func insert_func_arrows(lex []Lex) []Lex {
 
   for i := 0; i < len(lex); i++ {
     v := lex[i]
-    nLex = append(nLex, v)
+
+    if v.Name != "noappend" {
+      nLex = append(nLex, v)
+    }
 
     if (v.Type != "operation" && v.Type != "?operation" && v.Type != "?open_brace" && v.Type != "id" && v.Type != "id_non_tilde") && i + 1 < len(lex) && lex[i + 1].Name == "(" { //if the dev used a ( for a function call instead of a [
 
@@ -51,6 +54,11 @@ func insert_func_arrows(lex []Lex) []Lex {
         nLex = append(nLex, lex[i])
       }
 
+      if i + 1 < len(lex) && lex[i + 1].Name == "(" { //if the next is also a function call, this i-- should occur
+        lex[i].Name = "noappend"
+        i--
+      }
+
       //insert a "]"
       nLex = append(nLex, Lex{
         Name: "]",
@@ -60,22 +68,6 @@ func insert_func_arrows(lex []Lex) []Lex {
         OName: "]",
         Dir: v.Dir,
       })
-
-      continue
-    }
-
-    if (v.Type != "operation" && v.Type != "?operation" && v.Type != "?open_brace" && v.Type != "id" && v.Type != "id_non_tilde") && i + 1 < len(lex) && lex[i + 1].Name == "[" {
-      //insert a "sync"
-      nLex = append(nLex, Lex{
-        Name: "<-",
-        Exp: v.Exp,
-        Line: v.Line,
-        Type: "operation",
-        OName: "sync",
-        Dir: v.Dir,
-      })
-
-      continue
     }
   }
 

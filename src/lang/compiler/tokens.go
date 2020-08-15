@@ -18,6 +18,18 @@ var tokensJSON =
     "type": "id_non_tilde"
   },
   {
+    "name": "defer",
+    "remove": "defer",
+    "pattern": "(defer(\\s+))",
+    "type": "id"
+  },
+  {
+    "name": "defer",
+    "remove": "defer",
+    "pattern": "(defer(\\s*)\\~)",
+    "type": "id_non_tilde"
+  },
+  {
     "name": "ovld",
     "remove": "ovld",
     "pattern": "(ovld(\\s+))",

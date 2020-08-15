@@ -18,6 +18,8 @@ func OmmPanic(err string, line uint64, file string, stacktrace []string) {
 
 func Interpreter(ins *Instance, actions []Action, stacktrace []string) Returner {
 
+  var varnames []string //deallocate these names
+
   var expReturn = false //if it is inside an expression
 
   if len(actions) == 1 {
@@ -31,6 +33,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string) Returner 
 
         interpreted := Interpreter(ins, v.ExpAct, stacktrace)
 
+        varnames = append(varnames, v.Name)
         ins.Allocate(v.Name, interpreted.Exp)
 
         if expReturn {
@@ -67,6 +70,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string) Returner 
 
         var tmpundef OmmType = undef
 
+        varnames = append(varnames, v.Name)
         ins.Allocate(v.Name, &tmpundef)
 
         if expReturn {
@@ -76,11 +80,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string) Returner 
             Exp: variable,
           }
         }
-
-      case "delete":
-        //the `delete` statement is inserted at compile-time by the garbage collector
-        //also this happens after the variable goes out of scope
-        defer ins.Deallocate(v.Name)
 
       case "let":
 
@@ -337,10 +336,26 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string) Returner 
 
       case "return":
 
+        value := Interpreter(ins, v.ExpAct, stacktrace).Exp
+
+        if (*value).Type() == "function" {
+          OmmPanic("Currying functions is not yet supported in Omm", v.Line, v.File, stacktrace)
+        }
+
+        defer func() { //free the excess variables
+          for _, v := range varnames {
+            ins.Deallocate(v)
+          }
+        }()
         return Returner{
           Type: "return",
-          Exp: Interpreter(ins, v.ExpAct, stacktrace).Exp,
+          Exp: value,
         }
+
+      case "defer":
+
+        actions := v.ExpAct
+        defer func() { Interpreter(ins, actions, stacktrace) }()
 
       case "condition":
 

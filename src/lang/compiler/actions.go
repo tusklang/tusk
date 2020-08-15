@@ -31,7 +31,7 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
     switch v.Type {
       case "~":
 
-        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await", "proto", "static", "instance", "ifwin", "ifnwin", "ovld" } //list of statements
+        var statements = []string{ "var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await", "proto", "static", "instance", "ifwin", "ifnwin", "ovld", "defer" } //list of statements
 
         var hasStatement bool = false
 

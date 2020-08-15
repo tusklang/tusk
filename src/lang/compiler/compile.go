@@ -149,8 +149,6 @@ func Compile(file, filename string, compileall, isoat bool) (map[string][]Action
     if e != nil {
       return nil, e
     }
-
-    vars[k] = insert_garbage_collectors(vars[k])
   }
 
   return vars, nil
