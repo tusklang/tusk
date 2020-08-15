@@ -1,3 +1,10 @@
 var main = fn() {
-    
+    log test()()
+}
+
+var test = fn() {
+    a := 1
+    return fn() {
+        return a
+    }
 }

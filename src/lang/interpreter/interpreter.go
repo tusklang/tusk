@@ -338,13 +338,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string) Returner 
 
         value := Interpreter(ins, v.ExpAct, stacktrace).Exp
 
-        if (*value).Type() == "function" {
-          OmmPanic("Currying functions is not yet supported in Omm", v.Line, v.File, stacktrace)
-        }
-
         defer func() { //free the excess variables
           for _, v := range varnames {
-            ins.Deallocate(v)
+            if (*value).Type() != "function" { //if it is a curryed function, make sure it does not garbage collect the vars used
+              ins.Deallocate(v)
+            }
           }
         }()
         return Returner{

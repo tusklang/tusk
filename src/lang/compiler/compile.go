@@ -149,6 +149,8 @@ func Compile(file, filename string, compileall, isoat bool) (map[string][]Action
     if e != nil {
       return nil, e
     }
+
+    getFunctionVarRefs(vars[k])
   }
 
   return vars, nil

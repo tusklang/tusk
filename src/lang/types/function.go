@@ -4,6 +4,7 @@ type Overload struct {
   Params    []string
   Types     []string
   Body      []Action
+  VarRefs   []string //variables that this function use
 }
 
 type OmmFunc struct {
