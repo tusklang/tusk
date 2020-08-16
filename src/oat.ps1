@@ -11,13 +11,13 @@ function CallScript {
   )
 
   #command to call script
-  & "$basedir/omm.exe" "$calldir\" $arguments "$type"
+  & "$basedir/omml.exe" "$calldir\" $arguments "$type"
 }
 
 #if it starts with oat run or oat compile, then perform the given task.
 #it is pretty much an alias for oat file.oat -r and oat file.omm -c
 
-if ($args[0] -eq "compile") {
+if ($args[0] -eq "build") {
 
   #remove first element from array
   $_, $firstpop = $args

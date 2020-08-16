@@ -4,5 +4,5 @@ $basedir = Split-Path $MyInvocation.MyCommand.Definition -Parent
 $calldir = ("$PWD").replace("\", "/") #convert to slash seperated
 
 #call the actual script
-& "$basedir/omm.exe" "$calldir/" $args
+& "$basedir/omml.exe" "$calldir/" $args
 exit 0

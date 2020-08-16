@@ -32,7 +32,7 @@
         </Directory>
         <DirectoryRef Id="INSTALLDIR">
             <Component Id="files" Guid="e87e3efa-4cb5-4bdb-8ba0-fa2080a17ffc">
-                <File Id="omm.exe" Source="..\..\..\src\omm.exe" />
+                <File Id="omml.exe" Source="..\..\..\src\omml.exe" />
                 <File Id="omm.ps1" Source="..\..\..\src\omm.ps1" />
                 <File Id="oat.ps1" Source="..\..\..\src\oat.ps1" />
                 <File Id="mngo.ps1" Source="..\..\..\src\mngo.ps1" />                

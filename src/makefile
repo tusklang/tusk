@@ -4,11 +4,11 @@ define newline #define a newline
 endef
 
 ifeq ($(OS),Windows_NT)
-	BINARY = omm.exe
+	BINARY = omml.exe
 	SET_GOPATH = set GOPATH=$(GOPATH_DIR) $(newline)
 	CLEAN_CMD = del
 else
-	BINARY = omm
+	BINARY = omml
 	SET_GOPATH = @GOPATH=$(GOPATH_DIR)
 	CLEAN_CMD = rm -f
 endif
@@ -16,10 +16,10 @@ endif
 GOPATH_DIR = $(CURDIR)/../
 
 .PHONY: all
-all: $(BINARY)
+all: $(BINARY) lib.oat
 
 .PHONY: test
-test: $(BINARY)
+test: $(BINARY) lib.oat
 	@echo ------------------------------------
 	@echo --------- Start Test File ---------- 
 	@echo ------------------------------------
@@ -38,7 +38,11 @@ clean_no_echo:
 
 .PHONY: $(BINARY)
 $(BINARY):
-	$(SET_GOPATH) go build omm.go
+	$(SET_GOPATH) go build omml.go
+
+.PHONY: lib.oat
+lib.oat:
+	./$(BINARY) ./stdlib lib.omm -c
 
 .PHONY: gccgo
 gccgo:
@@ -48,4 +52,4 @@ gccgo:
 	cd oat && gccgo -c -o oat.o *
 	cd lang/interpreter && gccgo -c -o interpreter.o *
 	cd lang/compiler && gccgo -c -o compiler.o *
-	gccgo -c omm.go
+	gccgo -c omml.go

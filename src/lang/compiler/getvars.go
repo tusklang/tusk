@@ -29,10 +29,6 @@ func getvars(actions []Action) (map[string][]Action, CompileErr) {
       continue
     }
 
-    if _, exists := vars[v.Name]; exists { //if the given global name already exists, throw an error
-      return nil, makeCompilerErr("Duplicate global name was detected", v.File, v.Line)
-    }
-
     vars[v.Name] = v.ExpAct
   }
 

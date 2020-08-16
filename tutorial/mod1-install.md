@@ -16,3 +16,5 @@ make
 ```
 (Note that you must have [Go 1.14+](https://golang.org/doc/go1.14) to build from the source, and a version of GNU make)
 Finally, you must add `'Directory to Omm installation'/src` to your `$PATH`.
+
+Once you are able to install omm, you can use the `omm` command in the terminal to run omm scripts. Create a `test.omm` file and run `omm test.omm`.

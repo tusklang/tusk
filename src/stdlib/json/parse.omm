@@ -12,6 +12,8 @@ var json_starts = [:
 
 var json_parse = fn(string -> data) {
 
+    panic("JSON parsing is not yet implemented")
+
     if (json_starts[data[0]]) {
         return json_starts[data[0]](data)
     }
