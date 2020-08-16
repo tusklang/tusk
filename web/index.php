@@ -20,12 +20,12 @@
     <link rel='shortcut icon' href='favicon.ico'>
     <!------------->
 
+    <script src='include.js'></script>
     <link rel='stylesheet' href='styles.css'>
   </head>
+  
 
-  <div id='prenav'>
-    <script src='include_nav.js'></script>
-  </div>
+  <div id='prenav'></div>
 
   <div class='ui grid' id='index-body'>
     <div class='ui container'>
@@ -102,7 +102,22 @@
 
     </div>
 
+    <div class='ui segment inverted feature'>
+
+      <h1 class='feature-head'>Security</h1>
+      <div class='ui horizontal divider'>
+        <i class='fas fa-lock fa-2x feature-ico'></i>
+      </div>
+
+      <p class='description'>
+        Omm has private and public variables, so you don't need to mess with currying to secure code.
+      </p>
+
+    </div>
+
   </div>
+
+  <div id='prefoot'></div>
 
 </body>
 

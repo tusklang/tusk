@@ -1,1 +1,0 @@
-$('#prenav').load('navbar.html');
