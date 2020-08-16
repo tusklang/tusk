@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <Product Id="da828fb8-58a5-40e5-b772-bb7addd964d4" Name="Omm" Language="1033" Version="1.0.0" Manufacturer="Omm" UpgradeCode="d38d60c2-d01b-4f58-ae40-3e0067ae3656">
+    <Product Id="da828fb8-58a5-40e5-b772-bb7addd964d4" Name="Omm Beta" Language="1033" Version="1.0.0" Manufacturer="Omm" UpgradeCode="d38d60c2-d01b-4f58-ae40-3e0067ae3656">
         <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
         <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
         <WixVariable Id="WixUIBannerBmp" Value="banner.bmp" />
@@ -35,7 +35,6 @@
                 <File Id="omml.exe" Source="..\..\..\src\omml.exe" />
                 <File Id="omm.ps1" Source="..\..\..\src\omm.ps1" />
                 <File Id="oat.ps1" Source="..\..\..\src\oat.ps1" />
-                <File Id="mngo.ps1" Source="..\..\..\src\mngo.ps1" />                
             </Component>
         </DirectoryRef>
         <DirectoryRef Id="STDLIB_DIR">

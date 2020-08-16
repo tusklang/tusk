@@ -37,7 +37,7 @@
         Omm is a general purpose language with arbitrary precision
       </p>
 
-      <button class='ui download-btn button' onclick='download()'>Download Latest Version (v1.0.0)</button>
+      <button class='ui download-btn button' onclick='download()'>Download Latest Version (Beta 1)</button>
 
       <script>
 
@@ -45,7 +45,7 @@
 
           switch (navigator.platform) {
             case "Win32":
-              window.location.href = '/versions/1.0.0/setup.msi'
+              window.location.href = '/versions/beta1.0.0/setup.msi'
               break;
             default:
               alert("Sorry, but Omm is not available on your platform")

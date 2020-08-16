@@ -36,10 +36,10 @@
     <tbody>
       <tr>
         <td>
-          <a id='download_version' onclick='downloadv("1.0.0")'>v1.0.0</a>
+          <a id='download_version' onclick='downloadv("beta1.0.0")'>Beta 1.0.0</a>
         </td>
         <td>
-          First Omm Version
+          Omm Beta 1
         </td>
       </tr>
     </tbody>
@@ -52,7 +52,7 @@
           window.location.href = '/versions/' + version + '/setup.msi'
           break;
         default:
-          alert("Sorry, but Omm is not available on your platform")
+          alert("Sorry, but the Omm installer is not available on your platform")
       }
     }
   </script>
