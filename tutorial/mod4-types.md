@@ -13,6 +13,8 @@ The Omm languages comes default with 5 datatypes:
 - Object: an object is an instance of a prototype, and you can learn about them in the prototypes module
 - Thread: a thread is the way to do asynchronous programming in Omm based on goroutines, and you can make them using the asynchronous operator (<~)
 - Function: a function is used to store re-usable blocks of code, and you can learn more about them in the functions module
+- Integer: 64 bit int
+- Float: 64 bit float
 
 The `typeof` function can be used to get the type of a value
 To convert between types, you can use the `->` operator
