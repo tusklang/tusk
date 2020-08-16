@@ -3,7 +3,6 @@ package oatenc
 const MAGIC = "OAT"
 
 var reserved = map[string]rune{
-	"seperate field" 		: 65536,
 	"next action"           : 'అ',
 	"escaper"        		: 0,
 	"var"            		: 1,
@@ -96,4 +95,14 @@ var reserved = map[string]rune{
 	"start r-array"         : 344,
 	"end r-array"           : 345,
 	"param body split"      : 346,
+	"seperate file"         : 347,
+	"seperate line"         : 348,
+	"seperate type"         : 349,
+	"seperate name"         : 350,
+	"seperate value"        : 351,
+	"seperate expact"       : 352,
+	"seperate first"        : 353,
+	"seperate second"       : 354,
+	"seperate array"        : 355,
+	"seperate hash"         : 356,
 }

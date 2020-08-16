@@ -8,7 +8,6 @@ import (
 	"strings"
 	"strconv"
 	"io"
-	"reflect"
 	. "lang/types"
 )
 
@@ -146,7 +145,6 @@ func OatDecode(filename string, mode int) (map[string][]Action, error) {
 func DecodeVariable(encoded []rune) ([]Action, error) {
 	var (
 		decoded = make([]Action, 1)
-		curpos  = 0
 		escaped = false
 		curval  = make([]rune, 0)
 	)
@@ -154,17 +152,6 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 	for i := 0; i < len(encoded); i++ {
 
 		curact := &decoded[len(decoded) - 1]
-		s := reflect.ValueOf(curact)
-
-		if curpos >= s.Elem().NumField() {
-			return nil, NOT_OAT
-		}
-
-		field := s.Elem().Field(curpos)
-
-		if !field.IsValid() || !field.CanSet() {
-			return nil, NOT_OAT
-		}
 
 		var matchers = map[string]int{}
 
@@ -199,7 +186,7 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 				}
 			}
 
-			if encoded[i] == reserved["seperate field"] {
+			if strings.HasPrefix(getReservedFromRune(encoded[i]), "seperate ") {
 				goto nextfield
 			}
 
@@ -211,8 +198,23 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 
 		nextfield:
 
-		switch s.Elem().Type().Field(curpos).Name {
-			case "Type":
+		switch encoded[i] {
+
+			case reserved["seperate file"]:
+				(*curact).File = string(DecodeStr(curval))
+
+			case reserved["seperate line"]:
+				if len(curval) != 2 {
+					return nil, NOT_OAT
+				}
+
+				if curval[0] != reserved["escaper"] {
+					return nil, NOT_OAT
+				}
+
+				(*curact).Line = uint64(curval[1])
+
+			case reserved["seperate type"]:
 
 				if len(curval) != 1 {
 					return nil, NOT_OAT
@@ -220,10 +222,10 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 
 				(*curact).Type = getReservedFromRune(curval[0])
 				
-			case "Name":
+			case reserved["seperate name"]:
 				(*curact).Name = string(DecodeStr(curval))
 
-			case "Value":
+			case reserved["seperate value"]:
 
 				var decval func(cv []rune) (OmmType, error)
 				decval = func(cv []rune) (OmmType, error) {
@@ -731,7 +733,7 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 					(*curact).Value = calc
 				}
 
-			case "ExpAct":
+			case reserved["seperate expact"]:
 				if len(curval) != 0 {
 					curval = curval[1:len(curval) - 1]
 					val, e := DecodeVariable(curval)
@@ -741,7 +743,7 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 					(*curact).ExpAct = val
 				}
 
-			case "First":
+			case reserved["seperate first"]:
 				if len(curval) != 0 {
 					curval = curval[1:len(curval) - 1]
 					val, e := DecodeVariable(curval)
@@ -751,7 +753,7 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 					(*curact).First = val
 				}
 
-			case "Second":
+			case reserved["seperate second"]:
 				if len(curval) != 0 {
 					curval = curval[1:len(curval) - 1]
 					val, e := DecodeVariable(curval)
@@ -761,7 +763,7 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 					(*curact).Second = val
 				}
 
-			case "Array":
+			case reserved["seperate array"]:
 
 				var arr [][]Action
 				var current []rune
@@ -823,7 +825,7 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 
 				(*curact).Array = arr
 
-			case "Hash":
+			case reserved["seperate hash"]:
 
 				var hash = make([][2][]Action, 0)
 				var currentk []rune
@@ -914,29 +916,14 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 
 				(*curact).Hash = hash
 
-			case "File":
-				(*curact).File = string(DecodeStr(curval))
-
-			case "Line":
-				if len(curval) != 2 {
-					return nil, NOT_OAT
-				}
-
-				if curval[0] != reserved["escaper"] {
-					return nil, NOT_OAT
-				}
-
-				(*curact).Line = uint64(curval[1])
 		}
 
 		if encoded[i + 1] == reserved["next action"] {
 			i++
-			curpos = -1
 			decoded = append(decoded, Action{})
 		}
 
 		curval = nil //clear curval
-		curpos++
 	}
 
 	//remove the trailing one

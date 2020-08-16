@@ -3,6 +3,7 @@ package oatenc
 import "os"
 import "reflect"
 import "fmt"
+import "strings"
 import . "lang/types"
 
 //export OatEncode
@@ -55,6 +56,15 @@ func EncodeActions(data []Action) []rune {
 		for i := 0; i < fieldt.NumField(); i++ {
 
 			switch fieldt.Field(i).Name {
+
+				case "File":
+
+					final = append(final, EncodeStr([]rune(v.File))...)
+
+				case "Line":
+
+					final = append(final, reserved["escaper"], rune(v.Line))
+
 				case "Type":
 
 					final = append(final, reserved[v.Type])
@@ -238,17 +248,9 @@ func EncodeActions(data []Action) []rune {
 
 					final = append(final, reserved["end r-hash"])
 
-				case "File":
-
-					final = append(final, EncodeStr([]rune(v.File))...)
-
-				case "Line":
-
-					final = append(final, reserved["escaper"], rune(v.Line))
-
 			}
 
-			final = append(final, reserved["seperate field"])
+			final = append(final, reserved["seperate " + strings.ToLower(fieldt.Field(i).Name)])
 
 		}
 
