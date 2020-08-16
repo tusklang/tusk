@@ -2,7 +2,7 @@ package compiler
 
 import . "lang/types"
 
-var types = []string{ "string", "rune", "number", "bool", "hash", "array", "function", "any" }
+var types = []string{ "string", "rune", "number", "bool", "hash", "array", "function", "int", "float", "any" }
 
 func validate_types(actions []Action) CompileErr {
 

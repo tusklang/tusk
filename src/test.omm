@@ -1,3 +1,14 @@
 var main = fn() {
-    log 's'
+
+    startend <~ []
+
+    a := int -> 1
+    o := int -> 1
+    while (true)
+        log a = a + o
+}
+
+var startend = fn() {
+    wait(10000)
+    exit(0)
 }
