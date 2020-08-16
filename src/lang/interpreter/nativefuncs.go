@@ -219,36 +219,22 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
       case OmmProto:
 
           var proto = (*args[0]).(OmmProto)
-          var nins Instance
-          globals := make(map[string]*OmmVar)
-
-          //copy the original globals
-          for k, v := range globals {
-            globals[k] = v
-          }
+          nins := instance.Copy() //copy the original vars
 
           for k, v := range proto.Instance {
-            globals[k] = &OmmVar{
-              Name: k,
-              Value: v,
-            }
+            nins.Allocate(k, v)
 
             switch (*v).(type) {
               case OmmFunc: //if it is a function, change the instance
                 tmp := (*v).(OmmFunc)
-                tmp.Instance = &nins
+                tmp.Instance = nins
                 *v = tmp
             }
           }
 
-          //also allocate to the locals
-          for k, v := range globals {
-            nins.Allocate(k, v.Value)
-          }
-
           var ommtype OmmType = OmmObject{
             Name: proto.ProtoName,
-            Instance: nins,
+            Instance: *nins,
           }
           return &ommtype
         default:

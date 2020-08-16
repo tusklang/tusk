@@ -1,14 +1,14 @@
 var main = fn() {
-
-    startend <~ []
-
-    a := int -> 1
-    o := int -> 1
-    while (true)
-        log a = a + o
+    var test = make(t)
+    log test::a()
 }
 
-var startend = fn() {
-    wait(10000)
-    exit(0)
+var t = proto {
+    var a = fn() {
+        log abc()
+    }
+}
+
+var abc = fn() {
+    return "SS"
 }

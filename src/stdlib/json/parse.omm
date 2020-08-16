@@ -1,0 +1,27 @@
+var json_starts = [:
+    '{' = fn(string -> data) {
+
+    },
+    '[' = fn(string -> data) {
+
+    },
+    '\'' = fn(string -> data) {
+
+    },
+:]
+
+var json_parse = fn(string -> data) {
+
+    if (json_starts[data[0]]) {
+        return json_starts[data[0]](data)
+    }
+
+}
+
+var num_parse = fn(string -> data) {
+
+}
+
+var bool_parse = fn(string -> data) {
+
+}

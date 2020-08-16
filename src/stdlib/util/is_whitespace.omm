@@ -1,0 +1,11 @@
+var iswhitespace = fn(rune -> v) {
+    return (
+        v == 9
+        ||
+        v == 10
+        ||
+        v == 13
+        ||
+        v == 32
+    )
+}
