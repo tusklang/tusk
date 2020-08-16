@@ -11,7 +11,6 @@ import "strconv"
 import "strings"
 import "os/exec"
 import "runtime"
-import "unsafe"
 
 import . "lang/types"
 
@@ -410,12 +409,11 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 
       var cmd = (*args[0]).(OmmString).ToGoType()
 
+
       var _execdir = C.getCmdExe()
       var _arg = C.getCmdOp()
       var execdir = C.GoString(_execdir)
       var arg = C.GoString(_arg)
-      C.free(unsafe.Pointer(_execdir))
-      C.free(unsafe.Pointer(_arg))
 
       command := exec.Command(execdir, arg, cmd)
       out, _ := command.CombinedOutput()
@@ -436,8 +434,6 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
       var _arg = C.getCmdOp()
       var execdir = C.GoString(_execdir)
       var arg = C.GoString(_arg)
-      C.free(unsafe.Pointer(_execdir))
-      C.free(unsafe.Pointer(_arg))
 
       command := exec.Command(execdir, arg, cmd)
       command.Stdin = strings.NewReader(stdin)
