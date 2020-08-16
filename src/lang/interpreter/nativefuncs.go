@@ -11,8 +11,12 @@ import "strconv"
 import "strings"
 import "os/exec"
 import "runtime"
+import "unsafe"
 
 import . "lang/types"
+
+//#include "exec.h"
+import "C"
 
 type OmmGoFunc struct {
   Function func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType
@@ -406,7 +410,14 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 
       var cmd = (*args[0]).(OmmString).ToGoType()
 
-      command := exec.Command(cmd)
+      var _execdir = C.getCmdExe()
+      var _arg = C.getCmdOp()
+      var execdir = C.GoString(_execdir)
+      var arg = C.GoString(_arg)
+      C.free(unsafe.Pointer(_execdir))
+      C.free(unsafe.Pointer(_arg))
+
+      command := exec.Command(execdir, arg, cmd)
       out, _ := command.CombinedOutput()
 
       var stringValue OmmString
@@ -421,7 +432,14 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
       var cmd = (*args[0]).(OmmString).ToGoType()
       var stdin = (*args[1]).(OmmString).ToGoType()
 
-      command := exec.Command(cmd)
+      var _execdir = C.getCmdExe()
+      var _arg = C.getCmdOp()
+      var execdir = C.GoString(_execdir)
+      var arg = C.GoString(_arg)
+      C.free(unsafe.Pointer(_execdir))
+      C.free(unsafe.Pointer(_arg))
+
+      command := exec.Command(execdir, arg, cmd)
       command.Stdin = strings.NewReader(stdin)
       out, _ := command.CombinedOutput()
 
