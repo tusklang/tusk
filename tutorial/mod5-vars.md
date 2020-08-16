@@ -1,6 +1,6 @@
 # Variables
 
-Variables are ways of storing values in a process. To declare a variable, you can use the `:=` operation, or the `var` keyword.
+Variables are ways of storing values in a program. To declare a variable, you can use the `:=` operation, or the `var` keyword.
 
 ```clojure
 var a = 0; declare variable 'a'
