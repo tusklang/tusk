@@ -1,19 +1,12 @@
-define newline #define a newline
-
-
-endef
-
 ifeq ($(OS),Windows_NT)
 	BINARY = omml.exe
-	SET_GOPATH = set GOPATH=$(GOPATH_DIR) $(newline)
 	CLEAN_CMD = del
 else
 	BINARY = omml
-	SET_GOPATH = @GOPATH=$(GOPATH_DIR)
 	CLEAN_CMD = rm -f
 endif
 
-GOPATH_DIR = $(CURDIR)/../
+GOPATH = $(CURDIR)/../
 
 .PHONY: all
 all: $(BINARY) lib.oat
@@ -38,7 +31,7 @@ clean_no_echo:
 
 .PHONY: $(BINARY)
 $(BINARY):
-	$(SET_GOPATH) go build omml.go
+	go build omml.go
 
 .PHONY: lib.oat
 lib.oat:
@@ -46,7 +39,6 @@ lib.oat:
 
 .PHONY: gccgo
 gccgo:
-	$(SET_GOPATH)
 	cd lang/types && gccgo -c -o types.o *
 	cd oat/helper && gccgo -c -o helper.o *
 	cd oat && gccgo -c -o oat.o *
