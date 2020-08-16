@@ -3,12 +3,12 @@ package interpreter
 import "strconv"
 import . "lang/types"
 
-func callAsync(actions []Action, instance *Instance, stacktrace []string, ret chan Returner) {
-  ret <- Interpreter(instance, actions, stacktrace)
+func callAsync(actions []Action, instance *Instance, stacktrace []string, stacksize uint, ret chan Returner) {
+  ret <- Interpreter(instance, actions, stacktrace, stacksize)
 }
 
 func init() { //initialize the operations that require the use of the interpreter
-  var function__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+  var function__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
     var fn = val1.(OmmFunc)
     var arr = val2.(OmmArray)
     
@@ -27,7 +27,7 @@ func init() { //initialize the operations that require the use of the interprete
         instance.Allocate(v.Params[k], vv)
       }
   
-      return Interpreter(fn.Instance, v.Body, append(stacktrace, "synchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file)).Exp
+      return Interpreter(fn.Instance, v.Body, append(stacktrace, "synchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file), stacksize + 1).Exp
       not_exists:
     }
 
@@ -37,7 +37,7 @@ func init() { //initialize the operations that require the use of the interprete
     return &tmp
   }
 
-  var function__async__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+  var function__async__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
     var fn = val1.(OmmFunc)
     var arr = val2.(OmmArray)
 
@@ -65,7 +65,7 @@ func init() { //initialize the operations that require the use of the interprete
           Channel: channel,
         }
         
-        go callAsync(v.Body, fn.Instance, append(stacktrace, "asynchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file), channel)
+        go callAsync(v.Body, fn.Instance, append(stacktrace, "asynchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file), stacksize + 1, channel)
         
         return &promise
       }
@@ -77,7 +77,7 @@ func init() { //initialize the operations that require the use of the interprete
     return &tmp
   }
 
-  var gofunc__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+  var gofunc__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
     gfn := val1.(OmmGoFunc)
     arr := val2.(OmmArray)
 

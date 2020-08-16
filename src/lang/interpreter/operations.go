@@ -5,14 +5,26 @@ import . "lang/types"
 
 //list of operations
 //export Operations
-var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
-	"number + number": number__plus__number,
-	"number - number": number__minus__number,
-	"number * number": number__times__number,
-	"number / number": number__divide__number,
-	"number % number": number__mod__number,
-	"number ^ number": number__pow__number,
-	"number == number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"number + number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+		return number__plus__number(val1, val2, instance, stacktrace, line, file)
+	},
+	"number - number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+		return number__minus__number(val1, val2, instance, stacktrace, line, file)
+	},
+	"number * number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+		return number__times__number(val1, val2, instance, stacktrace, line, file)
+	},
+	"number / number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+		return number__divide__number(val1, val2, instance, stacktrace, line, file)
+	},
+	"number % number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+		return number__mod__number(val1, val2, instance, stacktrace, line, file)
+	},
+	"number ^ number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+		return number__pow__number(val1, val2, instance, stacktrace, line, file)
+	},
+	"number == number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		var final = falsev
 
@@ -24,7 +36,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &finalType
 	},
-	"number != number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"number != number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		var final = truev
 
@@ -36,7 +48,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &finalType
 	},
-	"string == string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"string == string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		var isEqual OmmType = falsev
 
@@ -46,7 +58,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isEqual
 	},
-	"string != string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"string != string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		var isEqual OmmType = truev
 
@@ -56,7 +68,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isEqual
 	},
-	"bool == bool": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"bool == bool": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		var isEqual OmmType = falsev
 
@@ -66,7 +78,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isEqual
 	},
-	"bool != bool": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"bool != bool": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		var isEqual OmmType = truev
 
@@ -76,7 +88,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isEqual
 	},
-	"rune == rune": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"rune == rune": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		var isEqual OmmType = falsev
 
@@ -86,7 +98,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isEqual
 	},
-	"rune != rune": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"rune != rune": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		var isEqual OmmType = truev
 
@@ -96,15 +108,15 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isEqual
 	},
-	"undef == undef": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"undef == undef": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 		var tmp OmmType = truev
 		return &tmp
 	},
-	"undef != undef": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"undef != undef": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 		var tmp OmmType = falsev
 		return &tmp
 	},
-	"undef ! bool": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"undef ! bool": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		boolean := !val2.(OmmBool).ToGoType()
 
@@ -114,7 +126,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &converted
 	},
-	"number > number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"number > number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		isGreaterv := !isLessOrEqual(val1.(OmmNumber), val2.(OmmNumber))
 		var isGreaterType OmmType = falsev
@@ -125,7 +137,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isGreaterType
 	},
-	"number >= number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"number >= number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		isGreaterOrEqualv := !isLess(val1.(OmmNumber), val2.(OmmNumber))
 		var isGreaterOrEqualType OmmType = falsev
@@ -136,7 +148,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isGreaterOrEqualType
 	},
-	"number < number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"number < number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		isLessv := isLess(val1.(OmmNumber), val2.(OmmNumber))
 		var isLessType OmmType = falsev
@@ -147,7 +159,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isLessType
 	},
-	"number <= number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"number <= number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		isLessOrEqualv := isLessOrEqual(val1.(OmmNumber), val2.(OmmNumber))
 		var isLessOrEqualType OmmType = falsev
@@ -158,7 +170,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isLessOrEqualType
 	},
-	"array :: number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"array :: number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		//convert to int64
 		idx := int64(val2.(OmmNumber).ToGoType())
@@ -170,7 +182,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return arr.At(idx)
 	},
-	"string :: number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"string :: number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		//convert to int64
 		idx := int64(val2.(OmmNumber).ToGoType())
@@ -184,14 +196,14 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &ommtype
 	},
-	"hash :: string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"hash :: string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		//convert index to go string
 		gostr := val2.(OmmString).ToGoType()
 
 		return val1.(OmmHash).At(gostr)
 	},
-	"proto :: string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"proto :: string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		//convert field to go string
 		gostr := val2.(OmmString).ToGoType()
@@ -208,7 +220,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return field
 	},
-	"object :: string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"object :: string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		//convert field to go string
 		gostr := val2.(OmmString).ToGoType()
@@ -225,7 +237,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return field
 	},
-	"string + string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"string + string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		//alloc the space
 		var space = make([]rune, val1.(OmmString).Length + val2.(OmmString).Length)
@@ -249,7 +261,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		var ommtype OmmType = ommstr
 		return &ommtype
 	},
-	"string + rune": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"string + rune": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		//alloc the space
 		var space = make([]rune, val1.(OmmString).Length + 1)
@@ -269,7 +281,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		var ommtype OmmType = ommstr
 		return &ommtype
 	},
-	"int + int": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"int + int": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		var (
 			int1 = val1.(OmmInteger).Goint
@@ -281,7 +293,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		var ret OmmType = final
 		return &ret
 	},
-	"float + float": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+	"float + float": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		var (
 			float1 = val1.(OmmFloat).Gofloat

@@ -37,7 +37,7 @@
         Omm is a general purpose language with arbitrary precision
       </p>
 
-      <button class='ui download-btn button' onclick='download()'>Download Latest Version (Beta 1)</button>
+      <button class='ui download-btn button' onclick='download()'>Download Latest Version (Beta 1.0.0)</button>
 
       <script>
 
@@ -48,7 +48,7 @@
               window.location.href = '/versions/beta1.0.0/setup.msi'
               break;
             default:
-              alert("Sorry, but Omm is not available on your platform")
+              alert("Sorry, but the Omm installer is not available on your platform. Try installing from the source")
           }
 
         }

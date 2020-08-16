@@ -1,14 +1,3 @@
 var main = fn() {
-    var test = make(t)
-    log test::a()
-}
-
-var t = proto {
-    var a = fn() {
-        log abc()
-    }
-}
-
-var abc = fn() {
-    return "SS"
+    log main()
 }

@@ -96,12 +96,12 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
       OmmPanic("Expected a parameter count of 2 for the fourth argument of defop", line, file, stacktrace)
     }
 
-    Operations[operand1 + " " + operation + " " + operand2] = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+    Operations[operand1 + " " + operation + " " + operand2] = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
       instance.Allocate(function.Overloads[0].Params[0], &val1)
       instance.Allocate(function.Overloads[0].Params[1], &val2)
 
-      return Interpreter(instance, function.Overloads[0].Body, stacktrace).Exp
+      return Interpreter(instance, function.Overloads[0].Body, stacktrace, stacksize).Exp
     }
 
     var tmpundef OmmType = undef
@@ -461,8 +461,4 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     var ommtype OmmType = ommstr
     return &ommtype
   },
-  //osm functions
-  "osm.start": OSM_start,
-  "osm.handle": OSM_handle,
-  ///////////////
 }

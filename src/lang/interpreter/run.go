@@ -64,7 +64,7 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
 
     var global = OmmVar{
       Name: k,
-      Value: Interpreter(&instance, v, []string{"at the global interpreter"}).Exp,
+      Value: Interpreter(&instance, v, []string{"at the global interpreter"}, 0).Exp,
     }
     globals[k] = &global
   }
@@ -109,7 +109,7 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
       case OmmFunc:
         main := globals["$main"]
 
-        calledP := Interpreter(&instance, (*main.Value).(OmmFunc).Overloads[0].Body, []string{"at the entry caller"}).Exp
+        calledP := Interpreter(&instance, (*main.Value).(OmmFunc).Overloads[0].Body, []string{"at the entry caller"}, 0).Exp
 
         if calledP == nil {
           os.Exit(0)

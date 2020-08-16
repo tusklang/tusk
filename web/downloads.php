@@ -52,7 +52,7 @@
           window.location.href = '/versions/' + version + '/setup.msi'
           break;
         default:
-          alert("Sorry, but the Omm installer is not available on your platform")
+        alert("Sorry, but the Omm installer is not available on your platform. Try installing from the source")
       }
     }
   </script>
