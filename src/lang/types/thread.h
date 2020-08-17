@@ -11,26 +11,26 @@ extern "C" {
 
 #include <windows.h>
 
-struct ThreadArgs {
-    void* gof;
-    void* output;
+struct ThreadArgs { //go function cb and output ptr
+    unsigned long long  gof;
+    void**              output;
 };
 struct Thread {
-    struct ThreadArgs ta;
-    DWORD      exitcode;
-    HANDLE     handle;
+    struct ThreadArgs*  ta;
+    DWORD               exitcode;
+    HANDLE              handle;
 };
 
 #else
 
 #endif
 
-extern void* Callgointerpreter(void*);
-struct Thread newThread(void* cb);
-void freeInAndOut(struct Thread thread);
-bool closeThread(struct Thread thread, DWORD exitcode);
-void* waitfor(struct Thread t);
-DWORD getexitcode(struct Thread t);
+extern void CallGoCB(unsigned long long, void**);
+struct Thread newThread(unsigned long long);
+void freeInAndOut(struct Thread);
+bool closeThread(struct Thread, DWORD);
+void* waitfor(struct Thread);
+DWORD getexitcode(struct Thread);
 
 #ifdef __cplusplus
 }

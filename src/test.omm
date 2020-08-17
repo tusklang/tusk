@@ -1,3 +1,7 @@
 var main = fn() {
-    
+    await testfn <~ []
+}
+
+var testfn = fn() {
+    return 1 + "S"
 }

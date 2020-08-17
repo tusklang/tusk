@@ -1,23 +1,37 @@
 package types
 
-import "unsafe"
+import "fmt"
 
 type OmmThread struct {
-	thread *cthread
+	thread      *cthread
+	ptr          uint64
 }
 
 //export NewThread
-func NewThread(cb unsafe.Pointer) OmmThread {
+func NewThread(cb func() *OmmType) *OmmThread {
 	//wrapper for other packages to create OmmThreads
-	return *(*OmmThread)(newthread(cb))
+	return newthread(cb)
 }
 
-func (ot OmmThread) Join(thread OmmThread) *OmmType {
-	return jointhread(thread)
+func WaitAllThreads() {
+	//wait all of the remaining threads
+	for _, v := range allthreads {
+		v.Join()
+		v.Deallocate()
+	}
+}
+
+func (ot OmmThread) Join() *OmmType {
+	return jointhread(ot)
+}
+
+func (ot OmmThread) Error() uint {
+	return geterr(ot)
 }
 
 func (ot OmmThread) Format() string {
-	return "{ Thread <~ }"
+	//format it (with all the data)
+	return fmt.Sprintf("Thread - <exit: %d>", ot.Error())
 }
 
 func (ot OmmThread) Type() string {
@@ -29,5 +43,10 @@ func (ot OmmThread) TypeOf() string {
 }
 
 func (ot OmmThread) Deallocate() {
+	//threads must be deallocated with a special way (because of the menace that is c)
+	//but, i am grateful for c because without it, i would have has to use asm
+	//and with asm, i would have to write 20 asm source files for each platform
+
+	thread_dealloc(ot)
 
 }

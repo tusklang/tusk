@@ -1,7 +1,6 @@
 package interpreter
 
 import "strconv"
-import "unsafe"
 import . "lang/types"
 
 func init() { //initialize the operations that require the use of the interpreter
@@ -14,18 +13,22 @@ func init() { //initialize the operations that require the use of the interprete
         continue
       }
 
+      var not_exists bool = false
+
       for k, vv := range v.Types {
         if vv != (*arr.At(int64(k))).TypeOf() && vv != "any" {
-          goto not_exists
+          not_exists = true
+          break
         }
       }
 
-      for k, vv := range arr.Array {
-        instance.Allocate(v.Params[k], vv)
+      if !not_exists {
+        for k, vv := range arr.Array {
+          instance.Allocate(v.Params[k], vv)
+        }
+    
+        return Interpreter(fn.Instance, v.Body, append(stacktrace, "synchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file), stacksize + 1).Exp
       }
-  
-      return Interpreter(fn.Instance, v.Body, append(stacktrace, "synchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file), stacksize + 1).Exp
-      not_exists:
     }
 
     OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
@@ -47,21 +50,22 @@ func init() { //initialize the operations that require the use of the interprete
 
       for k, vv := range v.Types {
         if vv != (*arr.At(int64(k))).TypeOf() && vv != "any" {
-          goto not_exists
+          not_exists = true
+          break
         }
       }
 
-      for k, vv := range arr.Array {
-        instance.Allocate(v.Params[k], vv)
+      if !not_exists {
+        for k, vv := range arr.Array {
+          instance.Allocate(v.Params[k], vv)
+        }
+
+        var promise OmmType = *NewThread(func() *OmmType {
+          return Interpreter(instance, v.Body, append(stacktrace, "asynchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file), stacksize + 1).Exp
+        })
+  
+        return &promise
       }
-
-      lambda := func() *OmmType {
-
-      }
-      var promise = NewThread(unsafe.Pointer(&lambda))
-
-      return &promise
-      not_exists:
     }
 
     OmmPanic("Could not find a typelist for function call", line, file, stacktrace)

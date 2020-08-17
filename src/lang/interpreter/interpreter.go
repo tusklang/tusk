@@ -310,18 +310,18 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
       case "await":
 
         interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize + 1).Exp
-		var awaited OmmType
+		    var awaited OmmType
 
         switch (*interpreted).(type) {
           case OmmThread:
 
             //put the new value back into the given interpreted pointer
             thread := (*interpreted).(OmmThread)
-            thread.WaitFor()
+            thread.Join()
             *interpreted = thread
             ///////////////////////////////////////////////////////////
 
-            awaited = *thread.Returned.Exp
+            awaited = thread
           default:
             awaited = *interpreted
         }

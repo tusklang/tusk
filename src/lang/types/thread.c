@@ -9,22 +9,24 @@ extern "C" {
 #include <stdbool.h>
 #include "thread.h"
 
-DWORD WINAPI threadf(void* t) {
-    struct ThreadArgs* ta = t; //convert it into a non unsafe ptr
-    (*ta).output = Callgointerpreter((*ta).gof);
+DWORD WINAPI threadf(LPVOID* tav) {
+    struct ThreadArgs* ta = ((struct ThreadArgs*) tav);
+    CallGoCB((*ta).gof, (*ta).output);
 }
 
-struct Thread newThread(void* cb) {
+struct Thread newThread(unsigned long long ptr) {
 
     struct ThreadArgs ta;
-    ta.gof = cb;
-    ta.output = malloc(1); //alloc to the heap
+    ta.gof = ptr;
+    ta.output = (void**) malloc(1); //alloc to the heap
 
-    void* unsafe = &ta;
-    HANDLE h = CreateThread(NULL, 0, threadf, unsafe, 0, NULL);
+    struct ThreadArgs* taheap = calloc(1, sizeof(struct ThreadArgs));
+    *taheap = ta;
+
+    HANDLE h = CreateThread(NULL, 0, threadf, (LPVOID*) taheap, 0, NULL);
 
     struct Thread t;
-    t.ta = ta;
+    t.ta = taheap;
     t.handle = h;
     return t;
 }
@@ -34,8 +36,10 @@ void freeInAndOut(struct Thread thread) {
     //but not terminate the thread
 
     //free the storage
-    free(thread.ta.gof);
-    free(thread.ta.output);
+    free((*thread.ta).gof);
+    free(*(*thread.ta).output);
+    free((*thread.ta).output);
+    free(thread.ta);
     //////////////////
 }
 
@@ -48,7 +52,7 @@ bool closeThread(struct Thread thread, DWORD exitcode) {
 
 void* waitfor(struct Thread t) {
     WaitForSingleObject(t.handle, INFINITE);
-    return t.ta.output;
+    return *(*t.ta).output;
 }
 
 DWORD getexitcode(struct Thread t) {

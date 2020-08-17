@@ -11,8 +11,6 @@ type overload_after struct {
   val  []Action
 }
 
-var threads []OmmThread
-
 //export RunInterpreter
 func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
 
@@ -110,16 +108,13 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
         main := globals["$main"]
 
         calledP := Interpreter(&instance, (*main.Value).(OmmFunc).Overloads[0].Body, []string{"at the entry caller"}, 0).Exp
+        WaitAllThreads() //finish up any remaining threads
 
         if calledP == nil {
           os.Exit(0)
         }
 
-        called := *calledP
-
-        for _, v := range threads {
-          v.WaitFor()
-        }
+        called := *calledP //dereference the called ptr (to get the value)
 
         var exitType int64 = 0
 
