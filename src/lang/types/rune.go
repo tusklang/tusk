@@ -25,3 +25,5 @@ func (r OmmRune) Type() string {
 func (r OmmRune) TypeOf() string {
   return r.Type()
 }
+
+func (_ OmmRune) Deallocate() {}

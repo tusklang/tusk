@@ -62,3 +62,5 @@ func (arr OmmArray) Type() string {
 func (arr OmmArray) TypeOf() string {
   return arr.Type()
 }
+
+func (_ OmmArray) Deallocate() {}

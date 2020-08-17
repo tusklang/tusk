@@ -44,5 +44,4 @@ func (ot OmmThread) Deallocate() {
 	//and with asm, i would have to write 20 asm source files for each platform
 
 	thread_dealloc(ot)
-
 }

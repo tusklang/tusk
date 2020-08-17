@@ -18,6 +18,25 @@ func OmmPanic(err string, line uint64, file string, stacktrace []string) {
   os.Exit(1)
 }
 
+func dealloc(ins *Instance, varnames []string, value *OmmType) { //function to remove the variables declared in that scope
+  for _, v := range varnames {
+    if (*value).Type() == "function" { //if it is a curryed function, make sure it does not garbage collect the vars used
+
+      for _, vv := range (*value).(OmmFunc).Overloads {
+        for _, vvv := range vv.VarRefs {
+          if vvv == v {
+            goto nodealloc
+          }
+        }
+      }
+
+    }
+
+    ins.Deallocate(v)
+    nodealloc:
+  }
+}
+
 func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize uint) Returner {
 
   if stacksize > MAX_STACKSIZE {
@@ -44,6 +63,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
         if expReturn {
           variable := interpreted.Exp
+          defer dealloc(ins, varnames, variable)
           return Returner{
             Type: "expression",
             Exp: variable,
@@ -66,6 +86,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
         if expReturn {
           variable := &appended_ovld
+          defer dealloc(ins, varnames, variable)
           return Returner{
             Type: "expression",
             Exp: variable,
@@ -81,6 +102,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
         if expReturn {
           variable := ins.Fetch(v.Name).Value
+          defer dealloc(ins, varnames, variable)
           return Returner{
             Type: "expression",
             Exp: variable,
@@ -96,6 +118,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
         *variable.Exp = interpreted
 
         if expReturn {
+          defer dealloc(ins, varnames, variable.Exp)
           return Returner{
             Type: "expression",
             Exp: variable.Exp,
@@ -117,10 +140,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
       case "undef":    fallthrough
       case "c-array":  fallthrough //compile-time calculated array
       case "c-hash":   fallthrough //compile-time calculated hash
-      case "proto": fallthrough
+      case "proto":    fallthrough
       case "thread":
 
         if expReturn {
+          defer dealloc(ins, varnames, &v.Value)
           return Returner{
             Type: "expression",
             Exp: &v.Value,
@@ -133,6 +157,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
         nf.Instance = ins
         var ommtype OmmType = nf
         if expReturn {
+          defer dealloc(ins, varnames, &ommtype)
           return Returner{
             Type: "expression",
             Exp: &ommtype,
@@ -154,6 +179,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
         }
 
         if expReturn {
+          defer dealloc(ins, varnames, &ommType)
           return Returner{
             Type: "expression",
             Exp: &ommType,
@@ -174,6 +200,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
         }
 
         if expReturn {
+          defer dealloc(ins, varnames, &ommType)
           return Returner{
             Type: "expression",
             Exp: &ommType,
@@ -185,9 +212,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
       case "variable":
 
         if expReturn {
+          fetched := ins.Fetch(v.Name).Value
+          defer dealloc(ins, varnames, fetched)
           return Returner{
             Type: "expression",
-            Exp: ins.Fetch(v.Name).Value,
+            Exp: fetched,
           }
         }
 
@@ -197,6 +226,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
         groupRet := Interpreter(ins, v.ExpAct, stacktrace, stacksize + 1)
 
         if expReturn {
+          defer dealloc(ins, varnames, groupRet.Exp)
           return Returner{
             Type: "expression",
             Exp: groupRet.Exp,
@@ -208,6 +238,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
         casted := cast(*Interpreter(ins, v.ExpAct, stacktrace, stacksize + 1).Exp, v.Name, stacktrace, v.Line, v.File)
 
         if expReturn {
+          defer dealloc(ins, varnames, casted)
           return Returner{
             Type: "expression",
             Exp: casted,
@@ -273,6 +304,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
             }
 
             if expReturn {
+              defer dealloc(ins, varnames, &computed)
               return Returner{
                 Type: "expression",
                 Exp: &computed,
@@ -299,6 +331,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
         computed := operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, ins, stacktrace, v.Line, v.File, stacksize + 1)
 
         if expReturn {
+          defer dealloc(ins, varnames, computed)
           return Returner{
             Type: "expression",
             Exp: computed,
@@ -327,6 +360,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
         }
 
         if expReturn {
+          defer dealloc(ins, varnames, &awaited)
           return Returner{
             Type: "expression",
             Exp: &awaited,
@@ -344,24 +378,8 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
         value := Interpreter(ins, v.ExpAct, stacktrace, stacksize + 1).Exp
 
-        defer func() { //free the excess variables
-          for _, v := range varnames {
-            if (*value).Type() == "function" { //if it is a curryed function, make sure it does not garbage collect the vars used
-
-              for _, vv := range (*value).(OmmFunc).Overloads {
-				  for _, vvv := range vv.VarRefs {
-					  if vvv == v {
-						  goto nodealloc
-					  }
-				  }
-              }
-
-            }
-
-			ins.Deallocate(v)
-			nodealloc:
-          }
-        }()
+        defer dealloc(ins, varnames, value)
+        
         return Returner{
           Type: "return",
           Exp: value,
@@ -551,6 +569,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
         *variable.Exp = *operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize + 1)
 
         if expReturn {
+          defer dealloc(ins, varnames, variable.Exp)
           return Returner{
             Type: "expression",
             Exp: variable.Exp,
@@ -571,6 +590,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
         *variable.Exp = *operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize)
 
         if expReturn {
+          defer dealloc(ins, varnames, variable.Exp)
           return Returner{
             Type: "expression",
             Exp: variable.Exp,
@@ -596,6 +616,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
         *variable.Exp = *operationFunc(*variable.Exp, interpreted, ins, stacktrace, v.Line, v.File, stacksize + 1)
 
         if expReturn {
+          defer dealloc(ins, varnames, variable.Exp)
           return Returner{
             Type: "expression",
             Exp: variable.Exp,
@@ -605,7 +626,9 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
     }
   }
 
-  var undefval OmmType = OmmUndef{}
+  var undefval OmmType = undef
+
+  defer dealloc(ins, varnames, &undefval)
 
   return Returner{
     Type: "none",

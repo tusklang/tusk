@@ -18,6 +18,10 @@ func (ins *Instance) Allocate(name string, value *OmmType) {
 }
 
 func (ins *Instance) Deallocate(name string) {
+
+  //first do the complex dealloc of the type
+  (*ins.vars[name].Value).Deallocate()
+
   delete(ins.vars, name)
 }
 

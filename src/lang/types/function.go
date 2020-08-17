@@ -23,3 +23,5 @@ func (f OmmFunc) Type() string {
 func (f OmmFunc) TypeOf() string {
   return f.Type()
 }
+
+func (_ OmmFunc) Deallocate() {}

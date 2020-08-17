@@ -34,3 +34,5 @@ func (p OmmProto) Type() string {
 func (p OmmProto) TypeOf() string {
   return p.ProtoName[1:] /* remove the leading $ */ + " prototype"
 }
+
+func (_ OmmProto) Deallocate() {}

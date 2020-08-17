@@ -78,3 +78,5 @@ func (hash OmmHash) Type() string {
 func (hash OmmHash) TypeOf() string {
   return hash.Type()
 }
+
+func (_ OmmHash) Deallocate() {}

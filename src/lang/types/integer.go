@@ -17,4 +17,6 @@ func (b OmmInteger) Type() string {
   
 func (b OmmInteger) TypeOf() string {
 	return b.Type()
- }
+}
+
+func (_ OmmInteger) Deallocate() {}

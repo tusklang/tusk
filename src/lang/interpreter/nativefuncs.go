@@ -33,6 +33,8 @@ func (ogf OmmGoFunc) TypeOf() string {
   return ogf.Type()
 }
 
+func (_ OmmGoFunc) Deallocate() {}
+
 //export GoFuncs
 var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
   "input": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {

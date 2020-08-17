@@ -17,4 +17,6 @@ func (b OmmFloat) Type() string {
   
 func (b OmmFloat) TypeOf() string {
 	return b.Type()
- }
+}
+
+func (_ OmmFloat) Deallocate() {}

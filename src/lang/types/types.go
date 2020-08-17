@@ -12,12 +12,14 @@ type CliParams struct {
 }
 
 type OmmType interface {
-  Format()   string
+  Format()     string
 
   //difference between type and typeof is for prototypes
   //Type() for a proto will return "prototype"
   //TypeOf() will return the proto's name
-  Type()     string
-  TypeOf()   string
+  Type()       string
+  TypeOf()     string
   //////////////////////////////////////////////////////
+
+  Deallocate()
 }

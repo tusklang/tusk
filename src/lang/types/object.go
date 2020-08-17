@@ -27,3 +27,5 @@ func (o OmmObject) Type() string {
 func (o OmmObject) TypeOf() string {
   return o.Name[1:]
 }
+
+func (_ OmmObject) Deallocate() {}
