@@ -1,7 +1,7 @@
 var main = fn() {
-    await testfn <~ []
+    log await testfn <~ []
 }
 
 var testfn = fn() {
-    return 1 + "S"
+    return 1 + 1
 }

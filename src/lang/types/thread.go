@@ -25,13 +25,9 @@ func (ot OmmThread) Join() *OmmType {
 	return jointhread(ot)
 }
 
-func (ot OmmThread) Error() uint {
-	return geterr(ot)
-}
-
 func (ot OmmThread) Format() string {
 	//format it (with all the data)
-	return fmt.Sprintf("Thread - <exit: %d>", ot.Error())
+	return fmt.Sprintf("{ Thread }")
 }
 
 func (ot OmmThread) Type() string {

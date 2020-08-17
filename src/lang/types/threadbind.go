@@ -3,8 +3,8 @@ package types
 //this is a binding file
 //so the code is very messy
 //(because c is very messy)
+//but i love c
 
-import "fmt"
 import "unsafe"
 
 //#include "thread.h"
@@ -36,14 +36,8 @@ func jointhread(thread OmmThread) *OmmType {
 	return (*OmmType)(joined)
 }
 
-func geterr(thread OmmThread) uint {
-	//wrapper to get an error of a thread
-	ct := C.struct_Thread(*thread.thread) //make cthread
-	return uint(C.getexitcode(ct))
-}
-
 func thread_dealloc(thread OmmThread) {
-	C.freeInAndOut(C.struct_Thread(*thread.thread))
+	C.freeThread(C.struct_Thread(*thread.thread))
 	delete(asyncfuncs, thread.ptr) //remove from the asyncfuncs
 }
 
@@ -52,7 +46,6 @@ func CallGoCB(ptr C.ulonglong, output *unsafe.Pointer) {
 
 	if _, e := asyncfuncs[uint64(ptr)]; e { //if it does not exist, it became corrupt, so ignore it
 		ret := asyncfuncs[uint64(ptr)]() //call the func based on the unsafe pointer address
-		fmt.Println(ret)
 		*output = unsafe.Pointer(&ret)
 	}
 }
