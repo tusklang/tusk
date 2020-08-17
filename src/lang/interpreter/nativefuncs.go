@@ -33,7 +33,6 @@ func (ogf OmmGoFunc) TypeOf() string {
   return ogf.Type()
 }
 
-
 //export GoFuncs
 var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
   "input": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
@@ -472,6 +471,18 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
     var os = runtime.GOOS
     var ommstr OmmString
     ommstr.FromGoType(os);
+    var ommtype OmmType = ommstr
+    return &ommtype
+  },
+  "sprint": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+
+    if len(args) != 1 {
+      OmmPanic("Function sprint requires an argument count of 1", line, file, stacktrace)
+    }
+    
+    var sprinted = (*args[0]).Format()
+    var ommstr OmmString
+    ommstr.FromGoType(sprinted);
     var ommtype OmmType = ommstr
     return &ommtype
   },
