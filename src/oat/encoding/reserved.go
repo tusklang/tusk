@@ -1,6 +1,6 @@
 package oatenc
 
-const MAGIC = "OAT"
+const MAGIC = "OAT BETA"
 
 var reserved = map[string]rune{
 	"next action"           : 'అ',
