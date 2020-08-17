@@ -6,4 +6,5 @@ src/*.exe
 *.wixpdb
 src/stdlib/lib.oat
 *.o
-pkg/
+/pkg/*
+/bin/*
