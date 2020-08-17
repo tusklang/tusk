@@ -1,11 +1,8 @@
 package interpreter
 
 import "strconv"
+import "unsafe"
 import . "lang/types"
-
-func callAsync(actions []Action, instance *Instance, stacktrace []string, stacksize uint, ret chan Returner) {
-  ret <- Interpreter(instance, actions, stacktrace, stacksize)
-}
 
 func init() { //initialize the operations that require the use of the interpreter
   var function__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
@@ -50,8 +47,7 @@ func init() { //initialize the operations that require the use of the interprete
 
       for k, vv := range v.Types {
         if vv != (*arr.At(int64(k))).TypeOf() && vv != "any" {
-          not_exists = true
-          break
+          goto not_exists
         }
       }
 
@@ -59,16 +55,13 @@ func init() { //initialize the operations that require the use of the interprete
         instance.Allocate(v.Params[k], vv)
       }
 
-      if !not_exists {
-        channel := make(chan Returner)
-        var promise OmmType = OmmThread{
-          Channel: channel,
-        }
-        
-        go callAsync(v.Body, fn.Instance, append(stacktrace, "asynchronous call at line " + strconv.FormatUint(line, 10) + " in file " + file), stacksize + 1, channel)
-        
-        return &promise
+      lambda := func() *OmmType {
+
       }
+      var promise = NewThread(unsafe.Pointer(&lambda))
+
+      return &promise
+      not_exists:
     }
 
     OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
