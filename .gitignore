@@ -1,10 +1,6 @@
 .idea/
 .vscode/
-src/omm
-src/*.exe
-*.wixobj
-*.wixpdb
-src/stdlib/lib.oat
+omm
+*.exe
+stdlib/lib.oat
 *.o
-pkg/
-bin/
