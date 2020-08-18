@@ -11,26 +11,21 @@ type overload_after struct {
   val  []Action
 }
 
-//export RunInterpreter
-func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
-
-  var dirnameOmmStr OmmString
-  dirnameOmmStr.FromGoType(cli_params.Directory)
-  var dirnameOmmType OmmType = dirnameOmmStr
-
-  var instance Instance
-
-  instance.Params = cli_params
+//export FillIns
+func FillIns(instance *Instance, compiledVars map[string][]Action, dirname string, args []string) map[string]*OmmVar {
   globals := make(map[string]*OmmVar)
+  var dirnameOmmStr OmmString
+  dirnameOmmStr.FromGoType(dirname)
+  var dirnameOmmType OmmType = dirnameOmmStr
   
   globals["$__dirname"] = &OmmVar{
     Name: "$__dirname",
     Value: &dirnameOmmType,
   }
 
-  var argv = make([]*OmmType, len(os.Args))
+  var argv = make([]*OmmType, len(args))
 
-  for k, v := range os.Args {
+  for k, v := range args {
     var ommstr OmmString
     ommstr.FromGoType(v)
     var ommtype OmmType = ommstr
@@ -62,7 +57,7 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
 
     var global = OmmVar{
       Name: k,
-      Value: Interpreter(&instance, v, []string{"at the global interpreter"}, 0).Exp,
+      Value: Interpreter(instance, v, []string{"at the global interpreter"}, 0).Exp,
     }
     globals[k] = &global
   }
@@ -97,6 +92,15 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
 
     instance.Allocate("$" + k, &gofunc)
   }
+  return globals
+}
+
+//export RunInterpreter
+func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
+
+  var instance Instance
+  instance.Params = cli_params
+  globals := FillIns(&instance, compiledVars, cli_params.Directory, os.Args)
 
   if _, exists := globals["$main"]; !exists {
     fmt.Println("Given program has no entry point/main function")

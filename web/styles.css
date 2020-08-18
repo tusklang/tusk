@@ -56,6 +56,7 @@
   color: #cccaca;
 }
 #prenav {
+  position: sticky;
   margin-top: 0;
   margin-bottom: 14px;
   border-radius: 0;
@@ -125,8 +126,9 @@ body::-webkit-scrollbar {
   text-decoration: none;
   color: white;
   font-size: 16px;
+  margin-left: 2%;
 }
 #footer-background {
-  height: 20%;
-  width: 20%;
+  height: 10%;
+  width: 10%;
 }

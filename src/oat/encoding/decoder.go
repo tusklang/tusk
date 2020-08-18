@@ -136,7 +136,7 @@ func OatDecode(filename string, mode int) (map[string][]Action, error) {
 			})
 		}
 		return map[string][]Action{
-			"all": all,
+			"$main": all,
 		}, nil
 	}
 

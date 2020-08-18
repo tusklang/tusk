@@ -24,7 +24,6 @@
     <link rel='stylesheet' href='styles.css'>
   </head>
   
-
   <div id='prenav'></div>
 
   <div class='ui grid' id='index-body'>
@@ -91,19 +90,6 @@
 
     <div class='ui segment inverted feature'>
 
-      <h1 class='feature-head'>Learning</h1>
-      <div class='ui horizontal divider'>
-        <i class='fas fa-brain fa-2x feature-ico'></i>
-      </div>
-
-      <p class='description'>
-        Omm has easy and intuitive syntax which makes it easy to learn.
-      </p>
-
-    </div>
-
-    <div class='ui segment inverted feature'>
-
       <h1 class='feature-head'>Security</h1>
       <div class='ui horizontal divider'>
         <i class='fas fa-lock fa-2x feature-ico'></i>
@@ -111,6 +97,19 @@
 
       <p class='description'>
         Omm has private and public variables, so you don't need to mess with currying to secure code.
+      </p>
+
+    </div>
+
+    <div class='ui segment inverted feature'>
+
+      <h1 class='feature-head'>Learning</h1>
+      <div class='ui horizontal divider'>
+        <i class='fas fa-brain fa-2x feature-ico'></i>
+      </div>
+
+      <p class='description'>
+        Omm has easy and intuitive syntax which makes it easy to learn.
       </p>
 
     </div>

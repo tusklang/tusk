@@ -24,7 +24,7 @@ func includeSingle(filename string, line uint64, dir string, fromstd bool) ([]Ac
       }
     }
 
-    return decoded["all"], nil
+    return decoded["$main"], nil
   }
 
   if strings.HasSuffix(filename, ".omm") {
