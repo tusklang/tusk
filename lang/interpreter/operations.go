@@ -1,11 +1,14 @@
 package interpreter
 
-import "strconv"
-import . "github.com/omm-lang/omm/lang/types"
+import (
+	"strconv"
+
+	. "github.com/omm-lang/omm/lang/types"
+)
 
 //list of operations
 //export Operations
-var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType{
 	"number + number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 		return number__plus__number(val1, val2, instance, stacktrace, line, file)
 	},
@@ -177,7 +180,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		arr := val1.(OmmArray)
 
 		if !arr.Exists(idx) {
-			OmmPanic("Index " + strconv.FormatInt(idx, 10) + " out of range with length " + strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
+			OmmPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
 		}
 
 		return arr.At(idx)
@@ -189,7 +192,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		str := val1.(OmmString)
 
 		if !str.Exists(idx) {
-			OmmPanic("Index " + strconv.FormatInt(idx, 10) + " out of range with length " + strconv.FormatUint(str.Length, 10), line, file, stacktrace)
+			OmmPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(str.Length, 10), line, file, stacktrace)
 		}
 
 		var ommtype OmmType = *str.At(idx)
@@ -209,13 +212,13 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		gostr := val2.(OmmString).ToGoType()
 
 		if gostr[0] == '_' {
-			OmmPanic("Cannot access private member: " + gostr, line, file, stacktrace)
+			OmmPanic("Cannot access private member: "+gostr, line, file, stacktrace)
 		}
-		
+
 		field := val1.(OmmProto).GetStatic(gostr)
 
 		if field == nil {
-			OmmPanic("Class does not contain the field \"" + gostr + "\"", line, file, stacktrace)
+			OmmPanic("Class does not contain the field \""+gostr+"\"", line, file, stacktrace)
 		}
 
 		return field
@@ -226,13 +229,13 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		gostr := val2.(OmmString).ToGoType()
 
 		if gostr[0] == '_' {
-			OmmPanic("Cannot access private member: " + gostr, line, file, stacktrace)
+			OmmPanic("Cannot access private member: "+gostr, line, file, stacktrace)
 		}
 
 		field := val1.(OmmObject).GetInstance(gostr)
 
 		if field == nil {
-			OmmPanic("Object does not contain the field \"" + gostr + "\"", line, file, stacktrace)
+			OmmPanic("Object does not contain the field \""+gostr+"\"", line, file, stacktrace)
 		}
 
 		return field
@@ -240,7 +243,7 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 	"string + string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		//alloc the space
-		var space = make([]rune, val1.(OmmString).Length + val2.(OmmString).Length)
+		var space = make([]rune, val1.(OmmString).Length+val2.(OmmString).Length)
 
 		var i uint
 		var o uint
@@ -248,12 +251,12 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		val1l := val1.(OmmString).ToRuneList()
 		val12 := val2.(OmmString).ToRuneList()
 
-		for ;uint64(i) < val1.(OmmString).Length; i, o = i + 1, o + 1 {
+		for ; uint64(i) < val1.(OmmString).Length; i, o = i+1, o+1 {
 			space[i] = val1l[i]
 		}
 
-		for ;uint64(i) < val1.(OmmString).Length; i, o = i + 1, o + 1 {
-			space[i] = val12[i - o]
+		for ; uint64(i) < val1.(OmmString).Length; i, o = i+1, o+1 {
+			space[i] = val12[i-o]
 		}
 
 		var ommstr OmmString
@@ -264,13 +267,13 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 	"string + rune": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
 		//alloc the space
-		var space = make([]rune, val1.(OmmString).Length + 1)
+		var space = make([]rune, val1.(OmmString).Length+1)
 
 		var i uint
 
 		val1l := val1.(OmmString).ToRuneList()
 
-		for ;uint64(i) < val1.(OmmString).Length; i++ {
+		for ; uint64(i) < val1.(OmmString).Length; i++ {
 			space[i] = val1l[i]
 		}
 
@@ -304,5 +307,21 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		final.Gofloat = float1 + float2
 		var ret OmmType = final
 		return &ret
+	},
+	"nativelib <- array": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+		var lib = val1.(OmmLibrary)
+		var argv = val2.(OmmArray)
+
+		if argv.Length < 1 {
+			OmmPanic("Must pass a process name to native library", line, file, stacktrace)
+		}
+
+		//convert the proc name to a string (if it isn't already)
+		var procname = (*cast((*argv.At(0)), "string", stacktrace, line, file)).(OmmString).ToGoType()
+
+		var nargv = argv.Array[1:]
+		calledp := lib.CallProc(procname, nargv)
+
+		return calledp
 	},
 }

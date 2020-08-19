@@ -1,9 +1,14 @@
 ifeq ($(OS),Windows_NT)
 	BINARY = omml.exe
 	CLEAN_CMD = del
+	FFIGENERATE = ffi\generate\gen.exe
+	FFICALLSWITCH = ffi\callswitch.h
 else
 	BINARY = omml
 	CLEAN_CMD = rm -f
+	SLASHSEP = /
+	FFIGENERATE = ffi/generate/gen
+	FFICALLSWITCH = ffi/callswitch.h
 endif
 
 GOPATH = $(CURDIR)/../../../../
@@ -22,6 +27,8 @@ test: $(BINARY) lib.oat
 
 .PHONY: clean
 clean:
+	-$(CLEAN_CMD) $(FFIGENERATE)
+	-$(CLEAN_CMD) $(FFICALLSWITCH)
 	-$(CLEAN_CMD) $(BINARY)
 
 .SILENT: clean_no_echo
@@ -31,17 +38,10 @@ clean_no_echo:
 
 .PHONY: $(BINARY)
 $(BINARY):
+	g++ ffi/generate/wingenerate_argswitch.cc -o $(FFIGENERATE)
+	./$(FFIGENERATE)
 	go build omml.go
 
 .PHONY: lib.oat
 lib.oat:
 	./$(BINARY) ./stdlib lib.omm -c
-
-.PHONY: gccgo
-gccgo:
-	cd lang/types && gccgo -c -o types.o *
-	cd oat/helper && gccgo -c -o helper.o *
-	cd oat && gccgo -c -o oat.o *
-	cd lang/interpreter && gccgo -c -o interpreter.o *
-	cd lang/compiler && gccgo -c -o compiler.o *
-	gccgo -c omml.go

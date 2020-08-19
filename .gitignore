@@ -4,3 +4,8 @@ omm
 *.exe
 stdlib/lib.oat
 *.o
+*.dll
+*.lib
+*.so
+*.a
+/ffi/callswitch.h
