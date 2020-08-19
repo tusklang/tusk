@@ -308,20 +308,4 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		var ret OmmType = final
 		return &ret
 	},
-	"nativelib <- array": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
-		var lib = val1.(OmmLibrary)
-		var argv = val2.(OmmArray)
-
-		if argv.Length < 1 {
-			OmmPanic("Must pass a process name to native library", line, file, stacktrace)
-		}
-
-		//convert the proc name to a string (if it isn't already)
-		var procname = (*cast((*argv.At(0)), "string", stacktrace, line, file)).(OmmString).ToGoType()
-
-		var nargv = argv.Array[1:]
-		calledp := lib.CallProc(procname, nargv)
-
-		return calledp
-	},
 }

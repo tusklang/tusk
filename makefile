@@ -17,9 +17,9 @@ GOPATH = $(CURDIR)/../../../../
 all: $(BINARY) lib.oat
 
 .PHONY: test
-test: $(BINARY) lib.oat
+test: all
 	@echo ------------------------------------
-	@echo --------- Start Test File ---------- 
+	@echo --------- Start Test File ----------
 	@echo ------------------------------------
 	-./$(BINARY) ./ ./test.omm
 	@echo ------------------------------------

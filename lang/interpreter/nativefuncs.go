@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	ommffi "github.com/omm-lang/omm/ffi"
 	. "github.com/omm-lang/omm/lang/types"
 )
 
@@ -488,33 +487,6 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 		var ommstr OmmString
 		ommstr.FromGoType(sprinted)
 		var ommtype OmmType = ommstr
-		return &ommtype
-	},
-	"libinc": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
-		//include a .dll or .so
-
-		if len(args) != 1 {
-			OmmPanic("Function libinc requires an argument count of 1", line, file, stacktrace)
-		}
-
-		libname := (*cast((*args[0]), "string", stacktrace, line, file)).(OmmString).ToGoType()
-
-		if runtime.GOOS == "windows" {
-			libname += ".dll"
-		} else {
-			libname += ".so"
-		}
-
-		libhandle, e := ommffi.LoadLib(libname)
-
-		if e != nil {
-			OmmPanic("Cannot open library "+libname, line, file, stacktrace)
-		}
-
-		var library OmmLibrary
-		library.Module = libhandle
-
-		var ommtype OmmType = library
 		return &ommtype
 	},
 }
