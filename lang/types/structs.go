@@ -3,44 +3,44 @@ package types
 //export Action
 type Action struct {
 
-  //stuff to panic errors and give stack
+	//stuff to panic errors and give stack
 
-  File            string
-  Line            uint64
+	File string
+	Line uint64
 
-  //////////////////////////////////////
+	//////////////////////////////////////
 
-  //stuff for regular actions
+	//stuff for regular actions
 
-  Type            string
-  Name            string
-  Value           OmmType
-  ExpAct        []Action
+	Type   string
+	Name   string
+	Value  OmmType
+	ExpAct []Action
 
-  ///////////////////////////
+	///////////////////////////
 
-  //stuff for operations
+	//stuff for operations
 
-  First         []Action
-  Second        []Action
+	First  []Action
+	Second []Action
 
-  //////////////////////
+	//////////////////////
 
-  //stuff for runtime arrays and hashes
+	//stuff for runtime arrays and hashes
 
-  Array       [][]Action
-  Hash     [][2][]Action
+	Array [][]Action
+	Hash  [][2][]Action
 
-  /////////////////////////////////////
+	/////////////////////////////////////
 
 }
 
 type Returner struct {
-  Exp      *OmmType
-  Type      string
+	Exp  *OmmType
+	Type string
 }
 
 type Oat struct {
-  Actions    []Action
-  Variables    map[string][]Action
+	Actions   []Action
+	Variables map[string][]Action
 }

@@ -1,4 +1,8 @@
 var main = fn() {
-    a := libinc("test")
-    a("Test")
+    log test::a
+}
+
+var test = proto {
+    access ["thisf"]
+    static var a
 }

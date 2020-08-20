@@ -3,32 +3,32 @@ package types
 import "strconv"
 
 type OmmBool struct {
-  Boolean *bool
+	Boolean *bool
 }
 
 func (b *OmmBool) FromGoType(val bool) {
-  b.Boolean = &val
+	b.Boolean = &val
 }
 
 func (b OmmBool) ToGoType() bool {
 
-  if b.Boolean == nil {
-    return false
-  }
+	if b.Boolean == nil {
+		return false
+	}
 
-  return *b.Boolean
+	return *b.Boolean
 }
 
 func (b OmmBool) Format() string {
-  return strconv.FormatBool(*b.Boolean)
+	return strconv.FormatBool(*b.Boolean)
 }
 
 func (b OmmBool) Type() string {
-  return "bool"
+	return "bool"
 }
 
 func (b OmmBool) TypeOf() string {
-  return b.Type()
+	return b.Type()
 }
 
 func (_ OmmBool) Deallocate() {}

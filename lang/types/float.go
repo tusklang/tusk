@@ -10,11 +10,11 @@ type OmmFloat struct {
 func (b OmmFloat) Format() string {
 	return fmt.Sprint(b.Gofloat)
 }
-  
+
 func (b OmmFloat) Type() string {
 	return "float"
 }
-  
+
 func (b OmmFloat) TypeOf() string {
 	return b.Type()
 }

@@ -1,9 +1,8 @@
 package compiler
 
 //list of keywords in json
-var tokensJSON =
-[]byte(
-`
+var tokensJSON = []byte(
+	`
 [
   {
     "name": "var",
@@ -15,6 +14,18 @@ var tokensJSON =
     "name": "var",
     "remove": "var",
     "pattern": "(var(\\s*)\\~)",
+    "type": "id_non_tilde"
+  },
+  {
+    "name": "access",
+    "remove": "access",
+    "pattern": "(access(\\s+))",
+    "type": "id"
+  },
+  {
+    "name": "access",
+    "remove": "access",
+    "pattern": "(access(\\s*)\\~)",
     "type": "id_non_tilde"
   },
   {

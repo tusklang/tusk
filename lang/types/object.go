@@ -1,31 +1,32 @@
 package types
 
 type OmmObject struct {
-  Name       string
-  Instance   Instance
+	Name       string
+	Instance   Instance
+	AccessList map[string][]string
 }
 
 func (o OmmObject) GetInstance(name string) *OmmType {
 
-  v, exists := o.Instance.vars["$" + name]
+	v, exists := o.Instance.vars["$"+name]
 
-  if !exists {
-    return nil
-  }
+	if !exists {
+		return nil
+	}
 
-  return v.Value
+	return v.Value
 }
 
 func (o OmmObject) Format() string {
-  return "{" + o.Name[1:] + "}"
+	return "{" + o.Name[1:] + "}"
 }
 
 func (o OmmObject) Type() string {
-  return "object"
+	return "object"
 }
 
 func (o OmmObject) TypeOf() string {
-  return o.Name[1:]
+	return o.Name[1:]
 }
 
 func (_ OmmObject) Deallocate() {}

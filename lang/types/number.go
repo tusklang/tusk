@@ -1,39 +1,43 @@
 package types
 
-import "strconv"
-import "math"
-import "fmt"
+import (
+	"fmt"
+	"math"
+	"strconv"
+)
 
 //number sizes
 
 //export DigitSize
-const DigitSize = 1;
+const DigitSize = 1
+
 //export MAX_DIGIT
 var MAX_DIGIT = int64(math.Pow(10, DigitSize) - 1)
+
 //export MIN_DIGIT
 var MIN_DIGIT = -1 * MAX_DIGIT
 
 //////////////
 
 type OmmNumber struct {
-  Integer *[]int64
-  Decimal *[]int64
+	Integer *[]int64
+	Decimal *[]int64
 }
 
 func (n *OmmNumber) FromGoType(val float64) {
-  numStr := fmt.Sprintf("%f", val)
-  integer, decimal := BigNumConverter(numStr)
-  n.Integer, n.Decimal = &integer, &decimal
+	numStr := fmt.Sprintf("%f", val)
+	integer, decimal := BigNumConverter(numStr)
+	n.Integer, n.Decimal = &integer, &decimal
 }
 
 func (n OmmNumber) ToGoType() float64 {
-  f, _ := strconv.ParseFloat(NumNormalize(n), 64)
-  return float64(f)
+	f, _ := strconv.ParseFloat(NumNormalize(n), 64)
+	return float64(f)
 }
 
 func (n *OmmNumber) FromString(val string) {
-  integer, decimal := BigNumConverter(val)
-  n.Integer, n.Decimal = &integer, &decimal
+	integer, decimal := BigNumConverter(val)
+	n.Integer, n.Decimal = &integer, &decimal
 }
 
 func (n *OmmNumber) SetInt(v []int64) {
@@ -48,20 +52,20 @@ func (n OmmNumber) Clone() OmmNumber {
 	var newNum OmmNumber
 	newNum.SetInt(append([]int64{}, *n.Integer...))
 	newNum.SetDec(append([]int64{}, *n.Decimal...))
-  return newNum
+	return newNum
 }
 
 func (n OmmNumber) Format() string {
-  str := NumNormalize(n)
-  return str
+	str := NumNormalize(n)
+	return str
 }
 
 func (n OmmNumber) Type() string {
-  return "number"
+	return "number"
 }
 
 func (n OmmNumber) TypeOf() string {
-  return n.Type()
+	return n.Type()
 }
 
 func (_ OmmNumber) Deallocate() {}

@@ -1,28 +1,28 @@
 package types
 
 type Instance struct {
-  Params   CliParams
-  vars     map[string]*OmmVar
+	Params CliParams
+	vars   map[string]*OmmVar
 }
 
 func (ins *Instance) Allocate(name string, value *OmmType) {
 
-  if ins.vars == nil {
-    ins.vars = make(map[string]*OmmVar)
-  }
+	if ins.vars == nil {
+		ins.vars = make(map[string]*OmmVar)
+	}
 
-  ins.vars[name] = &OmmVar{
-    Name: name,
-    Value: value,
-  }
+	ins.vars[name] = &OmmVar{
+		Name:  name,
+		Value: value,
+	}
 }
 
 func (ins *Instance) Deallocate(name string) {
 
-  //first do the complex dealloc of the type
-  (*ins.vars[name].Value).Deallocate()
+	//first do the complex dealloc of the type
+	(*ins.vars[name].Value).Deallocate()
 
-  delete(ins.vars, name)
+	delete(ins.vars, name)
 }
 
 func (ins *Instance) Fetch(name string) *OmmVar {
@@ -31,13 +31,13 @@ func (ins *Instance) Fetch(name string) *OmmVar {
 
 func (ins Instance) Copy() *Instance {
 
-  var nins Instance
-  nins.Params = ins.Params
-  nins.vars = make(map[string]*OmmVar)
+	var nins Instance
+	nins.Params = ins.Params
+	nins.vars = make(map[string]*OmmVar)
 
-  for k, v := range ins.vars {
-    nins.vars[k] = v
-  }
+	for k, v := range ins.vars {
+		nins.vars[k] = v
+	}
 
-  return &nins
+	return &nins
 }

@@ -3,8 +3,8 @@ package types
 import "fmt"
 
 type OmmThread struct {
-	thread      *cthread
-	ptr          uint64
+	thread *cthread
+	ptr    uint64
 }
 
 //export NewThread

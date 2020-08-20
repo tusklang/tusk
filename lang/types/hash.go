@@ -3,80 +3,80 @@ package types
 import "strings"
 
 type OmmHash struct {
-  Hash    map[string]*OmmType
-  Length  uint64
+	Hash   map[string]*OmmType
+	Length uint64
 }
 
 func (hash OmmHash) At(idx string) *OmmType {
 
-  if _, exists := hash.Hash[idx]; !exists {
-    var undef OmmType = OmmUndef{}
-    hash.Hash[idx] = &undef
-  }
+	if _, exists := hash.Hash[idx]; !exists {
+		var undef OmmType = OmmUndef{}
+		hash.Hash[idx] = &undef
+	}
 
-  return hash.Hash[idx]
+	return hash.Hash[idx]
 }
 
 func (hash *OmmHash) Set(idx string, val OmmType) {
 
-  if hash.Hash == nil {
-    hash.Hash = make(map[string]*OmmType)
-  }
+	if hash.Hash == nil {
+		hash.Hash = make(map[string]*OmmType)
+	}
 
-  if _, exists := hash.Hash[idx]; !exists {
-    hash.Length++
-  }
+	if _, exists := hash.Hash[idx]; !exists {
+		hash.Length++
+	}
 
-  hash.Hash[idx] = &val
+	hash.Hash[idx] = &val
 }
 
 func (hash OmmHash) Exists(idx string) bool {
-  _, exists := hash.Hash[idx]
-  return exists
+	_, exists := hash.Hash[idx]
+	return exists
 }
 
 func (hash OmmHash) Format() string {
 
-  return func() string {
+	return func() string {
 
-    if len(hash.Hash) == 0 {
-      return "[::]"
-    }
+		if len(hash.Hash) == 0 {
+			return "[::]"
+		}
 
-    var formatted = "[:"
+		var formatted = "[:"
 
-    for k, v := range hash.Hash {
+		for k, v := range hash.Hash {
 
-      vFormatted := (*v).Format()
+			vFormatted := (*v).Format()
 
-      switch (*v).(type) {
-        case OmmHash: //if it is another hash, add the indents
-          if vFormatted != "[::]" {
-            newlineSplit := strings.Split(vFormatted, "\n")
+			switch (*v).(type) {
+			case OmmHash: //if it is another hash, add the indents
+				if vFormatted != "[::]" {
+					newlineSplit := strings.Split(vFormatted, "\n")
 
-            vFormatted = ""
+					vFormatted = ""
 
-            for _, val := range newlineSplit {
-              vFormatted+=strings.Repeat(" ", 2) + val + "\n"
-            }
+					for _, val := range newlineSplit {
+						vFormatted += strings.Repeat(" ", 2) + val + "\n"
+					}
 
-            vFormatted = strings.TrimSpace(vFormatted) //remove the trailing \n (because an extra was added) and the leading two spaces (because it will be on the same line)
-          }
-      }
+					vFormatted = strings.TrimSpace(vFormatted) //remove the trailing \n (because an extra was added) and the leading two spaces (because it will be on the same line)
+				}
+			}
 
-      formatted+="\n" + strings.Repeat(" ", 2) + k + ": " + vFormatted + ","
-    }
+			formatted += "\n" + strings.Repeat(" ", 2) + k + ": " + vFormatted + ","
+		}
 
-    return formatted + "\n:]"
-  }() //staring with 2
+		return formatted + "\n:]"
+	}() //staring with 2
 }
 
 func (hash OmmHash) Type() string {
-  return "hash"
+	return "hash"
 }
 
 func (hash OmmHash) TypeOf() string {
-  return hash.Type()
+	return hash.Type()
 }
 
 func (_ OmmHash) Deallocate() {}

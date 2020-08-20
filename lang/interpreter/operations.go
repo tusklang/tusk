@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"fmt"
 	"strconv"
 
 	. "github.com/omm-lang/omm/lang/types"
@@ -215,10 +216,27 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 			OmmPanic("Cannot access private member: "+gostr, line, file, stacktrace)
 		}
 
+		//check for access (protected)
+
+		fmt.Println(val1.(OmmProto).AccessList, gostr)
+
+		if val1.(OmmProto).AccessList[gostr] == nil { //if it does not name any access, automatically make it public
+			goto allowed
+		}
+
+		for _, v := range val1.(OmmProto).AccessList[gostr] {
+			if file == v {
+				goto allowed
+			}
+		}
+
+		OmmPanic("File cannot acces field \""+gostr+"\"", line, file, stacktrace)
+
+	allowed:
 		field := val1.(OmmProto).GetStatic(gostr)
 
 		if field == nil {
-			OmmPanic("Class does not contain the field \""+gostr+"\"", line, file, stacktrace)
+			OmmPanic("Prototype does not contain the field \""+gostr+"\"", line, file, stacktrace)
 		}
 
 		return field

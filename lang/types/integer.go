@@ -10,11 +10,11 @@ type OmmInteger struct {
 func (b OmmInteger) Format() string {
 	return strconv.FormatInt(b.Goint, 10)
 }
-  
+
 func (b OmmInteger) Type() string {
 	return "int"
 }
-  
+
 func (b OmmInteger) TypeOf() string {
 	return b.Type()
 }

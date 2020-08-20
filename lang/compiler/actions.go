@@ -34,7 +34,7 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
 		switch v.Type {
 		case "~":
 
-			var statements = []string{"var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await", "proto", "static", "instance", "ifwin", "ifnwin", "ovld", "defer"} //list of statements
+			var statements = []string{"var", "log", "print", "if", "elif", "else", "while", "each", "include", "function", "return", "await", "proto", "static", "instance", "ifwin", "ifnwin", "ovld", "defer", "access"} //list of statements
 
 			var hasStatement bool = false
 
@@ -226,10 +226,34 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
 						var (
 							static   = make(map[string]*OmmType)
 							instance = make(map[string]*OmmType)
+							access   = make(map[string][]string)
 						)
 						var body = right[0].ExpAct //get the struct body
+						var currentaccess []string
 
 						for i := range body {
+
+							if body[i].Type == "access" { //protected field
+								if currentaccess != nil {
+									return nil, makeCompilerErr("Access found twice in a row", body[i].File, body[i].Line)
+								}
+
+								for _, v := range body[i].Value.(OmmArray).Array {
+									if (*v).Type() != "string" {
+										return nil, makeCompilerErr("Expect a string list to access", body[i].File, body[i].Line)
+									}
+
+									var cur = (*v).(OmmString).ToGoType()
+
+									if cur == "thisf" { //"thisf" means this file
+										cur = body[i].File
+									}
+
+									currentaccess = append(currentaccess, cur)
+								}
+
+								continue
+							}
 
 							if body[i].Type != "static" && body[i].Type != "instance" { //if it does not name static or instance, automatically make it instance
 								body[i] = Action{
@@ -242,10 +266,14 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
 
 							name := body[i].ExpAct[0].Name
 
+							if currentaccess != nil {
+								access[name[1:]] = currentaccess
+							}
+
 							if body[i].ExpAct[0].Type == "var" {
 
 								if len(body[i].ExpAct[0].ExpAct) == 0 || body[i].ExpAct[0].ExpAct[0].Value == nil {
-									return []Action{}, makeCompilerErr("Cannot have compound types at the golabl scope of a prototype", v.File, right[0].Line)
+									return []Action{}, makeCompilerErr("Cannot have compound types at the global scope of a prototype", v.File, right[0].Line)
 								}
 
 								if body[i].Type == "static" {
@@ -266,13 +294,16 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
 							} else {
 								return []Action{}, makeCompilerErr("Prototype bodies can only have variable assignments and declarations", v.File, right[0].Line)
 							}
+
+							currentaccess = nil
 						}
 
 						actions = append(actions, Action{
 							Type: "proto",
 							Value: OmmProto{
-								Static:   static,
-								Instance: instance,
+								Static:     static,
+								Instance:   instance,
+								AccessList: access,
 							},
 							File: v.File,
 							Line: v.Line,
@@ -318,6 +349,19 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
 							ExpAct: right[0].ExpAct,
 							File:   v.File,
 							Line:   v.Line,
+						})
+
+					case "access":
+
+						if right[0].Value.Type() != "array" {
+							return nil, makeCompilerErr("Must use an array for an access list", v.File, v.Line)
+						}
+
+						actions = append(actions, Action{
+							Type:  "access",
+							Value: right[0].Value,
+							File:  v.File,
+							Line:  v.Line,
 						})
 
 					default:
