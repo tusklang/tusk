@@ -291,8 +291,32 @@ func actionizer(operations []Operation) ([]Action, CompileErr) {
 								} else {
 									instance[name] = &tmp
 								}
+							} else if body[i].ExpAct[0].Type == "ovld" {
+
+								if body[i].Type == "static" {
+
+									if _, e := static[name]; !e || (*static[name]).Type() != "function" { //if the value does not exist yet (or it is not a function), make it
+										var tmp OmmType = OmmFunc{}
+										static[name] = &tmp
+									}
+
+									var currentfn = (*static[name]).(OmmFunc)
+									currentfn.Overloads = append(currentfn.Overloads, body[i].ExpAct[0].ExpAct[0].Value.(OmmFunc).Overloads[0])
+									*static[name] = currentfn
+								} else {
+
+									if _, e := instance[name]; !e || (*instance[name]).Type() != "function" { //if the value does not exist yet (or it is not a function), make it
+										var tmp OmmType = OmmFunc{}
+										instance[name] = &tmp
+									}
+
+									var currentfn = (*instance[name]).(OmmFunc)
+									currentfn.Overloads = append(currentfn.Overloads, body[i].ExpAct[0].ExpAct[0].Value.(OmmFunc).Overloads[0])
+									*instance[name] = currentfn
+								}
+
 							} else {
-								return []Action{}, makeCompilerErr("Prototype bodies can only have variable assignments and declarations", v.File, right[0].Line)
+								return []Action{}, makeCompilerErr("Prototype bodies can only have variable assignments, declarations, and overloading", v.File, right[0].Line)
 							}
 
 							currentaccess = nil

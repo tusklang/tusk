@@ -1,18 +1,13 @@
-include "test2"
-
 var main = fn() {
-    test2()
-
-    testobj := make(test)
-    log testobj::b
-
-    test3(testobj)
+    log test::b("hello")
 }
 
 var test = proto {
-    access ["test2.omm"]
-    static var a = 100
+    static var b = fn() {
+        
+    }
 
-    access ["thisf"]
-    var b = 101
+    static ovld b = fn(string -> a) {
+        log "hi"
+    }
 }
