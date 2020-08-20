@@ -66,6 +66,9 @@ func main() {
 
 			switch strings.ToUpper(v) {
 
+			case "--version":
+				fmt.Printf("Omm Beta %d.%d.%d", OMM_MAJOR, OMM_MINOR, OMM_BUG)
+				os.Exit(0)
 			default:
 				cli_params.Addon = v[2:]
 			}
@@ -74,6 +77,9 @@ func main() {
 
 			switch strings.ToUpper(v[1:]) {
 
+			case "V":
+				fmt.Printf("Omm Beta %d.%d.%d", OMM_MAJOR, OMM_MINOR, OMM_BUG)
+				os.Exit(0)
 			case "C":
 				cli_params.Addon = "compile"
 			case "R":
@@ -81,8 +87,7 @@ func main() {
 			case "PREC":
 				temp_prec, _ := strconv.ParseUint(args[i+1], 10, 64)
 				cli_params.Prec = temp_prec
-				i++
-				i++
+				i += 2
 			case "O":
 				cli_params.Output = args[i+1]
 				i++
