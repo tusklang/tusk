@@ -1,0 +1,7 @@
+var test2 = fn() {
+    log test::a
+}
+
+var test3 = fn(a) {
+    log a::b
+}

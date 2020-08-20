@@ -239,8 +239,9 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 				}
 
 				var ommtype OmmType = OmmObject{
-					Name:     proto.ProtoName,
-					Instance: *nins,
+					Name:       proto.ProtoName,
+					Instance:   *nins,
+					AccessList: proto.AccessList,
 				}
 				return &ommtype
 			default:

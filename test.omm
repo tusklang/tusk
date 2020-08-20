@@ -1,8 +1,18 @@
+include "test2"
+
 var main = fn() {
-    log test::a
+    test2()
+
+    testobj := make(test)
+    log testobj::b
+
+    test3(testobj)
 }
 
 var test = proto {
+    access ["test2.omm"]
+    static var a = 100
+
     access ["thisf"]
-    static var a
+    var b = 101
 }
