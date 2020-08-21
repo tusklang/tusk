@@ -7,16 +7,16 @@ type OmmInteger struct {
 	Goint int64
 }
 
-func (b OmmInteger) Format() string {
-	return strconv.FormatInt(b.Goint, 10)
+func (i OmmInteger) Format() string {
+	return strconv.FormatInt(i.Goint, 10)
 }
 
-func (b OmmInteger) Type() string {
+func (i OmmInteger) Type() string {
 	return "int"
 }
 
-func (b OmmInteger) TypeOf() string {
-	return b.Type()
+func (i OmmInteger) TypeOf() string {
+	return i.Type()
 }
 
 func (_ OmmInteger) Deallocate() {}

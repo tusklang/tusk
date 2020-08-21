@@ -4,7 +4,6 @@ ifeq ($(OS),Windows_NT)
 else
 	BINARY = omml
 	CLEAN_CMD = rm -f
-	SLASHSEP = /
 endif
 
 GOPATH = $(CURDIR)/../../../../

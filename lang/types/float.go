@@ -7,16 +7,16 @@ type OmmFloat struct {
 	Gofloat float64
 }
 
-func (b OmmFloat) Format() string {
-	return fmt.Sprint(b.Gofloat)
+func (f OmmFloat) Format() string {
+	return fmt.Sprint(f.Gofloat)
 }
 
-func (b OmmFloat) Type() string {
+func (f OmmFloat) Type() string {
 	return "float"
 }
 
-func (b OmmFloat) TypeOf() string {
-	return b.Type()
+func (f OmmFloat) TypeOf() string {
+	return f.Type()
 }
 
 func (_ OmmFloat) Deallocate() {}

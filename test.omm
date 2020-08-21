@@ -1,13 +1,1 @@
-var main = fn() {
-    log test::b("hello")
-}
-
-var test = proto {
-    static var b = fn() {
-        
-    }
-
-    static ovld b = fn(string -> a) {
-        log "hi"
-    }
-}
+var main = fn() {}

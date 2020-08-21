@@ -1,5 +1,3 @@
-.idea/
-.vscode/
 omm
 *.exe
 stdlib/lib.oat
@@ -8,4 +6,3 @@ stdlib/lib.oat
 *.lib
 *.so
 *.a
-/ffi/callswitch.h
