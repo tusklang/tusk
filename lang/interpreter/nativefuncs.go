@@ -107,7 +107,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 			instance.Allocate(function.Overloads[0].Params[0], &val1)
 			instance.Allocate(function.Overloads[0].Params[1], &val2)
 
-			return Interpreter(instance, function.Overloads[0].Body, stacktrace, stacksize).Exp
+			return Interpreter(instance, function.Overloads[0].Body, stacktrace, stacksize, nil).Exp
 		}
 
 		var tmpundef OmmType = undef

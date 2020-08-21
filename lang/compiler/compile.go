@@ -153,7 +153,7 @@ func Compile(file, filename string, compileall, isoat bool) (map[string][]Action
 			return nil, e
 		}
 
-		getFunctionVarRefs(vars[k])
+		putFunctionVarRefs(vars[k])
 	}
 
 	return vars, nil

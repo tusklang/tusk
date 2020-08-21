@@ -26,11 +26,16 @@ func init() { //initialize the operations that require the use of the interprete
 			}
 
 			if !not_exists {
-				for k, vv := range arr.Array {
-					instance.Allocate(v.Params[k], vv)
+
+				if fn.Instance == nil {
+					fn.Instance = instance
 				}
 
-				return Interpreter(fn.Instance, v.Body, append(stacktrace, "synchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1).Exp
+				for k, vv := range arr.Array {
+					fn.Instance.Allocate(v.Params[k], vv)
+				}
+
+				return Interpreter(fn.Instance, v.Body, append(stacktrace, "synchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, v.Params).Exp
 			}
 		}
 
@@ -59,12 +64,17 @@ func init() { //initialize the operations that require the use of the interprete
 			}
 
 			if !not_exists {
+
+				if fn.Instance == nil {
+					fn.Instance = instance
+				}
+
 				for k, vv := range arr.Array {
-					instance.Allocate(v.Params[k], vv)
+					fn.Instance.Allocate(v.Params[k], vv)
 				}
 
 				var promise OmmType = *NewThread(func() *OmmType {
-					return Interpreter(instance, v.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1).Exp
+					return Interpreter(fn.Instance, v.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, v.Params).Exp
 				})
 
 				return &promise

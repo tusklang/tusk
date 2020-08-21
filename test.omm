@@ -1,1 +1,10 @@
-var main = fn() {}
+var main = fn() {
+    log test()()
+}
+
+var test = fn() {
+    var b = 1
+    return fn() {
+        log b
+    }
+}
