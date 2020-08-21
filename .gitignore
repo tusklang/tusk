@@ -6,3 +6,6 @@ stdlib/lib.oat
 *.lib
 *.so
 *.a
+*.wixobj
+*.wixpdb
+installers/windows/setup.msi
