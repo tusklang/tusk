@@ -24,7 +24,7 @@ type OmmGoFunc struct {
 }
 
 func (ogf OmmGoFunc) Format() string {
-	return "{native gofunc}"
+	return "{ native gofunc }"
 }
 
 func (ogf OmmGoFunc) Type() string {
@@ -44,7 +44,7 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 		scanner := bufio.NewScanner(os.Stdin)
 
 		if len(args) == 0 {
-			//if it has 0 or 1 arg, there is no error
+			//if it has 0 or 1 args, there is no error
 		} else if len(args) == 1 {
 
 			switch (*args[0]).(type) {
@@ -489,5 +489,16 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 		ommstr.FromGoType(sprinted)
 		var ommtype OmmType = ommstr
 		return &ommtype
+	},
+	"native": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+
+		if len(args) != 1 {
+			OmmPanic("Function native requires an argument count of 1", line, file, stacktrace)
+		}
+
+		var fname = (*cast(*args[0], "string", stacktrace, line, file)).(OmmString).ToGoType()
+		_ = fname
+
+		return nil
 	},
 }

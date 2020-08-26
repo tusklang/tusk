@@ -1,3 +1,2 @@
 #!/bin/bash
-
-command "$(dirname "$0")/omm" $PWD "$@"
+command "$(dirname "$0")/omml" $PWD "$@"

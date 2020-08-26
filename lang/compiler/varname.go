@@ -1,8 +1,10 @@
 package compiler
 
-import "strconv"
+import (
+	"strconv"
 
-import . "github.com/omm-lang/omm/lang/types"
+	. "github.com/omm-lang/omm/lang/types"
+)
 
 /*
 Explanation of why this exists:
@@ -45,204 +47,207 @@ Explanation of why this exists:
 
 */
 
-var curvar uint64 = 0
+var curvar uint64
 
 func changevarnames(actions []Action, newnames_ map[string]string) (map[string]string, CompileErr) {
 
-  var e CompileErr
+	var e CompileErr
 
-  var newnames = make(map[string]string)
+	var newnames = make(map[string]string)
 
-  //make newnames_ not get mutated
-  for k, v := range newnames_ {
-    newnames[k] = v
-  }
+	//make newnames_ not get mutated
+	for k, v := range newnames_ {
+		newnames[k] = v
+	}
 
-  for k, v := range actions {
+	for k, v := range actions {
 
-    if v.Type == "function" {
+		if v.Type == "function" {
 
-      var fn = v.Value.(OmmFunc)
+			var fn = v.Value.(OmmFunc)
 
-      var params = make(map[string]string)
+			var params = make(map[string]string)
 
-      //clone `newnames` into `params` which is a list of variables that are passed into the function
-      for k, v := range newnames {
-        params[k] = v
-      }
+			//clone `newnames` into `params` which is a list of variables that are passed into the function
+			for k, v := range newnames {
+				params[k] = v
+			}
 
-      for i, p := range v.Value.(OmmFunc).Overloads[0].Params { //add the params to the current variables
-        pname := "v " + strconv.FormatUint(curvar, 10)
-        params[p] = pname
-        fn.Overloads[0].Params[i] = pname //also modify the parameters in the actual function
-        curvar++
-      }
-      _, e = changevarnames(fn.Overloads[0].Body, params)
-      actions[k].Value = fn
-      if e != nil {
-        return nil, e
-      }
+			for kk, vv := range fn.Overloads {
+				for i, p := range vv.Params { //add the params to the current variables
+					pname := "v " + strconv.FormatUint(curvar, 10)
+					params[p] = pname
+					fn.Overloads[kk].Params[i] = pname //also modify the parameters in the actual function
+					curvar++
+				}
+				_, e = changevarnames(fn.Overloads[kk].Body, params)
+			}
 
-      continue
-    }
-    if v.Type == "each" { //if it is each, also give the key and value variables
-      key := v.First[1].Name
-      val := v.First[2].Name
+			actions[k].Value = fn
+			if e != nil {
+				return nil, e
+			}
 
-      var keyandvalvars = make(map[string]string)
+			continue
+		}
+		if v.Type == "each" { //if it is each, also give the key and value variables
+			key := v.First[1].Name
+			val := v.First[2].Name
 
-      //clone newnames into keyandvalvars
-      for key, val := range newnames {
-        keyandvalvars[key] = val
-      }
-      ///////////////////////////////////
+			var keyandvalvars = make(map[string]string)
 
-      keyandvalvars[key] = "v " + strconv.FormatUint(curvar, 10)
-      v.First[1].Name = "v " + strconv.FormatUint(curvar, 10)
-      curvar++
-      keyandvalvars[val] = "v " + strconv.FormatUint(curvar, 10)
-      v.First[2].Name = "v " + strconv.FormatUint(curvar, 10)
-      curvar++
+			//clone newnames into keyandvalvars
+			for key, val := range newnames {
+				keyandvalvars[key] = val
+			}
+			///////////////////////////////////
 
-      tmp := []Action{ v.First[0] }
-      _, e = changevarnames(tmp, keyandvalvars)
-      v.First[0] = tmp[0]
-      if e != nil {
-        return nil, e
-      }
-      _, e = changevarnames(v.ExpAct, keyandvalvars)
-      if e != nil {
-        return nil, e
-      }
+			keyandvalvars[key] = "v " + strconv.FormatUint(curvar, 10)
+			v.First[1].Name = "v " + strconv.FormatUint(curvar, 10)
+			curvar++
+			keyandvalvars[val] = "v " + strconv.FormatUint(curvar, 10)
+			v.First[2].Name = "v " + strconv.FormatUint(curvar, 10)
+			curvar++
 
-      continue
-    }
-    if v.Type == "proto" {
+			tmp := []Action{v.First[0]}
+			_, e = changevarnames(tmp, keyandvalvars)
+			v.First[0] = tmp[0]
+			if e != nil {
+				return nil, e
+			}
+			_, e = changevarnames(v.ExpAct, keyandvalvars)
+			if e != nil {
+				return nil, e
+			}
 
-      for i := range v.Value.(OmmProto).Static {
+			continue
+		}
+		if v.Type == "proto" {
 
-        var val = v.Value.(OmmProto).Static[i]
+			for i := range v.Value.(OmmProto).Static {
 
-        var passvals = make(map[string]string)
+				var val = v.Value.(OmmProto).Static[i]
 
-        for k, v := range newnames {
-          passvals[k] = v
-        }
+				var passvals = make(map[string]string)
 
-        var passarr = []Action{ Action{
-          Type: (*val).Type(),
-          Value: *val,
-        } }
-        _, e := changevarnames(passarr, passvals)
-        *val = passarr[0].Value
+				for k, v := range newnames {
+					passvals[k] = v
+				}
 
-        if e != nil {
-          return nil, e
-        }
+				var passarr = []Action{Action{
+					Type:  (*val).Type(),
+					Value: *val,
+				}}
+				_, e := changevarnames(passarr, passvals)
+				*val = passarr[0].Value
 
-        var tmp = actions[k].Value.(OmmProto)
-        tmp.Static[i] = val
-        actions[k].Value = tmp
-      }
+				if e != nil {
+					return nil, e
+				}
 
-      var instanceproto = make(map[string]string)
+				var tmp = actions[k].Value.(OmmProto)
+				tmp.Static[i] = val
+				actions[k].Value = tmp
+			}
 
-      for k := range v.Value.(OmmProto).Instance {
-        instanceproto[k] = k
-        curvar++
-      }
+			var instanceproto = make(map[string]string)
 
-      for i := range v.Value.(OmmProto).Instance {
+			for k := range v.Value.(OmmProto).Instance {
+				instanceproto[k] = k
+				curvar++
+			}
 
-        var val = v.Value.(OmmProto).Instance[i]
+			for i := range v.Value.(OmmProto).Instance {
 
-        var passvals = make(map[string]string)
+				var val = v.Value.(OmmProto).Instance[i]
 
-        for k, v := range instanceproto {
-          passvals[k] = v
-        }
-        for k, v := range newnames {
-          passvals[k] = v
-        }
+				var passvals = make(map[string]string)
 
-        var passarr = []Action{ Action{
-          Type: (*val).Type(),
-          Value: *val,
-        } }
-        _, e := changevarnames(passarr, passvals)
-        *val = passarr[0].Value
+				for k, v := range instanceproto {
+					passvals[k] = v
+				}
+				for k, v := range newnames {
+					passvals[k] = v
+				}
 
-        if e != nil {
-          return nil, e
-        }
+				var passarr = []Action{Action{
+					Type:  (*val).Type(),
+					Value: *val,
+				}}
+				_, e := changevarnames(passarr, passvals)
+				*val = passarr[0].Value
 
-        var tmp = actions[k].Value.(OmmProto)
-        tmp.Instance[i] = val
-        actions[k].Value = tmp
-      }
+				if e != nil {
+					return nil, e
+				}
 
-      actions[k] = v
+				var tmp = actions[k].Value.(OmmProto)
+				tmp.Instance[i] = val
+				actions[k].Value = tmp
+			}
 
-      continue
-    }
+			actions[k] = v
 
-    if v.Type == "var" || v.Type == "declare" {
+			continue
+		}
 
-      //check if it already exists
-      if _, exists := newnames[v.Name]; exists {
-        return nil, makeCompilerErr("Variable " + v.Name[1:] + " was already declared", v.File, v.Line)
-      }
+		if v.Type == "var" || v.Type == "declare" {
 
-      newnames[v.Name] = "v " + strconv.FormatUint(curvar, 10)
-      actions[k].Name = "v " + strconv.FormatUint(curvar, 10)
-      curvar++
-      _, e = changevarnames(actions[k].ExpAct, newnames)
-      if e != nil {
-       return nil, e
-      }
-      continue
-    }
+			//check if it already exists
+			if _, exists := newnames[v.Name]; exists {
+				return nil, makeCompilerErr("Variable "+v.Name[1:]+" was already declared", v.File, v.Line)
+			}
 
-    //perform checkvars on all of the sub actions
-    _, e = changevarnames(actions[k].ExpAct, newnames)
-    if e != nil {
-      return nil, e
-    }
-    _, e = changevarnames(actions[k].First, newnames)
-    if e != nil {
-      return nil, e
-    }
-    _, e = changevarnames(actions[k].Second, newnames)
-    if e != nil {
-      return nil, e
-    }
+			newnames[v.Name] = "v " + strconv.FormatUint(curvar, 10)
+			actions[k].Name = "v " + strconv.FormatUint(curvar, 10)
+			curvar++
+			_, e = changevarnames(actions[k].ExpAct, newnames)
+			if e != nil {
+				return nil, e
+			}
+			continue
+		}
 
-    //also do it for the (runtime) arrays and hashes
-    for i := range v.Array {
-      _, e = changevarnames(v.Array[i], newnames)
-      if e != nil {
-        return nil, e
-      }
-    }
-    for i := range v.Hash {
-      _, e = changevarnames(v.Hash[i][0], newnames)
-      _, e = changevarnames(v.Hash[i][1], newnames)
-      if e != nil {
-        return nil, e
-      }
-    }
-    ////////////////////////////////////////////////
+		//perform checkvars on all of the sub actions
+		_, e = changevarnames(actions[k].ExpAct, newnames)
+		if e != nil {
+			return nil, e
+		}
+		_, e = changevarnames(actions[k].First, newnames)
+		if e != nil {
+			return nil, e
+		}
+		_, e = changevarnames(actions[k].Second, newnames)
+		if e != nil {
+			return nil, e
+		}
 
-    /////////////////////////////////////////////
+		//also do it for the (runtime) arrays and hashes
+		for i := range v.Array {
+			_, e = changevarnames(v.Array[i], newnames)
+			if e != nil {
+				return nil, e
+			}
+		}
+		for i := range v.Hash {
+			_, e = changevarnames(v.Hash[i][0], newnames)
+			_, e = changevarnames(v.Hash[i][1], newnames)
+			if e != nil {
+				return nil, e
+			}
+		}
+		////////////////////////////////////////////////
 
-    if v.Type == "variable" || v.Type == "ovld" {
-      if _, exists := newnames[v.Name]; !exists {
-        return nil, makeCompilerErr("Variable " + v.Name[1:] + " was not declared", v.File, v.Line)
-      }
-      actions[k].Name = newnames[v.Name]
-    }
+		/////////////////////////////////////////////
 
-  }
+		if v.Type == "variable" || v.Type == "ovld" {
+			if _, exists := newnames[v.Name]; !exists {
+				return nil, makeCompilerErr("Variable "+v.Name[1:]+" was not declared", v.File, v.Line)
+			}
+			actions[k].Name = newnames[v.Name]
+		}
 
-  return newnames, e
+	}
+
+	return newnames, e
 }

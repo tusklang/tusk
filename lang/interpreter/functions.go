@@ -6,7 +6,7 @@ import (
 	. "github.com/omm-lang/omm/lang/types"
 )
 
-func init() { //initialize the operations that require the use of the interpreter
+func funcinit() { //initialize the operations that require the use of the interpreter
 	var function__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 		var fn = val1.(OmmFunc)
 		var arr = val2.(OmmArray)

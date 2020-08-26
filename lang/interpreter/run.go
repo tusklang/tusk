@@ -97,7 +97,6 @@ func FillIns(instance *Instance, compiledVars map[string][]Action, dirname strin
 	return globals
 }
 
-//export RunInterpreter
 func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
 
 	var instance Instance
@@ -122,7 +121,7 @@ func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
 
 			called := *calledP //dereference the called ptr (to get the value)
 
-			var exitType int64 = 0
+			var exitType int64
 
 			switch called.(type) {
 			case OmmNumber:

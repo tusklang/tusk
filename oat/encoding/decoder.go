@@ -2,7 +2,9 @@ package oatenc
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"regexp"
@@ -72,7 +74,11 @@ func OatDecode(filename string, mode int) (map[string][]Action, error) {
 	minorv, _ := strconv.Atoi(version_spl[1])
 	bugv, _ := strconv.Atoi(version_spl[2])
 
-	if !(majorv >= OMM_MAJOR && minorv >= OMM_MINOR && bugv >= OMM_BUG) {
+	if LASTDEP[0] >= majorv && LASTDEP[1] >= minorv && LASTDEP[2] >= bugv {
+		return nil, fmt.Errorf("Version %d.%d.%d has been depricated from your Omm version", majorv, minorv, bugv)
+	}
+
+	if majorv > OMM_MAJOR && minorv > OMM_MINOR && bugv > OMM_BUG {
 		return nil, errors.New("Please upgrade your omm version to " + vers + " in order use this oat")
 	}
 
@@ -116,7 +122,7 @@ func OatDecode(filename string, mode int) (map[string][]Action, error) {
 	var decodedvars = make(map[string][]Action)
 
 	for _, v := range encodedVars {
-		decodedV, e := DecodeVariable(v[1])
+		decodedV, e := DecodeAction(v[1])
 
 		if e != nil {
 			return nil, e
@@ -125,65 +131,61 @@ func OatDecode(filename string, mode int) (map[string][]Action, error) {
 		decodedvars[string(DecodeStr(v[0]))] = decodedV
 	}
 
+	j, _ := json.MarshalIndent(decodedvars, "", "  ")
+	fmt.Println(string(j))
+
 	if mode == 0 {
 		return decodedvars, nil
-	} else {
-		var all []Action
-		for k, v := range decodedvars {
-			all = append(all, Action{
-				Type:   "var",
-				Name:   k,
-				ExpAct: v,
-			})
-		}
-		return map[string][]Action{
-			"$main": all,
-		}, nil
 	}
+
+	var all []Action
+	for k, v := range decodedvars {
+		all = append(all, Action{
+			Type:   "var",
+			Name:   k,
+			ExpAct: v,
+		})
+	}
+	return map[string][]Action{
+		"$main": all,
+	}, nil
 
 }
 
-func DecodeVariable(encoded []rune) ([]Action, error) {
+func DecodeAction(encoded []rune) ([]Action, error) {
 	var (
-		decoded = make([]Action, 1)
+		decoded = make([]Action, 0)
 		escaped = false
 		curval  = make([]rune, 0)
+		curact  = &Action{}
 	)
 
 	for i := 0; i < len(encoded); i++ {
 
-		curact := &decoded[len(decoded)-1]
-
-		var matchers = map[string]int{}
+		var matchers = make(map[string]int)
 
 		for ; i < len(encoded); i++ {
 
 			if escaped {
-				curval = append(curval, encoded[i])
 				escaped = false
-				continue
+				goto escaped
 			}
 
 			if encoded[i] == reserved["escaper"] {
 				escaped = true
-				curval = append(curval, encoded[i])
-				continue
+				goto escaped
 			}
 
 			if strings.HasPrefix(getReservedFromRune(encoded[i]), "start ") {
 				matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "start ")]++
-			} else if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
-
-				if matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")] <= 0 {
-					return nil, NOT_OAT
-				}
-
+			}
+			if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
 				matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")]--
 			}
 
 			for _, v := range matchers {
 				if v != 0 {
-					goto skipchecks
+					goto escaped
 				}
 			}
 
@@ -191,20 +193,24 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 				goto nextfield
 			}
 
-		skipchecks:
+			if encoded[i] == reserved["next action"] {
+				decoded = append(decoded, *curact)
+				curact = &Action{}
+				continue
+			}
+
+		escaped:
 			curval = append(curval, encoded[i])
 		}
-
-		return nil, NOT_OAT
+		break
 
 	nextfield:
 
-		switch encoded[i] {
-
-		case reserved["seperate file"]:
+		switch strings.TrimPrefix(getReservedFromRune(encoded[i]), "seperate ") {
+		case "file":
 			(*curact).File = string(DecodeStr(curval))
 
-		case reserved["seperate line"]:
+		case "line":
 			if len(curval) != 2 {
 				return nil, NOT_OAT
 			}
@@ -215,21 +221,20 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 
 			(*curact).Line = uint64(curval[1])
 
-		case reserved["seperate type"]:
-
+		case "type":
 			if len(curval) != 1 {
 				return nil, NOT_OAT
 			}
 
 			(*curact).Type = getReservedFromRune(curval[0])
 
-		case reserved["seperate name"]:
+		case "name":
+
 			(*curact).Name = string(DecodeStr(curval))
 
-		case reserved["seperate value"]:
+		case "value":
 
-			var decval func(cv []rune) (OmmType, error)
-			decval = func(cv []rune) (OmmType, error) {
+			var putval = func(cv []rune) (OmmType, error) {
 
 				if len(cv) == 0 {
 					return nil, NOT_OAT
@@ -237,710 +242,212 @@ func DecodeVariable(encoded []rune) ([]Action, error) {
 
 				switch cv[0] {
 				case reserved["make c-array"]:
-					cv = cv[1:]
-
-					escaped := false
-					var arr = make([][]rune, 1)
-
-					for _, v := range cv {
-
-						if escaped {
-							escaped = false
-							goto escape
-						}
-
-						if v == reserved["escaper"] {
-							escaped = true
-							goto escape
-						}
-
-						if v == reserved["value seperator"] {
-							arr = append(arr, []rune{})
-							continue
-						}
-
-					escape:
-						arr[len(arr)-1] = append(arr[len(arr)-1], v)
-					}
-
-					//remove the trailing
-					arr = arr[:len(arr)-1]
-
-					var oarr []*OmmType
-
-					for _, v := range arr {
-						val, e := decval(v)
-						if e != nil {
-							return nil, e
-						}
-						oarr = append(oarr, &val)
-					}
-
-					return OmmArray{
-						Array:  oarr,
-						Length: uint64(len(oarr)),
-					}, nil
-
 				case reserved["make bool"]:
+
 					if len(cv) != 3 {
 						return nil, NOT_OAT
 					}
 
 					cv = cv[2:]
+					boolv := cv[0] == 1 //get the value as a bool (1 = true, 0 = false)
 
-					var ommbool bool
+					var ommbool OmmBool
+					ommbool.FromGoType(boolv)
+					return ommbool, nil
 
-					if cv[0] == 1 {
-						ommbool = true
-					} else if cv[0] == 0 {
-						ommbool = false
-					} else {
-						return nil, NOT_OAT
-					}
-
-					var boolean OmmType = OmmBool{
-						Boolean: &ommbool,
-					}
-					return boolean, nil
-
+				case reserved["start function"]:
 				case reserved["make c-hash"]:
-					cv = cv[1:]
-
-					var hash = make([][2][]rune, 1)
-					var cur = true
-					var escaped = false
-
-					for _, v := range cv {
-
-						if escaped {
-							escaped = false
-							goto escp
-						}
-
-						if v == reserved["escaper"] {
-							escaped = true
-							goto escp
-						}
-
-						if v == reserved["hash key seperator"] {
-							cur = false
-							continue
-						}
-
-						if v == reserved["value seperator"] {
-							cur = true
-							continue
-						}
-
-					escp:
-						if cur {
-							hash[len(hash)-1][0] = append(hash[len(hash)-1][0], v)
-						} else {
-							hash[len(hash)-1][1] = append(hash[len(hash)-1][1], v)
-						}
-					}
-
-					//remove the trailing
-					hash = hash[:len(hash)-1]
-
-					var ohash map[string]*OmmType
-
-					for _, v := range hash {
-						cdecoded, e := decval(v[1])
-						if e != nil {
-							return nil, e
-						}
-						ohash[string(DecodeStr(v[0]))] = &cdecoded
-					}
-
-					return OmmHash{
-						Hash:   ohash,
-						Length: uint64(len(ohash)),
-					}, nil
-
 				case reserved["start number"]:
+
 					if len(cv) < 2 {
 						return nil, NOT_OAT
 					}
 
 					cv = cv[1 : len(cv)-1]
 
-					var inte []int64
-					var deci []int64
-					var cur = true
-					var escaped = false
+					num := decode2d(cv, reserved["decimal spot"])
 
-					for _, v := range cv {
-						if v == reserved["escaper"] {
-							escaped = true
-							continue
-						}
-
-						if escaped {
-							escaped = false
-							goto esc
-						}
-
-						if v == reserved["decimal place"] {
-							cur = false
-							continue
-						}
-
-					esc:
-						if cur {
-							inte = append(inte, int64(v))
-						} else {
-							deci = append(deci, int64(v))
-						}
+					if len(num) > 2 || len(num) == 0 {
+						return nil, NOT_OAT
 					}
 
-					return OmmNumber{
-						Integer: &inte,
-						Decimal: &deci,
-					}, nil
+					if len(num) == 1 {
+						num = append(num, []rune{})
+					}
+
+					var str1 = DecodeRaw(num[0])
+					var str2 = DecodeRaw(num[1])
+
+					var integer = make([]int64, len(str1))
+					var decimal = make([]int64, len(str2))
+
+					for k, v := range str1 {
+						integer[k] = int64(v)
+					}
+					for k, v := range str2 {
+						decimal[k] = int64(v)
+					}
+
+					var ommnum OmmNumber
+					ommnum.Integer = &integer
+					ommnum.Decimal = &decimal
+					return ommnum, nil
 
 				case reserved["start proto"]:
 
-					if len(cv) < 3 {
-						return nil, NOT_OAT
-					}
-
-					cv = cv[1 : len(cv)-1]
-
-					if cv[0] != reserved["start proto name"] {
-						return nil, NOT_OAT
-					}
-
-					cv = cv[1:]
-
-					var escaped = false
-					var name string
-					var k int
-					var v rune
-
-					var matchers = make(map[string]int)
-
-					for k, v = range cv {
-
-						if escaped {
-							escaped = false
-							goto protoname_esc
-						}
-
-						if v == reserved["escaper"] {
-							escaped = true
-							continue
-						}
-
-						if strings.HasPrefix(getReservedFromRune(v), "start ") {
-							matchers[strings.TrimPrefix(getReservedFromRune(v), "start ")]++
-						} else if strings.HasPrefix(getReservedFromRune(v), "end ") {
-
-							if matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")] <= 0 {
-
-								if v == reserved["end proto name"] {
-									k++
-									break
-								}
-
-								return nil, NOT_OAT
-							}
-
-							matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")]--
-						}
-
-						for _, v := range matchers {
-							if v != 0 {
-								goto protoname_esc
-							}
-						}
-
-					protoname_esc:
-						name += string(v)
-					}
-
-					cv = cv[k:]
-
-					if len(cv) < 4 || cv[0] != reserved["start proto static"] || cv[len(cv)-1] != reserved["end proto instance"] {
-						return nil, NOT_OAT
-					}
-
-					cv = cv[1 : len(cv)-1]
-
-					matchers = make(map[string]int)
-
-					var staticparts = make([][2][]rune, 1)
-					var instanceparts = make([][2][]rune, 1)
-					var curp = true
-
-					for k, v = range cv {
-
-						if escaped {
-							escaped = false
-							goto protostatic_esc
-						}
-
-						if v == reserved["escaper"] {
-							escaped = true
-							goto protostatic_esc
-						}
-
-						if strings.HasPrefix(getReservedFromRune(v), "start ") {
-							matchers[strings.TrimPrefix(getReservedFromRune(v), "start ")]++
-						} else if strings.HasPrefix(getReservedFromRune(v), "end ") {
-
-							if matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")] <= 0 {
-
-								if v == reserved["end proto static"] {
-									k++
-									break
-								}
-
-								return nil, NOT_OAT
-							}
-
-							matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")]--
-						}
-
-						for _, v := range matchers {
-							if v != 0 {
-								goto protostatic_esc
-							}
-						}
-
-						if v == reserved["hash key seperator"] {
-							curp = false
-							continue
-						}
-						if v == reserved["value seperator"] {
-							staticparts = append(staticparts, [2][]rune{})
-							curp = true
-							continue
-						}
-
-					protostatic_esc:
-						if curp {
-							staticparts[len(staticparts)-1][0] = append(staticparts[len(staticparts)-1][0], v)
-						} else {
-							staticparts[len(staticparts)-1][1] = append(staticparts[len(staticparts)-1][1], v)
-						}
-					}
-					staticparts = staticparts[:len(staticparts)-1]
-
-					if k+1 >= len(cv) {
-						goto noins
-					}
-
-					cv = cv[k+1:]
-
-					matchers = make(map[string]int)
-					curp = true
-
-					for k, v = range cv {
-
-						if escaped {
-							escaped = false
-							goto protoinstance_esc
-						}
-
-						if v == reserved["escaper"] {
-							escaped = true
-							goto protoinstance_esc
-						}
-
-						if strings.HasPrefix(getReservedFromRune(v), "start ") {
-							matchers[strings.TrimPrefix(getReservedFromRune(v), "start ")]++
-						} else if strings.HasPrefix(getReservedFromRune(v), "end ") {
-
-							if matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")] <= 0 {
-
-								if v == reserved["end proto instance"] {
-									k++
-									break
-								}
-
-								return nil, NOT_OAT
-							}
-
-							matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")]--
-						}
-
-						for _, v := range matchers {
-							if v != 0 {
-								goto protoinstance_esc
-							}
-						}
-
-						if v == reserved["hash key seperator"] {
-							curp = false
-							continue
-						}
-						if v == reserved["value seperator"] {
-							instanceparts = append(instanceparts, [2][]rune{})
-							curp = true
-							continue
-						}
-
-					protoinstance_esc:
-						if curp {
-							instanceparts[len(instanceparts)-1][0] = append(instanceparts[len(instanceparts)-1][0], v)
-						} else {
-							instanceparts[len(instanceparts)-1][1] = append(instanceparts[len(instanceparts)-1][1], v)
-						}
-					}
-
-				noins:
-					instanceparts = instanceparts[:len(instanceparts)-1]
-					var nstaticp = make(map[string]*OmmType)
-					var ninstancep = make(map[string]*OmmType)
-
-					for _, v := range staticparts {
-						value, e := decval(v[1])
-						if e != nil {
-							return nil, e
-						}
-						nstaticp[string(DecodeStr(v[0]))] = &value
-					}
-
-					for _, v := range instanceparts {
-						value, e := decval(v[1])
-						if e != nil {
-							return nil, e
-						}
-						ninstancep[string(DecodeStr(v[0]))] = &value
-					}
-
-					return OmmProto{
-						ProtoName: name,
-						Static:    nstaticp,
-						Instance:  ninstancep,
-					}, nil
-
 				case reserved["make rune"]:
-					if len(cv) != 3 {
+
+					if len(cv) != 2 {
 						return nil, NOT_OAT
 					}
 
-					return OmmRune{
-						Rune: &cv[2],
-					}, nil
+					var ommrune OmmRune
+					ommrune.FromGoType(cv[1])
+					return ommrune, nil
 
 				case reserved["make string"]:
+
 					cv = cv[1:]
 
-					decoded := DecodeStr(cv)
-
-					return OmmString{
-						String: decoded,
-						Length: uint64(len(decoded)),
-					}, nil
+					runelist := DecodeStr(cv)
+					var ommstr OmmString
+					ommstr.FromRuneList(runelist)
+					return ommstr, nil
 
 				case reserved["make undef"]:
-					return OmmUndef{}, nil
 
-				case reserved["start function"]:
-					cv = cv[1:]
-
-					if cv[len(cv)-1] != reserved["end function"] {
+					if len(cv) != 1 {
 						return nil, NOT_OAT
 					}
 
-					cv = cv[:len(cv)-1]
+					var undef OmmUndef //declare an undefined variable
+					return undef, nil  //now return it
 
-					var params = make([][2]string, 1)
-
-					var curp = false
-					var o int
-					var escaped = false
-
-					var matchers = make(map[string]int)
-
-					for o = 0; o < len(cv); o++ {
-
-						if escaped {
-							goto isescaped
-						}
-
-						if cv[o] == reserved["escaper"] {
-							escaped = true
-							continue
-						}
-
-						if strings.HasPrefix(getReservedFromRune(encoded[i]), "start ") {
-							matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "start ")]++
-						} else if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
-
-							if matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")] <= 0 {
-								return nil, NOT_OAT
-							}
-
-							matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")]--
-						}
-
-						for _, v := range matchers {
-							if v != 0 {
-								goto isescaped
-							}
-						}
-
-						if cv[o] == reserved["param body split"] {
-							o++
-							break
-						}
-
-					isescaped:
-						if curp {
-							params[len(params)-1][0] += string(cv[o])
-						} else {
-							params[len(params)-1][1] += string(cv[o])
-						}
-						escaped = false
-					}
-
-					params = params[:len(params)-1] //remove the trailing [2]string
-					cv = cv[o:]
-
-					var fn OmmFunc
-					fn.Overloads = make([]Overload, 1)
-
-					fn.Overloads[0].Types = make([]string, len(params))
-					fn.Overloads[0].Params = make([]string, len(params))
-
-					for k, v := range params {
-						fn.Overloads[0].Types[k] = v[0]
-						fn.Overloads[0].Params[k] = v[1]
-					}
-
-					bodyv, e := DecodeVariable(cv)
-
-					if e != nil {
-						return nil, e
-					}
-
-					fn.Overloads[0].Body = bodyv
-
-					return fn, nil
-
-				default:
-					return nil, NOT_OAT
 				}
+
+				return nil, NOT_OAT
 			}
 
-			if len(curval) != 0 {
-				calc, e := decval(curval)
+			var e error                         //declare "e" here
+			(*curact).Value, e = putval(curval) //and then put the value of "e" here
+			if e != nil {                       //and now return the error if there was one
+				return nil, e
+			}
+
+		case "expact":
+			if len(curval) > 2 {
+				val, e := DecodeAction(curval[1 : len(curval)-1])
+
 				if e != nil {
 					return nil, e
 				}
-				(*curact).Value = calc
-			}
 
-		case reserved["seperate expact"]:
-			if len(curval) != 0 {
-				curval = curval[1 : len(curval)-1]
-				val, e := DecodeVariable(curval)
-				if e != nil {
-					return nil, e
-				}
 				(*curact).ExpAct = val
 			}
 
-		case reserved["seperate first"]:
-			if len(curval) != 0 {
-				curval = curval[1 : len(curval)-1]
-				val, e := DecodeVariable(curval)
+		case "first":
+			if len(curval) > 2 {
+				val, e := DecodeAction(curval[1 : len(curval)-1])
+
 				if e != nil {
 					return nil, e
 				}
+
 				(*curact).First = val
 			}
 
-		case reserved["seperate second"]:
-			if len(curval) != 0 {
-				curval = curval[1 : len(curval)-1]
-				val, e := DecodeVariable(curval)
+		case "second":
+			if len(curval) > 2 {
+				val, e := DecodeAction(curval[1 : len(curval)-1])
+
 				if e != nil {
 					return nil, e
 				}
+
 				(*curact).Second = val
 			}
 
-		case reserved["seperate array"]:
-
-			var arr [][]Action
-			var current []rune
-
-			escaped := false
+		case "array":
 
 			if len(curval) < 2 {
 				return nil, NOT_OAT
 			}
 
-			var matchers = make(map[string]int)
+			curval = curval[1 : len(curval)-1]
+			var _arr = decode2d(curval, reserved["value seperator"])
 
-			for o := 1; o < len(curval)-1; o++ {
+			var arr = make([][]Action, len(_arr))
 
-				for ; o < len(curval); o++ {
+			for kk, vv := range _arr {
+				val, e := DecodeAction(vv)
 
-					if escaped {
-						escaped = false
-						goto arr_esc
-					}
-
-					if curval[o] == reserved["escaper"] {
-						escaped = true
-						goto arr_esc
-					}
-
-					if strings.HasPrefix(getReservedFromRune(encoded[i]), "start ") {
-						matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "start ")]++
-					} else if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
-
-						if matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")] <= 0 {
-							return nil, NOT_OAT
-						}
-
-						matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")]--
-					}
-
-					for _, v := range matchers {
-						if v != 0 {
-							goto arr_esc
-						}
-					}
-
-					if getReservedFromRune(curval[o]) == "value seperator" {
-						break
-					}
-
-				arr_esc:
-					current = append(current, curval[o])
-				}
-
-				dec, e := DecodeVariable(current)
 				if e != nil {
 					return nil, e
 				}
-				arr = append(arr, dec)
-				current = nil //clear current
+
+				arr[kk] = val
 			}
 
 			(*curact).Array = arr
 
-		case reserved["seperate hash"]:
-
-			var hash = make([][2][]Action, 0)
-			var currentk []rune
-			var currentv []rune
-
-			curpoint := true
-			escaped := false
+		case "hash":
 
 			if len(curval) < 2 {
 				return nil, NOT_OAT
 			}
 
-			var matchers = make(map[string]int)
+			curval = curval[1 : len(curval)-1]
+			_hash := decode3d(curval, reserved["hash key seperator"], reserved["value seperator"])
 
-			for o := 1; o < len(curval)-1; o++ {
+			var hash = make([][2][]Action, len(_hash))
 
-				for ; o < len(curval); o++ {
+			for kk, vv := range _hash {
+				key, e := DecodeAction(vv[0])
 
-					if escaped {
-						escaped = false
-						goto hash_esc
-					}
-
-					if curval[o] == reserved["escaper"] {
-						escaped = true
-						goto hash_esc
-					}
-
-					if strings.HasPrefix(getReservedFromRune(encoded[i]), "start ") {
-						matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "start ")]++
-					} else if strings.HasPrefix(getReservedFromRune(encoded[i]), "end ") {
-
-						if matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")] <= 0 {
-							return nil, NOT_OAT
-						}
-
-						matchers[strings.TrimPrefix(getReservedFromRune(encoded[i]), "end ")]--
-					}
-
-					for _, v := range matchers {
-						if v != 0 {
-							goto hash_esc
-						}
-					}
-
-					if getReservedFromRune(curval[o]) == "hash key seperator" {
-						if !curpoint {
-							return nil, NOT_OAT
-						}
-						curpoint = false
-						continue
-					}
-
-					if getReservedFromRune(curval[o]) == "value seperator" {
-						if curpoint {
-							return nil, NOT_OAT
-						}
-						curpoint = true
-						continue
-					}
-
-				hash_esc:
-					if curpoint {
-						currentk = append(currentk, curval[o])
-					} else {
-						currentv = append(currentv, curval[o])
-					}
-				}
-
-				deckey, e := DecodeVariable(currentk[1 : len(currentk)-2])
 				if e != nil {
-					return nil, e
+					return nil, NOT_OAT
 				}
-				decval, e := DecodeVariable(currentv)
+
+				val, e := DecodeAction(vv[1])
+
 				if e != nil {
-					return nil, e
+					return nil, NOT_OAT
 				}
 
-				hash = append(hash, [2][]Action{
-					deckey,
-					decval,
-				})
-
-				//clear both currents
-				currentk = nil
-				currentv = nil
+				hash[kk] = [2][]Action{key, val}
 			}
 
 			(*curact).Hash = hash
 
 		}
 
-		if encoded[i+1] == reserved["next action"] {
-			i++
-			decoded = append(decoded, Action{})
-		}
-
-		curval = nil //clear curval
+		curval = nil
 	}
-
-	//remove the trailing one
-	decoded = decoded[:len(decoded)-1]
 
 	return decoded, nil
 }
 
+//DecodeStr Decode an oat string
 func DecodeStr(str []rune) []rune {
+
+	rawd := DecodeRaw(str)
+
+	for k := range rawd {
+		rawd[k] -= 5000
+	}
+
+	return rawd
+}
+
+//DecodeRaw Decode an oat raw string
+func DecodeRaw(str []rune) []rune {
 
 	var final []rune
 	var escaped = false
 
 	for _, v := range str {
 
-		decodedr := v - 500000
+		decodedr := v
 
 		if !escaped && decodedr == reserved["escaper"] {
 			escaped = true
@@ -964,4 +471,101 @@ func getReservedFromRune(val rune) string {
 	}
 
 	return ""
+}
+
+func decode2d(encoded []rune, seperator rune) [][]rune {
+
+	var escaped bool
+	var matchers map[string]int
+	var seperated = make([][]rune, 1)
+
+	for _, v := range encoded {
+
+		if escaped {
+			escaped = false
+			goto escaped
+		}
+
+		if v == reserved["escaper"] {
+			escaped = true
+			goto escaped
+		}
+
+		if strings.HasPrefix(getReservedFromRune(v), "start ") {
+			matchers[strings.TrimPrefix(getReservedFromRune(v), "start ")]++
+		}
+		if strings.HasPrefix(getReservedFromRune(v), "end ") {
+			matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")]--
+		}
+
+		for _, v := range matchers {
+			if v != 0 {
+				goto escaped
+			}
+		}
+
+		if v == seperator {
+			seperated = append(seperated, []rune{})
+			continue
+		}
+
+	escaped:
+		seperated[len(seperated)-1] = append(seperated[len(seperated)-1], v)
+	}
+
+	return seperated[:len(seperated)-1]
+}
+
+func decode3d(encoded []rune, seperator1 rune, seperator2 rune) [][][]rune {
+
+	var escaped bool
+	var matchers map[string]int
+	var seperated = make([][][]rune, 1)
+	var cur bool
+
+	for _, v := range encoded {
+
+		if escaped {
+			escaped = false
+			goto escaped
+		}
+
+		if v == reserved["escaper"] {
+			escaped = true
+			goto escaped
+		}
+
+		if strings.HasPrefix(getReservedFromRune(v), "start ") {
+			matchers[strings.TrimPrefix(getReservedFromRune(v), "start ")]++
+		}
+		if strings.HasPrefix(getReservedFromRune(v), "end ") {
+			matchers[strings.TrimPrefix(getReservedFromRune(v), "end ")]--
+		}
+
+		for _, v := range matchers {
+			if v != 0 {
+				goto escaped
+			}
+		}
+
+		if v == seperator1 {
+			cur = true
+			continue
+		} else if v == seperator2 {
+			cur = false
+			seperated = append(seperated, [][]rune{})
+			continue
+		}
+
+	escaped:
+
+		if !cur {
+			seperated[len(seperated)-1][0] = append(seperated[len(seperated)-1][0], v)
+		} else {
+			seperated[len(seperated)-1][1] = append(seperated[len(seperated)-1][1], v)
+		}
+
+	}
+
+	return seperated[:len(seperated)-1]
 }

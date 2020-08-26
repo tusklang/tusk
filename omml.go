@@ -13,11 +13,6 @@ import (
 	"github.com/omm-lang/omm/lang/compiler"
 )
 
-//omm addons
-//omm language (compile into go slices and structs)
-
-////////////
-
 func defaults(cli_params *CliParams, name string) {
 
 	(*cli_params).Prec = 30
@@ -51,9 +46,9 @@ func main() {
 	cli_params.Directory = args[1]
 	cli_params.Name = args[2]
 
-	__dirname, _ := os.Getwd()
+	dirname, _ := os.Getwd()
 
-	cli_params.OmmDirname = __dirname
+	cli_params.OmmDirname = dirname
 
 	//set the working directory
 	os.Chdir(args[1])
@@ -64,9 +59,9 @@ func main() {
 
 		if strings.HasPrefix(v, "--") {
 
-			switch strings.ToUpper(v) {
+			switch v[2:] {
 
-			case "--version":
+			case "version":
 				fmt.Printf("Omm Beta %d.%d.%d", OMM_MAJOR, OMM_MINOR, OMM_BUG)
 				os.Exit(0)
 			default:
@@ -75,20 +70,20 @@ func main() {
 
 		} else if strings.HasPrefix(v, "-") {
 
-			switch strings.ToUpper(v[1:]) {
+			switch v[1:] {
 
-			case "V":
+			case "v":
 				fmt.Printf("Omm Beta %d.%d.%d", OMM_MAJOR, OMM_MINOR, OMM_BUG)
 				os.Exit(0)
-			case "C":
+			case "c":
 				cli_params.Addon = "compile"
-			case "R":
+			case "r":
 				cli_params.Addon = "run"
-			case "PREC":
+			case "prec":
 				temp_prec, _ := strconv.ParseUint(args[i+1], 10, 64)
 				cli_params.Prec = temp_prec
 				i += 2
-			case "O":
+			case "o":
 				cli_params.Output = args[i+1]
 				i++
 			default:

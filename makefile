@@ -1,8 +1,10 @@
 ifeq ($(OS),Windows_NT)
 	BINARY = omml.exe
+	LIB_OAT = stdlib\lib.oat
 	CLEAN_CMD = del
 else
 	BINARY = omml
+	LIB_OAT = stdlib/lib.oat
 	CLEAN_CMD = rm -f
 endif
 
@@ -18,16 +20,11 @@ test: all
 	@echo ------------------------------------
 	-./$(BINARY) ./ ./test.omm
 	@echo ------------------------------------
-	@make -s clean_no_echo
 
 .PHONY: clean
 clean:
+	-$(CLEAN_CMD) $(LIB_OAT)
 	-$(CLEAN_CMD) $(BINARY)
-
-.SILENT: clean_no_echo
-.PHONY: clean_no_echo
-clean_no_echo:
-	@make -s clean
 
 .PHONY: $(BINARY)
 $(BINARY):
@@ -35,4 +32,4 @@ $(BINARY):
 
 .PHONY: lib.oat
 lib.oat:
-	./$(BINARY) ./stdlib lib.omm -c
+	-./$(BINARY) ./stdlib lib.omm -c
