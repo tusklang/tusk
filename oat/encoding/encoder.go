@@ -103,6 +103,32 @@ func EncodeActions(data []Action) []rune {
 							final = append(final, 0)
 						}
 
+					case OmmFunc:
+
+						final = append(final, reserved["start function"])
+
+						for _, v := range v.(OmmFunc).Overloads {
+							for k := range v.Params {
+								final = append(final, EncodeStr([]rune(v.Types[k]))...)
+								final = append(final, reserved["seperate type-param"])
+								final = append(final, EncodeStr([]rune(v.Params[k]))...)
+								final = append(final, reserved["value seperator"])
+							}
+							final = append(final, reserved["param body split"])
+							final = append(final, EncodeActions(v.Body)...)
+							final = append(final, reserved["body var-ref split"])
+
+							//list all of the variables that this function uses
+							for _, v := range v.VarRefs {
+								final = append(final, EncodeStr([]rune(v))...)
+								final = append(final, reserved["value seperator"])
+							}
+
+							final = append(final, reserved["seperate overload"])
+						}
+
+						final = append(final, reserved["end function"])
+
 					case OmmHash:
 
 						final = append(final, reserved["make c-hash"])
@@ -177,25 +203,6 @@ func EncodeActions(data []Action) []rune {
 					case OmmUndef:
 
 						final = append(final, reserved["make undef"])
-
-					case OmmFunc:
-
-						final = append(final, reserved["start function"])
-
-						for _, v := range v.(OmmFunc).Overloads {
-							final = append(final, reserved["start overload"])
-							for k := range v.Params {
-								final = append(final, EncodeStr([]rune(v.Types[k]))...)
-								final = append(final, reserved["seperate type-param"])
-								final = append(final, EncodeStr([]rune(v.Params[k]))...)
-								final = append(final, reserved["value seperator"])
-							}
-							final = append(final, reserved["param body split"])
-							final = append(final, EncodeActions(v.Body)...)
-							final = append(final, reserved["end overload"])
-						}
-
-						final = append(final, reserved["end function"])
 
 					}
 

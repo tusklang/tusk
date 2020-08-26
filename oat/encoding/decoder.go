@@ -122,7 +122,7 @@ func OatDecode(filename string, mode int) (map[string][]Action, error) {
 	var decodedvars = make(map[string][]Action)
 
 	for _, v := range encodedVars {
-		decodedV, e := DecodeAction(v[1])
+		decodedV, e := DecodeActions(v[1])
 
 		if e != nil {
 			return nil, e
@@ -152,7 +152,7 @@ func OatDecode(filename string, mode int) (map[string][]Action, error) {
 
 }
 
-func DecodeAction(encoded []rune) ([]Action, error) {
+func DecodeActions(encoded []rune) ([]Action, error) {
 	var (
 		decoded = make([]Action, 0)
 		escaped = false
@@ -234,7 +234,8 @@ func DecodeAction(encoded []rune) ([]Action, error) {
 
 		case "value":
 
-			var putval = func(cv []rune) (OmmType, error) {
+			var putval func([]rune) (OmmType, error)
+			putval = func(cv []rune) (OmmType, error) {
 
 				if len(cv) == 0 {
 					return nil, NOT_OAT
@@ -242,13 +243,31 @@ func DecodeAction(encoded []rune) ([]Action, error) {
 
 				switch cv[0] {
 				case reserved["make c-array"]:
+
+					cv = cv[1:]
+
+					_arr := decode2d(cv, reserved["value seperator"])
+					arr := make([]*OmmType, len(_arr))
+
+					for k, v := range _arr {
+						val, e := putval(v)
+						if e != nil {
+							return nil, e
+						}
+						arr[k] = &val
+					}
+
+					var ommarr OmmArray
+					ommarr.Array = arr
+					return ommarr, nil
+
 				case reserved["make bool"]:
 
 					if len(cv) != 3 {
 						return nil, NOT_OAT
 					}
 
-					cv = cv[2:]
+					cv = cv[2:]         //remove the "make bool" and the escaper
 					boolv := cv[0] == 1 //get the value as a bool (1 = true, 0 = false)
 
 					var ommbool OmmBool
@@ -256,14 +275,90 @@ func DecodeAction(encoded []rune) ([]Action, error) {
 					return ommbool, nil
 
 				case reserved["start function"]:
-				case reserved["make c-hash"]:
-				case reserved["start number"]:
 
-					if len(cv) < 2 {
+					if len(cv) < 2 { //it must (at least) start with "start function" and end with "end function"
 						return nil, NOT_OAT
 					}
 
 					cv = cv[1 : len(cv)-1]
+
+					var encodedoverloads = decode2d(cv, reserved["seperate overload"])
+
+					var overloads = make([]Overload, len(encodedoverloads)) //alloc the amount of overloads there are
+
+					for kk, vv := range encodedoverloads {
+						var parambodysplit = decode2d(vv, reserved["param body split"]) //seperate the params and the body
+
+						if len(parambodysplit) != 2 {
+							return nil, NOT_OAT
+						}
+
+						params, encbody := decode3d(parambodysplit[0], reserved["seperate type-param"], reserved["value seperator"]), decode2d(parambodysplit[1], reserved["body var-ref split"])
+
+						var (
+							pnames = make([]string, len(params))
+							types  = make([]string, len(params))
+						)
+
+						for k, v := range params {
+							types[k] = string(DecodeStr(v[0]))
+							pnames[k] = string(DecodeStr(v[1]))
+						}
+
+						decbody, e := DecodeActions(encbody[0]) //decode the body of the function
+
+						if e != nil {
+							return nil, e
+						}
+
+						_varrefs := decode2d(encbody[1], reserved["value seperator"]) //seperate all of the var references
+						var varrefs = make([]string, len(_varrefs))                   //alloc the space of the []string var refs
+
+						for k, v := range _varrefs {
+							varrefs[k] = string(DecodeStr(v))
+						}
+
+						overloads[kk] = Overload{
+							Params:  pnames,
+							Types:   types,
+							Body:    decbody,
+							VarRefs: varrefs,
+						}
+					}
+
+					var fn OmmFunc
+					fn.Overloads = overloads
+
+					return fn, nil
+
+				case reserved["make c-hash"]:
+
+					cv = cv[1:]
+
+					_hash := decode3d(cv, reserved["hash key seperator"], reserved["value seperator"])
+					hash := make(map[string]*OmmType)
+
+					for _, v := range _hash {
+						key := DecodeStr(v[0])
+						val, e := putval(v[1])
+						if e != nil {
+							return nil, e
+						}
+
+						hash[string(key)] = &val
+					}
+
+					var ommhash OmmHash
+					ommhash.Hash = hash
+					return ommhash, nil
+
+				case reserved["start number"]:
+
+					if len(cv) < 2 { //numbers must at least have (start number - end number)
+						return nil, NOT_OAT
+					}
+
+					cv = cv[1 : len(cv)-1] //remove the previously mentioned (start number and end number paddings)
 
 					num := decode2d(cv, reserved["decimal spot"])
 
@@ -297,9 +392,13 @@ func DecodeAction(encoded []rune) ([]Action, error) {
 
 				case reserved["make rune"]:
 
+					cv = cv[1:]
+
 					if len(cv) != 2 {
 						return nil, NOT_OAT
 					}
+
+					//runes must have an escaper and a rune
 
 					var ommrune OmmRune
 					ommrune.FromGoType(cv[1])
@@ -307,7 +406,7 @@ func DecodeAction(encoded []rune) ([]Action, error) {
 
 				case reserved["make string"]:
 
-					cv = cv[1:]
+					cv = cv[1:] //remove the "make string"
 
 					runelist := DecodeStr(cv)
 					var ommstr OmmString
@@ -336,7 +435,7 @@ func DecodeAction(encoded []rune) ([]Action, error) {
 
 		case "expact":
 			if len(curval) > 2 {
-				val, e := DecodeAction(curval[1 : len(curval)-1])
+				val, e := DecodeActions(curval[1 : len(curval)-1])
 
 				if e != nil {
 					return nil, e
@@ -347,7 +446,7 @@ func DecodeAction(encoded []rune) ([]Action, error) {
 
 		case "first":
 			if len(curval) > 2 {
-				val, e := DecodeAction(curval[1 : len(curval)-1])
+				val, e := DecodeActions(curval[1 : len(curval)-1])
 
 				if e != nil {
 					return nil, e
@@ -358,7 +457,7 @@ func DecodeAction(encoded []rune) ([]Action, error) {
 
 		case "second":
 			if len(curval) > 2 {
-				val, e := DecodeAction(curval[1 : len(curval)-1])
+				val, e := DecodeActions(curval[1 : len(curval)-1])
 
 				if e != nil {
 					return nil, e
@@ -379,7 +478,7 @@ func DecodeAction(encoded []rune) ([]Action, error) {
 			var arr = make([][]Action, len(_arr))
 
 			for kk, vv := range _arr {
-				val, e := DecodeAction(vv)
+				val, e := DecodeActions(vv)
 
 				if e != nil {
 					return nil, e
@@ -402,13 +501,13 @@ func DecodeAction(encoded []rune) ([]Action, error) {
 			var hash = make([][2][]Action, len(_hash))
 
 			for kk, vv := range _hash {
-				key, e := DecodeAction(vv[0])
+				key, e := DecodeActions(vv[0])
 
 				if e != nil {
 					return nil, NOT_OAT
 				}
 
-				val, e := DecodeAction(vv[1])
+				val, e := DecodeActions(vv[1])
 
 				if e != nil {
 					return nil, NOT_OAT
@@ -476,7 +575,7 @@ func getReservedFromRune(val rune) string {
 func decode2d(encoded []rune, seperator rune) [][]rune {
 
 	var escaped bool
-	var matchers map[string]int
+	var matchers = make(map[string]int)
 	var seperated = make([][]rune, 1)
 
 	for _, v := range encoded {
@@ -513,14 +612,18 @@ func decode2d(encoded []rune, seperator rune) [][]rune {
 		seperated[len(seperated)-1] = append(seperated[len(seperated)-1], v)
 	}
 
-	return seperated[:len(seperated)-1]
+	if len(seperated[:len(seperated)-1]) == 0 {
+		return seperated[:len(seperated)-1]
+	}
+
+	return seperated
 }
 
-func decode3d(encoded []rune, seperator1 rune, seperator2 rune) [][][]rune {
+func decode3d(encoded []rune, seperator1 rune, seperator2 rune) [][2][]rune {
 
 	var escaped bool
-	var matchers map[string]int
-	var seperated = make([][][]rune, 1)
+	var matchers = make(map[string]int)
+	var seperated = make([][2][]rune, 1)
 	var cur bool
 
 	for _, v := range encoded {
@@ -553,7 +656,7 @@ func decode3d(encoded []rune, seperator1 rune, seperator2 rune) [][][]rune {
 			continue
 		} else if v == seperator2 {
 			cur = false
-			seperated = append(seperated, [][]rune{})
+			seperated = append(seperated, [2][]rune{})
 			continue
 		}
 
@@ -567,5 +670,9 @@ func decode3d(encoded []rune, seperator1 rune, seperator2 rune) [][][]rune {
 
 	}
 
-	return seperated[:len(seperated)-1]
+	if len(seperated[:len(seperated)-1]) == 0 {
+		return seperated[:len(seperated)-1]
+	}
+
+	return seperated
 }
