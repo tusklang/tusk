@@ -165,28 +165,43 @@ func EncodeActions(data []Action) []rune {
 						final = append(final, reserved["start proto"])
 
 						//put the name
-						final = append(final, reserved["start proto name"])
 						final = append(final, EncodeStr([]rune(v.(OmmProto).ProtoName))...)
-						final = append(final, reserved["end proto name"])
+						final = append(final, reserved["seperate proto name"])
 						//////////////
 
-						final = append(final, reserved["start proto static"])
 						for k, v := range v.(OmmProto).Static {
 							final = append(final, EncodeStr([]rune(k))...)
 							final = append(final, reserved["hash key seperator"])
 							final = append(final, putval(*v)...)
 							final = append(final, reserved["value seperator"])
 						}
-						final = append(final, reserved["end proto static"])
 
-						final = append(final, reserved["start proto instance"])
+						final = append(final, reserved["seperate proto static instance"])
+
 						for k, v := range v.(OmmProto).Instance {
 							final = append(final, EncodeStr([]rune(k))...)
 							final = append(final, reserved["hash key seperator"])
 							final = append(final, putval(*v)...)
 							final = append(final, reserved["value seperator"])
 						}
-						final = append(final, reserved["end proto instance"])
+
+						final = append(final, reserved["seperate proto static instance"])
+
+						/*       put the access list       */
+						for k, v := range v.(OmmProto).AccessList {
+							final = append(final, EncodeStr([]rune(k))...)
+							final = append(final, reserved["hash key seperator"])
+
+							for _, vv := range v {
+								final = append(final, EncodeStr([]rune(vv))...)
+								final = append(final, reserved["sub value seperator"])
+							}
+
+							final = append(final, reserved["value seperator"])
+						}
+						/////////////////////////////////////
+
+						final = append(final, reserved["seperate proto static instance"]) //also put the seperator here to denote the access list
 
 						final = append(final, reserved["end proto"])
 
@@ -278,16 +293,14 @@ func EncodeStr(splitted []rune) []rune {
 	var slc []rune
 	for _, v := range splitted {
 
-		encodedr := v + 5000
-
 		for _, vv := range reserved {
-			if vv == encodedr {
+			if vv == v {
 				slc = append(slc, reserved["escaper"])
 				break
 			}
 		}
 
-		slc = append(slc, encodedr)
+		slc = append(slc, v)
 	}
 	return slc
 }

@@ -2,7 +2,6 @@ package oatenc
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -131,9 +130,6 @@ func OatDecode(filename string, mode int) (map[string][]Action, error) {
 		decodedvars[string(DecodeStr(v[0]))] = decodedV
 	}
 
-	j, _ := json.MarshalIndent(decodedvars, "", "  ")
-	fmt.Println(string(j))
-
 	if mode == 0 {
 		return decodedvars, nil
 	}
@@ -237,10 +233,6 @@ func DecodeActions(encoded []rune) ([]Action, error) {
 			var putval func([]rune) (OmmType, error)
 			putval = func(cv []rune) (OmmType, error) {
 
-				if len(cv) == 0 {
-					return nil, NOT_OAT
-				}
-
 				switch cv[0] {
 				case reserved["make c-array"]:
 
@@ -287,6 +279,11 @@ func DecodeActions(encoded []rune) ([]Action, error) {
 					var overloads = make([]Overload, len(encodedoverloads)) //alloc the amount of overloads there are
 
 					for kk, vv := range encodedoverloads {
+
+						if len(vv) == 0 {
+							continue
+						}
+
 						var parambodysplit = decode2d(vv, reserved["param body split"]) //seperate the params and the body
 
 						if len(parambodysplit) != 2 {
@@ -296,13 +293,21 @@ func DecodeActions(encoded []rune) ([]Action, error) {
 						params, encbody := decode3d(parambodysplit[0], reserved["seperate type-param"], reserved["value seperator"]), decode2d(parambodysplit[1], reserved["body var-ref split"])
 
 						var (
-							pnames = make([]string, len(params))
-							types  = make([]string, len(params))
+							pnames []string
+							types  []string
 						)
 
-						for k, v := range params {
-							types[k] = string(DecodeStr(v[0]))
-							pnames[k] = string(DecodeStr(v[1]))
+						for _, v := range params {
+
+							typed := string(DecodeStr(v[0]))
+							paramd := string(DecodeStr(v[1]))
+
+							if paramd == "" || typed == "" { //skip empty params
+								continue
+							}
+
+							types = append(types, typed)
+							pnames = append(pnames, paramd)
 						}
 
 						decbody, e := DecodeActions(encbody[0]) //decode the body of the function
@@ -312,7 +317,10 @@ func DecodeActions(encoded []rune) ([]Action, error) {
 						}
 
 						_varrefs := decode2d(encbody[1], reserved["value seperator"]) //seperate all of the var references
-						var varrefs = make([]string, len(_varrefs))                   //alloc the space of the []string var refs
+						if len(_varrefs[len(_varrefs)-1]) == 0 {                      //remove the last empty one
+							_varrefs = _varrefs[:len(_varrefs)-1]
+						}
+						var varrefs = make([]string, len(_varrefs)) //alloc the space of the []string var refs
 
 						for k, v := range _varrefs {
 							varrefs[k] = string(DecodeStr(v))
@@ -370,8 +378,8 @@ func DecodeActions(encoded []rune) ([]Action, error) {
 						num = append(num, []rune{})
 					}
 
-					var str1 = DecodeRaw(num[0])
-					var str2 = DecodeRaw(num[1])
+					var str1 = DecodeStr(num[0])
+					var str2 = DecodeStr(num[1])
 
 					var integer = make([]int64, len(str1))
 					var decimal = make([]int64, len(str2))
@@ -389,6 +397,95 @@ func DecodeActions(encoded []rune) ([]Action, error) {
 					return ommnum, nil
 
 				case reserved["start proto"]:
+
+					if len(cv) < 2 { //it must at least start with "start proto" and end with "end proto"
+						return nil, NOT_OAT
+					}
+
+					cv = cv[1 : len(cv)-1]
+
+					seperatedname := decode2d(cv, reserved["seperate proto name"])
+
+					if len(seperatedname) != 2 { //it must have a name and a body
+						return nil, NOT_OAT
+					}
+
+					name := string(DecodeStr(seperatedname[0]))
+
+					body := decode2d(seperatedname[1], reserved["seperate proto static instance"])
+
+					if len(body[len(body)-1]) == 0 {
+						body = body[:len(body)-1]
+					}
+
+					if len(body) != 2 && len(body) != 3 { //it must have a static and an instance
+						return nil, NOT_OAT
+					}
+
+					var parseprotobody = func(part []rune) (map[string]*OmmType, error) {
+						decoded := decode3d(part, reserved["hash key seperator"], reserved["value seperator"])
+
+						var protomap = make(map[string]*OmmType)
+
+						for _, v := range decoded {
+
+							if len(v[1]) == 0 { //if it is empty, skip it
+								continue
+							}
+
+							tmp, e := putval(v[1]) //create a tmp to create a ptr
+							if e != nil {
+								return nil, e
+							}
+							protomap[string(DecodeStr(v[0]))] = &tmp
+						}
+
+						return protomap, nil
+					}
+
+					//parse the static and the instance
+					static, e := parseprotobody(body[0])
+					if e != nil {
+						return nil, e
+					}
+					instance, e := parseprotobody(body[1])
+					if e != nil {
+						return nil, e
+					}
+					///////////////////////////////////
+
+					//also decode the access list (if there is one)
+					var accesslist = make(map[string][]string)
+
+					if len(body) == 3 {
+						decodedAccessList := decode3d(body[2], reserved["hash key seperator"], reserved["value seperator"])
+
+						for _, vv := range decodedAccessList {
+
+							if len(vv[0]) == 0 { //skip empty values
+								continue
+							}
+
+							curlist := decode2d(vv[1], reserved["sub value seperator"])
+							var parsedlist = make([]string, len(curlist))
+
+							for kk, vvv := range curlist {
+								parsedlist[kk] = string(DecodeStr(vvv))
+							}
+
+							accesslist[string(DecodeStr(vv[0]))] = parsedlist
+						}
+
+					}
+
+					var proto = OmmProto{
+						ProtoName:  name,
+						Static:     static,
+						Instance:   instance,
+						AccessList: accesslist,
+					}
+
+					return proto, nil
 
 				case reserved["make rune"]:
 
@@ -427,10 +524,12 @@ func DecodeActions(encoded []rune) ([]Action, error) {
 				return nil, NOT_OAT
 			}
 
-			var e error                         //declare "e" here
-			(*curact).Value, e = putval(curval) //and then put the value of "e" here
-			if e != nil {                       //and now return the error if there was one
-				return nil, e
+			if len(curval) != 0 { //only if there is a value
+				var e error                         //declare "e" here
+				(*curact).Value, e = putval(curval) //and then put the value of "e" here
+				if e != nil {                       //and now return the error if there was one
+					return nil, e
+				}
 			}
 
 		case "expact":
@@ -468,55 +567,66 @@ func DecodeActions(encoded []rune) ([]Action, error) {
 
 		case "array":
 
-			if len(curval) < 2 {
-				return nil, NOT_OAT
-			}
+			if len(curval) > 2 {
+				curval = curval[1 : len(curval)-1]
+				var _arr = decode2d(curval, reserved["value seperator"])
 
-			curval = curval[1 : len(curval)-1]
-			var _arr = decode2d(curval, reserved["value seperator"])
-
-			var arr = make([][]Action, len(_arr))
-
-			for kk, vv := range _arr {
-				val, e := DecodeActions(vv)
-
-				if e != nil {
-					return nil, e
+				if len(_arr[len(_arr)-1]) == 0 { //remove the last empty value
+					_arr = _arr[:len(_arr)-1]
 				}
 
-				arr[kk] = val
-			}
+				var arr = make([][]Action, len(_arr))
 
-			(*curact).Array = arr
+				for kk, vv := range _arr {
+					val, e := DecodeActions(vv)
+
+					if e != nil {
+						return nil, e
+					}
+
+					arr[kk] = val
+				}
+
+				(*curact).Array = arr
+			}
 
 		case "hash":
 
-			if len(curval) < 2 {
-				return nil, NOT_OAT
-			}
+			if len(curval) > 2 {
+				curval = curval[1 : len(curval)-1]
 
-			curval = curval[1 : len(curval)-1]
-			_hash := decode3d(curval, reserved["hash key seperator"], reserved["value seperator"])
+				_hash := decode3d(curval, reserved["hash key seperator"], reserved["value seperator"])
 
-			var hash = make([][2][]Action, len(_hash))
-
-			for kk, vv := range _hash {
-				key, e := DecodeActions(vv[0])
-
-				if e != nil {
-					return nil, NOT_OAT
+				if len(_hash[len(_hash)-1][0]) == 0 || len(_hash[len(_hash)-1][1]) == 0 { //remove the last empty value
+					_hash = _hash[:len(_hash)-1]
 				}
 
-				val, e := DecodeActions(vv[1])
+				var hash = make([][2][]Action, len(_hash))
 
-				if e != nil {
-					return nil, NOT_OAT
+				for kk, vv := range _hash {
+
+					if len(vv[0]) < 2 { //it must at least start with "start multi action" and end with "end multi action"
+						return nil, NOT_OAT
+					}
+
+					vv[0] = vv[0][1 : len(vv[0])-1]
+					key, e := DecodeActions(vv[0])
+
+					if e != nil {
+						return nil, NOT_OAT
+					}
+
+					val, e := DecodeActions(vv[1])
+
+					if e != nil {
+						return nil, NOT_OAT
+					}
+
+					hash[kk] = [2][]Action{key, val}
 				}
 
-				hash[kk] = [2][]Action{key, val}
+				(*curact).Hash = hash
 			}
-
-			(*curact).Hash = hash
 
 		}
 
@@ -528,18 +638,6 @@ func DecodeActions(encoded []rune) ([]Action, error) {
 
 //DecodeStr Decode an oat string
 func DecodeStr(str []rune) []rune {
-
-	rawd := DecodeRaw(str)
-
-	for k := range rawd {
-		rawd[k] -= 5000
-	}
-
-	return rawd
-}
-
-//DecodeRaw Decode an oat raw string
-func DecodeRaw(str []rune) []rune {
 
 	var final []rune
 	var escaped = false
@@ -612,10 +710,6 @@ func decode2d(encoded []rune, seperator rune) [][]rune {
 		seperated[len(seperated)-1] = append(seperated[len(seperated)-1], v)
 	}
 
-	if len(seperated[:len(seperated)-1]) == 0 {
-		return seperated[:len(seperated)-1]
-	}
-
 	return seperated
 }
 
@@ -668,10 +762,6 @@ func decode3d(encoded []rune, seperator1 rune, seperator2 rune) [][2][]rune {
 			seperated[len(seperated)-1][1] = append(seperated[len(seperated)-1][1], v)
 		}
 
-	}
-
-	if len(seperated[:len(seperated)-1]) == 0 {
-		return seperated[:len(seperated)-1]
 	}
 
 	return seperated
