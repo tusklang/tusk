@@ -2,24 +2,12 @@ package interpreter
 
 import (
 	"fmt"
-	"os"
 
 	. "github.com/omm-lang/omm/lang/types"
+	. "github.com/omm-lang/omm/stdlib/native"
 )
 
 const MAX_STACKSIZE = 100001
-
-//export OmmPanic
-func OmmPanic(err string, line uint64, file string, stacktrace []string) {
-	fmt.Println("Panic on line", line, "file", file)
-	fmt.Println(err)
-	fmt.Println("\nWhen the error was thrown, this was the stack:")
-	fmt.Println("  at line", line, "in file", file)
-	for i := len(stacktrace) - 1; i >= 0; i-- { //print the stacktrace
-		fmt.Println("  " + stacktrace[i])
-	}
-	os.Exit(1)
-}
 
 func dealloc(ins *Instance, varnames []string, value *OmmType) { //function to remove the variables declared in that scope
 	for _, v := range varnames {

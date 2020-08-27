@@ -14,6 +14,7 @@ import (
 	"time"
 
 	. "github.com/omm-lang/omm/lang/types"
+	. "github.com/omm-lang/omm/stdlib/native"
 )
 
 //#include "exec.h"
@@ -37,8 +38,11 @@ func (ogf OmmGoFunc) TypeOf() string {
 
 func (_ OmmGoFunc) Deallocate() {}
 
-//export GoFuncs
-var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType{
+//Native stores all of the native values. You can make your own by just putting it into this map
+var Native = make(map[string]*OmmType)
+
+//these are the native functions that are relatively simple to implement
+var simplenative = map[string]func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType{
 	"input": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
 		scanner := bufio.NewScanner(os.Stdin)
@@ -491,6 +495,8 @@ var GoFuncs = map[string]func(args []*OmmType, stacktrace []string, line uint64,
 		return &ommtype
 	},
 	"native": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+
+		OmmPanic("Function native has not been implemented yet!", line, file, stacktrace)
 
 		if len(args) != 1 {
 			OmmPanic("Function native requires an argument count of 1", line, file, stacktrace)

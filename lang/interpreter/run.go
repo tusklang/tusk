@@ -87,13 +87,10 @@ func FillIns(instance *Instance, compiledVars map[string][]Action, dirname strin
 		instance.Allocate(k, v.Value)
 	}
 
-	for k, v := range GoFuncs {
-		var gofunc OmmType = OmmGoFunc{
-			Function: v,
-		}
-
-		instance.Allocate("$"+k, &gofunc)
+	for k, v := range Native { //allocate all of the native
+		instance.Allocate(k, v)
 	}
+
 	return globals
 }
 

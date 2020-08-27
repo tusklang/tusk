@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	. "github.com/omm-lang/omm/lang/types"
+	. "github.com/omm-lang/omm/stdlib/native"
 )
 
 func funcinit() { //initialize the operations that require the use of the interpreter
