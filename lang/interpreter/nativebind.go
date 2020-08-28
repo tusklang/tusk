@@ -5,22 +5,22 @@ import (
 	"github.com/omm-lang/omm/stdlib/native"
 )
 
-func nativebind() {
+func nativeinit() {
 
 	//init the simple native values first
 	for k, v := range simplenative {
-		var gofunc OmmType = OmmGoFunc{
+		var gofunc OmmType = native.OmmGoFunc{
 			Function: v,
 		}
 
-		Native[k] = &gofunc
+		Native["$"+k] = &gofunc
 	}
 
 	//now do the complex ones
-	complexnative, nativeops := native.NativeStd()
+	complexnative, nativeops := native.GetStd()
 
 	for k, v := range complexnative {
-		Native[k] = v
+		Native["$"+k] = v
 	}
 	for k, v := range nativeops {
 		Operations[k] = v

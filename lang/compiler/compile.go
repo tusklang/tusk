@@ -143,8 +143,8 @@ func Compile(file, filename string, compileall, isoat bool) (map[string][]Action
 	}
 
 	//also account for the gofuncs
-	for k := range interpreter.GoFuncs {
-		varnames["$"+k] = "$" + k
+	for k := range interpreter.Native {
+		varnames[k] = k
 	}
 
 	for k := range vars {

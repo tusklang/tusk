@@ -1,5 +1,3 @@
 var main = fn() {
-    log [:
-        "a" = main,
-    :]
+    log url.request("https://amazon.com")::Body
 }

@@ -20,24 +20,6 @@ import (
 //#include "exec.h"
 import "C"
 
-type OmmGoFunc struct {
-	Function func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType
-}
-
-func (ogf OmmGoFunc) Format() string {
-	return "{ native gofunc }"
-}
-
-func (ogf OmmGoFunc) Type() string {
-	return "gofunc"
-}
-
-func (ogf OmmGoFunc) TypeOf() string {
-	return ogf.Type()
-}
-
-func (_ OmmGoFunc) Deallocate() {}
-
 //Native stores all of the native values. You can make your own by just putting it into this map
 var Native = make(map[string]*OmmType)
 
