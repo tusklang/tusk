@@ -233,6 +233,10 @@ func DecodeActions(encoded []rune) ([]Action, error) {
 			var putval func([]rune) (OmmType, error)
 			putval = func(cv []rune) (OmmType, error) {
 
+				if len(cv) == 0 { //if it is nil return undef
+					return OmmUndef{}, nil
+				}
+
 				switch cv[0] {
 				case reserved["make c-array"]:
 
@@ -524,7 +528,7 @@ func DecodeActions(encoded []rune) ([]Action, error) {
 				return nil, NOT_OAT
 			}
 
-			if len(curval) != 0 { //only if there is a value
+			if len(curval) > 0 { //only if there is a value
 				var e error                         //declare "e" here
 				(*curact).Value, e = putval(curval) //and then put the value of "e" here
 				if e != nil {                       //and now return the error if there was one
