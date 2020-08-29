@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
-	"reflect"
 
 	. "github.com/omm-lang/omm/lang/types"
 )
@@ -137,18 +136,4 @@ func urlrequest(args []*OmmType, stacktrace []string, line uint64, file string, 
 	var ommtype OmmType = final
 	return &ommtype
 
-}
-
-func http_resp_field(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
-
-	res := val1.(OmmURLResp)
-	key := val2.(OmmString).ToGoType()
-	field := reflect.ValueOf(&res).Elem().FieldByName(key)
-
-	if !field.IsValid() {
-		OmmPanic("Http Response does not contain field "+key, line, file, stacktrace)
-	}
-
-	var ommtype = field.Interface().(OmmType)
-	return &ommtype
 }

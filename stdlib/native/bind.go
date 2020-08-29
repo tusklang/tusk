@@ -1,6 +1,9 @@
 package native
 
 import (
+	"reflect"
+
+	"github.com/omm-lang/omm/lang/types"
 	. "github.com/omm-lang/omm/lang/types"
 )
 
@@ -35,7 +38,10 @@ func GetStd() (map[string]*OmmType, map[string]func(val1, val2 OmmType, instance
 	native["url.request"] = OmmGoFunc{
 		Function: urlrequest,
 	}
-	operations["http-response :: string"] = http_resp_field
+	operations["http-response :: string"] = func(val1, val2 types.OmmType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) *types.OmmType {
+		asserted := val1.(OmmURLResp)
+		return GoatProtoIndex(reflect.ValueOf(&asserted), val2.(types.OmmString), stacktrace, line, file)
+	}
 
 	nativeptrs := make(map[string]*OmmType) //make everything into a pointer to an OmmType
 	for k, v := range native {

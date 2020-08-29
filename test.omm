@@ -1,5 +1,3 @@
-include `lib.oat`
-
 var main = fn() {
-    log json::marshal([::])
+    log url.request("https://google.com")::body
 }

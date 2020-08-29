@@ -11,7 +11,7 @@ function CallScript {
   )
 
   #command to call script
-  & "$basedir/omml.exe" "$calldir\" $arguments "$type"
+  & "$basedir/omm.exe" "$calldir\" $arguments "$type"
 }
 
 #if it starts with oat run or oat compile, then perform the given task.
