@@ -1,7 +1,6 @@
 #!/usr/bin/env pwsh
 
 $basedir = Split-Path $MyInvocation.MyCommand.Definition -Parent
-$calldir = ("$PWD").replace("\", "/") #convert to slash seperated
 
 function CallScript {
 
@@ -11,7 +10,7 @@ function CallScript {
   )
 
   #command to call script
-  & "$basedir/omm.exe" "$calldir\" $arguments "$type"
+  & "$basedir/omm.exe" $arguments "$type"
 }
 
 #if it starts with oat run or oat compile, then perform the given task.

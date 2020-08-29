@@ -3,7 +3,7 @@
 if [[ $1 = "build" ]];
 then
     shift # remove the first argument
-    command "$(dirname "$0")/omm" $PWD "$@" "--compile"
+    command "$(dirname "$0")/omm" "$@" "--compile"
 else #otherwise, just run it
 
     #if it looks like `oat run` remove the `run`
@@ -12,5 +12,5 @@ else #otherwise, just run it
         shift
     fi
 
-    command "$(dirname "$0")/omm" $PWD "$@" "--run"
+    command "$(dirname "$0")/omm" "$@" "--run"
 fi
