@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <Product Id="*" Name="Omm Beta" Language="1033" Version="1.1.0" Manufacturer="Omm" UpgradeCode="d38d60c2-d01b-4f58-ae40-3e0067ae3656">
+    <Product Id="*" Name="Omm Beta" Language="1033" Version="1.1.3" Manufacturer="Omm" UpgradeCode="d38d60c2-d01b-4f58-ae40-3e0067ae3656">
         <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
         <Upgrade Id="b1d01b4c-858a-4f09-932c-ce2c711fba94">
@@ -45,8 +45,7 @@
         </Directory>
         <DirectoryRef Id="INSTALLDIR">
             <Component Id="files" Guid="e87e3efa-4cb5-4bdb-8ba0-fa2080a17ffc">
-                <File Id="omml.exe" Source="..\..\omml.exe" />
-                <File Id="omm.ps1" Source="..\..\omm.ps1" />
+                <File Id="omm.exe" Source="..\..\omm.exe" />
                 <File Id="oat.ps1" Source="..\..\oat.ps1" />
             </Component>
         </DirectoryRef>

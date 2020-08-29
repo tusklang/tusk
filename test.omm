@@ -1,3 +1,5 @@
+include `lib.oat`
+
 var main = fn() {
-    log url.request("https://amazon.com")::Body
+    log json::marshal([::])
 }

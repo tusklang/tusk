@@ -282,12 +282,12 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		val1l := val1.(OmmString).ToRuneList()
 		val12 := val2.(OmmString).ToRuneList()
 
-		for ; uint64(i) < val1.(OmmString).Length; i, o = i+1, o+1 {
+		for ; uint64(i) < val1.(OmmString).Length; i++ {
 			space[i] = val1l[i]
 		}
 
-		for ; uint64(i) < val1.(OmmString).Length; i, o = i+1, o+1 {
-			space[i] = val12[i-o]
+		for ; uint64(o) < val2.(OmmString).Length; i, o = i+1, o+1 {
+			space[i] = val12[o]
 		}
 
 		var ommstr OmmString

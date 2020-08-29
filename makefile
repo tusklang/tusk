@@ -1,9 +1,9 @@
 ifeq ($(OS),Windows_NT)
-	BINARY = omml.exe
+	BINARY = omm.exe
 	LIB_OAT = stdlib\lib.oat
 	CLEAN_CMD = del
 else
-	BINARY = omml
+	BINARY = omm
 	LIB_OAT = stdlib/lib.oat
 	CLEAN_CMD = rm -f
 endif
@@ -18,7 +18,7 @@ test: all
 	@echo ------------------------------------
 	@echo --------- Start Test File ----------
 	@echo ------------------------------------
-	-./$(BINARY) ./ ./test.omm
+	-./$(BINARY) ./test.omm
 	@echo ------------------------------------
 
 .PHONY: clean
@@ -28,8 +28,8 @@ clean:
 
 .PHONY: $(BINARY)
 $(BINARY):
-	go build omml.go
+	go build omm.go
 
 .PHONY: lib.oat
 lib.oat:
-	-./$(BINARY) ./stdlib lib.omm -c
+	-./$(BINARY) stdlib/lib.omm -c

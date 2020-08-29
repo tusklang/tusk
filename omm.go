@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -36,22 +37,22 @@ func main() {
 
 	var cli_params CliParams
 
-	if len(args) <= 2 {
+	if len(args) == 0 {
 		fmt.Println("Error, no input file was given")
 		os.Exit(1)
 	}
 
-	defaults(&cli_params, args[2])
+	defaults(&cli_params, args[1])
 
-	cli_params.Directory = args[1]
-	cli_params.Name = args[2]
+	cli_params.Directory, _ = os.Getwd()
+	cli_params.Name = args[1]
 
-	dirname, _ := os.Getwd()
+	dirname, _ := os.Executable()
 
-	cli_params.OmmDirname = dirname
+	cli_params.OmmDirname = filepath.Dir(dirname)
 
 	//set the working directory
-	os.Chdir(args[1])
+	os.Chdir(cli_params.Directory)
 
 	for i := 2; i < len(args); i++ {
 
