@@ -2,9 +2,7 @@ package compiler
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
-	"strings"
 
 	"github.com/omm-lang/omm/lang/interpreter"
 
@@ -35,41 +33,12 @@ func makeCompilerErr(msg, fname string, line uint64) CompileErr {
 	}
 }
 
-func inclCompile(file, filename string, compileall bool) ([]Action, CompileErr) {
+func inclCompile(file, filename string) ([]Action, CompileErr) {
 
 	lex, e := lexer(file, filename)
 
 	if e != nil {
 		return []Action{}, e
-	}
-
-	if compileall { //if the dev wants to compile the entire directory
-
-		files, _ := ioutil.ReadDir(".")
-
-		for _, v := range files {
-			if strings.HasSuffix(v.Name(), ".omm") {
-				lex = append([]Lex{
-					Lex{
-						Name: "include",
-						Type: "keyword",
-					},
-					Lex{
-						Name: "~",
-						Type: "operation",
-					},
-					Lex{
-						Name: "\"" + v.Name() + "\"",
-						Type: "expression value",
-					},
-					Lex{
-						Name: "$term",
-						Type: "?none",
-					},
-				}, lex...)
-			}
-		}
-
 	}
 
 	groups, e := makeGroups(lex)
@@ -89,12 +58,15 @@ func inclCompile(file, filename string, compileall bool) ([]Action, CompileErr) 
 	return actions, e
 }
 
-//export Compile
-func Compile(file, filename string, compileall, isoat bool) (map[string][]Action, CompileErr) {
+var ommbasedir string
+
+func Compile(file, filename string, params CliParams) (map[string][]Action, CompileErr) {
+
+	ommbasedir = params.OmmDirname
 
 	var e CompileErr
 
-	actions, e := inclCompile(file, filename, compileall)
+	actions, e := inclCompile(file, filename)
 
 	if e != nil {
 		return nil, e

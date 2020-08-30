@@ -5,7 +5,6 @@ package types
 type CliParams struct {
 	Prec       uint64
 	Output     string
-	Addon      string
 	Name       string
 	Directory  string
 	OmmDirname string

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	. "github.com/omm-lang/omm/lang/types"
 
@@ -13,19 +12,9 @@ import (
 
 var included = []string{} //list of the imported files from omm
 
-//export Ommbasedir
-var Ommbasedir string //directory of the omm installation
-
-//export Run
 func Run(params CliParams) {
 
 	fileName := params.Name
-
-	var compileall = false
-	if strings.HasSuffix(fileName, "*") || strings.HasSuffix(fileName, "*/") {
-		compileall = true
-		fileName = "main.omm"
-	}
 
 	included = append(included, fileName)
 
@@ -36,9 +25,7 @@ func Run(params CliParams) {
 		os.Exit(1)
 	}
 
-	Ommbasedir = params.OmmDirname
-	variables, ce := Compile(string(file), fileName, compileall, true)
-	Ommbasedir = "" //reset Ommbasedir
+	variables, ce := Compile(string(file), fileName, params)
 
 	if ce != nil {
 		ce.Print()

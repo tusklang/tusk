@@ -1,5 +1,0 @@
-include `lib.oat`
-
-var main = fn() {
-    log json::marshal([::])
-}
