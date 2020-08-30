@@ -4,7 +4,7 @@
         <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
         <Upgrade Id="b1d01b4c-858a-4f09-932c-ce2c711fba94">
-            <UpgradeVersion 
+            <UpgradeVersion
                 OnlyDetect="no" Property="PREVIOUSFOUND"
                 Minimum="1.0.0"  IncludeMinimum="yes"
                 Maximum="99.0.0" IncludeMaximum="no"
