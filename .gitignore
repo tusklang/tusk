@@ -8,4 +8,5 @@ stdlib/lib.oat
 *.a
 *.wixobj
 *.wixpdb
-installers/windows/setup.msi
+/installers/windows/setup.msi
+/goatv.h

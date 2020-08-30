@@ -5,15 +5,12 @@ import (
 	"os"
 
 	"github.com/omm-lang/omm/lang/interpreter"
-
-	. "github.com/omm-lang/omm/oat/encoding"
-
-	. "github.com/omm-lang/omm/lang/types"
+	"github.com/omm-lang/omm/lang/types"
+	oatenc "github.com/omm-lang/omm/oat/encoding"
 )
 
-//export Run
-func Run(params CliParams) {
-	d, e := OatDecode(params.Name, 0)
+func Run(params types.CliParams) {
+	d, e := oatenc.OatDecode(params.Name, 0)
 	if e != nil {
 		fmt.Println(e)
 		os.Exit(1)
