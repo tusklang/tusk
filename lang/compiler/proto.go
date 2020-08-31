@@ -14,9 +14,9 @@ var protos []string
     }
   }
 */
-func has_non_global_prototypes(actions []Action, firstLayer bool) CompileErr {
+func has_non_global_prototypes(actions []Action, firstLayer bool) error {
 
-	var e CompileErr
+	var e error
 
 	for _, v := range actions {
 

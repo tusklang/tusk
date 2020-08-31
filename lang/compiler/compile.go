@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	"github.com/omm-lang/omm/lang/interpreter"
@@ -9,33 +10,42 @@ import (
 	. "github.com/omm-lang/omm/lang/types"
 )
 
-type _CompileErr struct {
+type CompileError struct {
 	Msg   string
 	FName string
 	Line  uint64
 }
 
-func (e _CompileErr) Print() {
-	fmt.Println("Error while compiling", e.FName, "on line", e.Line)
-	fmt.Println(e.Msg)
-	os.Exit(1)
+func (e CompileError) Error() string {
+	f := ""
+	f += fmt.Sprintln("Error while compiling", e.FName, "on line", e.Line)
+	f += fmt.Sprint(e.Msg)
+	return f
 }
 
-type CompileErr interface {
-	Print()
-}
-
-func makeCompilerErr(msg, fname string, line uint64) CompileErr {
-	return _CompileErr{
+func makeCompilerErr(msg, fname string, line uint64) error {
+	return CompileError{
 		Msg:   msg,
 		FName: fname,
 		Line:  line,
 	}
 }
 
-func inclCompile(file, filename string) ([]Action, CompileErr) {
+func inclCompile(filename string) ([]Action, error) {
 
-	lex, e := lexer(file, filename)
+	f, e := os.Open(filename)
+
+	if e != nil {
+		return nil, makeCompilerErr("Could not open file: "+filename, filename, 0)
+	}
+
+	file, e := ioutil.ReadAll(f)
+
+	if e != nil {
+		return nil, makeCompilerErr("Could not open file: "+filename, filename, 0)
+	}
+
+	lex, e := lexer(string(file), filename)
 
 	if e != nil {
 		return []Action{}, e
@@ -60,13 +70,13 @@ func inclCompile(file, filename string) ([]Action, CompileErr) {
 
 var ommbasedir string
 
-func Compile(file, filename string, params CliParams) (map[string][]Action, CompileErr) {
+func Compile(filename string, params CliParams) (map[string][]Action, error) {
 
 	ommbasedir = params.OmmDirname
 
-	var e CompileErr
+	var e error
 
-	actions, e := inclCompile(file, filename)
+	actions, e := inclCompile(filename)
 
 	if e != nil {
 		return nil, e

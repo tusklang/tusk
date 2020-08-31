@@ -2,7 +2,7 @@ package compiler
 
 import . "github.com/omm-lang/omm/lang/types"
 
-func getvars(actions []Action) (map[string][]Action, CompileErr) {
+func getvars(actions []Action) (map[string][]Action, error) {
 
   var vars = make(map[string][]Action)
 

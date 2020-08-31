@@ -9,7 +9,7 @@ import (
 
 	. "github.com/omm-lang/omm/lang/types"
 
-	"github.com/omm-lang/framework"
+	"github.com/omm-lang/suite"
 	"github.com/omm-lang/omm/lang/compiler"
 )
 
@@ -51,7 +51,7 @@ func main() {
 			switch v[2:] {
 
 			case "version":
-				fmt.Printf("Omm Beta %d.%d.%d", framework.OmmFrameworkMajor, framework.OmmFrameworkMinor, framework.OmmFrameworkBug)
+				fmt.Printf("Omm Beta %d.%d.%d", suite.OmmSuiteMajor, suite.OmmSuiteMinor, suite.OmmSuiteBug)
 				os.Exit(0)
 			}
 
@@ -60,7 +60,7 @@ func main() {
 			switch v[1:] {
 
 			case "v":
-				fmt.Printf("Omm Beta %d.%d.%d", framework.OmmFrameworkMajor, framework.OmmFrameworkMinor, framework.OmmFrameworkBug)
+				fmt.Printf("Omm Beta %d.%d.%d", suite.OmmSuiteMajor, suite.OmmSuiteMinor, suite.OmmSuiteBug)
 				os.Exit(0)
 			case "prec":
 				temp_prec, _ := strconv.ParseUint(args[i+1], 10, 64)

@@ -233,7 +233,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "cast":
 
-			casted := cast(*Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil).Exp, v.Name, stacktrace, v.Line, v.File)
+			casted := Cast(*Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil).Exp, v.Name, stacktrace, v.Line, v.File)
 
 			if expReturn {
 				defer dealloc(ins, varnames, casted)
@@ -328,7 +328,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 					}
 				}
 			}
-			//////////////////////////////////////////////////
+			//////////////////////////////////////////////////'
 
 			firstInterpreted = Interpreter(ins, v.First, stacktrace, stacksize+1, nil)
 			secondInterpreted = Interpreter(ins, v.Second, stacktrace, stacksize+1, nil)

@@ -10,7 +10,7 @@ type Operation struct {
   Item        Item //in case there is no operation
 }
 
-var operations []map[string]func(exp []Item, index int, opType string) (Operation, CompileErr)
+var operations []map[string]func(exp []Item, index int, opType string) (Operation, error)
 
 func operationIncludes(group []Item) bool {
   for _, v := range operations {
@@ -53,7 +53,7 @@ func indexOper(group []Item, opers []string) (int, int) {
 }
 
 //operation function used for most operators (except assignment, not gate, function calls, etc...)
-func normalOpFunc(exp []Item, index int, opType string) (Operation, CompileErr) {
+func normalOpFunc(exp []Item, index int, opType string) (Operation, error) {
 
   var (
     left = exp[:index]
@@ -99,32 +99,32 @@ func normalOpFunc(exp []Item, index int, opType string) (Operation, CompileErr) 
 // not gate
 // cast operation
 
-func makeOperations(groups [][]Item) ([]Operation, CompileErr) {
+func makeOperations(groups [][]Item) ([]Operation, error) {
 
-  operations = []map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) {
-    map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) { //these ones start from left to right
+  operations = []map[string]func(exp []Item, index int, opType string) (Operation, error) {
+    map[string]func(exp []Item, index int, opType string) (Operation, error) { //these ones start from left to right
       "~": normalOpFunc,
       "=": normalOpFunc,
       ":=": normalOpFunc,
       "=>": normalOpFunc,
     },
-    map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) {
-      "break": func(exp []Item, index int, opType string) (Operation, CompileErr) {
+    map[string]func(exp []Item, index int, opType string) (Operation, error) {
+      "break": func(exp []Item, index int, opType string) (Operation, error) {
         return Operation{
           Type: opType,
         }, nil
       },
-      "continue": func(exp []Item, index int, opType string) (Operation, CompileErr) {
+      "continue": func(exp []Item, index int, opType string) (Operation, error) {
         return Operation{
           Type: opType,
         }, nil
       },
     },
-    map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) {
+    map[string]func(exp []Item, index int, opType string) (Operation, error) {
       "&": normalOpFunc,
       "|": normalOpFunc,
     },
-    map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) {
+    map[string]func(exp []Item, index int, opType string) (Operation, error) {
       "==": normalOpFunc,
       "!=": normalOpFunc,
       ">": normalOpFunc,
@@ -132,8 +132,8 @@ func makeOperations(groups [][]Item) ([]Operation, CompileErr) {
       "<": normalOpFunc,
       "<=": normalOpFunc,
     },
-    map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) {
-      "++": func(exp []Item, index int, opType string) (Operation, CompileErr) {
+    map[string]func(exp []Item, index int, opType string) (Operation, error) {
+      "++": func(exp []Item, index int, opType string) (Operation, error) {
 
         if len(exp[:index]) == 0 {
           return Operation{}, makeCompilerErr("Must have a value to the left of the " + opType + " operator", exp[index].File, exp[index].Line)
@@ -152,7 +152,7 @@ func makeOperations(groups [][]Item) ([]Operation, CompileErr) {
           Left: &left[0],
         }, nil
       },
-      "--": func(exp []Item, index int, opType string) (Operation, CompileErr) {
+      "--": func(exp []Item, index int, opType string) (Operation, error) {
 
         if len(exp[:index]) == 0 {
           return Operation{}, makeCompilerErr("Must have a value to the left of the " + opType + " operator", exp[index].File, exp[index].Line)
@@ -178,25 +178,25 @@ func makeOperations(groups [][]Item) ([]Operation, CompileErr) {
       "%=": normalOpFunc,
       "^=": normalOpFunc,
     },
-    map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) {
+    map[string]func(exp []Item, index int, opType string) (Operation, error) {
       "^": normalOpFunc,
     },
-    map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) {
+    map[string]func(exp []Item, index int, opType string) (Operation, error) {
       "*": normalOpFunc,
       "/": normalOpFunc,
       "%": normalOpFunc,
     },
-    map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) {
+    map[string]func(exp []Item, index int, opType string) (Operation, error) {
       "+": normalOpFunc,
       "-": normalOpFunc,
     },
-    map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) {
+    map[string]func(exp []Item, index int, opType string) (Operation, error) {
       "::": normalOpFunc,
       "<-": normalOpFunc,
       "<~": normalOpFunc,
     },
-    map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) {
-      "!": func(exp []Item, index int, opType string) (Operation, CompileErr) {
+    map[string]func(exp []Item, index int, opType string) (Operation, error) {
+      "!": func(exp []Item, index int, opType string) (Operation, error) {
 
         if len(exp[index + 1:]) == 0 {
           return Operation{}, makeCompilerErr("Must have a value to the right of the " + opType + " operator", exp[index].File, exp[index].Line)
@@ -216,7 +216,7 @@ func makeOperations(groups [][]Item) ([]Operation, CompileErr) {
         }, nil
       },
     },
-    map[string]func(exp []Item, index int, opType string) (Operation, CompileErr) {
+    map[string]func(exp []Item, index int, opType string) (Operation, error) {
       "->": normalOpFunc,
     },
   }
@@ -237,7 +237,7 @@ func makeOperations(groups [][]Item) ([]Operation, CompileErr) {
     for k, val := range operations {
 
       var opers []string
-      var funcs []func(exp []Item, index int, opType string) (Operation, CompileErr)
+      var funcs []func(exp []Item, index int, opType string) (Operation, error)
 
       for oper, function := range val {
         opers = append(opers, oper)

@@ -49,9 +49,9 @@ Explanation of why this exists:
 
 var curvar uint64
 
-func changevarnames(actions []Action, newnames_ map[string]string) (map[string]string, CompileErr) {
+func changevarnames(actions []Action, newnames_ map[string]string) (map[string]string, error) {
 
-	var e CompileErr
+	var e error
 
 	var newnames = make(map[string]string)
 

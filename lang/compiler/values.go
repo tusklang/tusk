@@ -3,7 +3,7 @@ package compiler
 import "unicode"
 import . "github.com/omm-lang/omm/lang/types"
 
-func valueActions(item Item) (Action, CompileErr) {
+func valueActions(item Item) (Action, error) {
 
   switch item.Type {
 

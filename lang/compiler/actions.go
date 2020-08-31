@@ -6,10 +6,10 @@ import (
 	. "github.com/omm-lang/omm/lang/types"
 )
 
-func actionizer(operations []Operation) ([]Action, CompileErr) {
+func actionizer(operations []Operation) ([]Action, error) {
 
 	var actions []Action
-	var e CompileErr
+	var e error
 
 	for _, v := range operations {
 

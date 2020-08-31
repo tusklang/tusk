@@ -10,7 +10,7 @@ import (
 	. "github.com/omm-lang/omm/lang/types"
 )
 
-func includeSingle(filename string, line uint64, dir string, fromstd bool) ([]Action, CompileErr) {
+func includeSingle(filename string, line uint64, dir string, fromstd bool) ([]Action, error) {
 
 	if fromstd {
 		filename = path.Join(path.Join(ommbasedir, "stdlib"), filename)
@@ -20,7 +20,7 @@ func includeSingle(filename string, line uint64, dir string, fromstd bool) ([]Ac
 		decoded, e := oatenc.OatDecode(filename, 1)
 
 		if e != nil {
-			return nil, _CompileErr{
+			return nil, CompileError{
 				Msg:   e.Error(),
 				FName: filename,
 				Line:  line,
@@ -42,15 +42,7 @@ func includeSingle(filename string, line uint64, dir string, fromstd bool) ([]Ac
 		}
 	}
 
-	content, err := ioutil.ReadFile(filename)
-
-	included = append(included, filename)
-
-	if err != nil {
-		return []Action{}, makeCompilerErr("Could not find file: "+filename, dir, line)
-	}
-
-	compiled, e := inclCompile(string(content), filename)
+	compiled, e := inclCompile(filename)
 
 	if e != nil {
 		return []Action{}, e
@@ -59,7 +51,7 @@ func includeSingle(filename string, line uint64, dir string, fromstd bool) ([]Ac
 	return compiled, nil
 }
 
-func includer(filename string, line uint64, dir string, fromstd bool) ([][]Action, CompileErr) {
+func includer(filename string, line uint64, dir string, fromstd bool) ([][]Action, error) {
 
 	if strings.HasSuffix(filename, "*") {
 
@@ -101,13 +93,13 @@ func includer(filename string, line uint64, dir string, fromstd bool) ([][]Actio
 		}
 
 		return actions, nil
-	} else {
-		inc, e := includeSingle(filename, line, dir, fromstd)
-
-		if e != nil {
-			return [][]Action{}, e
-		}
-
-		return [][]Action{inc}, nil
 	}
+
+	inc, e := includeSingle(filename, line, dir, fromstd)
+
+	if e != nil {
+		return [][]Action{}, e
+	}
+
+	return [][]Action{inc}, nil
 }

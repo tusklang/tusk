@@ -2,8 +2,6 @@ package compiler
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 
 	. "github.com/omm-lang/omm/lang/types"
 
@@ -18,17 +16,10 @@ func Run(params CliParams) {
 
 	included = append(included, fileName)
 
-	file, e := ioutil.ReadFile(fileName)
-
-	if e != nil {
-		fmt.Println("Could not find", fileName)
-		os.Exit(1)
-	}
-
-	variables, ce := Compile(string(file), fileName, params)
+	variables, ce := Compile(fileName, params)
 
 	if ce != nil {
-		ce.Print()
+		fmt.Println(ce.Error())
 	}
 
 	RunInterpreter(variables, params)

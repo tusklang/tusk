@@ -1,11 +1,12 @@
 package interpreter
 
 import (
-	. "github.com/omm-lang/omm/lang/types"
-	. "github.com/omm-lang/omm/stdlib/native"
+	"github.com/omm-lang/omm/lang/types"
+	"github.com/omm-lang/omm/stdlib/native"
 )
 
-func cast(val OmmType, nType string, stacktrace []string, line uint64, file string) *OmmType {
+//Cast casts one omm value to another type
+func Cast(val types.OmmType, nType string, stacktrace []string, line uint64, file string) *types.OmmType {
 
 	if val.Type() == nType {
 		return &val
@@ -14,98 +15,98 @@ func cast(val OmmType, nType string, stacktrace []string, line uint64, file stri
 	switch nType + "->" + val.TypeOf() {
 
 	case "string->number":
-		str := NumNormalize(val.(OmmNumber)) //convert to string
-		var ommstr OmmString                 //create an ommstring
+		str := types.NumNormalize(val.(types.OmmNumber)) //convert to string
+		var ommstr types.OmmString                       //create an ommstring
 		ommstr.FromGoType(str)
-		var ommtype OmmType = ommstr //create an ommtype interface
+		var ommtype types.OmmType = ommstr //create an ommtype interface
 		return &ommtype
 
 	case "number->string":
-		integer, decimal := BigNumConverter(val.(OmmString).ToGoType())
-		var newNum OmmType = OmmNumber{
+		integer, decimal := types.BigNumConverter(val.(types.OmmString).ToGoType())
+		var newNum types.OmmType = types.OmmNumber{
 			Integer: &integer,
 			Decimal: &decimal,
 		}
 		return &newNum
 
 	case "number->rune":
-		var gonum = float64(val.(OmmRune).ToGoType())
-		var number OmmNumber
+		var gonum = float64(val.(types.OmmRune).ToGoType())
+		var number types.OmmNumber
 		number.FromGoType(gonum)
-		var ommtype OmmType = number
+		var ommtype types.OmmType = number
 		return &ommtype
 
 	case "rune->number":
-		var gorune = rune(val.(OmmNumber).ToGoType())
-		var ommrune OmmRune
+		var gorune = rune(val.(types.OmmNumber).ToGoType())
+		var ommrune types.OmmRune
 		ommrune.FromGoType(gorune)
-		var ommtype OmmType = ommrune
+		var ommtype types.OmmType = ommrune
 		return &ommtype
 
 	case "number->bool":
-		var gobool = val.(OmmBool).ToGoType()
+		var gobool = val.(types.OmmBool).ToGoType()
 		if gobool {
-			var ommtype OmmType = one
-			return &ommtype
-		} else {
-			var ommtype OmmType = zero
+			var ommtype types.OmmType = one
 			return &ommtype
 		}
 
+		var ommtype types.OmmType = zero
+		return &ommtype
+
 	case "string->rune":
-		var runelist = val.(OmmRune).ToGoType()
-		var ommstr OmmString
+		var runelist = val.(types.OmmRune).ToGoType()
+		var ommstr types.OmmString
 		ommstr.FromRuneList([]rune{runelist})
-		var ommtype OmmType = ommstr
+		var ommtype types.OmmType = ommstr
 		return &ommtype
 
 	case "int->float":
-		var goint = int64(val.(OmmFloat).Gofloat)
-		var ommint OmmInteger
+		var goint = int64(val.(types.OmmFloat).Gofloat)
+		var ommint types.OmmInteger
 		ommint.Goint = goint
-		var ommtype OmmType = ommint
+		var ommtype types.OmmType = ommint
 		return &ommtype
 
 	case "float->int":
-		var gofloat = float64(val.(OmmInteger).Goint)
-		var ommfloat OmmFloat
+		var gofloat = float64(val.(types.OmmInteger).Goint)
+		var ommfloat types.OmmFloat
 		ommfloat.Gofloat = gofloat
-		var ommtype OmmType = ommfloat
+		var ommtype types.OmmType = ommfloat
 		return &ommtype
 
 	case "int->number":
-		var goint = int64(val.(OmmNumber).ToGoType())
-		var ommint OmmInteger
+		var goint = int64(val.(types.OmmNumber).ToGoType())
+		var ommint types.OmmInteger
 		ommint.Goint = goint
-		var ommtype OmmType = ommint
+		var ommtype types.OmmType = ommint
 		return &ommtype
 
 	case "number->int":
-		var gofloat = float64(val.(OmmInteger).Goint)
-		var ommnum OmmNumber
+		var gofloat = float64(val.(types.OmmInteger).Goint)
+		var ommnum types.OmmNumber
 		ommnum.FromGoType(gofloat)
-		var ommtype OmmType = ommnum
+		var ommtype types.OmmType = ommnum
 		return &ommtype
 
 	case "float->number":
-		var gofloat = float64(val.(OmmNumber).ToGoType())
-		var ommint OmmFloat
+		var gofloat = float64(val.(types.OmmNumber).ToGoType())
+		var ommint types.OmmFloat
 		ommint.Gofloat = gofloat
-		var ommtype OmmType = ommint
+		var ommtype types.OmmType = ommint
 		return &ommtype
 
 	case "number->float":
-		var gofloat = float64(val.(OmmFloat).Gofloat)
-		var ommnum OmmNumber
+		var gofloat = float64(val.(types.OmmFloat).Gofloat)
+		var ommnum types.OmmNumber
 		ommnum.FromGoType(gofloat)
-		var ommtype OmmType = ommnum
+		var ommtype types.OmmType = ommnum
 		return &ommtype
 
 	}
 
-	OmmPanic("Cannot cast a "+val.Type()+" into a "+nType, line, file, stacktrace)
+	native.OmmPanic("Cannot cast a "+val.Type()+" into a "+nType, line, file, stacktrace)
 
 	//here because it wont work without it
-	var none OmmType = undef
+	var none types.OmmType = undef
 	return &none
 }

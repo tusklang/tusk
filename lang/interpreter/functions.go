@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	. "github.com/omm-lang/omm/lang/types"
+	"github.com/omm-lang/omm/stdlib/native"
 	. "github.com/omm-lang/omm/stdlib/native"
 )
 
@@ -91,6 +92,10 @@ func funcinit() { //initialize the operations that require the use of the interp
 	var gofunc__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 		gfn := val1.(OmmGoFunc)
 		arr := val2.(OmmArray)
+
+		if gfn.Function == nil {
+			native.OmmPanic("Native function is nil", line, file, stacktrace)
+		}
 
 		return gfn.Function(arr.Array, stacktrace, line, file, instance)
 	}

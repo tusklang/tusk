@@ -21,7 +21,7 @@ var tokens []map[string]string
 
 var _ = json.Unmarshal(tokensJSON, &tokens)
 
-func lexer(file, filename string) ([]Lex, CompileErr) {
+func lexer(file, filename string) ([]Lex, error) {
 
   var lex []Lex
   curExp := ""

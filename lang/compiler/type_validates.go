@@ -4,9 +4,9 @@ import . "github.com/omm-lang/omm/lang/types"
 
 var types = []string{ "string", "rune", "number", "bool", "hash", "array", "function", "int", "float", "any" }
 
-func validate_types(actions []Action) CompileErr {
+func validate_types(actions []Action) error {
 
-  var e CompileErr
+  var e error
 
   //function to make sure the typecasts and paramlists have valid types
 

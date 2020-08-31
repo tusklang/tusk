@@ -19,7 +19,7 @@ var braceMatcher = map[string]string{
   ")": "(",
 }
 
-func makeGroups(lex []Lex) ([][]Item, CompileErr) {
+func makeGroups(lex []Lex) ([][]Item, error) {
 
   var groups = [][]Item{ []Item{} }
 

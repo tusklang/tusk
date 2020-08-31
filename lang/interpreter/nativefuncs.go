@@ -484,7 +484,7 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 			OmmPanic("Function native requires an argument count of 1", line, file, stacktrace)
 		}
 
-		var fname = (*cast(*args[0], "string", stacktrace, line, file)).(OmmString).ToGoType()
+		var fname = (*Cast(*args[0], "string", stacktrace, line, file)).(OmmString).ToGoType()
 		_ = fname
 
 		return nil
