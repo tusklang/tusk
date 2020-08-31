@@ -1,0 +1,3 @@
+evvar main = fn() {
+    native_func -> 1
+}

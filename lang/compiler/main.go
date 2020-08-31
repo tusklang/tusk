@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"fmt"
+	"os"
 
 	. "github.com/omm-lang/omm/lang/types"
 
@@ -20,6 +21,7 @@ func Run(params CliParams) {
 
 	if ce != nil {
 		fmt.Println(ce.Error())
+		os.Exit(1)
 	}
 
 	RunInterpreter(variables, params)

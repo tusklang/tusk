@@ -82,9 +82,7 @@ func Compile(filename string, params CliParams) (map[string][]Action, error) {
 		return nil, e
 	}
 
-	if e != nil {
-		return nil, e
-	}
+	getnativetypes()
 
 	//a bunch of validations and initializers
 	e = has_non_global_prototypes(actions, true)

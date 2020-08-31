@@ -69,36 +69,6 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 		var ommtype OmmType = str
 		return &ommtype
 	},
-	"defop": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
-
-		if len(args) != 4 {
-			OmmPanic("Function defop requires a parameter count of 4", line, file, stacktrace)
-		}
-
-		if (*args[0]).Type() != "string" || (*args[1]).Type() != "string" || (*args[2]).Type() != "string" || (*args[3]).Type() != "function" {
-			OmmPanic("Function defop requires [string, string, string, function]", line, file, stacktrace)
-		}
-
-		operation := (*args[0]).(OmmString).ToGoType()
-		operand1 := (*args[1]).(OmmString).ToGoType()
-		operand2 := (*args[2]).(OmmString).ToGoType()
-		function := (*args[3]).(OmmFunc)
-
-		if len(function.Overloads[0].Params) != 2 {
-			OmmPanic("Expected a parameter count of 2 for the fourth argument of defop", line, file, stacktrace)
-		}
-
-		Operations[operand1+" "+operation+" "+operand2] = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
-
-			instance.Allocate(function.Overloads[0].Params[0], &val1)
-			instance.Allocate(function.Overloads[0].Params[1], &val2)
-
-			return Interpreter(instance, function.Overloads[0].Body, stacktrace, stacksize, nil).Exp
-		}
-
-		var tmpundef OmmType = undef
-		return &tmpundef //return undefined
-	},
 	"append": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
 		if len(args) != 2 {

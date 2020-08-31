@@ -12,11 +12,11 @@ type OmmGoFunc struct {
 }
 
 func (ogf OmmGoFunc) Format() string {
-	return "{ native gofunc }"
+	return "{ native go func }"
 }
 
 func (ogf OmmGoFunc) Type() string {
-	return "gofunc"
+	return "native_func"
 }
 
 func (ogf OmmGoFunc) TypeOf() string {
@@ -40,7 +40,7 @@ func GetStd() (map[string]*OmmType, map[string]func(val1, val2 OmmType, instance
 	}
 	operations["http-response :: string"] = func(val1, val2 types.OmmType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) *types.OmmType {
 		asserted := val1.(OmmURLResp)
-		return GoatProtoIndex(reflect.ValueOf(&asserted), val2.(types.OmmString), stacktrace, line, file)
+		return gostructprotoindex(reflect.ValueOf(&asserted), val2.(types.OmmString), stacktrace, line, file)
 	}
 
 	nativeptrs := make(map[string]*OmmType) //make everything into a pointer to an OmmType
