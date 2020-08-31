@@ -9,7 +9,7 @@ import (
 
 	. "github.com/omm-lang/omm/lang/types"
 
-	"github.com/omm-lang/suite"
+	suite "github.com/omm-lang/omm-suite"
 	"github.com/omm-lang/omm/lang/compiler"
 )
 
@@ -63,8 +63,8 @@ func main() {
 				fmt.Printf("Omm Beta %d.%d.%d", suite.OmmSuiteMajor, suite.OmmSuiteMinor, suite.OmmSuiteBug)
 				os.Exit(0)
 			case "prec":
-				temp_prec, _ := strconv.ParseUint(args[i+1], 10, 64)
-				cli_params.Prec = temp_prec
+				tempprec, _ := strconv.ParseUint(args[i+1], 10, 64)
+				cli_params.Prec = tempprec
 				i += 2
 			default:
 				fmt.Println("Warning, there is no cli parameter named", v)
