@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	. "github.com/omm-lang/omm/lang/types"
-	. "github.com/omm-lang/omm/stdlib/native"
+	. "github.com/omm-lang/omm/ommstd/native"
 )
 
 //list of operations

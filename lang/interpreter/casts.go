@@ -2,7 +2,7 @@ package interpreter
 
 import (
 	"github.com/omm-lang/omm/lang/types"
-	"github.com/omm-lang/omm/stdlib/native"
+	"github.com/omm-lang/omm/ommstd/native"
 )
 
 //Cast casts one omm value to another type

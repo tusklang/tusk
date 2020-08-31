@@ -13,7 +13,7 @@ import (
 func includeSingle(filename string, line uint64, dir string, fromstd bool) ([]Action, error) {
 
 	if fromstd {
-		filename = path.Join(path.Join(ommbasedir, "stdlib"), filename)
+		filename = path.Join(ommbasedir, filename)
 	}
 
 	if strings.HasSuffix(filename, ".oat") {
