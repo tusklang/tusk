@@ -89,7 +89,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 		return &tmp
 	}
 
-	var gofunc__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	var nativefunc__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 		gfn := val1.(OmmGoFunc)
 		arr := val2.(OmmArray)
 
@@ -102,5 +102,5 @@ func funcinit() { //initialize the operations that require the use of the interp
 
 	Operations["function <- array"] = function__sync__array
 	Operations["function <~ array"] = function__async__array
-	Operations["gofunc <- array"] = gofunc__sync__array
+	Operations["native_func <- array"] = nativefunc__sync__array
 }

@@ -25,12 +25,18 @@ func main() {
 
 	var cli_params CliParams
 
-	if len(os.Args) <= 2 {
+	cli_params.Directory = *cwd
+
+	var filenamei int
+	for flag.Arg(filenamei) != "" && flag.Arg(filenamei)[0] == '-' {
+		filenamei++ //only inside the block for formatting
+	}
+
+	if flag.Arg(filenamei) == "" {
 		fmt.Println("Error, no input file was given")
 		os.Exit(1)
 	}
 
-	cli_params.Directory = *cwd
 	cli_params.Name = flag.Arg(0)
 	cli_params.Prec = *prec
 
