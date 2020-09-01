@@ -179,26 +179,7 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 
 			switch (*args[0]).(type) {
 			case OmmProto:
-
-				var proto = (*args[0]).(OmmProto)
-				nins := instance.Copy() //copy the original vars
-
-				for k, v := range proto.Instance {
-					nins.Allocate(k, v)
-
-					switch (*v).(type) {
-					case OmmFunc: //if it is a function, change the instance
-						tmp := (*v).(OmmFunc)
-						tmp.Instance = nins
-						*v = tmp
-					}
-				}
-
-				var ommtype OmmType = OmmObject{
-					Name:       proto.ProtoName,
-					Instance:   *nins,
-					AccessList: proto.AccessList,
-				}
+				var ommtype OmmType = (*args[0]).(OmmProto).New(*instance)
 				return &ommtype
 			default:
 				OmmPanic("Function make requires a prototype as the argument", line, file, stacktrace)

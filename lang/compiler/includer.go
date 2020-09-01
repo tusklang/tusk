@@ -10,10 +10,13 @@ import (
 	. "github.com/omm-lang/omm/lang/types"
 )
 
-func includeSingle(filename string, line uint64, dir string, fromstd bool) ([]Action, error) {
+func includeSingle(filename string, line uint64, dir string, curdir string, includewhere int) ([]Action, error) {
 
-	if fromstd {
+	switch includewhere {
+	case 1:
 		filename = path.Join(ommbasedir, filename)
+	case 2:
+		filename = path.Join(curdir, filename)
 	}
 
 	if strings.HasSuffix(filename, ".oat") {
@@ -51,12 +54,15 @@ func includeSingle(filename string, line uint64, dir string, fromstd bool) ([]Ac
 	return compiled, nil
 }
 
-func includer(filename string, line uint64, dir string, fromstd bool) ([][]Action, error) {
+func includer(filename string, line uint64, dir string, curdir string, includewhere int) ([][]Action, error) {
 
 	if strings.HasSuffix(filename, "*") {
 
-		if fromstd {
-			filename = path.Join(path.Join(ommbasedir, "stdlib"), filename)
+		switch includewhere {
+		case 1:
+			filename = path.Join(path.Join(ommbasedir), filename)
+		case 2:
+			filename = path.Join(path.Join(curdir), filename)
 		}
 
 		files, e := ioutil.ReadDir(strings.TrimSuffix(filename, "*"))
@@ -74,7 +80,7 @@ func includer(filename string, line uint64, dir string, fromstd bool) ([][]Actio
 			}
 
 			if v.IsDir() {
-				inc, e := includer(path.Join(strings.TrimSuffix(filename, "*"), v.Name()+"/*"), line, dir, false)
+				inc, e := includer(path.Join(strings.TrimSuffix(filename, "*"), v.Name()+"/*"), line, dir, curdir, 0)
 
 				if e != nil {
 					return [][]Action{}, e
@@ -82,7 +88,7 @@ func includer(filename string, line uint64, dir string, fromstd bool) ([][]Actio
 
 				actions = append(actions, inc...)
 			} else {
-				inc, e := includeSingle(path.Join(strings.TrimSuffix(filename, "*"), v.Name()), line, dir, false)
+				inc, e := includeSingle(path.Join(strings.TrimSuffix(filename, "*"), v.Name()), line, dir, curdir, 0)
 
 				if e != nil {
 					return [][]Action{}, e
@@ -95,7 +101,7 @@ func includer(filename string, line uint64, dir string, fromstd bool) ([][]Actio
 		return actions, nil
 	}
 
-	inc, e := includeSingle(filename, line, dir, fromstd)
+	inc, e := includeSingle(filename, line, dir, curdir, includewhere)
 
 	if e != nil {
 		return [][]Action{}, e

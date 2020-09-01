@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,6 +14,8 @@ import (
 	"github.com/omm-lang/omm/lang/compiler"
 )
 
+var cwd = flag.String("cwd", "", "set cwd")
+
 func defaults(cli_params *CliParams) {
 	(*cli_params).Prec = 30
 	(*cli_params).Name = ""
@@ -20,20 +23,19 @@ func defaults(cli_params *CliParams) {
 }
 
 func main() {
-
-	args := os.Args
+	flag.Parse()
 
 	var cli_params CliParams
 
-	if len(args) <= 1 {
+	if len(os.Args) <= 2 {
 		fmt.Println("Error, no input file was given")
 		os.Exit(1)
 	}
 
 	defaults(&cli_params)
 
-	cli_params.Directory, _ = os.Getwd()
-	cli_params.Name = args[1]
+	cli_params.Directory = *cwd
+	cli_params.Name = flag.Arg(0)
 
 	dirname, _ := os.Executable()
 
@@ -42,9 +44,9 @@ func main() {
 	//set the working directory
 	os.Chdir(cli_params.Directory)
 
-	for i := 2; i < len(args); i++ {
+	for i := 1; i < len(flag.Args()); i++ {
 
-		v := args[i]
+		v := flag.Arg(i)
 
 		if strings.HasPrefix(v, "--") {
 
@@ -63,7 +65,7 @@ func main() {
 				fmt.Printf("Omm Beta %d.%d.%d", suite.OmmSuiteMajor, suite.OmmSuiteMinor, suite.OmmSuiteBug)
 				os.Exit(0)
 			case "prec":
-				tempprec, _ := strconv.ParseUint(args[i+1], 10, 64)
+				tempprec, _ := strconv.ParseUint(flag.Arg(i+1), 10, 64)
 				cli_params.Prec = tempprec
 				i += 2
 			default:

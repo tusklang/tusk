@@ -19,6 +19,10 @@ func (ins *Instance) Allocate(name string, value *OmmType) {
 
 func (ins *Instance) Deallocate(name string) {
 
+	if ins.vars == nil {
+		ins.vars = make(map[string]*OmmVar)
+	}
+
 	//first do the complex dealloc of the type
 	(*ins.vars[name].Value).Deallocate()
 
@@ -26,6 +30,11 @@ func (ins *Instance) Deallocate(name string) {
 }
 
 func (ins *Instance) Fetch(name string) *OmmVar {
+
+	if ins.vars == nil {
+		ins.vars = make(map[string]*OmmVar)
+	}
+
 	return ins.vars[name]
 }
 

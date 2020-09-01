@@ -1,8 +1,8 @@
 ifeq ($(OS),Windows_NT)
-	BINARY = omm.exe
+	BINARY = omm_start.exe
 	CLEAN_CMD = del
 else
-	BINARY = omm
+	BINARY = omm_start
 	CLEAN_CMD = rm -f
 endif
 
@@ -25,4 +25,4 @@ clean:
 
 .PHONY: language
 language:
-	go build omm.go
+	go build omm_start.go

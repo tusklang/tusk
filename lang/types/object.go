@@ -6,15 +6,15 @@ type OmmObject struct {
 	AccessList map[string][]string
 }
 
-func (o OmmObject) GetInstance(name string) *OmmType {
+func (o OmmObject) Get(field, file string) (*OmmType, error) {
 
-	v, exists := o.Instance.vars["$"+name]
+	var mappedvars = make(map[string]*OmmType)
 
-	if !exists {
-		return nil
+	for k, v := range o.Instance.vars {
+		mappedvars[k] = v.Value
 	}
 
-	return v.Value
+	return getfield(mappedvars, field, o.AccessList, file)
 }
 
 func (o OmmObject) Format() string {

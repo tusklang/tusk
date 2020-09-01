@@ -208,68 +208,22 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		return val1.(OmmHash).At(gostr)
 	},
 	"proto :: string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+		v, e := val1.(OmmProto).Get(val2.(OmmString).ToGoType(), file)
 
-		//convert field to go string
-		gostr := val2.(OmmString).ToGoType()
-
-		if gostr[0] == '_' {
-			OmmPanic("Cannot access private member: "+gostr, line, file, stacktrace)
+		if e != nil {
+			OmmPanic(e.Error(), line, file, stacktrace)
 		}
 
-		//check for access (protected)
-
-		if val1.(OmmProto).AccessList[gostr] == nil { //if it does not name any access, automatically make it public
-			goto allowed
-		}
-
-		for _, v := range val1.(OmmProto).AccessList[gostr] {
-			if file == v {
-				goto allowed
-			}
-		}
-
-		OmmPanic("File cannot acces field \""+gostr+"\"", line, file, stacktrace)
-
-	allowed:
-		field := val1.(OmmProto).GetStatic(gostr)
-
-		if field == nil {
-			OmmPanic("Prototype does not contain the field \""+gostr+"\"", line, file, stacktrace)
-		}
-
-		return field
+		return v
 	},
 	"object :: string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+		v, e := val1.(OmmObject).Get(val2.(OmmString).ToGoType(), file)
 
-		//convert field to go string
-		gostr := val2.(OmmString).ToGoType()
-
-		if gostr[0] == '_' {
-			OmmPanic("Cannot access private member: "+gostr, line, file, stacktrace)
+		if e != nil {
+			OmmPanic(e.Error(), line, file, stacktrace)
 		}
 
-		//check for access (protected)
-
-		if val1.(OmmObject).AccessList[gostr] == nil { //if it does not name any access, automatically make it public
-			goto allowed
-		}
-
-		for _, v := range val1.(OmmObject).AccessList[gostr] {
-			if file == v {
-				goto allowed
-			}
-		}
-
-		OmmPanic("File cannot acces field \""+gostr+"\"", line, file, stacktrace)
-
-	allowed:
-		field := val1.(OmmObject).GetInstance(gostr)
-
-		if field == nil {
-			OmmPanic("Object does not contain the field \""+gostr+"\"", line, file, stacktrace)
-		}
-
-		return field
+		return v
 	},
 	"string + string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 
