@@ -1,3 +1,0 @@
-var _url_post_fn = fn(string -> uri, hash -> data) {
-    panic("url is not yet implemented")
-}
