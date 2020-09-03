@@ -12,9 +12,9 @@ import (
 	"github.com/omm-lang/omm/lang/compiler"
 )
 
-var cwd = flag.String("cwd", "", "set the current working directory (automatically placed by the shell/pwsh script)")
-var ver = flag.String("ver", "", "get Omm suite version")
-var prec = flag.Uint64("prec", 20, "set the precision of an Omm instance")
+var cwd = flag.String("cwd", "", "Set the current working directory (automatically placed by the shell/pwsh script)")
+var ver = flag.Bool("ver", false, "Get Omm suite version")
+var prec = flag.Uint64("prec", 20, "Set the precision of an Omm instance")
 
 func init() {
 	flag.Usage = suite.Usagef("Omm")
@@ -22,6 +22,11 @@ func init() {
 
 func main() {
 	flag.Parse()
+
+	if *ver {
+		fmt.Printf("Omm Beta %d.%d.%d", suite.OmmSuiteMajor, suite.OmmSuiteMinor, suite.OmmSuiteBug)
+		os.Exit(0)
+	}
 
 	var cli_params CliParams
 
