@@ -20,7 +20,7 @@ func includeSingle(filename string, line uint64, dir string, curdir string, incl
 	}
 
 	if strings.HasSuffix(filename, ".oat") {
-		decoded, e := oatenc.OatDecode(filename, 1)
+		decoded, e := oatenc.OatDecode(filename)
 
 		if e != nil {
 			return nil, CompileError{
@@ -30,7 +30,22 @@ func includeSingle(filename string, line uint64, dir string, curdir string, incl
 			}
 		}
 
-		return decoded["$main"], nil
+		var actions []Action
+
+		for k, v := range decoded {
+			actions = append(actions, Action{
+				Type: "var",
+				Name: k,
+				ExpAct: []Action{
+					Action{
+						Type:  (*v).Type(),
+						Value: *v,
+					},
+				},
+			})
+		}
+
+		return actions, nil
 	}
 
 	if strings.HasSuffix(filename, ".omm") {

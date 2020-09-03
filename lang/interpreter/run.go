@@ -10,11 +10,11 @@ import (
 
 type overload_after struct {
 	name string
-	val  []Action
+	val  *OmmType
 }
 
 //export FillIns
-func FillIns(instance *Instance, compiledVars map[string][]Action, dirname string, args []string) map[string]*OmmVar {
+func FillIns(instance *Instance, compiledVars map[string]*OmmType, dirname string, args []string) map[string]*OmmVar {
 	globals := make(map[string]*OmmVar)
 	var dirnameOmmStr OmmString
 	dirnameOmmStr.FromGoType(dirname)
@@ -59,7 +59,7 @@ func FillIns(instance *Instance, compiledVars map[string][]Action, dirname strin
 
 		var global = OmmVar{
 			Name:  k,
-			Value: Interpreter(instance, v, []string{"at the global interpreter"}, 0, nil).Exp,
+			Value: v,
 		}
 		globals[k] = &global
 	}
@@ -78,7 +78,7 @@ func FillIns(instance *Instance, compiledVars map[string][]Action, dirname strin
 		}
 
 		var fn = _fn.(OmmFunc)
-		fn.Overloads = append(fn.Overloads, v.val[0].Value.(OmmFunc).Overloads[0])
+		fn.Overloads = append(fn.Overloads, (*v.val).(OmmFunc).Overloads[0])
 		*globals[v.name].Value = fn
 	}
 
@@ -94,7 +94,7 @@ func FillIns(instance *Instance, compiledVars map[string][]Action, dirname strin
 	return globals
 }
 
-func RunInterpreter(compiledVars map[string][]Action, cli_params CliParams) {
+func RunInterpreter(compiledVars map[string]*OmmType, cli_params CliParams) {
 
 	var instance Instance
 	instance.Params = cli_params

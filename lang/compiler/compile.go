@@ -70,13 +70,13 @@ func inclCompile(filename string) ([]Action, error) {
 
 var ommbasedir string
 
-func Compile(filename string, params CliParams) (map[string][]Action, error) {
+func Compile(params CliParams) (map[string]*OmmType, error) {
 
 	ommbasedir = params.OmmDirname
 
 	var e error
 
-	actions, e := inclCompile(filename)
+	actions, e := inclCompile(params.Name)
 
 	if e != nil {
 		return nil, e
@@ -109,14 +109,9 @@ func Compile(filename string, params CliParams) (map[string][]Action, error) {
 
 	for k := range vars {
 
-		if len(vars[k]) == 0 { //skip for declares
+		if vars[k] == nil { //skip for declares
 			varnames[k] = k
 			continue
-		}
-
-		//ensure that the globals do not have any compound types (such as operations)
-		if vars[k][0].Value == nil {
-			return nil, makeCompilerErr("Cannot have compound types at the global scope", vars[k][0].File, vars[k][0].Line)
 		}
 
 		varnames[k] = k
@@ -127,13 +122,19 @@ func Compile(filename string, params CliParams) (map[string][]Action, error) {
 		varnames[k] = k
 	}
 
-	for k := range vars {
-		_, e = changevarnames(vars[k], varnames)
+	for _, v := range vars {
+
+		var tmp = make([]Action, 1) //create a temporary action slice to pass to changevarnames
+		tmp[0].Type = (*v).Type()
+		tmp[0].Value = *v
+
+		_, e = changevarnames(tmp, varnames)
 		if e != nil {
 			return nil, e
 		}
 
-		putFunctionVarRefs(vars[k])
+		putFunctionVarRefs(tmp)
+		*v = tmp[0].Value
 	}
 
 	return vars, nil

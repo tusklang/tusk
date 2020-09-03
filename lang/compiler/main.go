@@ -17,7 +17,7 @@ func Run(params CliParams) {
 
 	included = append(included, fileName)
 
-	variables, ce := Compile(fileName, params)
+	variables, ce := Compile(params)
 
 	if ce != nil {
 		fmt.Println(ce.Error())

@@ -43,6 +43,14 @@ func GetStd() (map[string]*OmmType, map[string]func(val1, val2 OmmType, instance
 		return gostructprotoindex(reflect.ValueOf(&asserted), val2.(types.OmmString), stacktrace, line, file)
 	}
 
+	native["runtime.load"] = OmmGoFunc{
+		Function: urlrequest,
+	}
+	operations["http-response :: string"] = func(val1, val2 types.OmmType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) *types.OmmType {
+		asserted := val1.(OmmURLResp)
+		return gostructprotoindex(reflect.ValueOf(&asserted), val2.(types.OmmString), stacktrace, line, file)
+	}
+
 	nativeptrs := make(map[string]*OmmType) //make everything into a pointer to an OmmType
 	for k, v := range native {
 		nativeptrs[k] = &v
