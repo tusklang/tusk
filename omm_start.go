@@ -28,13 +28,8 @@ func main() {
 
 	var cli_params CliParams
 
-	var filenamei int
-	for flag.Arg(filenamei) != "" && flag.Arg(filenamei)[0] == '-' {
-		filenamei++ //only inside the block for formatting
-	}
-
-	if flag.Arg(filenamei) == "" {
-		fmt.Println("Error, no input file was given")
+	if len(flag.Arg(0)) != 0 && flag.Arg(0)[0] == '-' {
+		fmt.Println("Error, must list the filename as the first parameter")
 		os.Exit(1)
 	}
 

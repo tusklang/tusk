@@ -5,11 +5,11 @@ import (
 	. "github.com/omm-lang/omm/lang/types"
 )
 
-var types = []string{"string", "rune", "number", "bool", "hash", "array", "function", "int", "float", "any"}
+var validtypes = []string{"string", "rune", "number", "bool", "hash", "array", "function", "int", "float", "any"}
 
 func getnativetypes() {
 	for _, v := range interpreter.Native { //append all of the types of the native
-		types = append(types, (*v).Type())
+		validtypes = append(validtypes, (*v).Type())
 	}
 }
 
@@ -22,7 +22,7 @@ func validate_types(actions []Action) error {
 	for _, v := range actions {
 
 		if v.Type == "cast" {
-			for _, t := range types {
+			for _, t := range validtypes {
 				if t == v.Name { //if the type exists, do not throw an error
 					goto cast_noErr
 				}
@@ -35,7 +35,7 @@ func validate_types(actions []Action) error {
 
 			//check the parameter list
 			for _, vv := range v.Value.(OmmFunc).Overloads[0].Types {
-				for _, t := range types {
+				for _, t := range validtypes {
 					if t == vv {
 						goto plist_noErr
 					}
