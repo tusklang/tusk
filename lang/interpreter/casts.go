@@ -60,48 +60,6 @@ func Cast(val types.OmmType, nType string, stacktrace []string, line uint64, fil
 		var ommtype types.OmmType = ommstr
 		return &ommtype
 
-	case "int->float":
-		var goint = int64(val.(types.OmmFloat).Gofloat)
-		var ommint types.OmmInteger
-		ommint.Goint = goint
-		var ommtype types.OmmType = ommint
-		return &ommtype
-
-	case "float->int":
-		var gofloat = float64(val.(types.OmmInteger).Goint)
-		var ommfloat types.OmmFloat
-		ommfloat.Gofloat = gofloat
-		var ommtype types.OmmType = ommfloat
-		return &ommtype
-
-	case "int->number":
-		var goint = int64(val.(types.OmmNumber).ToGoType())
-		var ommint types.OmmInteger
-		ommint.Goint = goint
-		var ommtype types.OmmType = ommint
-		return &ommtype
-
-	case "number->int":
-		var gofloat = float64(val.(types.OmmInteger).Goint)
-		var ommnum types.OmmNumber
-		ommnum.FromGoType(gofloat)
-		var ommtype types.OmmType = ommnum
-		return &ommtype
-
-	case "float->number":
-		var gofloat = float64(val.(types.OmmNumber).ToGoType())
-		var ommint types.OmmFloat
-		ommint.Gofloat = gofloat
-		var ommtype types.OmmType = ommint
-		return &ommtype
-
-	case "number->float":
-		var gofloat = float64(val.(types.OmmFloat).Gofloat)
-		var ommnum types.OmmNumber
-		ommnum.FromGoType(gofloat)
-		var ommtype types.OmmType = ommnum
-		return &ommtype
-
 	}
 
 	native.OmmPanic("Cannot cast a "+val.Type()+" into a "+nType, line, file, stacktrace)

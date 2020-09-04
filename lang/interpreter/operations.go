@@ -269,28 +269,4 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 		var ommtype OmmType = ommstr
 		return &ommtype
 	},
-	"int + int": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
-
-		var (
-			int1 = val1.(OmmInteger).Goint
-			int2 = val2.(OmmInteger).Goint
-		)
-
-		var final OmmInteger
-		final.Goint = int1 + int2
-		var ret OmmType = final
-		return &ret
-	},
-	"float + float": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
-
-		var (
-			float1 = val1.(OmmFloat).Gofloat
-			float2 = val2.(OmmFloat).Gofloat
-		)
-
-		var final OmmFloat
-		final.Gofloat = float1 + float2
-		var ret OmmType = final
-		return &ret
-	},
 }
