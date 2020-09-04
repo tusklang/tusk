@@ -69,7 +69,7 @@ func (r OmmURLResp) Format() string {
 }
 
 func (f OmmURLResp) Type() string {
-	return "http-response"
+	return "http_response"
 }
 
 func (f OmmURLResp) TypeOf() string {
@@ -92,7 +92,7 @@ func urlget(args []*OmmType, stacktrace []string, line uint64, file string, inst
 	return &ommtype
 }
 
-func urlrequest(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+var urlrequest = func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
 	var res *http.Response
 	var e error
