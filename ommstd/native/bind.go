@@ -64,6 +64,12 @@ func GetStd() (map[string]*OmmType, map[string]func(val1, val2 OmmType, instance
 		return v
 	})
 	putfunc("instance.setprec", &setprec)
+	putfunc("files.open", &omm_newfile)
+	putfunc("files.create", &omm_createfile)
+	putoper("file :: string", func(val1, val2 types.OmmType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) *types.OmmType {
+		asserted := val1.(OmmFile)
+		return gostructprotoindex(reflect.ValueOf(&asserted), val2.(types.OmmString), stacktrace, line, file)
+	})
 
 	return native, operations
 }
