@@ -1,6 +1,8 @@
 package compiler
 
-import . "github.com/omm-lang/omm/lang/types"
+import (
+	. "github.com/omm-lang/omm/lang/types"
+)
 
 func getvars(actions []Action) (map[string]*OmmType, error) {
 
@@ -21,19 +23,18 @@ func getvars(actions []Action) (map[string]*OmmType, error) {
 
 		if v.Type == "ovld" {
 			if _, exists := vars[v.Name]; !exists { //if it does not exist yet, declare undefined yet
-				return nil, makeCompilerErr("Undefined overloader: "+v.Name[1:], v.File, v.Line)
+				var f OmmType = OmmFunc{}
+				vars[v.Name] = &f
 			}
 
-			//since the variables are passed as a map, each overload name must be different
-			//omm inserts spaces after each overload to differentiate them
-			var space_amt = ""
-
-			_, exists := vars["ovld/"+v.Name]
-			for ; exists; _, exists = vars["ovld/"+v.Name+space_amt] {
-				space_amt += " "
+			if (*vars[v.Name]).Type() != "function" {
+				return nil, makeCompilerErr(v.Name[1:]+" is not a function", v.File, v.Line)
 			}
 
-			vars["ovld/"+v.Name+space_amt] = &v.ExpAct[0].Value //set it to an overloader
+			tmp := (*vars[v.Name]).(OmmFunc)
+			tmp.Overloads = append(tmp.Overloads, v.ExpAct[0].Value.(OmmFunc).Overloads...)
+			var ommtype OmmType = tmp
+			vars[v.Name] = &ommtype
 			continue
 		}
 

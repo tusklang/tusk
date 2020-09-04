@@ -1,0 +1,21 @@
+var json.marshal
+
+ovld json.marshal = fn(hash -> h) {
+
+}
+
+ovld json.marshal = fn(array -> a) {
+
+}
+
+ovld json.marshal = fn(string -> h) {
+    return "\"" + h + "\""
+}
+
+ovld json.marshal = fn(number -> n) {
+    return string -> n
+}
+
+ovld json.marshal = fn(bool -> b) {
+    return string -> b
+}

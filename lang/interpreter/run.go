@@ -3,7 +3,6 @@ package interpreter
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	. "github.com/omm-lang/omm/lang/types"
 )
@@ -36,7 +35,7 @@ func FillIns(instance *Instance, compiledVars map[string]*OmmType, dirname strin
 
 	var arr OmmType = OmmArray{
 		Array:  argv,
-		Length: uint64(len(os.Args)),
+		Length: uint64(len(args)),
 	}
 
 	globals["$argv"] = &OmmVar{
@@ -44,42 +43,12 @@ func FillIns(instance *Instance, compiledVars map[string]*OmmType, dirname strin
 		Value: &arr,
 	}
 
-	var doafter = make([]overload_after, 0)
-
 	for k, v := range compiledVars {
-
-		if strings.HasPrefix(k, "ovld/") {
-			//Using this, because the order of the map is not maintained, so this can cause a nil pointer
-			doafter = append(doafter, overload_after{
-				name: strings.TrimSpace(strings.TrimPrefix(k, "ovld/")),
-				val:  v,
-			})
-			continue
-		}
-
 		var global = OmmVar{
 			Name:  k,
 			Value: v,
 		}
 		globals[k] = &global
-	}
-
-	for _, v := range doafter {
-
-		var _fn = *globals[strings.TrimPrefix(v.name, "ovld/")].Value
-
-		//if it not a function, force it to be one
-		switch _fn.(type) {
-		case OmmFunc: //ignore
-		default:
-			_fn = OmmFunc{
-				Overloads: []Overload{},
-			}
-		}
-
-		var fn = _fn.(OmmFunc)
-		fn.Overloads = append(fn.Overloads, (*v.val).(OmmFunc).Overloads[0])
-		*globals[v.name].Value = fn
 	}
 
 	//also allocate to the locals

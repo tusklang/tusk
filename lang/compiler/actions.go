@@ -381,12 +381,6 @@ func actionizer(operations []Operation) ([]Action, error) {
 							return []Action{}, makeCompilerErr("Cannot overload a "+right[0].ExpAct[0].Type, v.File, right[0].Line)
 						}
 
-						for _, p := range right[0].ExpAct[0].Value.(OmmFunc).Overloads[0].Types {
-							if p == "any" {
-								return []Action{}, makeCompilerErr("Cannot use \"any\" type in a overload (may cause bugs)", v.File, right[0].Line)
-							}
-						}
-
 						right[0].Type = "ovld"
 
 						actions = append(actions, Action{

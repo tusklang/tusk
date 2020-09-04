@@ -1,4 +1,5 @@
+include `ommstd/json/*`
+
 var main = fn() {
-    var f = files.create("as")
-    log f::Read()
+    log json.marshal(1)
 }
