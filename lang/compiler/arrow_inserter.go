@@ -38,6 +38,8 @@ func insert_func_arrows(lex []Lex) []Lex {
 
 			pCnt := 1
 
+			var paramlex []Lex
+
 			for i += 2; i < len(lex); i++ {
 
 				if lex[i].Name == "(" {
@@ -51,8 +53,15 @@ func insert_func_arrows(lex []Lex) []Lex {
 					break
 				}
 
-				nLex = append(nLex, lex[i])
+				paramlex = append(paramlex, lex[i])
 			}
+
+			//do this for all parameters as well
+			//e.g.
+			//	func1(func2())
+			paramlex = insert_func_arrows(paramlex)
+
+			nLex = append(nLex, paramlex...)
 
 			if i+1 < len(lex) && lex[i+1].Name == "(" { //if the next is also a function call, this i-- should occur
 				lex[i].Name = "noappend"

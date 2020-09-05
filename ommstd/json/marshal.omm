@@ -35,3 +35,7 @@ ovld json.marshal = fn(number -> n) {
 ovld json.marshal = fn(bool -> b) {
     return (if (b) return "true" else return "false")
 }
+
+ovld json.marshal = fn(none -> u, string -> _) {
+    return "null"
+}

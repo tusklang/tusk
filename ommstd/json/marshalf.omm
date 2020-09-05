@@ -38,7 +38,7 @@ ovld json.marshal = fn(array -> a, string -> indent) {
     rm := 2 + len(indent)
     final = rmend(final, rm) + "\n" ;remove the trailing ",\n{indent}" and add a newline
 
-    hasp := final::0 == '{'
+    hasp := final::0 == '['
     if (!hasp) {
         final = "[" + rmend(final, 1)
     }
@@ -56,4 +56,8 @@ ovld json.marshal = fn(number -> n, string -> _) {
 
 ovld json.marshal = fn(bool -> b, string -> _) {
     return json.marshal(b)
+}
+
+ovld json.marshal = fn(none -> u, string -> _) {
+    return json.marshal(u)
 }

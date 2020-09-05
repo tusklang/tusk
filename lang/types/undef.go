@@ -9,7 +9,7 @@ func (u OmmUndef) Format() string {
 }
 
 func (u OmmUndef) Type() string {
-	return "undef"
+	return "none"
 }
 
 func (u OmmUndef) TypeOf() string {

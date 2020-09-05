@@ -36,7 +36,7 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 			switch (*args[0]).(type) {
 			case OmmString:
 				str := (*args[0]).(OmmString).ToGoType()
-				fmt.Print(str + ": ")
+				fmt.Print(str)
 			default:
 				OmmPanic("Expected a string as the argument to input[]", line, file, stacktrace)
 			}

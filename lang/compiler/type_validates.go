@@ -5,7 +5,7 @@ import (
 	. "github.com/omm-lang/omm/lang/types"
 )
 
-var validtypes = []string{"string", "rune", "number", "bool", "hash", "array", "function", "any"}
+var validtypes = []string{"string", "rune", "number", "bool", "hash", "array", "function", "none", "any"}
 
 func getnativetypes() {
 	for _, v := range interpreter.Native { //append all of the types of the native

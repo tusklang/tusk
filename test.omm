@@ -1,7 +1,3 @@
-include `ommstd/json`
-
 var main = fn() {
-    log json.marshal([:
-        "a" = 1
-    :], "\t")
+    log main(main())
 }
