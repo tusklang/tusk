@@ -1,5 +1,3 @@
 #!/usr/bin/env pwsh
-$cwd = ("$PWD").replace("\", "/")
-
-Set-Location "$cwd"
+Set-Location "$PWD"
 & "$PSScriptRoot\omm_start.exe" $args

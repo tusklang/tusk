@@ -1,5 +1,8 @@
-include `ommstd/json/*`
+include `ommstd/json`
 
 var main = fn() {
-    log json.marshal(1)
+    log json.marshal([:
+        "a" = 1
+        "b" = true
+    :])
 }

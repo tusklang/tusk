@@ -1,9 +1,9 @@
 package compiler
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
-	"os"
 
 	"github.com/omm-lang/omm/lang/interpreter"
 
@@ -33,16 +33,10 @@ func makeCompilerErr(msg, fname string, line uint64) error {
 
 func inclCompile(filename string) ([]Action, error) {
 
-	f, e := os.Open(filename)
+	file, e := ioutil.ReadFile(filename)
 
 	if e != nil {
-		return nil, makeCompilerErr("Could not open file: "+filename, filename, 0)
-	}
-
-	file, e := ioutil.ReadAll(f)
-
-	if e != nil {
-		return nil, makeCompilerErr("Could not open file: "+filename, filename, 0)
+		return nil, errors.New("Could not open file: " + filename)
 	}
 
 	lex, e := lexer(string(file), filename)

@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"io/ioutil"
+	"os"
 	"path"
 	"strings"
 
@@ -11,13 +12,6 @@ import (
 )
 
 func includeSingle(filename string, line uint64, dir string, curdir string, includewhere int) ([]Action, error) {
-
-	switch includewhere {
-	case 1:
-		filename = path.Join(ommbasedir, filename)
-	case 2:
-		filename = path.Join(curdir, filename)
-	}
 
 	if strings.HasSuffix(filename, ".oat") {
 		decoded, e := oatenc.OatDecode(filename)
@@ -71,46 +65,33 @@ func includeSingle(filename string, line uint64, dir string, curdir string, incl
 
 func includer(filename string, line uint64, dir string, curdir string, includewhere int) ([][]Action, error) {
 
-	if strings.HasSuffix(filename, "*") {
+	switch includewhere {
+	case 1:
+		filename = path.Join(path.Join(ommbasedir), filename)
+	case 2:
+		filename = path.Join(path.Join(curdir), filename)
+	}
 
-		switch includewhere {
-		case 1:
-			filename = path.Join(path.Join(ommbasedir), filename)
-		case 2:
-			filename = path.Join(path.Join(curdir), filename)
-		}
+	stat, e := os.Stat(filename)
 
-		files, e := ioutil.ReadDir(strings.TrimSuffix(filename, "*"))
+	if e != nil {
+		return nil, makeCompilerErr("Could not open "+filename, dir, line)
+	}
 
-		if e != nil {
-			return [][]Action{}, makeCompilerErr("Could not find directory: "+filename, dir, line)
-		}
+	if stat.IsDir() {
+
+		files, _ := ioutil.ReadDir(filename)
 
 		var actions [][]Action
 
 		for _, v := range files {
+			acts, e := includer(path.Join(filename, v.Name()), line, dir, curdir, 0)
 
-			if !strings.HasSuffix(v.Name(), ".omm") && !strings.HasSuffix(v.Name(), ".oat") { //if it is not an omm or an oat file, skip it
-				continue
+			if e != nil {
+				return nil, e
 			}
 
-			if v.IsDir() {
-				inc, e := includer(path.Join(strings.TrimSuffix(filename, "*"), v.Name()+"/*"), line, dir, curdir, 0)
-
-				if e != nil {
-					return [][]Action{}, e
-				}
-
-				actions = append(actions, inc...)
-			} else {
-				inc, e := includeSingle(path.Join(strings.TrimSuffix(filename, "*"), v.Name()), line, dir, curdir, 0)
-
-				if e != nil {
-					return [][]Action{}, e
-				}
-
-				actions = append(actions, inc)
-			}
+			actions = append(actions, acts...)
 		}
 
 		return actions, nil

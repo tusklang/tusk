@@ -81,13 +81,13 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 					curvar++
 				}
 				_, e = changevarnames(fn.Overloads[kk].Body, params)
+
+				if e != nil {
+					return nil, e
+				}
 			}
 
 			actions[k].Value = fn
-			if e != nil {
-				return nil, e
-			}
-
 			continue
 		}
 		if v.Type == "each" { //if it is each, also give the key and value variables
@@ -231,6 +231,11 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 		}
 		for i := range v.Hash {
 			_, e = changevarnames(v.Hash[i][0], newnames)
+
+			if e != nil {
+				return nil, e
+			}
+
 			_, e = changevarnames(v.Hash[i][1], newnames)
 			if e != nil {
 				return nil, e

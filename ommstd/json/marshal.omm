@@ -1,11 +1,27 @@
+include `ommstd/util`
+
 var json.marshal
 
 ovld json.marshal = fn(hash -> h) {
+    var final = "{"
 
+    each (h, k, v) {
+        final+="\"" + k + "\":" + json.marshal(v) + ","
+    }
+
+    if (final != "{") final = rmend(final, 1) ;remove the trailing comma
+    return final + "}"
 }
 
 ovld json.marshal = fn(array -> a) {
+    var final = "["
 
+    each (a, _, v) {
+        final+=json.marshal(v) + ","
+    }
+
+    if (final != "[") final = rmend(final, 1) ;remove the trailing comma
+    return final + "]"
 }
 
 ovld json.marshal = fn(string -> h) {
@@ -17,5 +33,5 @@ ovld json.marshal = fn(number -> n) {
 }
 
 ovld json.marshal = fn(bool -> b) {
-    return string -> b
+    return (if (b) return "true" else return "false")
 }

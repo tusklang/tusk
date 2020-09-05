@@ -1,4 +1,4 @@
-include `util/substr.omm`
+include `ommstd/util/substr.omm`
 
 var starts_with = fn(string -> str, string -> starts) {
 
