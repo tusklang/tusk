@@ -1,0 +1,59 @@
+include `ommstd/util`
+
+var json.marshal
+
+var getmarshalv = fn(string -> marshalled, string -> indent) {
+    if (ends_with(marshalled, "]")) marshalled = rmend(marshalled, 1) + indent + "]"
+    if (ends_with(marshalled, "}")) marshalled = rmend(marshalled, 1) + indent + "}"
+}
+
+ovld json.marshal = fn(hash -> h, string -> indent) {
+    var final = "{\n" + indent
+
+    each (h, k, v) {
+        marshalled := json.marshal(v, indent + indent)
+        getmarshalv(marshalled, indent)
+        final+="\"" + k + "\": " + marshalled + ",\n" + indent
+    }
+
+    rm := 2 + len(indent)
+    final = rmend(final, rm) + "\n" ;remove the trailing ",\n{indent}" and add a newline
+
+    hasp := final::0 == '{'
+    if (!hasp) {
+        final = "{" + rmend(final, 1)
+    }
+    return final + "}"
+}
+
+ovld json.marshal = fn(array -> a, string -> indent) {
+    var final = "[\n" + indent
+
+    each (a, _, v) {
+        marshalled := json.marshal(v, indent + indent)
+        getmarshalv(marshalled, indent)
+        final+=marshalled + ",\n" + indent
+    }
+
+    rm := 2 + len(indent)
+    final = rmend(final, rm) + "\n" ;remove the trailing ",\n{indent}" and add a newline
+
+    hasp := final::0 == '{'
+    if (!hasp) {
+        final = "[" + rmend(final, 1)
+    }
+
+    return final + "]"
+}
+
+ovld json.marshal = fn(string -> h, string -> _) {
+    return json.marshal(h)
+}
+
+ovld json.marshal = fn(number -> n, string -> _) {
+    return json.marshal(n)
+}
+
+ovld json.marshal = fn(bool -> b, string -> _) {
+    return json.marshal(b)
+}

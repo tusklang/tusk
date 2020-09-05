@@ -105,6 +105,7 @@ func lexer(file, filename string) ([]Lex, error) {
 					case 'v':
 						value += "\v"
 					}
+					escaped = false
 					continue
 				}
 

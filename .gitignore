@@ -1,11 +1,9 @@
-/omm
+/omm_start
 *.exe
 *.o
 *.dll
 *.lib
 *.so
 *.a
-*.wixobj
-*.wixpdb
 /installers/windows/setup.msi
 /goatv.h
