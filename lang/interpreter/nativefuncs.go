@@ -309,13 +309,10 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 
 		case OmmString:
 
-			var tmp = val.(OmmString).ToGoType() //convert it to a go type
-
-			var returner OmmType = OmmString{
-				String: []rune(tmp),
-				Length: val.(OmmString).Length,
-			}
-
+			var tmp = val.(OmmString).ToRuneList() //convert it to a go type
+			var ommstr OmmString
+			ommstr.FromRuneList(append(tmp, []rune{}...)) //clone tmp
+			var returner OmmType = ommstr
 			return &returner
 
 		default:

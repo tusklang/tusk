@@ -113,6 +113,10 @@ func inclCompile(filename string) ([]Action, error) {
 
 	actions, e := actionizer(operations)
 
+	for _, v := range includes {
+		actions = append(v, actions...)
+	}
+
 	return actions, e
 }
 

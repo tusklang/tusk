@@ -1,7 +1,7 @@
 package types
 
 type OmmString struct {
-	String []rune
+	runel  []rune
 	Length uint64
 }
 
@@ -13,24 +13,24 @@ func (str *OmmString) FromGoType(val string) {
 		arr[k] = rune(v)
 	}
 
-	str.String = arr
+	str.runel = arr
 	str.Length = uint64(len(val))
 }
 
 func (str *OmmString) FromRuneList(val []rune) {
-	str.String = val
+	str.runel = val
 	str.Length = uint64(len(val))
 }
 
 func (str OmmString) ToGoType() string {
 
-	if str.String == nil {
+	if str.runel == nil {
 		return ""
 	}
 
 	var gostr string
 
-	for _, v := range str.String {
+	for _, v := range str.runel {
 		gostr += string(v)
 	}
 
@@ -38,7 +38,7 @@ func (str OmmString) ToGoType() string {
 }
 
 func (str OmmString) ToRuneList() []rune {
-	return str.String
+	return str.runel
 }
 
 func (str OmmString) Exists(idx int64) bool {
@@ -47,7 +47,11 @@ func (str OmmString) Exists(idx int64) bool {
 
 func (str OmmString) At(idx int64) *OmmRune {
 
-	var gotype = str.String[idx]
+	if idx < 0 || uint64(idx) >= str.Length {
+		return nil
+	}
+
+	var gotype = str.runel[idx]
 	var ommrune OmmRune
 	ommrune.FromGoType(gotype)
 
@@ -71,7 +75,7 @@ func (str OmmString) Deallocate() {}
 //Range ranges over a string
 func (str OmmString) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
 
-	for k, v := range str.String {
+	for k, v := range str.runel {
 		var key OmmNumber
 		key.FromGoType(float64(k))
 		var val OmmRune

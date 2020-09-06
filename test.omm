@@ -1,4 +1,6 @@
 ;include:
-;r test.omm
+;r test2.omm
 
-var main = fn() {}
+var main = fn() {
+    log test()
+}
