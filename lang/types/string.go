@@ -66,4 +66,4 @@ func (str OmmString) TypeOf() string {
 	return str.Type()
 }
 
-func (_ OmmString) Deallocate() {}
+func (str OmmString) Deallocate() {}

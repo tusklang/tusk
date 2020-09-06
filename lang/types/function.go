@@ -24,4 +24,4 @@ func (f OmmFunc) TypeOf() string {
 	return f.Type()
 }
 
-func (_ OmmFunc) Deallocate() {}
+func (f OmmFunc) Deallocate() {}

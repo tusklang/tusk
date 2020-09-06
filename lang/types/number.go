@@ -68,4 +68,4 @@ func (n OmmNumber) TypeOf() string {
 	return n.Type()
 }
 
-func (_ OmmNumber) Deallocate() {}
+func (n OmmNumber) Deallocate() {}

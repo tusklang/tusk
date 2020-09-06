@@ -153,4 +153,4 @@ func (f OmmFile) TypeOf() string {
 	return f.Type()
 }
 
-func (_ OmmFile) Deallocate() {}
+func (f OmmFile) Deallocate() {}

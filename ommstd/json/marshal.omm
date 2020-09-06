@@ -24,8 +24,8 @@ ovld json.marshal = fn(array -> a) {
     return final + "]"
 }
 
-ovld json.marshal = fn(string -> h) {
-    return "\"" + h + "\""
+ovld json.marshal = fn(string -> s) {
+    return "\"" + s + "\""
 }
 
 ovld json.marshal = fn(number -> n) {

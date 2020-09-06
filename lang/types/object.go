@@ -29,4 +29,4 @@ func (o OmmObject) TypeOf() string {
 	return o.Name[1:]
 }
 
-func (_ OmmObject) Deallocate() {}
+func (o OmmObject) Deallocate() {}

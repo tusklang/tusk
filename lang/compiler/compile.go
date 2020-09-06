@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -130,6 +131,9 @@ func Compile(params CliParams) (map[string]*OmmType, error) {
 		putFunctionVarRefs(tmp)
 		*v = tmp[0].Value
 	}
+
+	j, _ := json.MarshalIndent(vars, "", "  ")
+	fmt.Println(string(j))
 
 	return vars, nil
 }

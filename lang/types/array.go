@@ -63,4 +63,9 @@ func (arr OmmArray) TypeOf() string {
 	return arr.Type()
 }
 
-func (_ OmmArray) Deallocate() {}
+func (arr OmmArray) Deallocate() {}
+
+//Range ranges over an array
+func (arr OmmArray) Range(fn func(val1, val2 OmmType, ins *Instance, actions []Action, stacktrace []string, stacksize uint, varnames []string /* varnames to deallocate */)) {
+
+}

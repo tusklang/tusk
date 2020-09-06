@@ -68,15 +68,15 @@ func (r OmmURLResp) Format() string {
 	return "{ http response }"
 }
 
-func (f OmmURLResp) Type() string {
+func (r OmmURLResp) Type() string {
 	return "http_response"
 }
 
-func (f OmmURLResp) TypeOf() string {
-	return f.Type()
+func (r OmmURLResp) TypeOf() string {
+	return r.Type()
 }
 
-func (_ OmmURLResp) Deallocate() {}
+func (r OmmURLResp) Deallocate() {}
 
 func urlget(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 

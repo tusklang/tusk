@@ -79,4 +79,4 @@ func (hash OmmHash) TypeOf() string {
 	return hash.Type()
 }
 
-func (_ OmmHash) Deallocate() {}
+func (hash OmmHash) Deallocate() {}

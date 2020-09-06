@@ -8,85 +8,67 @@ import (
 	. "github.com/omm-lang/omm/ommstd/native"
 )
 
+//fill an instance to run a function
+func fillFuncInstance(fn *OmmFunc, args OmmArray, parent *Instance) *Overload {
+
+	if fn.Instance == nil {
+		fn.Instance = (*parent).Copy() //copy the parent instance, if it is not part of an object
+	}
+
+	for _, v := range fn.Overloads {
+		if uint64(len(v.Params)) != args.Length {
+			continue
+		}
+
+		for k, vv := range v.Types {
+			if vv != (*args.At(int64(k))).TypeOf() && vv != "any" {
+				goto wrong_signature
+				break
+			}
+		}
+
+		{
+			for k, vv := range args.Array {
+				fn.Instance.Allocate(v.Params[k], vv)
+			}
+			return &v
+		}
+
+	wrong_signature: //the current signature doesn't match
+	}
+
+	return nil
+}
+
 func funcinit() { //initialize the operations that require the use of the interpreter
 	var function__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 		var fn = val1.(OmmFunc)
 		var arr = val2.(OmmArray)
 
-		for _, v := range fn.Overloads {
-			if uint64(len(v.Params)) != arr.Length {
-				continue
-			}
+		var overload *Overload
 
-			var not_exists bool = false
-
-			for k, vv := range v.Types {
-				if vv != (*arr.At(int64(k))).TypeOf() && vv != "any" {
-					not_exists = true
-					break
-				}
-			}
-
-			if !not_exists {
-
-				if fn.Instance == nil {
-					fn.Instance = instance
-				}
-
-				for k, vv := range arr.Array {
-					fn.Instance.Allocate(v.Params[k], vv)
-				}
-
-				return Interpreter(fn.Instance, v.Body, append(stacktrace, "synchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, v.Params).Exp
-			}
+		if overload = fillFuncInstance(&fn, arr, instance); overload == nil {
+			OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
 		}
 
-		OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
-
-		var tmp OmmType = undef
-		return &tmp
+		return Interpreter(fn.Instance, overload.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params).Exp
 	}
 
 	var function__async__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
 		var fn = val1.(OmmFunc)
 		var arr = val2.(OmmArray)
 
-		for _, v := range fn.Overloads {
-			if uint64(len(v.Params)) != arr.Length {
-				continue
-			}
+		var overload *Overload
 
-			var not_exists bool = false
-
-			for k, vv := range v.Types {
-				if vv != (*arr.At(int64(k))).TypeOf() && vv != "any" {
-					not_exists = true
-					break
-				}
-			}
-
-			if !not_exists {
-
-				if fn.Instance == nil {
-					fn.Instance = instance
-				}
-
-				for k, vv := range arr.Array {
-					fn.Instance.Allocate(v.Params[k], vv)
-				}
-
-				var promise OmmType = *NewThread(func() *OmmType {
-					return Interpreter(fn.Instance, v.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, v.Params).Exp
-				})
-
-				return &promise
-			}
+		if overload = fillFuncInstance(&fn, arr, instance); overload == nil {
+			OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
 		}
 
-		OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
+		var promise OmmType = *NewThread(func() *OmmType {
+			return Interpreter(fn.Instance, overload.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params).Exp
+		})
 
-		var tmp OmmType = undef
-		return &tmp
+		return &promise
 	}
 
 	var nativefunc__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {

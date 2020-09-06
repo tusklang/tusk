@@ -31,4 +31,4 @@ func (b OmmBool) TypeOf() string {
 	return b.Type()
 }
 
-func (_ OmmBool) Deallocate() {}
+func (b OmmBool) Deallocate() {}

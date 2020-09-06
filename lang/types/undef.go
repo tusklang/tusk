@@ -16,4 +16,4 @@ func (u OmmUndef) TypeOf() string {
 	return u.Type()
 }
 
-func (_ OmmUndef) Deallocate() {}
+func (u OmmUndef) Deallocate() {}

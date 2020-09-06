@@ -1,0 +1,12 @@
+{
+	"package": "",
+	"version": "1.0.0",
+	"license": "MIT",
+	"author(s)": "",
+	"repo": "",
+	"scripts": {
+		"test": "make test",
+		"archive": "make archive",
+		"run": "make run"
+	}
+}

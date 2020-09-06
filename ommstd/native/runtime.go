@@ -61,4 +61,4 @@ func (l OmmRuntimeLibrary) TypeOf() string {
 	return l.Type()
 }
 
-func (_ OmmRuntimeLibrary) Deallocate() {}
+func (l OmmRuntimeLibrary) Deallocate() {}

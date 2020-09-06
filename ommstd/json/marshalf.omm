@@ -46,8 +46,8 @@ ovld json.marshal = fn(array -> a, string -> indent) {
     return final + "]"
 }
 
-ovld json.marshal = fn(string -> h, string -> _) {
-    return json.marshal(h)
+ovld json.marshal = fn(string -> s, string -> _) {
+    return json.marshal(s)
 }
 
 ovld json.marshal = fn(number -> n, string -> _) {
