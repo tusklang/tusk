@@ -84,9 +84,12 @@ func (hash OmmHash) TypeOf() string {
 func (hash OmmHash) Deallocate() {}
 
 //Range ranges over a hash
-func (arr OmmHash) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+func (hash OmmHash) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
 
-	for k, v := range arr.Hash {
+	for _, keyi := range hash.keys {
+
+		k, v := keyi, hash.Hash[keyi]
+
 		var key OmmString
 		key.FromGoType(k)
 		var ommtypekey OmmType = key

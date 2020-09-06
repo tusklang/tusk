@@ -53,7 +53,7 @@ func valueActions(item Item) (Action, error) {
 	case "[:":
 
 		var hash = make([][2][]Action, 0)
-		var chash = make(map[string]*OmmType)
+		var chash OmmHash
 
 		var hashtype = "c-hash" //compile time hash
 
@@ -96,7 +96,7 @@ func valueActions(item Item) (Action, error) {
 				hashtype = "r-hash" ///make it a runtime hash
 				goto runthash
 			} else {
-				chash[key[0].Value.Format()] = &value[0].Value
+				chash.Set(key[0].Value.Format(), value[0].Value)
 			}
 
 		runthash:
@@ -108,13 +108,10 @@ func valueActions(item Item) (Action, error) {
 
 		if hashtype == "c-hash" {
 			return Action{
-				Type: hashtype,
-				Value: OmmHash{
-					Hash:   chash,
-					Length: uint64(len(chash)),
-				},
-				File: item.File,
-				Line: item.Line,
+				Type:  hashtype,
+				Value: chash,
+				File:  item.File,
+				Line:  item.Line,
 			}, nil
 		} else {
 			return Action{
@@ -128,7 +125,7 @@ func valueActions(item Item) (Action, error) {
 	case "[":
 
 		var arr [][]Action
-		var carr []*OmmType
+		var carr OmmArray
 
 		var arrtype = "c-array" //compile time array
 
@@ -162,18 +159,15 @@ func valueActions(item Item) (Action, error) {
 			}
 
 			arr = append(arr, value)
-			carr = append(carr, &value[0].Value)
+			carr.PushBack(value[0].Value)
 		}
 
 		if arrtype == "c-array" {
 			return Action{
-				Type: arrtype,
-				Value: OmmArray{
-					Array:  carr,
-					Length: uint64(len(carr)),
-				},
-				File: item.File,
-				Line: item.Line,
+				Type:  arrtype,
+				Value: carr,
+				File:  item.File,
+				Line:  item.Line,
 			}, nil
 		} else {
 			return Action{
