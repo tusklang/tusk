@@ -216,7 +216,7 @@ func valueActions(item Item) (Action, error) {
 				File:  item.File,
 				Line:  item.Line,
 			}, nil
-		} else if val == "undef" { //detect a falsey value
+		} else if val == "undef" { //detect an undef value
 			var undef OmmUndef
 			return Action{
 				Type:  "undef",

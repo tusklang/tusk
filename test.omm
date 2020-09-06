@@ -1,7 +1,4 @@
-var main = fn() {
-    each ([:
-        "a" = "b"
-    :], k, v) {
-        log k + " " + v
-    }
-}
+;include:
+;r test.omm
+
+var main = fn() {}

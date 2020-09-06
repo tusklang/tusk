@@ -9,8 +9,6 @@ import (
 	"github.com/omm-lang/omm/lang/interpreter"
 )
 
-var included = []string{} //list of the imported files from omm
-
 func Run(params types.CliParams) {
 
 	fileName := params.Name

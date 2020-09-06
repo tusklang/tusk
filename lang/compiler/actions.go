@@ -2,7 +2,6 @@ package compiler
 
 import (
 	"fmt"
-	"path/filepath"
 	"runtime"
 
 	. "github.com/omm-lang/omm/lang/types"
@@ -44,48 +43,6 @@ func actionizer(operations []Operation) ([]Action, error) {
 				if val == (*v.Left).Item.Token.Name {
 
 					switch val {
-
-					case "include":
-
-						var includewhere int
-						var curfile = v.File
-						var incfile string
-
-						if len(v.Right.Item.Token.Name) != 0 && v.Right.Item.Token.Name[0] == '`' {
-							includewhere = 1
-							incfile = right[0].Value.(OmmString).ToGoType()
-						} else if len(right) != 0 && right[0].Type == "(" {
-							//example: include ("test.omm") ;includes relative to the **current file**
-							includewhere = 2
-
-							if len(right) == 0 || len(right[0].ExpAct) == 0 || right[0].ExpAct[0].Value.Type() != "string" {
-								return nil, makeCompilerErr("Expected a string or parenthesis group after \"include\"", v.File, v.Line)
-							}
-
-							incfile = right[0].ExpAct[0].Value.(OmmString).ToGoType()
-						} else if right[0].Type != "string" {
-							return []Action{}, makeCompilerErr("Expected a string or parenthesis group after \"include\"", v.File, v.Line)
-						} else {
-							right[0].Value.(OmmString).ToGoType()
-						}
-
-						/*
-							includewhere::
-								0: relative to working directory
-								1: relative to omm installation dir
-								2: relative to current file
-						*/
-
-						includeFiles, e := includer(incfile, v.Line, v.File, filepath.Dir(curfile), includewhere)
-
-						if e != nil {
-							return []Action{}, e
-						}
-
-						for _, acts := range includeFiles {
-							actions = append(actions, acts...)
-						}
-
 					case "function":
 						if right[0].Type != "=>" {
 							return []Action{}, makeCompilerErr("Functions need a parameter list and a function body", v.File, right[0].Line)

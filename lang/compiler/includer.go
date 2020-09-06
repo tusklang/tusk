@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path"
@@ -11,17 +12,21 @@ import (
 	. "github.com/omm-lang/omm/lang/types"
 )
 
-func includeSingle(filename string, line uint64, dir string, curdir string, includewhere int) ([]Action, error) {
+var included = []string{} //list of the included files from omm
+
+func includeSingle(filename string, curdir string, includewhere int) ([]Action, error) {
+
+	for _, v := range included { //ensure includes are not duplicated (header guards)
+		if v == filename {
+			return nil, nil
+		}
+	}
 
 	if strings.HasSuffix(filename, ".oat") {
 		decoded, e := oatenc.OatDecode(filename)
 
 		if e != nil {
-			return nil, CompileError{
-				Msg:   e.Error(),
-				FName: filename,
-				Line:  line,
-			}
+			return nil, e
 		}
 
 		var actions []Action
@@ -54,6 +59,8 @@ func includeSingle(filename string, line uint64, dir string, curdir string, incl
 		}
 	}
 
+	included = append(included, filename)
+
 	compiled, e := inclCompile(filename)
 
 	if e != nil {
@@ -63,7 +70,7 @@ func includeSingle(filename string, line uint64, dir string, curdir string, incl
 	return compiled, nil
 }
 
-func includer(filename string, line uint64, dir string, curdir string, includewhere int) ([][]Action, error) {
+func includer(filename string, curdir string, includewhere int) ([][]Action, error) {
 
 	switch includewhere {
 	case 1:
@@ -75,7 +82,7 @@ func includer(filename string, line uint64, dir string, curdir string, includewh
 	stat, e := os.Stat(filename)
 
 	if e != nil {
-		return nil, makeCompilerErr("Could not open "+filename, dir, line)
+		return nil, errors.New("Could not open " + filename)
 	}
 
 	if stat.IsDir() {
@@ -85,7 +92,7 @@ func includer(filename string, line uint64, dir string, curdir string, includewh
 		var actions [][]Action
 
 		for _, v := range files {
-			acts, e := includer(path.Join(filename, v.Name()), line, dir, curdir, 0)
+			acts, e := includer(path.Join(filename, v.Name()), curdir, 0)
 
 			if e != nil {
 				return nil, e
@@ -97,7 +104,7 @@ func includer(filename string, line uint64, dir string, curdir string, includewh
 		return actions, nil
 	}
 
-	inc, e := includeSingle(filename, line, dir, curdir, includewhere)
+	inc, e := includeSingle(filename, curdir, includewhere)
 
 	if e != nil {
 		return [][]Action{}, e
