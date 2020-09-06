@@ -30,3 +30,8 @@ func (o OmmObject) TypeOf() string {
 }
 
 func (o OmmObject) Deallocate() {}
+
+//Range ranges over an object
+func (o OmmObject) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+	return nil
+}

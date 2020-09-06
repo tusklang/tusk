@@ -4,6 +4,7 @@ import "strings"
 
 type OmmHash struct {
 	Hash   map[string]*OmmType
+	keys   []string
 	Length uint64
 }
 
@@ -24,6 +25,7 @@ func (hash *OmmHash) Set(idx string, val OmmType) {
 	}
 
 	if _, exists := hash.Hash[idx]; !exists {
+		hash.keys = append(hash.keys, idx)
 		hash.Length++
 	}
 
@@ -80,3 +82,22 @@ func (hash OmmHash) TypeOf() string {
 }
 
 func (hash OmmHash) Deallocate() {}
+
+//Range ranges over a hash
+func (arr OmmHash) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+
+	for k, v := range arr.Hash {
+		var key OmmString
+		key.FromGoType(k)
+		var ommtypekey OmmType = key
+		ret := fn(&ommtypekey, v)
+
+		if ret.Type == "break" {
+			break
+		} else if ret.Type == "return" {
+			return &ret
+		}
+	}
+
+	return nil
+}

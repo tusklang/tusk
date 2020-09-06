@@ -27,3 +27,8 @@ func (r OmmRune) TypeOf() string {
 }
 
 func (r OmmRune) Deallocate() {}
+
+//Range ranges over a rune
+func (r OmmRune) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+	return nil
+}

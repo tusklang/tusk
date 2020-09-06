@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/omm-lang/omm/lang/types"
 	. "github.com/omm-lang/omm/lang/types"
 )
 
@@ -77,6 +78,11 @@ func (r OmmURLResp) TypeOf() string {
 }
 
 func (r OmmURLResp) Deallocate() {}
+
+//Range ranges over a url response
+func (r OmmURLResp) Range(fn func(val1, val2 *types.OmmType) types.Returner) *types.Returner {
+	return nil
+}
 
 func urlget(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 

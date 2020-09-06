@@ -1,29 +1,7 @@
-include `ommstd/json`
-
-var defaults = [:
-    "package" = "",
-    "version" = "1.0.0",
-    "license" = "MIT",
-    "author(s)" = "",
-    "repo" = "",
-:]
-
 var main = fn() {
-
-    var mangof = files.create("mango.json")
-
-    var data = clone(defaults)
-
-    each (data, k, v) {
-        val := input("Enter field \"" + k + "\" (\"" + v + "\"): ")
-        if (val != "") data::(k) = val
+    each ([:
+        "a" = "b"
+    :], k, v) {
+        log k + " " + v
     }
-
-    data::scripts = [:
-        "archive" = "make archive",
-        "run" = "make run",
-        "test" = "make test",
-    :]
-
-    mangof::Write(json.marshal(data, "\t"))
 }

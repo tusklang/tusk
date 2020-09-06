@@ -62,3 +62,8 @@ func (l OmmRuntimeLibrary) TypeOf() string {
 }
 
 func (l OmmRuntimeLibrary) Deallocate() {}
+
+//Range ranges over a runtime library
+func (f OmmRuntimeLibrary) Range(fn func(val1, val2 *types.OmmType) types.Returner) *types.Returner {
+	return nil
+}

@@ -462,116 +462,32 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			keyName := v.First[1].Name //get name of key
 			valName := v.First[2].Name //get name of val
 
-			switch it.(type) {
-			case OmmHash:
+			it.Range(func(key, val *OmmType) Returner {
 
-				for key, val := range it.(OmmHash).Hash {
+				ins.Allocate(keyName, key)
+				ins.Allocate(valName, val)
 
-					ommtypeKeyn := OmmString{}
-					ommtypeKeyn.FromGoType(key)
+				interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil)
 
-					var ommtypeKey OmmType = ommtypeKeyn
+				//free the key and val spaces
+				ins.Deallocate(keyName)
+				ins.Deallocate(valName)
+				/////////////////////////////
 
-					ins.Allocate(keyName, &ommtypeKey)
-					ins.Allocate(valName, val)
-
-					interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil)
-
-					//free the key and val spaces
-					ins.Deallocate(keyName)
-					ins.Deallocate(valName)
-					/////////////////////////////
-
-					if interpreted.Type == "return" {
-						return Returner{
-							Type: interpreted.Type,
-							Exp:  interpreted.Exp,
-						}
+				if interpreted.Type == "return" || interpreted.Type == "continue" || interpreted.Type == "break" {
+					return Returner{
+						Type: interpreted.Type,
+						Exp:  interpreted.Exp,
 					}
-
-					if interpreted.Type == "break" {
-						break
-					}
-					if interpreted.Type == "continue" {
-						continue
-					}
-
 				}
 
-			case OmmArray:
+				var undefval OmmType = undef
 
-				for key, val := range it.(OmmArray).Array {
-
-					ommtypeKeyn := OmmNumber{}
-					ommtypeKeyn.FromGoType(float64(key))
-
-					var ommtypeKey OmmType = ommtypeKeyn
-
-					ins.Allocate(keyName, &ommtypeKey)
-					ins.Allocate(valName, val)
-
-					interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil)
-
-					//free the key and val spaces
-					ins.Deallocate(keyName)
-					ins.Deallocate(valName)
-					/////////////////////////////
-
-					if interpreted.Type == "return" {
-						return Returner{
-							Type: interpreted.Type,
-							Exp:  interpreted.Exp,
-						}
-					}
-
-					if interpreted.Type == "break" {
-						break
-					}
-					if interpreted.Type == "continue" {
-						continue
-					}
-
+				return Returner{
+					Type: "none",
+					Exp:  &undefval,
 				}
-
-			case OmmString:
-
-				for key, val := range it.(OmmString).ToGoType() {
-
-					ommtypeKeyn := OmmNumber{}
-					ommtypeKeyn.FromGoType(float64(key))
-					ommtypeValr := OmmRune{}
-					ommtypeValr.FromGoType(val)
-
-					var ommtypeKey OmmType = ommtypeKeyn
-					var ommtypeVal OmmType = ommtypeValr
-
-					ins.Allocate(keyName, &ommtypeKey)
-					ins.Allocate(valName, &ommtypeVal)
-
-					interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil)
-
-					//free the key and val spaces
-					ins.Deallocate(keyName)
-					ins.Deallocate(valName)
-					/////////////////////////////
-
-					if interpreted.Type == "return" {
-						return Returner{
-							Type: interpreted.Type,
-							Exp:  interpreted.Exp,
-						}
-					}
-
-					if interpreted.Type == "break" {
-						break
-					}
-					if interpreted.Type == "continue" {
-						continue
-					}
-
-				}
-
-			}
+			})
 
 		case "++":
 

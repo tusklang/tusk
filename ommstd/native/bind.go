@@ -23,7 +23,12 @@ func (ogf OmmGoFunc) TypeOf() string {
 	return ogf.Type()
 }
 
-func (_ OmmGoFunc) Deallocate() {}
+func (ogf OmmGoFunc) Deallocate() {}
+
+//Range ranges over an omm native function
+func (ogf OmmGoFunc) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+	return nil
+}
 
 var native = make(map[string]*OmmType)
 var operations = make(map[string]func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType)

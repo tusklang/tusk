@@ -17,3 +17,8 @@ func (u OmmUndef) TypeOf() string {
 }
 
 func (u OmmUndef) Deallocate() {}
+
+//Range ranges over an undef type
+func (u OmmUndef) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+	return nil
+}

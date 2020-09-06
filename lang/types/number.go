@@ -69,3 +69,8 @@ func (n OmmNumber) TypeOf() string {
 }
 
 func (n OmmNumber) Deallocate() {}
+
+//Range ranges over a number
+func (n OmmNumber) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+	return nil
+}

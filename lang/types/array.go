@@ -66,6 +66,20 @@ func (arr OmmArray) TypeOf() string {
 func (arr OmmArray) Deallocate() {}
 
 //Range ranges over an array
-func (arr OmmArray) Range(fn func(val1, val2 OmmType, ins *Instance, actions []Action, stacktrace []string, stacksize uint, varnames []string /* varnames to deallocate */)) {
+func (arr OmmArray) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
 
+	for k, v := range arr.Array {
+		var key OmmNumber
+		key.FromGoType(float64(k))
+		var ommtypekey OmmType = key
+		ret := fn(&ommtypekey, v)
+
+		if ret.Type == "break" {
+			break
+		} else if ret.Type == "return" {
+			return &ret
+		}
+	}
+
+	return nil
 }

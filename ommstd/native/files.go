@@ -58,10 +58,10 @@ func createfile(filename string) OmmFile {
 	return file
 }
 
-func (file *OmmFile) FromGoType(f *os.File) {
-	file.gofile = f
+func (f *OmmFile) FromGoType(osfile *os.File) {
+	f.gofile = osfile
 
-	file.Write = OmmGoFunc{
+	f.Write = OmmGoFunc{
 		Function: func(args []*types.OmmType, stacktrace []string, line uint64, file string, instance *types.Instance) *types.OmmType {
 
 			if len(args) != 1 || (*args[0]).Type() != "string" {
@@ -71,7 +71,7 @@ func (file *OmmFile) FromGoType(f *os.File) {
 			var data = (*args[0]).(types.OmmString).ToRuneList()
 
 			for _, v := range data {
-				fmt.Fprintf(f, "%c", v)
+				fmt.Fprintf(osfile, "%c", v)
 			}
 
 			var undef types.OmmType = types.OmmUndef{}
@@ -79,9 +79,9 @@ func (file *OmmFile) FromGoType(f *os.File) {
 		},
 	}
 
-	file.Read = OmmGoFunc{
+	f.Read = OmmGoFunc{
 		Function: func(args []*types.OmmType, stacktrace []string, line uint64, file string, instance *types.Instance) *types.OmmType {
-			r := bufio.NewReader(f)
+			r := bufio.NewReader(osfile)
 			var runelist []rune
 
 			for { //read it as a rune list
@@ -103,30 +103,30 @@ func (file *OmmFile) FromGoType(f *os.File) {
 		},
 	}
 
-	file.Delete = OmmGoFunc{
+	f.Delete = OmmGoFunc{
 		Function: func(args []*types.OmmType, stacktrace []string, line uint64, file string, instance *types.Instance) *types.OmmType {
-			os.Remove(f.Name())
-			f.Close()
+			os.Remove(osfile.Name())
+			osfile.Close()
 			var ommtype types.OmmType = types.OmmUndef{}
 			return &ommtype
 		},
 	}
 
-	file.Close = OmmGoFunc{
+	f.Close = OmmGoFunc{
 		Function: func(args []*types.OmmType, stacktrace []string, line uint64, file string, instance *types.Instance) *types.OmmType {
-			f.Close()
+			osfile.Close()
 			var ommtype types.OmmType = types.OmmUndef{}
 			return &ommtype
 		},
 	}
 
-	file.Exists = OmmGoFunc{
+	f.Exists = OmmGoFunc{
 		Function: func(args []*types.OmmType, stacktrace []string, line uint64, file string, instance *types.Instance) *types.OmmType {
 
 			gotrue := true
 			gofalse := false
 
-			if _, e := os.Stat(f.Name()); os.IsNotExist(e) {
+			if _, e := os.Stat(osfile.Name()); os.IsNotExist(e) {
 				var truev types.OmmType = types.OmmBool{
 					Boolean: &gotrue,
 				}
@@ -154,3 +154,8 @@ func (f OmmFile) TypeOf() string {
 }
 
 func (f OmmFile) Deallocate() {}
+
+//Range ranges over a file
+func (f OmmFile) Range(fn func(val1, val2 *types.OmmType) types.Returner) *types.Returner {
+	return nil
+}

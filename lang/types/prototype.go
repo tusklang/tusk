@@ -57,3 +57,8 @@ func (p OmmProto) TypeOf() string {
 }
 
 func (p OmmProto) Deallocate() {}
+
+//Range ranges over a prototype
+func (p OmmProto) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+	return nil
+}

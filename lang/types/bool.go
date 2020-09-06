@@ -32,3 +32,8 @@ func (b OmmBool) TypeOf() string {
 }
 
 func (b OmmBool) Deallocate() {}
+
+//Range ranges over a bool
+func (b OmmBool) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+	return nil
+}

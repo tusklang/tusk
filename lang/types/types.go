@@ -21,4 +21,5 @@ type OmmType interface {
 	//////////////////////////////////////////////////////
 
 	Deallocate()
+	Range(func(val1, val2 *OmmType) Returner) *Returner
 }

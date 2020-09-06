@@ -25,3 +25,8 @@ func (f OmmFunc) TypeOf() string {
 }
 
 func (f OmmFunc) Deallocate() {}
+
+//Range ranges over a function
+func (f OmmFunc) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+	return nil
+}

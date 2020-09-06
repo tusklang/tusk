@@ -45,3 +45,8 @@ func (ot OmmThread) Deallocate() {
 
 	thread_dealloc(ot)
 }
+
+//Range ranges over a thread
+func (ot OmmThread) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+	return nil
+}

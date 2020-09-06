@@ -67,3 +67,26 @@ func (str OmmString) TypeOf() string {
 }
 
 func (str OmmString) Deallocate() {}
+
+//Range ranges over a string
+func (str OmmString) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+
+	for k, v := range str.String {
+		var key OmmNumber
+		key.FromGoType(float64(k))
+		var val OmmRune
+		val.FromGoType(v)
+
+		var keyommtype OmmType = key
+		var valommtype OmmType = val
+		ret := fn(&keyommtype, &valommtype)
+
+		if ret.Type == "break" {
+			break
+		} else if ret.Type == "return" {
+			return &ret
+		}
+	}
+
+	return nil
+}
