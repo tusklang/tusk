@@ -11,10 +11,6 @@ import (
 
 func Run(params types.CliParams) {
 
-	fileName := params.Name
-
-	included = append(included, fileName)
-
 	variables, ce := Compile(params)
 
 	if ce != nil {

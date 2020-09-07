@@ -1,3 +1,6 @@
+;include:
+;s ommstd/util
+
 var json.marshal
 
 var getmarshalv = fn(string -> marshalled, string -> indent) {

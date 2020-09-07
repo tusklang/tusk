@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"path"
+	"strings"
 
 	"github.com/omm-lang/omm/lang/interpreter"
 
@@ -31,6 +33,8 @@ func makeCompilerErr(msg, fname string, line uint64) error {
 	}
 }
 
+var ommbasedir string
+
 func inclCompile(filename string) ([]Action, error) {
 
 	file, e := ioutil.ReadFile(filename)
@@ -39,13 +43,52 @@ func inclCompile(filename string) ([]Action, error) {
 		return nil, errors.New("Could not open file: " + filename)
 	}
 
-	/*
-		includewhere::
-			0: relative to working directory
-			1: relative to omm installation dir (stdlib)
-			2: relative to current file
-	*/
 	var strfile = string(file)
+	var includes []Action
+
+	if strings.HasPrefix(strfile, ";include:") { //if it starts with an include list
+		var istrfile = strings.TrimSpace(strings.TrimPrefix(strfile, ";include:")) //trim the include list identifier
+		var includepaths []string
+
+		if len(istrfile) < 2 {
+			return nil, errors.New("Must use an option for an include directory")
+		}
+
+		for istrfile[0] == ';' {
+			istrfile = istrfile[1:]
+
+			var dir = istrfile[0]
+
+			istrfile = strings.TrimSpace(istrfile[1:])
+			nline := strings.Index(istrfile, "\n")
+			cip := strings.TrimSpace(istrfile[:nline])     //get the directory of the current include path
+			istrfile = strings.TrimSpace(istrfile[nline:]) //remove the cip
+
+			switch dir {
+			case 'r': //relative directory
+				includepaths = append(includepaths, path.Join(path.Dir(filename), cip))
+			case 'w': //working directory
+				includepaths = append(includepaths, cip)
+			case 's': //installation directory
+				includepaths = append(includepaths, path.Join(ommbasedir, cip))
+			default:
+				return nil, fmt.Errorf("Unrecognized include path '%c", dir)
+			}
+
+		}
+
+		for _, v := range includepaths {
+			acts, e := includer(v)
+
+			if e != nil {
+				return nil, makeCompilerErr(e.Error(), filename, 0)
+			}
+
+			includes = append(includes, acts...)
+		}
+
+	}
+
 	lex, e := lexer(strfile, filename)
 
 	if e != nil {
@@ -66,10 +109,10 @@ func inclCompile(filename string) ([]Action, error) {
 
 	actions, e := actionizer(operations)
 
+	actions = append(includes, actions...) //append the includes
+
 	return actions, e
 }
-
-var ommbasedir string
 
 func Compile(params CliParams) (map[string]*OmmType, error) {
 
@@ -77,10 +120,10 @@ func Compile(params CliParams) (map[string]*OmmType, error) {
 
 	var e error
 
-	actions, e := inclCompile(params.Name)
+	actions, e := includer(params.Name)
 
 	if e != nil {
-		return nil, e
+		return nil, makeCompilerErr(e.Error(), params.Name, 0)
 	}
 
 	getnativetypes()

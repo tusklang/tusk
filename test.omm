@@ -1,0 +1,6 @@
+;include:
+;s ommstd/json
+
+var main = fn() {
+    log json.marshal([::], "  ")
+}

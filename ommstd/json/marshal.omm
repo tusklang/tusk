@@ -1,3 +1,6 @@
+;include:
+;s ommstd/util
+
 var json.marshal
 
 ovld json.marshal = fn(hash -> h) {

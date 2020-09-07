@@ -14,7 +14,7 @@ import (
 
 var included = []string{} //list of the included files from omm
 
-func includeSingle(filename string, curdir string, includewhere int) ([]Action, error) {
+func includeSingle(filename string) ([]Action, error) {
 
 	for _, v := range included { //ensure includes are not duplicated (header guards)
 		if v == filename {
@@ -70,14 +70,7 @@ func includeSingle(filename string, curdir string, includewhere int) ([]Action, 
 	return compiled, nil
 }
 
-func includer(filename string, curdir string, includewhere int) ([][]Action, error) {
-
-	switch includewhere {
-	case 1:
-		filename = path.Join(path.Join(ommbasedir), filename)
-	case 2:
-		filename = path.Join(path.Join(curdir), filename)
-	}
+func includer(filename string) ([]Action, error) {
 
 	stat, e := os.Stat(filename)
 
@@ -89,10 +82,10 @@ func includer(filename string, curdir string, includewhere int) ([][]Action, err
 
 		files, _ := ioutil.ReadDir(filename)
 
-		var actions [][]Action
+		var actions []Action
 
 		for _, v := range files {
-			acts, e := includer(path.Join(filename, v.Name()), curdir, 0)
+			acts, e := includer(path.Join(filename, v.Name()))
 
 			if e != nil {
 				return nil, e
@@ -104,11 +97,11 @@ func includer(filename string, curdir string, includewhere int) ([][]Action, err
 		return actions, nil
 	}
 
-	inc, e := includeSingle(filename, curdir, includewhere)
+	inc, e := includeSingle(filename)
 
 	if e != nil {
-		return [][]Action{}, e
+		return nil, e
 	}
 
-	return [][]Action{inc}, nil
+	return inc, nil
 }
