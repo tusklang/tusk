@@ -23,8 +23,28 @@ import "C"
 //Native stores all of the native values. You can make your own by just putting it into this map
 var Native = make(map[string]*OmmType)
 
+func ommprint(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) {
+	for k, v := range args {
+		fmt.Print((*v).Format())
+		if k+1 != len(args) {
+			fmt.Print(" ")
+		}
+	}
+}
+
 //these are the native functions that are relatively simple to implement
 var simplenative = map[string]func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType{
+	"log": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+		ommprint(args, stacktrace, line, file, instance)
+		fmt.Println() //print a newline at the end
+		var tmpundef OmmType = undef
+		return &tmpundef
+	},
+	"print": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+		ommprint(args, stacktrace, line, file, instance)
+		var tmpundef OmmType = undef
+		return &tmpundef
+	},
 	"input": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
 		scanner := bufio.NewScanner(os.Stdin)

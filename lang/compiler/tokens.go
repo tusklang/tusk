@@ -149,30 +149,6 @@ var tokensJSON = []byte(
     "type": "?operation"
   },
   {
-    "name": "log",
-    "remove": "log",
-    "pattern": "(log(\\s*)(~))",
-    "type": "id_non_tilde"
-  },
-  {
-    "name": "log",
-    "remove": "log",
-    "pattern": "(log(\\s+))",
-    "type": "id"
-  },
-  {
-    "name": "print",
-    "remove": "print",
-    "pattern": "(print(\\s*)(~))",
-    "type": "id_non_tilde"
-  },
-  {
-    "name": "print",
-    "remove": "print",
-    "pattern": "(print(\\s+))",
-    "type": "id"
-  },
-  {
     "name": "->",
     "remove": "->",
     "pattern": "(\\-\\>)",

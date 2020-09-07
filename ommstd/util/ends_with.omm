@@ -1,5 +1,5 @@
 ;include:
-;s ommstd/util/substr
+;s ommstd/util/substr.omm
 
 var ends_with = fn(string -> str, string -> ends) {
 
