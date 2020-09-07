@@ -4,8 +4,7 @@ import (
 	"strconv"
 
 	. "github.com/omm-lang/omm/lang/types"
-	"github.com/omm-lang/omm/ommstd/native"
-	. "github.com/omm-lang/omm/ommstd/native"
+	"github.com/omm-lang/omm/native"
 )
 
 //fill an instance to run a function
@@ -48,7 +47,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 		var overload *Overload
 
 		if overload = fillFuncInstance(&fn, arr, instance); overload == nil {
-			OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
+			native.OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
 		}
 
 		return Interpreter(fn.Instance, overload.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params).Exp
@@ -61,7 +60,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 		var overload *Overload
 
 		if overload = fillFuncInstance(&fn, arr, instance); overload == nil {
-			OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
+			native.OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
 		}
 
 		var promise OmmType = *NewThread(func() *OmmType {
@@ -72,7 +71,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 	}
 
 	var nativefunc__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
-		gfn := val1.(OmmGoFunc)
+		gfn := val1.(native.OmmGoFunc)
 		arr := val2.(OmmArray)
 
 		if gfn.Function == nil {

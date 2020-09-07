@@ -2,7 +2,7 @@ package interpreter
 
 import (
 	. "github.com/omm-lang/omm/lang/types"
-	. "github.com/omm-lang/omm/ommstd/native"
+	. "github.com/omm-lang/omm/native"
 )
 
 func number__divide__number(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {

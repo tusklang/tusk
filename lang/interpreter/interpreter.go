@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	. "github.com/omm-lang/omm/lang/types"
-	. "github.com/omm-lang/omm/ommstd/native"
+	. "github.com/omm-lang/omm/native"
 )
 
 const MAX_STACKSIZE = 100001

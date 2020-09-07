@@ -1,6 +1,0 @@
-;include:
-;r test2.omm
-
-var main = fn() {
-    log test()
-}
