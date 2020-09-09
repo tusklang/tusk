@@ -1,7 +1,6 @@
-var main = fn() => {
-    log:(await:(test?()))
-}
+;include:
+;s ommstd/bitwise
 
-var test = fn() => {
-    return true
+var main = fn() => {
+    log:(tobits:(2))
 }

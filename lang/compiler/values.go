@@ -77,14 +77,14 @@ func valueActions(item Item) (Action, error) {
 				File:  item.File,
 				Line:  item.Line,
 			}, nil
-		} else {
-			return Action{
-				Type:  arrtype,
-				Array: arr,
-				File:  item.File,
-				Line:  item.Line,
-			}, nil
 		}
+
+		return Action{
+			Type:  arrtype,
+			Array: arr,
+			File:  item.File,
+			Line:  item.Line,
+		}, nil
 	case "[":
 
 		var hash = make([][2][]Action, 0)
@@ -148,14 +148,14 @@ func valueActions(item Item) (Action, error) {
 				File:  item.File,
 				Line:  item.Line,
 			}, nil
-		} else {
-			return Action{
-				Type: hashtype,
-				Hash: hash,
-				File: item.File,
-				Line: item.Line,
-			}, nil
 		}
+
+		return Action{
+			Type: hashtype,
+			Hash: hash,
+			File: item.File,
+			Line: item.Line,
+		}, nil
 
 	case "expression value":
 

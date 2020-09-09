@@ -42,10 +42,10 @@ func (hash OmmHash) Format() string {
 	return func() string {
 
 		if len(hash.Hash) == 0 {
-			return "[::]"
+			return "[]"
 		}
 
-		var formatted = "[:"
+		var formatted = "["
 
 		for k, v := range hash.Hash {
 
@@ -53,7 +53,7 @@ func (hash OmmHash) Format() string {
 
 			switch (*v).(type) {
 			case OmmHash: //if it is another hash, add the indents
-				if vFormatted != "[::]" {
+				if vFormatted != "[]" {
 					newlineSplit := strings.Split(vFormatted, "\n")
 
 					vFormatted = ""
@@ -66,10 +66,10 @@ func (hash OmmHash) Format() string {
 				}
 			}
 
-			formatted += "\n" + strings.Repeat(" ", 2) + k + ": " + vFormatted + ","
+			formatted += "\n" + strings.Repeat(" ", 2) + k + " = " + vFormatted + ","
 		}
 
-		return formatted + "\n:]"
+		return formatted + "\n]"
 	}() //staring with 2
 }
 

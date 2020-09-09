@@ -120,16 +120,13 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 		}
 
 		if (*args[0]).Type() != "array" {
-			OmmPanic("Function append requires the first argument to be an array", line, file, stacktrace)
+			OmmPanic("Function append requires (array, any)", line, file, stacktrace)
 		}
 
-		appended := append((*args[0]).(OmmArray).Array, args[1])
-		var arr OmmType = OmmArray{
-			Array:  appended,
-			Length: uint64(len(appended)),
-		}
-
-		return &arr
+		a := (*args[0]).(OmmArray)
+		a.PushBack(*args[1])
+		var ommtype OmmType = a
+		return &ommtype
 	},
 	"prepend": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
@@ -141,13 +138,10 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 			OmmPanic("Function prepend requires the first argument to be an array", line, file, stacktrace)
 		}
 
-		prepended := append([]*OmmType{args[1]}, (*args[0]).(OmmArray).Array...)
-		var arr OmmType = OmmArray{
-			Array:  prepended,
-			Length: uint64(len(prepended)),
-		}
-
-		return &arr
+		a := (*args[0]).(OmmArray)
+		a.PushFront(*args[1])
+		var ommtype OmmType = a
+		return &ommtype
 	},
 	"exit": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 

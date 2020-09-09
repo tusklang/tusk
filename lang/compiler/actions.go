@@ -23,7 +23,7 @@ func arraytogroup(arractions []Action) []Action {
 
 			//range through it and append to the converted
 			v.Value.(OmmArray).Range(func(_, v *OmmType) Returner {
-				converted = append(converted, Action{
+				curconv = append(curconv, Action{
 					Type:  (*v).Type(),
 					Value: *v,
 				})
@@ -34,19 +34,25 @@ func arraytogroup(arractions []Action) []Action {
 		case "r-array":
 
 			for _, v := range v.Array {
-				converted = append(converted, v...)
+				curconv = append(curconv, v...)
 			}
 
 		default:
-			converted = []Action{v}
+			curconv = []Action{v}
 		}
 
-		converted = append(converted, Action{
-			Type:   "{",
-			ExpAct: curconv,
-			File:   v.File,
-			Line:   v.Line,
-		})
+		if len(curconv) == 0 {
+			continue
+		} else if len(curconv) == 1 {
+			converted = append(converted, curconv...)
+		} else {
+			converted = append(converted, Action{
+				Type:   "{",
+				ExpAct: curconv,
+				File:   v.File,
+				Line:   v.Line,
+			})
+		}
 
 	}
 
@@ -96,7 +102,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						var typeList []string
 						var paramList []string
-						var fnparams = arraytogroup(right[0].First[0].ExpAct)
+						var fnparams = arraytogroup(right[0].First)
 
 						for _, p := range fnparams {
 							if p.Type == "variable" {
@@ -106,8 +112,8 @@ func actionizer(operations []Operation) ([]Action, error) {
 								continue
 							}
 
-							if p.ExpAct[0].Type != "variable" {
-								return []Action{}, makeCompilerErr("Function parameter lists can only have typed variables", v.File, right[0].Line)
+							if p.Type != "cast" || p.ExpAct[0].Type != "variable" {
+								return []Action{}, makeCompilerErr("Function parameter lists can only have variables", v.File, right[0].Line)
 							}
 
 							typeList = append(typeList, p.Name)
@@ -205,7 +211,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						actions = append(actions, Action{
 							Type:   val,
-							First:  arraytogroup(arraytogroup(right[0].First)[0].ExpAct), //because it doesnt matter if they use a { or (
+							First:  arraytogroup(right[0].First), //because it doesnt matter if they use a { or (
 							ExpAct: arraytogroup(right[0].Second),
 							File:   v.File,
 							Line:   v.Line,
@@ -232,7 +238,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 							actions = append(actions, Action{
 								Type:   val,
 								Name:   arraytogroup(right[0].First)[0].Name,
-								ExpAct: arraytogroup(right[0].ExpAct),
+								ExpAct: right[0].ExpAct,
 								File:   v.File,
 								Line:   v.Line,
 							})
@@ -301,7 +307,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 									return []Action{}, makeCompilerErr("Cannot have compound types at the global scope of a prototype", v.File, right[0].Line)
 								}
 
-								var current = arraytogroup(arraytogroup(body[i].ExpAct)[0].ExpAct)[0].Value
+								var current = body[i].ExpAct[0].ExpAct[0].Value
 
 								if body[i].Type == "static" {
 									static[name] = &current
@@ -328,7 +334,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 									}
 
 									var currentfn = (*static[name]).(OmmFunc)
-									currentfn.Overloads = append(currentfn.Overloads, arraytogroup(arraytogroup(arraytogroup(body[i].ExpAct)[0].ExpAct))[0].Value.(OmmFunc).Overloads[0])
+									currentfn.Overloads = append(currentfn.Overloads, body[i].ExpAct[0].ExpAct[0].Value.(OmmFunc).Overloads[0])
 									*static[name] = currentfn
 								} else {
 
@@ -413,7 +419,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						actions = append(actions, Action{
 							Type:   val,
-							ExpAct: arraytogroup(right),
+							ExpAct: right,
 							File:   v.File,
 							Line:   v.Line,
 						})

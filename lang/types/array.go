@@ -42,7 +42,7 @@ func (arr *OmmArray) PopFront(val OmmType) {
 }
 
 func (arr OmmArray) Format() string {
-	var formatted = "["
+	var formatted = "("
 	for _, v := range arr.Array {
 		formatted += (*v).Format() + ", "
 	}
@@ -51,7 +51,7 @@ func (arr OmmArray) Format() string {
 		formatted = formatted[:len(formatted)-2] //remove the trailing ", "
 	}
 
-	formatted += "]"
+	formatted += ")"
 	return formatted
 }
 

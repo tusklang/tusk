@@ -1,9 +1,9 @@
 package types
 
-//this is a binding file
-//so the code is very messy
-//(because c is very messy)
-//but i love c
+//This is a binding file
+//So the code is very messy
+//(because C is very messy)
+//But I love C
 
 import (
 	"unsafe"

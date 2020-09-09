@@ -167,7 +167,6 @@ func Compile(params CliParams) (map[string]*OmmType, error) {
 	}
 
 	for _, v := range vars {
-
 		var tmp = make([]Action, 1) //create a temporary action slice to pass to changevarnames
 		tmp[0].Type = (*v).Type()
 		tmp[0].Value = *v
