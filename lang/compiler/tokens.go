@@ -305,18 +305,6 @@ var tokensJSON = []byte(
     "type": "operation"
   },
   {
-    "name": "await",
-    "remove": "await",
-    "pattern": "(await(\\s*)(~))",
-    "type": "id_non_tilde"
-  },
-  {
-    "name": "await",
-    "remove": "await",
-    "pattern": "(await(\\s+))",
-    "type": "id"
-  },
-  {
     "name": "return",
     "remove": "return",
     "pattern": "(return(\\s*)(~))",

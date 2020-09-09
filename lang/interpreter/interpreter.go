@@ -26,16 +26,10 @@ func dealloc(ins *Instance, varnames []string, value *OmmType) { //function to r
 	}
 }
 
-func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize uint, varnames []string /* varnames to deallocate */) Returner {
+func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize uint, varnames []string /* varnames to deallocate */, expReturn bool) Returner {
 
 	if stacksize > MAX_STACKSIZE {
 		OmmPanic("Stack size was exceeded", 0, "none", stacktrace)
-	}
-
-	var expReturn = false //if it is inside an expression
-
-	if len(actions) == 1 {
-		expReturn = true
 	}
 
 	for _, v := range actions {
@@ -43,7 +37,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "var":
 
-			interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil)
+			interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
 
 			varnames = append(varnames, v.Name)
 			ins.Allocate(v.Name, interpreted.Exp)
@@ -59,7 +53,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "ovld":
 
-			interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil)
+			interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
 
 			if (*(*ins.Fetch(v.Name)).Value).Type() != "function" {
 				*(*ins.Fetch(v.Name)).Value = OmmFunc{}
@@ -98,9 +92,9 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "let":
 
-			interpreted := *Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil).Exp
+			interpreted := *Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true).Exp
 
-			variable := Interpreter(ins, v.First, stacktrace, stacksize+1, nil)
+			variable := Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
 
 			*variable.Exp = interpreted
 
@@ -158,7 +152,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			var nArr = make([]*OmmType, len(v.Array))
 
 			for k, i := range v.Array {
-				nArr[k] = Interpreter(ins, i, stacktrace, stacksize+1, nil).Exp
+				nArr[k] = Interpreter(ins, i, stacktrace, stacksize+1, nil, true).Exp
 			}
 
 			var ommType OmmType = OmmArray{
@@ -179,7 +173,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			var nHash = make(map[string]*OmmType)
 
 			for _, i := range v.Hash {
-				nHash[(*Interpreter(ins, i[0], stacktrace, stacksize+1, nil).Exp).Format()] = Interpreter(ins, i[1], stacktrace, stacksize+1, nil).Exp
+				nHash[(*Interpreter(ins, i[0], stacktrace, stacksize+1, nil, true).Exp).Format()] = Interpreter(ins, i[1], stacktrace, stacksize+1, nil, true).Exp
 			}
 
 			var ommType OmmType = OmmHash{
@@ -209,10 +203,8 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			}
 
 		case "{":
-			fallthrough
-		case "(":
 
-			groupRet := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil)
+			groupRet := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, false)
 
 			if expReturn {
 				defer dealloc(ins, varnames, groupRet.Exp)
@@ -224,7 +216,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "cast":
 
-			casted := Cast(*Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil).Exp, v.Name, stacktrace, v.Line, v.File)
+			casted := Cast(*Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true).Exp, v.Name, stacktrace, v.Line, v.File)
 
 			if expReturn {
 				defer dealloc(ins, varnames, casted)
@@ -278,7 +270,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			//& and | can be a bit different for bool and bool
 			if v.Type == "&" || v.Type == "|" {
-				firstInterpreted = Interpreter(ins, v.First, stacktrace, stacksize+1, nil)
+				firstInterpreted = Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
 				var computed OmmType
 
 				if (*firstInterpreted.Exp).Type() == "bool" {
@@ -297,7 +289,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 							Boolean: &retVal,
 						}
 					} else {
-						secondInterpreted = Interpreter(ins, v.Second, stacktrace, stacksize+1, nil)
+						secondInterpreted = Interpreter(ins, v.Second, stacktrace, stacksize+1, nil, true)
 
 						if (*secondInterpreted.Exp).Type() == "bool" {
 							var gobool = isTruthy(*secondInterpreted.Exp)
@@ -321,8 +313,8 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			}
 			//////////////////////////////////////////////////'
 
-			firstInterpreted = Interpreter(ins, v.First, stacktrace, stacksize+1, nil)
-			secondInterpreted = Interpreter(ins, v.Second, stacktrace, stacksize+1, nil)
+			firstInterpreted = Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
+			secondInterpreted = Interpreter(ins, v.Second, stacktrace, stacksize+1, nil, true)
 
 		and_or_skip:
 			//check typeof first
@@ -348,33 +340,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		////////////
 
-		case "await":
-
-			interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil).Exp
-			var awaited OmmType
-
-			switch (*interpreted).(type) {
-			case OmmThread:
-
-				//put the new value back into the given interpreted pointer
-				thread := (*interpreted).(OmmThread)
-				thread.Join()
-				*interpreted = thread
-				///////////////////////////////////////////////////////////
-
-				awaited = thread
-			default:
-				awaited = *interpreted
-			}
-
-			if expReturn {
-				defer dealloc(ins, varnames, &awaited)
-				return Returner{
-					Type: "expression",
-					Exp:  &awaited,
-				}
-			}
-
 		case "break":
 			fallthrough
 		case "continue":
@@ -385,7 +350,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "return":
 
-			value := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil).Exp
+			value := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true).Exp
 
 			defer dealloc(ins, varnames, value)
 
@@ -397,7 +362,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 		case "defer":
 
 			actions := v.ExpAct
-			defer func() { Interpreter(ins, actions, stacktrace, stacksize+1, nil) }()
+			defer func() { Interpreter(ins, actions, stacktrace, stacksize+1, nil, true) }()
 
 		case "condition":
 
@@ -406,12 +371,12 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				truthy := true
 
 				if v.Type == "if" {
-					condition := Interpreter(ins, v.First, stacktrace, stacksize+1, nil)
+					condition := Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
 					truthy = isTruthy(*condition.Exp)
 				}
 
 				if truthy {
-					interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil)
+					interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
 
 					if interpreted.Type == "return" || interpreted.Type == "break" || interpreted.Type == "continue" {
 						return Returner{
@@ -426,11 +391,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "while":
 
-			cond := Interpreter(ins, v.First, stacktrace, stacksize+1, nil)
+			cond := Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
 
-			for ; isTruthy(*cond.Exp); cond = Interpreter(ins, v.First, stacktrace, stacksize+1, nil) {
+			for ; isTruthy(*cond.Exp); cond = Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true) {
 
-				interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil)
+				interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
 
 				if interpreted.Type == "return" {
 					return Returner{
@@ -449,7 +414,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "each":
 
-			it := *Interpreter(ins, []Action{v.First[0]}, stacktrace, stacksize+1, nil).Exp
+			it := *Interpreter(ins, []Action{v.First[0]}, stacktrace, stacksize+1, nil, true).Exp
 			keyName := v.First[1].Name //get name of key
 			valName := v.First[2].Name //get name of val
 
@@ -458,7 +423,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				ins.Allocate(keyName, key)
 				ins.Allocate(valName, val)
 
-				interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil)
+				interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
 
 				//free the key and val spaces
 				ins.Deallocate(keyName)
@@ -482,7 +447,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "++":
 
-			variable := Interpreter(ins, v.First, stacktrace, stacksize+1, nil)
+			variable := Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
 
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" + number"]
 
@@ -503,7 +468,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "--":
 
-			variable := Interpreter(ins, v.First, stacktrace, stacksize+1, nil)
+			variable := Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
 
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" - number"]
 
@@ -534,8 +499,8 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			fallthrough
 		case "^=":
 
-			variable := Interpreter(ins, v.First, stacktrace, stacksize+1, nil)
-			interpreted := *Interpreter(ins, v.Second, stacktrace, stacksize+1, nil).Exp
+			variable := Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
+			interpreted := *Interpreter(ins, v.Second, stacktrace, stacksize+1, nil, true).Exp
 
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" "+string(v.Type[0])+" "+interpreted.Type()]
 

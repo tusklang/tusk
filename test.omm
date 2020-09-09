@@ -1,7 +1,7 @@
 var main = fn() => {
-    log:(test?())
+    log:(await:(test?()))
 }
 
 var test = fn() => {
-    return 1
+    return true
 }

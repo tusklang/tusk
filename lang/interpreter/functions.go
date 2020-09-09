@@ -50,7 +50,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 			native.OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
 		}
 
-		return Interpreter(fn.Instance, overload.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params).Exp
+		return Interpreter(fn.Instance, overload.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params, true).Exp
 	}
 
 	var function__async__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
@@ -64,7 +64,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 		}
 
 		var promise OmmType = *NewThread(func() *OmmType {
-			return Interpreter(fn.Instance, overload.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params).Exp
+			return Interpreter(fn.Instance, overload.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params, true).Exp
 		})
 
 		return &promise

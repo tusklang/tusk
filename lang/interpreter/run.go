@@ -78,7 +78,7 @@ func RunInterpreter(compiledVars map[string]*OmmType, cli_params CliParams) {
 		case OmmFunc:
 			main := globals["$main"]
 
-			calledP := Interpreter(&instance, (*main.Value).(OmmFunc).Overloads[0].Body, []string{"at the entry caller"}, 0, nil).Exp
+			calledP := Interpreter(&instance, (*main.Value).(OmmFunc).Overloads[0].Body, []string{"at the entry caller"}, 0, nil, false).Exp
 			WaitAllThreads() //finish up any remaining threads
 
 			if calledP == nil {

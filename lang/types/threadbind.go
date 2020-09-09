@@ -5,7 +5,9 @@ package types
 //(because c is very messy)
 //but i love c
 
-import "unsafe"
+import (
+	"unsafe"
+)
 
 //#include "thread.h"
 import "C"
@@ -33,7 +35,7 @@ func newthread(cb func() *OmmType) *OmmThread {
 
 func jointhread(thread OmmThread) *OmmType {
 	var joined = C.waitfor((C.struct_Thread)(*thread.thread))
-	return (*OmmType)(joined)
+	return *(**OmmType)(joined)
 }
 
 func thread_dealloc(thread OmmThread) {

@@ -45,6 +45,30 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 		var tmpundef OmmType = undef
 		return &tmpundef
 	},
+	"await": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+
+		if len(args) != 1 || (*args[0]).Type() != "thread" {
+			OmmPanic("Function await requires (thread)", line, file, stacktrace)
+		}
+
+		interpreted := args[0]
+		var awaited *OmmType
+
+		switch (*interpreted).(type) {
+		case OmmThread:
+
+			//put the new value back into the given interpreted pointer
+			thread := (*interpreted).(OmmThread)
+			awaited = thread.Join()
+			*interpreted = thread
+			///////////////////////////////////////////////////////////
+
+		default:
+			awaited = interpreted
+		}
+
+		return awaited
+	},
 	"input": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
 
 		scanner := bufio.NewScanner(os.Stdin)
