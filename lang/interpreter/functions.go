@@ -81,7 +81,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 		return gfn.Function(arr.Array, stacktrace, line, file, instance)
 	}
 
-	Operations["function <- array"] = function__sync__array
-	Operations["function <~ array"] = function__async__array
-	Operations["native_func <- array"] = nativefunc__sync__array
+	Operations["function : array"] = function__sync__array
+	Operations["function ? array"] = function__async__array
+	Operations["native_func : array"] = nativefunc__sync__array
 }

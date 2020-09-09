@@ -1,11 +1,57 @@
 package compiler
 
 import (
-	"fmt"
 	"runtime"
 
 	. "github.com/omm-lang/omm/lang/types"
 )
+
+func arraytogroup(arractions []Action) []Action {
+	//convert a parenthesis array to a {} group
+	//	if (true || false && !true) { ;would be registered as an array
+	//		;blah blah
+	//	}
+
+	var converted []Action
+
+	for _, v := range arractions {
+
+		var curconv []Action
+
+		switch v.Type {
+		case "c-array":
+
+			//range through it and append to the converted
+			v.Value.(OmmArray).Range(func(_, v *OmmType) Returner {
+				converted = append(converted, Action{
+					Type:  (*v).Type(),
+					Value: *v,
+				})
+
+				return Returner{}
+			})
+
+		case "r-array":
+
+			for _, v := range v.Array {
+				converted = append(converted, v...)
+			}
+
+		default:
+			converted = []Action{v}
+		}
+
+		converted = append(converted, Action{
+			Type:   "{",
+			ExpAct: curconv,
+			File:   v.File,
+			Line:   v.Line,
+		})
+
+	}
+
+	return converted
+}
 
 func actionizer(operations []Operation) ([]Action, error) {
 
@@ -50,8 +96,9 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						var typeList []string
 						var paramList []string
+						var fnparams = arraytogroup(right[0].First[0].ExpAct)
 
-						for _, p := range right[0].First[0].ExpAct {
+						for _, p := range fnparams {
 							if p.Type == "variable" {
 								//automatically infer that it is type "any"
 								typeList = append(typeList, "any")
@@ -74,7 +121,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 									Overload{
 										Params: paramList,
 										Types:  typeList,
-										Body:   right[0].Second,
+										Body:   arraytogroup(right[0].Second),
 									},
 								},
 							},
@@ -92,8 +139,8 @@ func actionizer(operations []Operation) ([]Action, error) {
 							Type: "condition",
 							ExpAct: []Action{Action{
 								Type:   "if",
-								First:  right[0].First,
-								ExpAct: right[0].Second,
+								First:  arraytogroup(right[0].First),
+								ExpAct: arraytogroup(right[0].Second),
 							}},
 							File: v.File,
 							Line: v.Line,
@@ -112,8 +159,8 @@ func actionizer(operations []Operation) ([]Action, error) {
 						//append to the previous conditional statement
 						actions[len(actions)-1].ExpAct = append(actions[len(actions)-1].ExpAct, Action{
 							Type:   "if",
-							First:  right[0].First,
-							ExpAct: right[0].Second,
+							First:  arraytogroup(right[0].First),
+							ExpAct: arraytogroup(right[0].Second),
 						})
 
 					case "else":
@@ -125,7 +172,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 						//append to the previous conditional statement
 						actions[len(actions)-1].ExpAct = append(actions[len(actions)-1].ExpAct, Action{
 							Type:   "else",
-							ExpAct: right,
+							ExpAct: arraytogroup(right),
 						})
 
 					case "while":
@@ -135,8 +182,8 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						actions = append(actions, Action{
 							Type:   val,
-							First:  right[0].First,
-							ExpAct: right[0].Second,
+							First:  arraytogroup(right[0].First),
+							ExpAct: arraytogroup(right[0].Second),
 							File:   v.File,
 							Line:   v.Line,
 						})
@@ -158,8 +205,8 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						actions = append(actions, Action{
 							Type:   val,
-							First:  right[0].First[0].ExpAct, //because it doesnt matter if they use a { or (
-							ExpAct: right[0].Second,
+							First:  arraytogroup(arraytogroup(right[0].First)[0].ExpAct), //because it doesnt matter if they use a { or (
+							ExpAct: arraytogroup(right[0].Second),
 							File:   v.File,
 							Line:   v.Line,
 						})
@@ -184,8 +231,8 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 							actions = append(actions, Action{
 								Type:   val,
-								Name:   right[0].First[0].Name,
-								ExpAct: right[0].ExpAct,
+								Name:   arraytogroup(right[0].First)[0].Name,
+								ExpAct: arraytogroup(right[0].ExpAct),
 								File:   v.File,
 								Line:   v.Line,
 							})
@@ -242,7 +289,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 								}
 							}
 
-							name := body[i].ExpAct[0].Name[1:]
+							name := arraytogroup(body[i].ExpAct)[0].Name[1:]
 
 							if currentaccess != nil {
 								access[name] = currentaccess
@@ -250,14 +297,16 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 							if body[i].ExpAct[0].Type == "var" {
 
-								if len(body[i].ExpAct[0].ExpAct) == 0 || body[i].ExpAct[0].ExpAct[0].Value == nil {
+								if len(arraytogroup(body[i].ExpAct)[0].ExpAct) == 0 || arraytogroup(arraytogroup(body[i].ExpAct)[0].ExpAct)[0].Value == nil {
 									return []Action{}, makeCompilerErr("Cannot have compound types at the global scope of a prototype", v.File, right[0].Line)
 								}
 
+								var current = arraytogroup(arraytogroup(body[i].ExpAct)[0].ExpAct)[0].Value
+
 								if body[i].Type == "static" {
-									static[name] = &body[i].ExpAct[0].ExpAct[0].Value
+									static[name] = &current
 								} else {
-									instance[name] = &body[i].ExpAct[0].ExpAct[0].Value
+									instance[name] = &current
 								}
 
 							} else if body[i].ExpAct[0].Type == "declare" {
@@ -265,7 +314,6 @@ func actionizer(operations []Operation) ([]Action, error) {
 								var tmp OmmType = OmmUndef{}
 
 								if body[i].Type == "static" {
-									fmt.Println(&tmp)
 									static[name] = &tmp
 								} else {
 									instance[name] = &tmp
@@ -280,7 +328,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 									}
 
 									var currentfn = (*static[name]).(OmmFunc)
-									currentfn.Overloads = append(currentfn.Overloads, body[i].ExpAct[0].ExpAct[0].Value.(OmmFunc).Overloads[0])
+									currentfn.Overloads = append(currentfn.Overloads, arraytogroup(arraytogroup(arraytogroup(body[i].ExpAct)[0].ExpAct))[0].Value.(OmmFunc).Overloads[0])
 									*static[name] = currentfn
 								} else {
 
@@ -342,8 +390,8 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						actions = append(actions, Action{
 							Type:   val,
-							Name:   right[0].First[0].Name,
-							ExpAct: right[0].ExpAct,
+							Name:   arraytogroup(right[0].First)[0].Name,
+							ExpAct: arraytogroup(right[0].ExpAct),
 							File:   v.File,
 							Line:   v.Line,
 						})
@@ -365,7 +413,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						actions = append(actions, Action{
 							Type:   val,
-							ExpAct: right,
+							ExpAct: arraytogroup(right),
 							File:   v.File,
 							Line:   v.Line,
 						})
@@ -479,9 +527,9 @@ func actionizer(operations []Operation) ([]Action, error) {
 			fallthrough
 		case "=>":
 			fallthrough
-		case "<-":
+		case ":":
 			fallthrough
-		case "<~":
+		case "?":
 
 			actions = append(actions, Action{
 				Type:   v.Type,

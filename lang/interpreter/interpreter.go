@@ -1,8 +1,6 @@
 package interpreter
 
 import (
-	"fmt"
-
 	. "github.com/omm-lang/omm/lang/types"
 	. "github.com/omm-lang/omm/native"
 )
@@ -113,13 +111,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 					Exp:  variable.Exp,
 				}
 			}
-
-		case "log":
-			interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil)
-			fmt.Println((*interpreted.Exp).Format())
-		case "print":
-			interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil)
-			fmt.Print((*interpreted.Exp).Format())
 
 		//all of the types
 		case "string":
@@ -278,9 +269,9 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			fallthrough
 		case "=>":
 			fallthrough //this is probably not necessary, but i just left it here
-		case "<-":
+		case ":":
 			fallthrough
-		case "<~":
+		case "?":
 
 			var firstInterpreted Returner
 			var secondInterpreted Returner

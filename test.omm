@@ -1,6 +1,7 @@
-;include:
-;s ommstd/json
+var main = fn() => {
+    log:(test?())
+}
 
-var main = fn() {
-    log(json.marshal([::], "  "))
+var test = fn() => {
+    return 1
 }

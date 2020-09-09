@@ -32,25 +32,60 @@ func valueActions(item Item) (Action, error) {
 		}, nil
 	case "(":
 
-		oper, e := makeOperations(item.Group)
+		var arr [][]Action
+		var carr OmmArray
 
-		if e != nil {
-			return Action{}, e
+		var arrtype = "c-array" //compile time array
+
+		for _, v := range item.Group {
+			_oper, e := makeOperations([][]Item{v})
+
+			if e != nil {
+				return Action{}, e
+			}
+
+			oper := _oper[0]
+
+			value, e := actionizer([]Operation{oper})
+
+			if e != nil {
+				return Action{}, e
+			}
+
+			if len(value) == 0 {
+				return Action{}, makeCompilerErr("Each entry in the array must have a value", item.File, item.Line)
+			}
+
+			if value[0].Type == "proto" {
+				return Action{}, makeCompilerErr("Cannot have protos outside of the global scope", item.File, item.Line)
+			}
+
+			if value[0].Value == nil || value[0].Type == "function" {
+				arr = append(arr, value)
+				arrtype = "r-array" ///make it a runtime array
+				continue
+			}
+
+			arr = append(arr, value)
+			carr.PushBack(value[0].Value)
 		}
 
-		acts, e := actionizer(oper)
-
-		if e != nil {
-			return Action{}, e
+		if arrtype == "c-array" {
+			return Action{
+				Type:  arrtype,
+				Value: carr,
+				File:  item.File,
+				Line:  item.Line,
+			}, nil
+		} else {
+			return Action{
+				Type:  arrtype,
+				Array: arr,
+				File:  item.File,
+				Line:  item.Line,
+			}, nil
 		}
-
-		return Action{
-			Type:   "(",
-			ExpAct: acts,
-			File:   item.File,
-			Line:   item.Line,
-		}, nil
-	case "[:":
+	case "[":
 
 		var hash = make([][2][]Action, 0)
 		var chash OmmHash
@@ -119,62 +154,6 @@ func valueActions(item Item) (Action, error) {
 				Hash: hash,
 				File: item.File,
 				Line: item.Line,
-			}, nil
-		}
-
-	case "[":
-
-		var arr [][]Action
-		var carr OmmArray
-
-		var arrtype = "c-array" //compile time array
-
-		for _, v := range item.Group {
-			_oper, e := makeOperations([][]Item{v})
-
-			if e != nil {
-				return Action{}, e
-			}
-
-			oper := _oper[0]
-
-			value, e := actionizer([]Operation{oper})
-
-			if e != nil {
-				return Action{}, e
-			}
-
-			if len(value) == 0 {
-				return Action{}, makeCompilerErr("Each entry in the array must have a value", item.File, item.Line)
-			}
-
-			if value[0].Type == "proto" {
-				return Action{}, makeCompilerErr("Cannot have protos outside of the global scope", item.File, item.Line)
-			}
-
-			if value[0].Value == nil || value[0].Type == "function" {
-				arr = append(arr, value)
-				arrtype = "r-array" ///make it a runtime array
-				continue
-			}
-
-			arr = append(arr, value)
-			carr.PushBack(value[0].Value)
-		}
-
-		if arrtype == "c-array" {
-			return Action{
-				Type:  arrtype,
-				Value: carr,
-				File:  item.File,
-				Line:  item.Line,
-			}, nil
-		} else {
-			return Action{
-				Type:  arrtype,
-				Array: arr,
-				File:  item.File,
-				Line:  item.Line,
 			}, nil
 		}
 

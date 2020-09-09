@@ -95,7 +95,7 @@ func normalOpFunc(exp []Item, index int, opType string) (Operation, error) {
 // exponentiation
 // mult, div, modulo
 // add, subtract
-// index operations and function calls
+// index operation and function calls
 // not gate
 // cast operation
 
@@ -192,8 +192,8 @@ func makeOperations(groups [][]Item) ([]Operation, error) {
 		},
 		map[string]func(exp []Item, index int, opType string) (Operation, error){
 			"::": normalOpFunc,
-			"<-": normalOpFunc,
-			"<~": normalOpFunc,
+			":":  normalOpFunc,
+			"?":  normalOpFunc,
 		},
 		map[string]func(exp []Item, index int, opType string) (Operation, error){
 			"!": func(exp []Item, index int, opType string) (Operation, error) {

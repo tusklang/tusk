@@ -239,7 +239,7 @@ func lexer(file, filename string) ([]Lex, error) {
 		}
 	}
 
-	lex = term_inserter(tilde_inserter(insert_arrows(lex)))
+	lex = term_inserter(tilde_inserter(lex))
 
 	return lex, nil
 }
