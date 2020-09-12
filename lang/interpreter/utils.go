@@ -1,6 +1,6 @@
 package interpreter
 
-import . "github.com/omm-lang/omm/lang/types"
+import . "omm/lang/types"
 
 var tmpFalse = false
 var tmpTrue = true

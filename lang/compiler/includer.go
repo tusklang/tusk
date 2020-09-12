@@ -7,9 +7,9 @@ import (
 	"path"
 	"strings"
 
-	oatenc "github.com/omm-lang/oat/format/encoding"
+	oatenc "oat/format/encoding"
 
-	. "github.com/omm-lang/omm/lang/types"
+	. "omm/lang/types"
 )
 
 var included = []string{} //list of the included files from omm

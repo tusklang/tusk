@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/omm-lang/omm/lang/types"
+	"omm/lang/types"
 
-	"github.com/omm-lang/omm/lang/interpreter"
+	"omm/lang/interpreter"
 )
 
 func Run(params types.CliParams) {
-
 	variables, ce := Compile(params)
 
 	if ce != nil {

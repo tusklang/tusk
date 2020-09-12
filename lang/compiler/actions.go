@@ -3,7 +3,7 @@ package compiler
 import (
 	"runtime"
 
-	. "github.com/omm-lang/omm/lang/types"
+	. "omm/lang/types"
 )
 
 func arraytogroup(arractions []Action) []Action {
@@ -14,46 +14,27 @@ func arraytogroup(arractions []Action) []Action {
 
 	var converted []Action
 
-	for _, v := range arractions {
+	switch arractions[0].Type {
+	case "c-array":
 
-		var curconv []Action
-
-		switch v.Type {
-		case "c-array":
-
-			//range through it and append to the converted
-			v.Value.(OmmArray).Range(func(_, v *OmmType) Returner {
-				curconv = append(curconv, Action{
-					Type:  (*v).Type(),
-					Value: *v,
-				})
-
-				return Returner{}
-			})
-
-		case "r-array":
-
-			for _, v := range v.Array {
-				curconv = append(curconv, v...)
-			}
-
-		default:
-			curconv = []Action{v}
-		}
-
-		if len(curconv) == 0 {
-			continue
-		} else if len(curconv) == 1 {
-			converted = append(converted, curconv...)
-		} else {
+		//range through it and append to the converted
+		arractions[0].Value.(OmmArray).Range(func(_, v *OmmType) Returner {
 			converted = append(converted, Action{
-				Type:   "{",
-				ExpAct: curconv,
-				File:   v.File,
-				Line:   v.Line,
+				Type:  (*v).Type(),
+				Value: *v,
 			})
+
+			return Returner{}
+		})
+
+	case "r-array":
+
+		for _, v := range arractions[0].Array {
+			converted = append(converted, v...)
 		}
 
+	default:
+		converted = arractions
 	}
 
 	return converted
@@ -196,14 +177,16 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 					case "each":
 						if right[0].Type != "=>" {
-							return []Action{}, makeCompilerErr("Each loops need a condition and a body", v.File, right[0].Line)
+							return []Action{}, makeCompilerErr("Each loops need a iterator and a body", v.File, right[0].Line)
 						}
 
-						if len(right[0].First[0].ExpAct) != 3 {
+						iter := arraytogroup(right[0].First)
+
+						if len(iter) != 3 {
 							return []Action{}, makeCompilerErr("Each loops must look like this: each(iterator, key, value)", v.File, right[0].Line)
 						}
 
-						for _, n := range right[0].First[0].ExpAct[1:] {
+						for _, n := range iter[1:] {
 							if n.Type != "variable" {
 								return []Action{}, makeCompilerErr("Key or value was not given as a variable", v.File, right[0].Line)
 							}
@@ -211,7 +194,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						actions = append(actions, Action{
 							Type:   val,
-							First:  arraytogroup(right[0].First), //because it doesnt matter if they use a { or (
+							First:  iter, //because it doesnt matter if they use a { or (
 							ExpAct: arraytogroup(right[0].Second),
 							File:   v.File,
 							Line:   v.Line,

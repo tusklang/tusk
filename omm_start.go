@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	suite "github.com/omm-lang/omm-suite"
-	. "github.com/omm-lang/omm/lang/types"
+	suite "omm-suite"
+	. "omm/lang/types"
 
-	"github.com/omm-lang/omm/lang/compiler"
+	"omm/lang/compiler"
 )
 
 var ver = flag.Bool("ver", false, "Get Omm suite version")

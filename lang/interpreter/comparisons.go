@@ -3,7 +3,7 @@ package interpreter
 import (
 	"math/big"
 
-	. "github.com/omm-lang/omm/lang/types"
+	. "omm/lang/types"
 )
 
 //convert the numbers (integers/decimals) to bigints

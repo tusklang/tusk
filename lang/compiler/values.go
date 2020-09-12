@@ -3,7 +3,7 @@ package compiler
 import (
 	"unicode"
 
-	. "github.com/omm-lang/omm/lang/types"
+	. "omm/lang/types"
 )
 
 func valueActions(item Item) (Action, error) {

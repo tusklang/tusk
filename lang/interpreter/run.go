@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	. "github.com/omm-lang/omm/lang/types"
+	. "omm/lang/types"
 )
 
 type overload_after struct {

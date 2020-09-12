@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	. "github.com/omm-lang/omm/lang/types"
+	. "omm/lang/types"
 )
 
 func getvars(actions []Action) (map[string]*OmmType, error) {

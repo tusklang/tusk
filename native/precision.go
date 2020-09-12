@@ -1,6 +1,6 @@
 package native
 
-import "github.com/omm-lang/omm/lang/types"
+import "omm/lang/types"
 
 var setprec = func(args []*types.OmmType, stacktrace []string, line uint64, file string, instance *types.Instance) *types.OmmType {
 

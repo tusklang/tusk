@@ -3,8 +3,8 @@ package native
 import (
 	"reflect"
 
-	"github.com/omm-lang/omm/lang/types"
-	. "github.com/omm-lang/omm/lang/types"
+	"omm/lang/types"
+	. "omm/lang/types"
 )
 
 type OmmGoFunc struct {

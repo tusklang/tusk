@@ -1,8 +1,8 @@
 package compiler
 
 import (
-	"github.com/omm-lang/omm/lang/interpreter"
-	. "github.com/omm-lang/omm/lang/types"
+	"omm/lang/interpreter"
+	. "omm/lang/types"
 )
 
 var validtypes = []string{"string", "rune", "number", "bool", "hash", "array", "function", "none", "any"}

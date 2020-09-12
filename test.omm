@@ -2,5 +2,5 @@
 ;s ommstd/bitwise
 
 var main = fn() => {
-    log:(tobits:(2))
+    each (1, a, b) => log 1
 }

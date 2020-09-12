@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/omm-lang/omm/lang/types"
+	"omm/lang/types"
 )
 
 type OmmFile struct {

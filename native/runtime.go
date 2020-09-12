@@ -3,8 +3,8 @@ package native
 import (
 	"errors"
 
-	oatenc "github.com/omm-lang/oat/format/encoding"
-	"github.com/omm-lang/omm/lang/types"
+	oatenc "oat/format/encoding"
+	"omm/lang/types"
 )
 
 //OmmRuntimeLibrary stores an oat binary at runtime

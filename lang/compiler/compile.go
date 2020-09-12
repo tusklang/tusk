@@ -7,11 +7,12 @@ import (
 	"path"
 	"strings"
 
-	"github.com/omm-lang/omm/lang/interpreter"
+	"omm/lang/interpreter"
 
-	. "github.com/omm-lang/omm/lang/types"
+	. "omm/lang/types"
 )
 
+//CompileError represents a compile-time error in Omm, and it implements the `error` interface
 type CompileError struct {
 	Msg   string
 	FName string
@@ -38,10 +39,6 @@ var ommbasedir string
 func inclCompile(filename string) ([]Action, error) {
 
 	file, e := ioutil.ReadFile(filename)
-
-	if e != nil {
-		return nil, errors.New("Could not open file: " + filename)
-	}
 
 	var strfile = string(file)
 	var includes []Action

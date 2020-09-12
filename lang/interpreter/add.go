@@ -1,6 +1,6 @@
 package interpreter
 
-import . "github.com/omm-lang/omm/lang/types"
+import . "omm/lang/types"
 
 func number__plus__number(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
 	num1, num2 := val1.(OmmNumber), val2.(OmmNumber)

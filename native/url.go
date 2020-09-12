@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/omm-lang/omm/lang/types"
-	. "github.com/omm-lang/omm/lang/types"
+	"omm/lang/types"
+	. "omm/lang/types"
 )
 
 //OmmURLResp is a url response

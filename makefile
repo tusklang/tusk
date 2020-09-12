@@ -6,23 +6,16 @@ else
 	CLEAN_CMD = rm -f
 endif
 
-GOPATH = $(CURDIR)/../../../../
+GOPATH = $(CURDIR)/../
 
 .PHONY: all
 all: language
 
-.PHONY: test
-test: all
-	@echo ------------------------------------
-	@echo --------- Start Test File ----------
-	@echo ------------------------------------
-	-./$(BINARY) ./test.omm
-	@echo ------------------------------------
-
 .PHONY: clean
 clean:
 	-$(CLEAN_CMD) $(BINARY)
+	go mod tidy
 
 .PHONY: language
 language:
-	go build omm_start.go
+	go build -a omm_start.go

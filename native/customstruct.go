@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"unicode"
 
-	"github.com/omm-lang/omm/lang/types"
+	"omm/lang/types"
 )
 
 func gostructprotoindex(val1 reflect.Value, val2 types.OmmString, stacktrace []string, line uint64, file string) *types.OmmType {
