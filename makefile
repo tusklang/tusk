@@ -6,7 +6,7 @@ else
 	CLEAN_CMD = rm -f
 endif
 
-GOPATH = $(CURDIR)/../
+GOPATH = $(CURDIR)/../../
 
 .PHONY: all
 all: language
