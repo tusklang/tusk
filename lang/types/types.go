@@ -1,16 +1,16 @@
 package types
 
-//package to store all of the datatypes in omm
+//package to store all of the datatypes in ka
 
 type CliParams struct {
 	Prec       uint64
 	Output     string
 	Name       string
 	Directory  string
-	OmmDirname string
+	KaDirname string
 }
 
-type OmmType interface {
+type KaType interface {
 	Format() string
 
 	//difference between type and typeof is for prototypes
@@ -21,5 +21,5 @@ type OmmType interface {
 	//////////////////////////////////////////////////////
 
 	Deallocate()
-	Range(func(val1, val2 *OmmType) Returner) *Returner
+	Range(func(val1, val2 *KaType) Returner) *Returner
 }

@@ -7,12 +7,12 @@ import (
 	"path"
 	"strings"
 
-	oatenc "oat/format/encoding"
+	kastenc "kast/format/encoding"
 
-	. "omm/lang/types"
+	. "ka/lang/types"
 )
 
-var included = []string{} //list of the included files from omm
+var included = []string{} //list of the included files from ka
 
 func includeSingle(filename string) ([]Action, error) {
 
@@ -22,8 +22,8 @@ func includeSingle(filename string) ([]Action, error) {
 		}
 	}
 
-	if strings.HasSuffix(filename, ".oat") {
-		decoded, e := oatenc.OatDecode(filename)
+	if strings.HasSuffix(filename, ".kast") {
+		decoded, e := kastenc.KastDecode(filename)
 
 		if e != nil {
 			return nil, e
@@ -47,11 +47,11 @@ func includeSingle(filename string) ([]Action, error) {
 		return actions, nil
 	}
 
-	if strings.HasSuffix(filename, ".omm") {
-		filename = strings.TrimSuffix(filename, ".omm")
+	if strings.HasSuffix(filename, ".kal") {
+		filename = strings.TrimSuffix(filename, ".kal")
 	}
 
-	filename += ".omm"
+	filename += ".kal"
 
 	for _, v := range included {
 		if v == filename {

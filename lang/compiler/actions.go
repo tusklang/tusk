@@ -3,7 +3,7 @@ package compiler
 import (
 	"runtime"
 
-	. "omm/lang/types"
+	. "ka/lang/types"
 )
 
 func arraytogroup(arractions []Action) []Action {
@@ -18,7 +18,7 @@ func arraytogroup(arractions []Action) []Action {
 	case "c-array":
 
 		//range through it and append to the converted
-		arractions[0].Value.(OmmArray).Range(func(_, v *OmmType) Returner {
+		arractions[0].Value.(KaArray).Range(func(_, v *KaType) Returner {
 			converted = append(converted, Action{
 				Type:  (*v).Type(),
 				Value: *v,
@@ -103,7 +103,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						actions = append(actions, Action{
 							Type: "function",
-							Value: OmmFunc{
+							Value: KaFunc{
 								Overloads: []Overload{
 									Overload{
 										Params: paramList,
@@ -238,8 +238,8 @@ func actionizer(operations []Operation) ([]Action, error) {
 						}
 
 						var (
-							static   = make(map[string]*OmmType)
-							instance = make(map[string]*OmmType)
+							static   = make(map[string]*KaType)
+							instance = make(map[string]*KaType)
 							access   = make(map[string][]string)
 						)
 						var body = right[0].ExpAct //get the struct body
@@ -252,12 +252,12 @@ func actionizer(operations []Operation) ([]Action, error) {
 									return nil, makeCompilerErr("Access found twice in a row", body[i].File, body[i].Line)
 								}
 
-								for _, v := range body[i].Value.(OmmArray).Array {
+								for _, v := range body[i].Value.(KaArray).Array {
 									if (*v).Type() != "string" {
 										return nil, makeCompilerErr("Expect a string list to access", body[i].File, body[i].Line)
 									}
 
-									var cur = (*v).(OmmString).ToGoType()
+									var cur = (*v).(KaString).ToGoType()
 
 									if cur == "thisf" { //"thisf" means this file
 										cur = body[i].File
@@ -300,7 +300,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 							} else if body[i].ExpAct[0].Type == "declare" {
 
-								var tmp OmmType = OmmUndef{}
+								var tmp KaType = KaUndef{}
 
 								if body[i].Type == "static" {
 									static[name] = &tmp
@@ -312,22 +312,22 @@ func actionizer(operations []Operation) ([]Action, error) {
 								if body[i].Type == "static" {
 
 									if _, e := static[name]; !e || (*static[name]).Type() != "function" { //if the value does not exist yet (or it is not a function), make it
-										var tmp OmmType = OmmFunc{}
+										var tmp KaType = KaFunc{}
 										static[name] = &tmp
 									}
 
-									var currentfn = (*static[name]).(OmmFunc)
-									currentfn.Overloads = append(currentfn.Overloads, body[i].ExpAct[0].ExpAct[0].Value.(OmmFunc).Overloads[0])
+									var currentfn = (*static[name]).(KaFunc)
+									currentfn.Overloads = append(currentfn.Overloads, body[i].ExpAct[0].ExpAct[0].Value.(KaFunc).Overloads[0])
 									*static[name] = currentfn
 								} else {
 
 									if _, e := instance[name]; !e || (*instance[name]).Type() != "function" { //if the value does not exist yet (or it is not a function), make it
-										var tmp OmmType = OmmFunc{}
+										var tmp KaType = KaFunc{}
 										instance[name] = &tmp
 									}
 
-									var currentfn = (*instance[name]).(OmmFunc)
-									currentfn.Overloads = append(currentfn.Overloads, body[i].ExpAct[0].ExpAct[0].Value.(OmmFunc).Overloads[0])
+									var currentfn = (*instance[name]).(KaFunc)
+									currentfn.Overloads = append(currentfn.Overloads, body[i].ExpAct[0].ExpAct[0].Value.(KaFunc).Overloads[0])
 									*instance[name] = currentfn
 								}
 
@@ -340,7 +340,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						actions = append(actions, Action{
 							Type: "proto",
-							Value: OmmProto{
+							Value: KaProto{
 								Static:     static,
 								Instance:   instance,
 								AccessList: access,
@@ -473,7 +473,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 			}
 
 			if right[0].Type == "variable" {
-				var str = OmmString{}
+				var str = KaString{}
 				str.FromGoType(right[0].Name[1:]) //remove the $ from the varname
 				right[0] = Action{
 					Type:  "string",

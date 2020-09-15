@@ -2,26 +2,26 @@ package types
 
 import "strings"
 
-type OmmHash struct {
-	Hash   map[string]*OmmType
+type KaHash struct {
+	Hash   map[string]*KaType
 	keys   []string
 	Length uint64
 }
 
-func (hash OmmHash) At(idx string) *OmmType {
+func (hash KaHash) At(idx string) *KaType {
 
 	if _, exists := hash.Hash[idx]; !exists {
-		var undef OmmType = OmmUndef{}
+		var undef KaType = KaUndef{}
 		hash.Hash[idx] = &undef
 	}
 
 	return hash.Hash[idx]
 }
 
-func (hash *OmmHash) Set(idx string, val OmmType) {
+func (hash *KaHash) Set(idx string, val KaType) {
 
 	if hash.Hash == nil {
-		hash.Hash = make(map[string]*OmmType)
+		hash.Hash = make(map[string]*KaType)
 	}
 
 	if _, exists := hash.Hash[idx]; !exists {
@@ -32,12 +32,12 @@ func (hash *OmmHash) Set(idx string, val OmmType) {
 	hash.Hash[idx] = &val
 }
 
-func (hash OmmHash) Exists(idx string) bool {
+func (hash KaHash) Exists(idx string) bool {
 	_, exists := hash.Hash[idx]
 	return exists
 }
 
-func (hash OmmHash) Format() string {
+func (hash KaHash) Format() string {
 
 	return func() string {
 
@@ -52,7 +52,7 @@ func (hash OmmHash) Format() string {
 			vFormatted := (*v).Format()
 
 			switch (*v).(type) {
-			case OmmHash: //if it is another hash, add the indents
+			case KaHash: //if it is another hash, add the indents
 				if vFormatted != "[]" {
 					newlineSplit := strings.Split(vFormatted, "\n")
 
@@ -73,27 +73,27 @@ func (hash OmmHash) Format() string {
 	}() //staring with 2
 }
 
-func (hash OmmHash) Type() string {
+func (hash KaHash) Type() string {
 	return "hash"
 }
 
-func (hash OmmHash) TypeOf() string {
+func (hash KaHash) TypeOf() string {
 	return hash.Type()
 }
 
-func (hash OmmHash) Deallocate() {}
+func (hash KaHash) Deallocate() {}
 
 //Range ranges over a hash
-func (hash OmmHash) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+func (hash KaHash) Range(fn func(val1, val2 *KaType) Returner) *Returner {
 
 	for _, keyi := range hash.keys {
 
 		k, v := keyi, hash.Hash[keyi]
 
-		var key OmmString
+		var key KaString
 		key.FromGoType(k)
-		var ommtypekey OmmType = key
-		ret := fn(&ommtypekey, v)
+		var katypekey KaType = key
+		ret := fn(&katypekey, v)
 
 		if ret.Type == "break" {
 			break

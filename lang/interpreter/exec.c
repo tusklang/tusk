@@ -6,7 +6,7 @@ extern "C" {
 #include <stdlib.h>
 
 char* getCmdExe() {
-    //function to get the executable to execute a command
+    //function to get the executable to execute a ckaand
 
     #ifdef _WIN32
         char* plc = "\\windows\\system32\\cmd.exe"; //the location (not in any drive yet)

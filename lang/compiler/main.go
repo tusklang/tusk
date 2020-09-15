@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"omm/lang/types"
+	"ka/lang/types"
 
-	"omm/lang/interpreter"
+	"ka/lang/interpreter"
 )
 
 func Run(params types.CliParams) {
@@ -17,7 +17,7 @@ func Run(params types.CliParams) {
 		os.Exit(1)
 	}
 
-	os.Args = os.Args[1:] //remove the `omm` <file.omm>
+	os.Args = os.Args[1:] //remove the `ka` <file.ka>
 
 	interpreter.RunInterpreter(variables, params)
 }

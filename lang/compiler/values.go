@@ -3,7 +3,7 @@ package compiler
 import (
 	"unicode"
 
-	. "omm/lang/types"
+	. "ka/lang/types"
 )
 
 func valueActions(item Item) (Action, error) {
@@ -33,7 +33,7 @@ func valueActions(item Item) (Action, error) {
 	case "(":
 
 		var arr [][]Action
-		var carr OmmArray
+		var carr KaArray
 
 		var arrtype = "c-array" //compile time array
 
@@ -88,7 +88,7 @@ func valueActions(item Item) (Action, error) {
 	case "[":
 
 		var hash = make([][2][]Action, 0)
-		var chash OmmHash
+		var chash KaHash
 
 		var hashtype = "c-hash" //compile time hash
 
@@ -162,7 +162,7 @@ func valueActions(item Item) (Action, error) {
 		var val = item.Token.Name
 
 		if val[0] == '"' || val[0] == '`' { //detect string
-			var str = OmmString{}
+			var str = KaString{}
 			str.FromGoType(val[1 : len(val)-1])
 			return Action{
 				Type:  "string",
@@ -171,7 +171,7 @@ func valueActions(item Item) (Action, error) {
 				Line:  item.Line,
 			}, nil
 		} else if val[0] == '\'' { //detect a rune
-			var oRune = OmmRune{}
+			var oRune = KaRune{}
 
 			qrem := val[1 : len(val)-1] //remove quotes
 
@@ -187,7 +187,7 @@ func valueActions(item Item) (Action, error) {
 				Line:  item.Line,
 			}, nil
 		} else if val == "true" || val == "false" { //detect a bool
-			var boolean = OmmBool{}
+			var boolean = KaBool{}
 			boolean.FromGoType(val == "true" /* convert to a boolean */)
 			return Action{
 				Type:  "bool",
@@ -196,7 +196,7 @@ func valueActions(item Item) (Action, error) {
 				Line:  item.Line,
 			}, nil
 		} else if val == "undef" { //detect an undef value
-			var undef OmmUndef
+			var undef KaUndef
 			return Action{
 				Type:  "undef",
 				Value: undef,
@@ -204,7 +204,7 @@ func valueActions(item Item) (Action, error) {
 				Line:  item.Line,
 			}, nil
 		} else if unicode.IsDigit(rune(val[0])) || val[0] == '.' || val[0] == '+' || val[0] == '-' { //detect a number
-			var number = OmmNumber{}
+			var number = KaNumber{}
 			number.FromString(val)
 			return Action{
 				Type:  "number",

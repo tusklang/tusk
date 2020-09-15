@@ -1,5 +1,5 @@
 ;include
-;s ommstd/util/substr
+;s kastd/util/substr
 
 var starts_with = fn(string -> str, string -> starts) {
 

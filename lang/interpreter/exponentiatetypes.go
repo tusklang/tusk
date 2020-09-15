@@ -1,15 +1,15 @@
 package interpreter
 
-import . "omm/lang/types"
+import . "ka/lang/types"
 
-func number__pow__number(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
-	num1, num2 := val1.(OmmNumber), val2.(OmmNumber)
+func number__pow__number(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string) *KaType {
+	num1, num2 := val1.(KaNumber), val2.(KaNumber)
 	ensurePrec(&num1, &num2, (*instance).Params)
 
 	expNeg := false
 	if isLess(num2, zero) { //account for negative exponents
 		expNeg = true
-		num2 = (*number__times__number(num2, neg_one, instance, stacktrace, line, file)).(OmmNumber)
+		num2 = (*number__times__number(num2, neg_one, instance, stacktrace, line, file)).(KaNumber)
 	}
 
 	if len(*num2.Decimal) == 0 { //if the exponent is an integer, use binary exponentiation for an O(log n) solution
@@ -27,11 +27,11 @@ func number__pow__number(val1, val2 OmmType, instance *Instance, stacktrace []st
 	two.Integer = &[]int64{2}
 
 	neg := false
-	if isLess(num1, zero) && isEqual((*number__mod__number(num1, two, instance, stacktrace, line, file)).(OmmNumber), zero) { //because ln (n < 0) is undefined
+	if isLess(num1, zero) && isEqual((*number__mod__number(num1, two, instance, stacktrace, line, file)).(KaNumber), zero) { //because ln (n < 0) is undefined
 		neg = true
 	}
 
-	num1 = abs(num1, stacktrace, (*instance).Params).(OmmNumber)
+	num1 = abs(num1, stacktrace, (*instance).Params).(KaNumber)
 
 	powwed := exp((*number__times__number(num2, ln(num1, instance, stacktrace, line, file), instance, stacktrace, line, file)), instance, stacktrace, line, file)
 

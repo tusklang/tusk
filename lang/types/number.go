@@ -19,58 +19,58 @@ var MIN_DIGIT = -1 * MAX_DIGIT
 
 //////////////
 
-type OmmNumber struct {
+type KaNumber struct {
 	Integer *[]int64
 	Decimal *[]int64
 }
 
-func (n *OmmNumber) FromGoType(val float64) {
+func (n *KaNumber) FromGoType(val float64) {
 	numStr := fmt.Sprintf("%f", val)
 	integer, decimal := BigNumConverter(numStr)
 	n.Integer, n.Decimal = &integer, &decimal
 }
 
-func (n OmmNumber) ToGoType() float64 {
+func (n KaNumber) ToGoType() float64 {
 	f, _ := strconv.ParseFloat(NumNormalize(n), 64)
 	return float64(f)
 }
 
-func (n *OmmNumber) FromString(val string) {
+func (n *KaNumber) FromString(val string) {
 	integer, decimal := BigNumConverter(val)
 	n.Integer, n.Decimal = &integer, &decimal
 }
 
-func (n *OmmNumber) SetInt(v []int64) {
+func (n *KaNumber) SetInt(v []int64) {
 	n.Integer = &v
 }
 
-func (n *OmmNumber) SetDec(v []int64) {
+func (n *KaNumber) SetDec(v []int64) {
 	n.Decimal = &v
 }
 
-func (n OmmNumber) Clone() OmmNumber {
-	var newNum OmmNumber
+func (n KaNumber) Clone() KaNumber {
+	var newNum KaNumber
 	newNum.SetInt(append([]int64{}, *n.Integer...))
 	newNum.SetDec(append([]int64{}, *n.Decimal...))
 	return newNum
 }
 
-func (n OmmNumber) Format() string {
+func (n KaNumber) Format() string {
 	str := NumNormalize(n)
 	return str
 }
 
-func (n OmmNumber) Type() string {
+func (n KaNumber) Type() string {
 	return "number"
 }
 
-func (n OmmNumber) TypeOf() string {
+func (n KaNumber) TypeOf() string {
 	return n.Type()
 }
 
-func (n OmmNumber) Deallocate() {}
+func (n KaNumber) Deallocate() {}
 
 //Range ranges over a number
-func (n OmmNumber) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+func (n KaNumber) Range(fn func(val1, val2 *KaType) Returner) *Returner {
 	return nil
 }

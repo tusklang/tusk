@@ -4,47 +4,47 @@ import (
 	"fmt"
 	"os"
 
-	. "omm/lang/types"
+	. "ka/lang/types"
 )
 
 type overload_after struct {
 	name string
-	val  *OmmType
+	val  *KaType
 }
 
 //export FillIns
-func FillIns(instance *Instance, compiledVars map[string]*OmmType, dirname string, args []string) map[string]*OmmVar {
-	globals := make(map[string]*OmmVar)
-	var dirnameOmmStr OmmString
-	dirnameOmmStr.FromGoType(dirname)
-	var dirnameOmmType OmmType = dirnameOmmStr
+func FillIns(instance *Instance, compiledVars map[string]*KaType, dirname string, args []string) map[string]*KaVar {
+	globals := make(map[string]*KaVar)
+	var dirnameKaStr KaString
+	dirnameKaStr.FromGoType(dirname)
+	var dirnameKaType KaType = dirnameKaStr
 
-	globals["$__dirname"] = &OmmVar{
+	globals["$__dirname"] = &KaVar{
 		Name:  "$__dirname",
-		Value: &dirnameOmmType,
+		Value: &dirnameKaType,
 	}
 
-	var argv = make([]*OmmType, len(args))
+	var argv = make([]*KaType, len(args))
 
 	for k, v := range args {
-		var ommstr OmmString
-		ommstr.FromGoType(v)
-		var ommtype OmmType = ommstr
-		argv[k] = &ommtype
+		var kastr KaString
+		kastr.FromGoType(v)
+		var katype KaType = kastr
+		argv[k] = &katype
 	}
 
-	var arr OmmType = OmmArray{
+	var arr KaType = KaArray{
 		Array:  argv,
 		Length: uint64(len(args)),
 	}
 
-	globals["$argv"] = &OmmVar{
+	globals["$argv"] = &KaVar{
 		Name:  "$argv",
 		Value: &arr,
 	}
 
 	for k, v := range compiledVars {
-		var global = OmmVar{
+		var global = KaVar{
 			Name:  k,
 			Value: v,
 		}
@@ -63,7 +63,7 @@ func FillIns(instance *Instance, compiledVars map[string]*OmmType, dirname strin
 	return globals
 }
 
-func RunInterpreter(compiledVars map[string]*OmmType, cli_params CliParams) {
+func RunInterpreter(compiledVars map[string]*KaType, cli_params CliParams) {
 
 	var instance Instance
 	instance.Params = cli_params
@@ -75,10 +75,10 @@ func RunInterpreter(compiledVars map[string]*OmmType, cli_params CliParams) {
 	} else {
 
 		switch (*globals["$main"].Value).(type) {
-		case OmmFunc:
+		case KaFunc:
 			main := globals["$main"]
 
-			calledP := Interpreter(&instance, (*main.Value).(OmmFunc).Overloads[0].Body, []string{"at the entry caller"}, 0, nil, false).Exp
+			calledP := Interpreter(&instance, (*main.Value).(KaFunc).Overloads[0].Body, []string{"at the entry caller"}, 0, nil, false).Exp
 			WaitAllThreads() //finish up any remaining threads
 
 			if calledP == nil {
@@ -90,8 +90,8 @@ func RunInterpreter(compiledVars map[string]*OmmType, cli_params CliParams) {
 			var exitType int64
 
 			switch called.(type) {
-			case OmmNumber:
-				exitType = int64(called.(OmmNumber).ToGoType())
+			case KaNumber:
+				exitType = int64(called.(KaNumber).ToGoType())
 			}
 
 			os.Exit(int(exitType))

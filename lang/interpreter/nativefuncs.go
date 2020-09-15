@@ -1,7 +1,7 @@
 package interpreter
 
 //all of the gofuncs
-//functions written in go that are used by omm
+//functions written in go that are used by ka
 
 import (
 	"bufio"
@@ -12,18 +12,18 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unsafe"
 
-	. "omm/lang/types"
-	. "omm/native"
+	. "ka/lang/types"
 )
 
 //#include "exec.h"
 import "C"
 
 //Native stores all of the native values. You can make your own by just putting it into this map
-var Native = make(map[string]*OmmType)
+var Native = make(map[string]*KaType)
 
-func ommprint(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) {
+func kaprint(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) {
 	for k, v := range args {
 		fmt.Print((*v).Format())
 		if k+1 != len(args) {
@@ -32,33 +32,50 @@ func ommprint(args []*OmmType, stacktrace []string, line uint64, file string, in
 	}
 }
 
+//KaPanic panics in an Ka instance
+func KaPanic(err string, line uint64, file string, stacktrace []string) {
+	fmt.Println("Panic on line", line, "file", file)
+	fmt.Print(err)
+	fmt.Print("\nWhen the error was thrown, this was the stack:\n")
+	fmt.Println("  at line", line, "in file", file)
+	for i := len(stacktrace) - 1; i >= 0; i-- { //print the stacktrace
+
+		endl := "\n"
+		if i == 0 {
+			endl = ""
+		}
+
+		fmt.Print("  " + stacktrace[i] + endl)
+	}
+}
+
 //these are the native functions that are relatively simple to implement
-var simplenative = map[string]func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType{
-	"log": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
-		ommprint(args, stacktrace, line, file, instance)
+var native = map[string]func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType{
+	"log": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+		kaprint(args, stacktrace, line, file, instance)
 		fmt.Println() //print a newline at the end
-		var tmpundef OmmType = undef
+		var tmpundef KaType = undef
 		return &tmpundef
 	},
-	"print": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
-		ommprint(args, stacktrace, line, file, instance)
-		var tmpundef OmmType = undef
+	"print": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+		kaprint(args, stacktrace, line, file, instance)
+		var tmpundef KaType = undef
 		return &tmpundef
 	},
-	"await": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"await": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 
 		if len(args) != 1 || (*args[0]).Type() != "thread" {
-			OmmPanic("Function await requires (thread)", line, file, stacktrace)
+			KaPanic("Function await requires (thread)", line, file, stacktrace)
 		}
 
 		interpreted := args[0]
-		var awaited *OmmType
+		var awaited *KaType
 
 		switch (*interpreted).(type) {
-		case OmmThread:
+		case KaThread:
 
 			//put the new value back into the given interpreted pointer
-			thread := (*interpreted).(OmmThread)
+			thread := (*interpreted).(KaThread)
 			awaited = thread.Join()
 			*interpreted = thread
 			///////////////////////////////////////////////////////////
@@ -69,7 +86,7 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 
 		return awaited
 	},
-	"input": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"input": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 
 		scanner := bufio.NewScanner(os.Stdin)
 
@@ -78,84 +95,84 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 		} else if len(args) == 1 {
 
 			switch (*args[0]).(type) {
-			case OmmString:
-				str := (*args[0]).(OmmString).ToGoType()
+			case KaString:
+				str := (*args[0]).(KaString).ToGoType()
 				fmt.Print(str)
 			default:
-				OmmPanic("Expected a string as the argument to input[]", line, file, stacktrace)
+				KaPanic("Expected a string as the argument to input[]", line, file, stacktrace)
 			}
 
 		} else {
-			OmmPanic("Function input requires a parameter count of 0 or 1", line, file, stacktrace)
+			KaPanic("Function input requires a parameter count of 0 or 1", line, file, stacktrace)
 		}
 
-		//get user input and convert it to OmmType
+		//get user input and convert it to KaType
 		scanner.Scan()
 		input := scanner.Text()
-		var inputOmmType OmmString
-		inputOmmType.FromGoType(input)
-		var inputType OmmType = inputOmmType
+		var inputKaType KaString
+		inputKaType.FromGoType(input)
+		var inputType KaType = inputKaType
 
 		return &inputType
 	},
-	"typeof": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"typeof": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 
 		if len(args) != 1 {
-			OmmPanic("Function typeof requires a parameter count of 1", line, file, stacktrace)
+			KaPanic("Function typeof requires a parameter count of 1", line, file, stacktrace)
 		}
 
 		typeof := (*args[0]).TypeOf()
 
-		var str OmmString
+		var str KaString
 		str.FromGoType(typeof)
 
-		//convert to OmmType interface
-		var ommtype OmmType = str
-		return &ommtype
+		//convert to KaType interface
+		var katype KaType = str
+		return &katype
 	},
-	"append": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"append": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 
 		if len(args) != 2 {
-			OmmPanic("Function append requires a parameter count of 2", line, file, stacktrace)
+			KaPanic("Function append requires a parameter count of 2", line, file, stacktrace)
 		}
 
 		if (*args[0]).Type() != "array" {
-			OmmPanic("Function append requires (array, any)", line, file, stacktrace)
+			KaPanic("Function append requires (array, any)", line, file, stacktrace)
 		}
 
-		a := (*args[0]).(OmmArray)
+		a := (*args[0]).(KaArray)
 		a.PushBack(*args[1])
-		var ommtype OmmType = a
-		return &ommtype
+		var katype KaType = a
+		return &katype
 	},
-	"prepend": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"prepend": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 
 		if len(args) != 2 {
-			OmmPanic("Function prepend requires a parameter count of 2", line, file, stacktrace)
+			KaPanic("Function prepend requires a parameter count of 2", line, file, stacktrace)
 		}
 
 		if (*args[0]).Type() != "array" {
-			OmmPanic("Function prepend requires the first argument to be an array", line, file, stacktrace)
+			KaPanic("Function prepend requires the first argument to be an array", line, file, stacktrace)
 		}
 
-		a := (*args[0]).(OmmArray)
+		a := (*args[0]).(KaArray)
 		a.PushFront(*args[1])
-		var ommtype OmmType = a
-		return &ommtype
+		var katype KaType = a
+		return &katype
 	},
-	"exit": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"exit": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 
 		if len(args) == 1 {
 
 			switch (*args[0]).(type) {
-			case OmmNumber:
+			case KaNumber:
 
-				var gonum = (*args[0]).(OmmNumber).ToGoType()
+				var gonum = (*args[0]).(KaNumber).ToGoType()
 				os.Exit(int(gonum))
 
-			case OmmBool:
+			case KaBool:
 
-				if (*args[0]).(OmmBool).ToGoType() == true {
+				if (*args[0]).(KaBool).ToGoType() == true {
 					os.Exit(0)
 				} else {
 					os.Exit(1)
@@ -168,21 +185,21 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 		} else if len(args) == 0 {
 			os.Exit(0)
 		} else {
-			OmmPanic("Function exit requires a parameter count of 1 or 0", line, file, stacktrace)
+			KaPanic("Function exit requires a parameter count of 1 or 0", line, file, stacktrace)
 		}
 
-		var tmpundef OmmType = undef
+		var tmpundef KaType = undef
 		return &tmpundef
 	},
-	"wait": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"wait": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 
 		if len(args) == 1 {
 
 			if (*args[0]).Type() != "number" {
-				OmmPanic("Function wait requires a number as the argument", line, file, stacktrace)
+				KaPanic("Function wait requires a number as the argument", line, file, stacktrace)
 			}
 
-			var amt = (*args[0]).(OmmNumber)
+			var amt = (*args[0]).(KaNumber)
 
 			var n4294967295 = zero
 			n4294967295.Integer = &[]int64{5, 9, 2, 7, 6, 9, 4, 9, 2, 4}
@@ -199,124 +216,126 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 				   in each iteration, it will wait for 2 ^ 32 - 1 milliseconds
 				*/
 
-				for i := zero; isLess(i, amt); i = (*number__plus__number(i, n4294967295, &Instance{}, stacktrace, line, file)).(OmmNumber) {
+				for i := zero; isLess(i, amt); i = (*number__plus__number(i, n4294967295, &Instance{}, stacktrace, line, file)).(KaNumber) {
 					time.Sleep(4294967295 * time.Millisecond)
 				}
 			}
 
 		} else {
-			OmmPanic("Function wait requires a parameter count of 1", line, file, stacktrace)
+			KaPanic("Function wait requires a parameter count of 1", line, file, stacktrace)
 		}
 
-		var tmpundef OmmType = undef
+		var tmpundef KaType = undef
 		return &tmpundef
 	},
-	"make": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"make": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+
+		errmsg := "Function make requires the signature (prototype)"
 
 		if len(args) == 1 {
 
 			switch (*args[0]).(type) {
-			case OmmProto:
-				var ommtype OmmType = (*args[0]).(OmmProto).New(*instance)
-				return &ommtype
+			case KaProto:
+				var katype KaType = (*args[0]).(KaProto).New(*instance)
+				return &katype
 			default:
-				OmmPanic("Function make requires a prototype as the argument", line, file, stacktrace)
+				KaPanic(errmsg, line, file, stacktrace)
 			}
 
 		} else {
-			OmmPanic("Function make requires a parameter count of 1", line, file, stacktrace)
+			KaPanic(errmsg, line, file, stacktrace)
 		}
 
-		var tmpundef OmmType = undef
+		var tmpundef KaType = undef
 		return &tmpundef
 	},
-	"len": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"len": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 
 		if len(args) != 1 {
-			OmmPanic("Function len requires a parameter count of 1", line, file, stacktrace)
+			KaPanic("Function len requires the signature (any)", line, file, stacktrace)
 		}
 
 		switch (*args[0]).(type) {
-		case OmmString:
-			var length = (*args[0]).(OmmString).Length
+		case KaString:
+			var length = (*args[0]).(KaString).Length
 
-			var ommnumber_length OmmNumber
-			ommnumber_length.FromString(strconv.FormatUint(length, 10))
-			var ommtype OmmType = ommnumber_length
-			return &ommtype
+			var kanumber_length KaNumber
+			kanumber_length.FromString(strconv.FormatUint(length, 10))
+			var katype KaType = kanumber_length
+			return &katype
 
-		case OmmArray:
-			var length = (*args[0]).(OmmArray).Length
+		case KaArray:
+			var length = (*args[0]).(KaArray).Length
 
-			var ommnumber_length OmmNumber
-			ommnumber_length.FromString(strconv.FormatUint(length, 10))
-			var ommtype OmmType = ommnumber_length
-			return &ommtype
+			var kanumber_length KaNumber
+			kanumber_length.FromString(strconv.FormatUint(length, 10))
+			var katype KaType = kanumber_length
+			return &katype
 
-		case OmmHash:
-			var length = (*args[0]).(OmmHash).Length
+		case KaHash:
+			var length = (*args[0]).(KaHash).Length
 
-			var ommnumber_length OmmNumber
-			ommnumber_length.FromString(strconv.FormatUint(length, 10))
-			var ommtype OmmType = ommnumber_length
-			return &ommtype
+			var kanumber_length KaNumber
+			kanumber_length.FromString(strconv.FormatUint(length, 10))
+			var katype KaType = kanumber_length
+			return &katype
 
 		}
 
-		var tmpzero OmmType = zero
+		var tmpzero KaType = zero
 		return &tmpzero
 	},
-	"clone": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"clone": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 
 		if len(args) != 1 {
-			OmmPanic("Function len requires a parameter count of 1", line, file, stacktrace)
+			KaPanic("Function clone requires the signature (any)", line, file, stacktrace)
 		}
 
 		val := *args[0]
 
 		switch val.(type) {
 
-		case OmmArray:
+		case KaArray:
 
-			var arr = val.(OmmArray).Array
-			var cloned = append([]*OmmType{}, arr...) //append it to nothing (to clone it)
-			var ommtype OmmType = OmmArray{
+			var arr = val.(KaArray).Array
+			var cloned = append([]*KaType{}, arr...) //append it to nothing (to clone it)
+			var katype KaType = KaArray{
 				Array:  cloned,
-				Length: val.(OmmArray).Length,
+				Length: val.(KaArray).Length,
 			}
 
-			return &ommtype
+			return &katype
 
-		case OmmBool:
+		case KaBool:
 
 			//take inderect of the bool, and place it in a temporary variable
-			var tmp = *val.(OmmBool).Boolean
+			var tmp = *val.(KaBool).Boolean
 
-			var returner OmmType = OmmBool{
+			var returner KaType = KaBool{
 				Boolean: &tmp, //take address of tmp and place it into `Boolean` field of returner
 			}
 
 			return &returner
 
-		case OmmHash:
-			var hash = val.(OmmHash).Hash
+		case KaHash:
+			var hash = val.(KaHash).Hash
 
 			//clone it into `cloned`
-			var cloned = make(map[string]*OmmType)
+			var cloned = make(map[string]*KaType)
 			for k, v := range hash {
 				cloned[k] = v
 			}
 			////////////////////////
 
-			var ommtype OmmType = OmmHash{
+			var katype KaType = KaHash{
 				Hash:   cloned,
-				Length: val.(OmmHash).Length,
+				Length: val.(KaHash).Length,
 			}
 
-			return &ommtype
+			return &katype
 
-		case OmmNumber:
-			var number = val.(OmmNumber)
+		case KaNumber:
+			var number = val.(KaNumber)
 
 			//copy the integer and decimal
 			var integer = append([]int64{}, *number.Integer...)
@@ -328,62 +347,61 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 			}
 			//////////////////////////////
 
-			var newnum OmmType = OmmNumber{
+			var newnum KaType = KaNumber{
 				Integer: &integer,
 				Decimal: &decimal,
 			}
 			return &newnum
 
-		case OmmRune:
+		case KaRune:
 
 			//take inderect of the rune, and place it in a temporary variable
-			var tmp = *val.(OmmRune).Rune
+			var tmp = *val.(KaRune).Rune
 
-			var returner OmmType = OmmRune{
+			var returner KaType = KaRune{
 				Rune: &tmp, //take address of tmp and place it into `Rune` field of returner
 			}
 
 			return &returner
 
-		case OmmString:
+		case KaString:
 
-			var tmp = val.(OmmString).ToRuneList() //convert it to a go type
-			var ommstr OmmString
-			ommstr.FromRuneList(append(tmp, []rune{}...)) //clone tmp
-			var returner OmmType = ommstr
+			var tmp = val.(KaString).ToRuneList() //convert it to a go type
+			var kastr KaString
+			kastr.FromRuneList(append(tmp, []rune{}...)) //clone tmp
+			var returner KaType = kastr
 			return &returner
 
 		default:
-			OmmPanic("Cannot clone type \""+val.Type()+"\"", line, file, stacktrace)
+			KaPanic("Cannot clone type \""+val.Type()+"\"", line, file, stacktrace)
 		}
 
-		var tmpundef OmmType = undef
+		var tmpundef KaType = undef
 		return &tmpundef
 	},
-	"panic": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"panic": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 
-		if len(args) != 1 {
-			OmmPanic("Function panic requires a parameter count of 1", line, file, stacktrace)
-		}
-		if (*args[0]).Type() != "string" {
-			OmmPanic("Function panic requires the argument to be a string", line, file, stacktrace)
+		if len(args) != 1 || (*args[0]).Type() != "string" {
+			KaPanic("Function panic requires the signature (string)", line, file, stacktrace)
 		}
 
-		var err = (*args[0]).(OmmString)
+		var err = (*args[0]).(KaString)
 
-		OmmPanic(err.ToGoType(), line, file, stacktrace)
+		KaPanic(err.ToGoType(), line, file, stacktrace)
 
-		var tmpundef OmmType = undef
+		var tmpundef KaType = undef
 		return &tmpundef
 	},
-	"exec": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"exec": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+
+		errmsg := "Function exec requires the signature (string) or (string, string)"
 
 		if len(args) == 1 {
 			if (*args[0]).Type() != "string" {
-				OmmPanic("Function exec requires the argument to be a string", line, file, stacktrace)
+				KaPanic(errmsg, line, file, stacktrace)
 			}
 
-			var cmd = (*args[0]).(OmmString).ToGoType()
+			var cmd = (*args[0]).(KaString).ToGoType()
 
 			var _execdir = C.getCmdExe()
 			var _arg = C.getCmdOp()
@@ -393,17 +411,17 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 			command := exec.Command(execdir, arg, cmd)
 			out, _ := command.CombinedOutput()
 
-			var stringValue OmmString
+			var stringValue KaString
 			stringValue.FromGoType(string(out))
-			var ommtype OmmType = stringValue
-			return &ommtype
+			var katype KaType = stringValue
+			return &katype
 		} else if len(args) == 2 {
 			if (*args[0]).Type() != "string" || (*args[1]).Type() != "string" {
-				OmmPanic("Function exec requires both arguments to be strings", line, file, stacktrace)
+				KaPanic(errmsg, line, file, stacktrace)
 			}
 
-			var cmd = (*args[0]).(OmmString).ToGoType()
-			var stdin = (*args[1]).(OmmString).ToGoType()
+			var cmd = (*args[0]).(KaString).ToGoType()
+			var stdin = (*args[1]).(KaString).ToGoType()
 
 			var _execdir = C.getCmdExe()
 			var _arg = C.getCmdOp()
@@ -414,64 +432,76 @@ var simplenative = map[string]func(args []*OmmType, stacktrace []string, line ui
 			command.Stdin = strings.NewReader(stdin)
 			out, _ := command.CombinedOutput()
 
-			var stringValue OmmString
+			var stringValue KaString
 			stringValue.FromGoType(string(out))
-			var ommtype OmmType = stringValue
-			return &ommtype
+			var katype KaType = stringValue
+			return &katype
 		} else {
-			OmmPanic("Function exec requires a parameter count of 1 or 2", line, file, stacktrace)
+			KaPanic(errmsg, line, file, stacktrace)
 		}
 
-		var tmpundef OmmType = undef
+		var tmpundef KaType = undef
 		return &tmpundef
 	},
-	"chdir": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"chdir": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 
-		if len(args) != 1 {
-			OmmPanic("Function chdir requires a parameter count of 1", line, file, stacktrace)
-		}
-		if (*args[0]).Type() != "string" {
-			OmmPanic("Function chdir requires the argument to be a string", line, file, stacktrace)
+		if len(args) != 1 || (*args[0]).Type() != "string" {
+			KaPanic("Function chdir requires the signature (string)", line, file, stacktrace)
 		}
 
-		var dir = (*args[0]).(OmmString).ToGoType()
+		var dir = (*args[0]).(KaString).ToGoType()
 
 		os.Chdir(dir)
 
 		instance.Allocate("$__dirname", args[0])
 
-		var tmpundef OmmType = undef
+		var tmpundef KaType = undef
 		return &tmpundef
 	},
-	"getos": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"getos": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 		var os = runtime.GOOS
-		var ommstr OmmString
-		ommstr.FromGoType(os)
-		var ommtype OmmType = ommstr
-		return &ommtype
+		var kastr KaString
+		kastr.FromGoType(os)
+		var katype KaType = kastr
+		return &katype
 	},
-	"sprint": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"sprint": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 
 		if len(args) != 1 {
-			OmmPanic("Function sprint requires an argument count of 1", line, file, stacktrace)
+			KaPanic("Function sprint requires the signature (any)", line, file, stacktrace)
 		}
 
 		var sprinted = (*args[0]).Format()
-		var ommstr OmmString
-		ommstr.FromGoType(sprinted)
-		var ommtype OmmType = ommstr
-		return &ommtype
+		var kastr KaString
+		kastr.FromGoType(sprinted)
+		var katype KaType = kastr
+		return &katype
 	},
-	"native": func(args []*OmmType, stacktrace []string, line uint64, file string, instance *Instance) *OmmType {
+	"syscall": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
 
-		OmmPanic("Function native has not been implemented yet!", line, file, stacktrace)
+		const maxSyscallArgv = 18
 
-		if len(args) != 1 {
-			OmmPanic("Function native requires an argument count of 1", line, file, stacktrace)
+		var fullargv [19]uintptr
+
+		//convert to go types
+		for k, v := range args {
+
+			cur := &fullargv[k]
+
+			switch (*v).(type) {
+			case KaNumber:
+				*cur = uintptr((*v).(KaNumber).ToGoType())
+			case KaString:
+				gostr := (*v).(KaString).ToGoType()
+				*cur = uintptr(unsafe.Pointer(&gostr))
+			default:
+				KaPanic("Cannot use type "+(*v).Type()+" in a system call", line, file, stacktrace)
+			}
 		}
 
-		var fname = (*Cast(*args[0], "string", stacktrace, line, file)).(OmmString).ToGoType()
-		_ = fname
+		c := makeSyscall(len(args)-1, fullargv)
+
+		fmt.Println(c)
 
 		return nil
 	},

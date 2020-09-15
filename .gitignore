@@ -1,4 +1,4 @@
-/omm_start
+/ka_start
 *.exe
 *.o
 *.dll
@@ -7,3 +7,4 @@
 *.a
 /installers/windows/setup.msi
 /goatv.h
+syscall_switch.h

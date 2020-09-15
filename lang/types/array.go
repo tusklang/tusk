@@ -1,47 +1,47 @@
 package types
 
-type OmmArray struct {
-	Array  []*OmmType
+type KaArray struct {
+	Array  []*KaType
 	Length uint64
 }
 
-func (arr OmmArray) At(idx int64) *OmmType {
+func (arr KaArray) At(idx int64) *KaType {
 
 	length := arr.Length
 
 	if uint64(idx) >= length || idx < 0 {
-		var undef OmmType = OmmUndef{}
+		var undef KaType = KaUndef{}
 		return &undef
 	}
 
 	return arr.Array[idx]
 }
 
-func (arr OmmArray) Exists(idx int64) bool {
+func (arr KaArray) Exists(idx int64) bool {
 	return arr.Length != 0 && uint64(idx) < arr.Length && idx >= 0
 }
 
-func (arr *OmmArray) PushBack(val OmmType) {
+func (arr *KaArray) PushBack(val KaType) {
 	arr.Length++
 	arr.Array = append(arr.Array, &val)
 }
 
-func (arr *OmmArray) PushFront(val OmmType) {
+func (arr *KaArray) PushFront(val KaType) {
 	arr.Length++
-	arr.Array = append([]*OmmType{&val}, arr.Array...)
+	arr.Array = append([]*KaType{&val}, arr.Array...)
 }
 
-func (arr *OmmArray) PopBack(val OmmType) {
+func (arr *KaArray) PopBack(val KaType) {
 	arr.Length--
 	arr.Array = arr.Array[:arr.Length]
 }
 
-func (arr *OmmArray) PopFront(val OmmType) {
+func (arr *KaArray) PopFront(val KaType) {
 	arr.Length--
 	arr.Array = arr.Array[1:]
 }
 
-func (arr OmmArray) Format() string {
+func (arr KaArray) Format() string {
 	var formatted = "("
 	for _, v := range arr.Array {
 		formatted += (*v).Format() + ", "
@@ -55,24 +55,24 @@ func (arr OmmArray) Format() string {
 	return formatted
 }
 
-func (arr OmmArray) Type() string {
+func (arr KaArray) Type() string {
 	return "array"
 }
 
-func (arr OmmArray) TypeOf() string {
+func (arr KaArray) TypeOf() string {
 	return arr.Type()
 }
 
-func (arr OmmArray) Deallocate() {}
+func (arr KaArray) Deallocate() {}
 
 //Range ranges over an array
-func (arr OmmArray) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+func (arr KaArray) Range(fn func(val1, val2 *KaType) Returner) *Returner {
 
 	for k, v := range arr.Array {
-		var key OmmNumber
+		var key KaNumber
 		key.FromGoType(float64(k))
-		var ommtypekey OmmType = key
-		ret := fn(&ommtypekey, v)
+		var katypekey KaType = key
+		ret := fn(&katypekey, v)
 
 		if ret.Type == "break" {
 			break

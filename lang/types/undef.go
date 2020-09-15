@@ -1,24 +1,24 @@
 package types
 
-type OmmUndef struct {
+type KaUndef struct {
 	None struct{}
 }
 
-func (u OmmUndef) Format() string {
+func (u KaUndef) Format() string {
 	return "undef"
 }
 
-func (u OmmUndef) Type() string {
+func (u KaUndef) Type() string {
 	return "none"
 }
 
-func (u OmmUndef) TypeOf() string {
+func (u KaUndef) TypeOf() string {
 	return u.Type()
 }
 
-func (u OmmUndef) Deallocate() {}
+func (u KaUndef) Deallocate() {}
 
 //Range ranges over an undef type
-func (u OmmUndef) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+func (u KaUndef) Range(fn func(val1, val2 *KaType) Returner) *Returner {
 	return nil
 }

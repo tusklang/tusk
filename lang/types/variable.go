@@ -1,10 +1,10 @@
 package types
 
-type OmmVar struct {
+type KaVar struct {
 	Name  string
-	Value *OmmType
+	Value *KaType
 }
 
-func (v OmmVar) Format() string {
+func (v KaVar) Format() string {
 	return v.Name
 }

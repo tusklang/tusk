@@ -1,35 +1,35 @@
 package interpreter
 
-import . "omm/lang/types"
+import . "ka/lang/types"
 
 var tmpFalse = false
 var tmpTrue = true
 
-//list of commonly used values
-var undef = OmmUndef{}
-var zero = OmmNumber{
+//list of ckaonly used values
+var undef = KaUndef{}
+var zero = KaNumber{
 	Integer: &[]int64{0},
 	Decimal: &[]int64{0},
 }
-var one = OmmNumber{
+var one = KaNumber{
 	Integer: &[]int64{1},
 	Decimal: &[]int64{0},
 }
-var neg_one = OmmNumber{
+var neg_one = KaNumber{
 	Integer: &[]int64{-1},
 	Decimal: &[]int64{0},
 }
-var falsev = OmmBool{
+var falsev = KaBool{
 	Boolean: &tmpFalse,
 }
-var truev = OmmBool{
+var truev = KaBool{
 	Boolean: &tmpTrue,
 }
 
 //////////////////////////////
 
 //ensure that the decimal doesnt grow too much
-func ensurePrec(num1, num2 *OmmNumber, cli_params CliParams) {
+func ensurePrec(num1, num2 *KaNumber, cli_params CliParams) {
 
 	//ensure a nil pointer error doesnt happen
 	if (*num1).Decimal == nil {

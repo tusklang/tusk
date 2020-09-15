@@ -3,137 +3,136 @@ package interpreter
 import (
 	"strconv"
 
-	. "omm/lang/types"
-	. "omm/native"
+	. "ka/lang/types"
 )
 
 //list of operations
 //export Operations
-var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType{
-	"number + number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+var Operations = map[string]func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType{
+	"number + number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 		return number__plus__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number - number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"number - number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 		return number__minus__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number * number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"number * number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 		return number__times__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number / number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"number / number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 		return number__divide__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number % number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"number % number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 		return number__mod__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number ^ number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"number ^ number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 		return number__pow__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number == number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"number == number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
 		var final = falsev
 
-		if isEqual(val1.(OmmNumber), val2.(OmmNumber)) {
+		if isEqual(val1.(KaNumber), val2.(KaNumber)) {
 			final = truev
 		}
 
-		var finalType OmmType = final
+		var finalType KaType = final
 
 		return &finalType
 	},
-	"number != number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"number != number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
 		var final = truev
 
-		if isEqual(val1.(OmmNumber), val2.(OmmNumber)) {
+		if isEqual(val1.(KaNumber), val2.(KaNumber)) {
 			final = falsev
 		}
 
-		var finalType OmmType = final
+		var finalType KaType = final
 
 		return &finalType
 	},
-	"string == string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"string == string": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
-		var isEqual OmmType = falsev
+		var isEqual KaType = falsev
 
-		if val1.(OmmString).ToGoType() == val2.(OmmString).ToGoType() {
+		if val1.(KaString).ToGoType() == val2.(KaString).ToGoType() {
 			isEqual = truev
 		}
 
 		return &isEqual
 	},
-	"string != string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"string != string": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
-		var isEqual OmmType = truev
+		var isEqual KaType = truev
 
-		if val1.(OmmString).ToGoType() == val2.(OmmString).ToGoType() {
+		if val1.(KaString).ToGoType() == val2.(KaString).ToGoType() {
 			isEqual = falsev
 		}
 
 		return &isEqual
 	},
-	"bool == bool": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"bool == bool": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
-		var isEqual OmmType = falsev
+		var isEqual KaType = falsev
 
-		if val1.(OmmBool).ToGoType() == val2.(OmmBool).ToGoType() {
+		if val1.(KaBool).ToGoType() == val2.(KaBool).ToGoType() {
 			isEqual = truev
 		}
 
 		return &isEqual
 	},
-	"bool != bool": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"bool != bool": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
-		var isEqual OmmType = truev
+		var isEqual KaType = truev
 
-		if val1.(OmmBool).ToGoType() == val2.(OmmBool).ToGoType() {
+		if val1.(KaBool).ToGoType() == val2.(KaBool).ToGoType() {
 			isEqual = falsev
 		}
 
 		return &isEqual
 	},
-	"rune == rune": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"rune == rune": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
-		var isEqual OmmType = falsev
+		var isEqual KaType = falsev
 
-		if val1.(OmmRune).ToGoType() == val2.(OmmRune).ToGoType() {
+		if val1.(KaRune).ToGoType() == val2.(KaRune).ToGoType() {
 			isEqual = truev
 		}
 
 		return &isEqual
 	},
-	"rune != rune": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"rune != rune": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
-		var isEqual OmmType = truev
+		var isEqual KaType = truev
 
-		if val1.(OmmBool).ToGoType() == val2.(OmmBool).ToGoType() {
+		if val1.(KaBool).ToGoType() == val2.(KaBool).ToGoType() {
 			isEqual = falsev
 		}
 
 		return &isEqual
 	},
-	"none == none": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
-		var tmp OmmType = truev
+	"none == none": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+		var tmp KaType = truev
 		return &tmp
 	},
-	"none != none": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
-		var tmp OmmType = falsev
+	"none != none": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+		var tmp KaType = falsev
 		return &tmp
 	},
-	"none ! bool": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"none ! bool": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
-		boolean := !val2.(OmmBool).ToGoType()
+		boolean := !val2.(KaBool).ToGoType()
 
-		var converted OmmType = OmmBool{
+		var converted KaType = KaBool{
 			Boolean: &boolean,
 		}
 
 		return &converted
 	},
-	"number > number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"number > number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
-		isGreaterv := !isLessOrEqual(val1.(OmmNumber), val2.(OmmNumber))
-		var isGreaterType OmmType = falsev
+		isGreaterv := !isLessOrEqual(val1.(KaNumber), val2.(KaNumber))
+		var isGreaterType KaType = falsev
 
 		if isGreaterv {
 			isGreaterType = truev
@@ -141,10 +140,10 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isGreaterType
 	},
-	"number >= number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"number >= number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
-		isGreaterOrEqualv := !isLess(val1.(OmmNumber), val2.(OmmNumber))
-		var isGreaterOrEqualType OmmType = falsev
+		isGreaterOrEqualv := !isLess(val1.(KaNumber), val2.(KaNumber))
+		var isGreaterOrEqualType KaType = falsev
 
 		if isGreaterOrEqualv {
 			isGreaterOrEqualType = truev
@@ -152,10 +151,10 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isGreaterOrEqualType
 	},
-	"number < number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"number < number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
-		isLessv := isLess(val1.(OmmNumber), val2.(OmmNumber))
-		var isLessType OmmType = falsev
+		isLessv := isLess(val1.(KaNumber), val2.(KaNumber))
+		var isLessType KaType = falsev
 
 		if isLessv {
 			isLessType = truev
@@ -163,10 +162,10 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isLessType
 	},
-	"number <= number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"number <= number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
-		isLessOrEqualv := isLessOrEqual(val1.(OmmNumber), val2.(OmmNumber))
-		var isLessOrEqualType OmmType = falsev
+		isLessOrEqualv := isLessOrEqual(val1.(KaNumber), val2.(KaNumber))
+		var isLessOrEqualType KaType = falsev
 
 		if isLessOrEqualv {
 			isLessOrEqualType = truev
@@ -174,99 +173,99 @@ var Operations = map[string]func(val1, val2 OmmType, instance *Instance, stacktr
 
 		return &isLessOrEqualType
 	},
-	"array :: number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"array :: number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
 		//convert to int64
-		idx := int64(val2.(OmmNumber).ToGoType())
-		arr := val1.(OmmArray)
+		idx := int64(val2.(KaNumber).ToGoType())
+		arr := val1.(KaArray)
 
 		if !arr.Exists(idx) {
-			OmmPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
+			KaPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
 		}
 
 		return arr.At(idx)
 	},
-	"string :: number": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"string :: number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
 		//convert to int64
-		idx := int64(val2.(OmmNumber).ToGoType())
-		str := val1.(OmmString)
+		idx := int64(val2.(KaNumber).ToGoType())
+		str := val1.(KaString)
 
 		if !str.Exists(idx) {
-			OmmPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(str.Length, 10), line, file, stacktrace)
+			KaPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(str.Length, 10), line, file, stacktrace)
 		}
 
-		var ommtype OmmType = *str.At(idx)
+		var katype KaType = *str.At(idx)
 
-		return &ommtype
+		return &katype
 	},
-	"hash :: string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"hash :: string": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
 		//convert index to go string
-		gostr := val2.(OmmString).ToGoType()
+		gostr := val2.(KaString).ToGoType()
 
-		return val1.(OmmHash).At(gostr)
+		return val1.(KaHash).At(gostr)
 	},
-	"proto :: string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
-		v, e := val1.(OmmProto).Get(val2.(OmmString).ToGoType(), file)
+	"proto :: string": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+		v, e := val1.(KaProto).Get(val2.(KaString).ToGoType(), file)
 
 		if e != nil {
-			OmmPanic(e.Error(), line, file, stacktrace)
+			KaPanic(e.Error(), line, file, stacktrace)
 		}
 
 		return v
 	},
-	"object :: string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
-		v, e := val1.(OmmObject).Get(val2.(OmmString).ToGoType(), file)
+	"object :: string": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+		v, e := val1.(KaObject).Get(val2.(KaString).ToGoType(), file)
 
 		if e != nil {
-			OmmPanic(e.Error(), line, file, stacktrace)
+			KaPanic(e.Error(), line, file, stacktrace)
 		}
 
 		return v
 	},
-	"string + string": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"string + string": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
 		//alloc the space
-		var space = make([]rune, val1.(OmmString).Length+val2.(OmmString).Length)
+		var space = make([]rune, val1.(KaString).Length+val2.(KaString).Length)
 
 		var i uint
 		var o uint
 
-		val1l := val1.(OmmString).ToRuneList()
-		val12 := val2.(OmmString).ToRuneList()
+		val1l := val1.(KaString).ToRuneList()
+		val12 := val2.(KaString).ToRuneList()
 
-		for ; uint64(i) < val1.(OmmString).Length; i++ {
+		for ; uint64(i) < val1.(KaString).Length; i++ {
 			space[i] = val1l[i]
 		}
 
-		for ; uint64(o) < val2.(OmmString).Length; i, o = i+1, o+1 {
+		for ; uint64(o) < val2.(KaString).Length; i, o = i+1, o+1 {
 			space[i] = val12[o]
 		}
 
-		var ommstr OmmString
-		ommstr.FromRuneList(space)
-		var ommtype OmmType = ommstr
-		return &ommtype
+		var kastr KaString
+		kastr.FromRuneList(space)
+		var katype KaType = kastr
+		return &katype
 	},
-	"string + rune": func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
+	"string + rune": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
 
 		//alloc the space
-		var space = make([]rune, val1.(OmmString).Length+1)
+		var space = make([]rune, val1.(KaString).Length+1)
 
 		var i uint
 
-		val1l := val1.(OmmString).ToRuneList()
+		val1l := val1.(KaString).ToRuneList()
 
-		for ; uint64(i) < val1.(OmmString).Length; i++ {
+		for ; uint64(i) < val1.(KaString).Length; i++ {
 			space[i] = val1l[i]
 		}
 
-		space[i] = val2.(OmmRune).ToGoType()
+		space[i] = val2.(KaRune).ToGoType()
 
-		var ommstr OmmString
-		ommstr.FromRuneList(space)
-		var ommtype OmmType = ommstr
-		return &ommtype
+		var kastr KaString
+		kastr.FromRuneList(space)
+		var katype KaType = kastr
+		return &katype
 	},
 }

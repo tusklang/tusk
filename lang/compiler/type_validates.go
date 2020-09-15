@@ -1,8 +1,8 @@
 package compiler
 
 import (
-	"omm/lang/interpreter"
-	. "omm/lang/types"
+	"ka/lang/interpreter"
+	. "ka/lang/types"
 )
 
 var validtypes = []string{"string", "rune", "number", "bool", "hash", "array", "function", "none", "any"}
@@ -34,7 +34,7 @@ func validate_types(actions []Action) error {
 		if v.Type == "function" {
 
 			//check the parameter list
-			for _, vv := range v.Value.(OmmFunc).Overloads[0].Types {
+			for _, vv := range v.Value.(KaFunc).Overloads[0].Types {
 				for _, t := range validtypes {
 					if t == vv {
 						goto plist_noErr
@@ -46,7 +46,7 @@ func validate_types(actions []Action) error {
 			plist_noErr:
 			}
 
-			e = validate_types(v.Value.(OmmFunc).Overloads[0].Body)
+			e = validate_types(v.Value.(KaFunc).Overloads[0].Body)
 			if e != nil {
 				return e
 			}
@@ -54,8 +54,8 @@ func validate_types(actions []Action) error {
 		}
 		if v.Type == "proto" {
 
-			for i := range v.Value.(OmmProto).Static {
-				var val = *v.Value.(OmmProto).Static[i]
+			for i := range v.Value.(KaProto).Static {
+				var val = *v.Value.(KaProto).Static[i]
 
 				if val.Type() == "function" {
 					e = validate_types([]Action{Action{
@@ -67,8 +67,8 @@ func validate_types(actions []Action) error {
 					}
 				}
 			}
-			for i := range v.Value.(OmmProto).Instance {
-				var val = *v.Value.(OmmProto).Instance[i]
+			for i := range v.Value.(KaProto).Instance {
+				var val = *v.Value.(KaProto).Instance[i]
 
 				if val.Type() == "function" {
 					e = validate_types([]Action{Action{

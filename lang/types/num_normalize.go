@@ -6,7 +6,7 @@ import (
 )
 
 //export NumNormalize
-func NumNormalize(num OmmNumber) string {
+func NumNormalize(num KaNumber) string {
 
 	/*
 	  ALGORITHM TO NORMALIZE:
@@ -40,7 +40,7 @@ func NumNormalize(num OmmNumber) string {
 	decimal := *num.Decimal
 
 	//the first digit is actually the last index
-	//because omm numbers are stored as so [1234, 5678, 9101] = 910, 156, 781, 234
+	//because ka numbers are stored as so [1234, 5678, 9101] = 910, 156, 781, 234
 
 	//alloc amounts into the copies
 	var decimalCopy = make([]int64, len(decimal))

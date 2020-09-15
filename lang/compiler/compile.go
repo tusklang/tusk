@@ -7,12 +7,12 @@ import (
 	"path"
 	"strings"
 
-	"omm/lang/interpreter"
+	"ka/lang/interpreter"
 
-	. "omm/lang/types"
+	. "ka/lang/types"
 )
 
-//CompileError represents a compile-time error in Omm, and it implements the `error` interface
+//CompileError represents a compile-time error in Ka, and it implements the `error` interface
 type CompileError struct {
 	Msg   string
 	FName string
@@ -34,7 +34,7 @@ func makeCompilerErr(msg, fname string, line uint64) error {
 	}
 }
 
-var ommbasedir string
+var kabasedir string
 
 func inclCompile(filename string) ([]Action, error) {
 
@@ -67,7 +67,7 @@ func inclCompile(filename string) ([]Action, error) {
 			case 'w': //working directory
 				includepaths = append(includepaths, cip)
 			case 's': //installation directory
-				includepaths = append(includepaths, path.Join(ommbasedir, cip))
+				includepaths = append(includepaths, path.Join(kabasedir, cip))
 			default:
 				return nil, fmt.Errorf("Unrecognized include path '%c", dir)
 			}
@@ -111,9 +111,9 @@ func inclCompile(filename string) ([]Action, error) {
 	return actions, e
 }
 
-func Compile(params CliParams) (map[string]*OmmType, error) {
+func Compile(params CliParams) (map[string]*KaType, error) {
 
-	ommbasedir = params.OmmDirname
+	kabasedir = params.KaDirname
 
 	var e error
 

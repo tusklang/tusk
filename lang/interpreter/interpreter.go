@@ -1,17 +1,16 @@
 package interpreter
 
 import (
-	. "omm/lang/types"
-	. "omm/native"
+	. "ka/lang/types"
 )
 
 const MAX_STACKSIZE = 100001
 
-func dealloc(ins *Instance, varnames []string, value *OmmType) { //function to remove the variables declared in that scope
+func dealloc(ins *Instance, varnames []string, value *KaType) { //function to remove the variables declared in that scope
 	for _, v := range varnames {
 		if (*value).Type() == "function" { //if it is a curryed function, make sure it does not garbage collect the vars used
 
-			for _, vv := range (*value).(OmmFunc).Overloads {
+			for _, vv := range (*value).(KaFunc).Overloads {
 				for _, vvv := range vv.VarRefs {
 					if vvv == v {
 						goto nodealloc
@@ -29,7 +28,7 @@ func dealloc(ins *Instance, varnames []string, value *OmmType) { //function to r
 func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize uint, varnames []string /* varnames to deallocate */, expReturn bool) Returner {
 
 	if stacksize > MAX_STACKSIZE {
-		OmmPanic("Stack size was exceeded", 0, "none", stacktrace)
+		KaPanic("Stack size was exceeded", 0, "none", stacktrace)
 	}
 
 	for _, v := range actions {
@@ -56,11 +55,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
 
 			if (*(*ins.Fetch(v.Name)).Value).Type() != "function" {
-				*(*ins.Fetch(v.Name)).Value = OmmFunc{}
+				*(*ins.Fetch(v.Name)).Value = KaFunc{}
 			}
 
-			var appended_ovld OmmType = OmmFunc{
-				Overloads: append((*(*ins.Fetch(v.Name)).Value).(OmmFunc).Overloads, (*interpreted.Exp).(OmmFunc).Overloads[0]),
+			var appended_ovld KaType = KaFunc{
+				Overloads: append((*(*ins.Fetch(v.Name)).Value).(KaFunc).Overloads, (*interpreted.Exp).(KaFunc).Overloads[0]),
 			}
 
 			ins.Allocate(v.Name, &appended_ovld)
@@ -76,7 +75,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "declare":
 
-			var tmpundef OmmType = undef
+			var tmpundef KaType = undef
 
 			varnames = append(varnames, v.Name)
 			ins.Allocate(v.Name, &tmpundef)
@@ -135,57 +134,57 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "function":
 			//for a function, add the instance
-			var nf = v.Value.(OmmFunc)
+			var nf = v.Value.(KaFunc)
 			nf.Instance = ins
-			var ommtype OmmType = nf
+			var katype KaType = nf
 			if expReturn {
-				defer dealloc(ins, varnames, &ommtype)
+				defer dealloc(ins, varnames, &katype)
 				return Returner{
 					Type: "expression",
-					Exp:  &ommtype,
+					Exp:  &katype,
 				}
 			}
 
 		//arrays, hashes are a bit different
 		case "r-array":
 
-			var nArr = make([]*OmmType, len(v.Array))
+			var nArr = make([]*KaType, len(v.Array))
 
 			for k, i := range v.Array {
 				nArr[k] = Interpreter(ins, i, stacktrace, stacksize+1, nil, true).Exp
 			}
 
-			var ommType OmmType = OmmArray{
+			var kaType KaType = KaArray{
 				Array:  nArr,
 				Length: uint64(len(v.Array)),
 			}
 
 			if expReturn {
-				defer dealloc(ins, varnames, &ommType)
+				defer dealloc(ins, varnames, &kaType)
 				return Returner{
 					Type: "expression",
-					Exp:  &ommType,
+					Exp:  &kaType,
 				}
 			}
 
 		case "r-hash":
 
-			var nHash = make(map[string]*OmmType)
+			var nHash = make(map[string]*KaType)
 
 			for _, i := range v.Hash {
 				nHash[(*Interpreter(ins, i[0], stacktrace, stacksize+1, nil, true).Exp).Format()] = Interpreter(ins, i[1], stacktrace, stacksize+1, nil, true).Exp
 			}
 
-			var ommType OmmType = OmmHash{
+			var kaType KaType = KaHash{
 				Hash:   nHash,
 				Length: uint64(len(v.Hash)),
 			}
 
 			if expReturn {
-				defer dealloc(ins, varnames, &ommType)
+				defer dealloc(ins, varnames, &kaType)
 				return Returner{
 					Type: "expression",
-					Exp:  &ommType,
+					Exp:  &kaType,
 				}
 			}
 
@@ -271,7 +270,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			//& and | can be a bit different for bool and bool
 			if v.Type == "&" || v.Type == "|" {
 				firstInterpreted = Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
-				var computed OmmType
+				var computed KaType
 
 				if (*firstInterpreted.Exp).Type() == "bool" {
 
@@ -285,7 +284,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 					if assumeVal {
 						var retVal = v.Type == "|"
-						computed = OmmBool{
+						computed = KaBool{
 							Boolean: &retVal,
 						}
 					} else {
@@ -293,7 +292,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 						if (*secondInterpreted.Exp).Type() == "bool" {
 							var gobool = isTruthy(*secondInterpreted.Exp)
-							computed = OmmBool{
+							computed = KaBool{
 								Boolean: &gobool,
 							}
 						} else {
@@ -325,7 +324,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			}
 
 			if !exists { //if there is no operation for that type, panic
-				OmmPanic("Could not find "+v.Type+" operator for types "+(*firstInterpreted.Exp).TypeOf()+" and "+(*secondInterpreted.Exp).TypeOf(), v.Line, v.File, stacktrace)
+				KaPanic("Could not find "+v.Type+" operator for types "+(*firstInterpreted.Exp).TypeOf()+" and "+(*secondInterpreted.Exp).TypeOf(), v.Line, v.File, stacktrace)
 			}
 
 			computed := operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, ins, stacktrace, v.Line, v.File, stacksize+1)
@@ -418,7 +417,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			keyName := v.First[1].Name //get name of key
 			valName := v.First[2].Name //get name of val
 
-			it.Range(func(key, val *OmmType) Returner {
+			it.Range(func(key, val *KaType) Returner {
 
 				ins.Allocate(keyName, key)
 				ins.Allocate(valName, val)
@@ -437,7 +436,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 					}
 				}
 
-				var undefval OmmType = undef
+				var undefval KaType = undef
 
 				return Returner{
 					Type: "none",
@@ -452,10 +451,10 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" + number"]
 
 			if !exists { //if there is no operation for that type, panic
-				OmmPanic("Could not find + operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
+				KaPanic("Could not find + operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
 			}
 
-			var onetype OmmType = one
+			var onetype KaType = one
 			*variable.Exp = *operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize)
 
 			if expReturn {
@@ -473,10 +472,10 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" - number"]
 
 			if !exists { //if there is no operation for that type, panic
-				OmmPanic("Could not find - operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
+				KaPanic("Could not find - operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
 			}
 
-			var onetype OmmType = one
+			var onetype KaType = one
 			*variable.Exp = *operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize)
 
 			if expReturn {
@@ -505,7 +504,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" "+string(v.Type[0])+" "+interpreted.Type()]
 
 			if !exists { //if there is no operation for that type, panic
-				OmmPanic("Could not find "+string(v.Type[0])+" operation for types "+(*variable.Exp).Type()+" and "+interpreted.Type(), v.Line, v.File, stacktrace)
+				KaPanic("Could not find "+string(v.Type[0])+" operation for types "+(*variable.Exp).Type()+" and "+interpreted.Type(), v.Line, v.File, stacktrace)
 			}
 
 			*variable.Exp = *operationFunc(*variable.Exp, interpreted, ins, stacktrace, v.Line, v.File, stacksize)
@@ -521,7 +520,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 		}
 	}
 
-	var undefval OmmType = undef
+	var undefval KaType = undef
 
 	defer dealloc(ins, varnames, &undefval)
 

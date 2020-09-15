@@ -14,7 +14,7 @@ type Action struct {
 
 	Type   string
 	Name   string
-	Value  OmmType
+	Value  KaType
 	ExpAct []Action
 
 	///////////////////////////
@@ -36,11 +36,11 @@ type Action struct {
 }
 
 type Returner struct {
-	Exp  *OmmType
+	Exp  *KaType
 	Type string
 }
 
-type Oat struct {
+type Kast struct {
 	Actions   []Action
 	Variables map[string][]Action
 }

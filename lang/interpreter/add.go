@@ -1,9 +1,9 @@
 package interpreter
 
-import . "omm/lang/types"
+import . "ka/lang/types"
 
-func number__plus__number(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
-	num1, num2 := val1.(OmmNumber), val2.(OmmNumber)
+func number__plus__number(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string) *KaType {
+	num1, num2 := val1.(KaNumber), val2.(KaNumber)
 	ensurePrec(&num1, &num2, (*instance).Params)
 
 	int1 := *num1.Integer
@@ -110,7 +110,7 @@ func number__plus__number(val1, val2 OmmType, instance *Instance, stacktrace []s
 	number.Integer = &newInt
 	number.Decimal = &newDec
 
-	var numtype OmmType = number
+	var numtype KaType = number
 
 	return &numtype
 }

@@ -1,5 +1,5 @@
 ;include:
-;s ommstd/util
+;s kastd/util
 
 var json.marshal
 
@@ -10,7 +10,7 @@ ovld json.marshal = fn(hash -> h) {
         final+="\"" + k + "\":" + json.marshal(v) + ","
     }
 
-    if (final != "{") final = rmend(final, 1) ;remove the trailing comma
+    if (final != "{") final = rmend(final, 1) ;remove the trailing ckaa
     return final + "}"
 }
 
@@ -21,7 +21,7 @@ ovld json.marshal = fn(array -> a) {
         final+=json.marshal(v) + ","
     }
 
-    if (final != "[") final = rmend(final, 1) ;remove the trailing comma
+    if (final != "[") final = rmend(final, 1) ;remove the trailing ckaa
     return final + "]"
 }
 

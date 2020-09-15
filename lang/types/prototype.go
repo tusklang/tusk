@@ -4,14 +4,14 @@ import (
 	"errors"
 )
 
-type OmmProto struct {
+type KaProto struct {
 	ProtoName  string
-	Static     map[string]*OmmType
-	Instance   map[string]*OmmType
+	Static     map[string]*KaType
+	Instance   map[string]*KaType
 	AccessList map[string][]string
 }
 
-func getfield(full map[string]*OmmType, field string, access map[string][]string, file string) (*OmmType, error) {
+func getfield(full map[string]*KaType, field string, access map[string][]string, file string) (*KaType, error) {
 	if field[0] == '_' {
 		return nil, errors.New("Cannot access private member: " + field)
 	}
@@ -40,25 +40,25 @@ allowed:
 	return fieldv, nil
 }
 
-func (p OmmProto) Get(field string, file string) (*OmmType, error) {
+func (p KaProto) Get(field string, file string) (*KaType, error) {
 	return getfield(p.Static, field, p.AccessList, file)
 }
 
-func (p OmmProto) Format() string {
+func (p KaProto) Format() string {
 	return "{" + p.ProtoName[1:] + "}"
 }
 
-func (p OmmProto) Type() string {
+func (p KaProto) Type() string {
 	return "proto"
 }
 
-func (p OmmProto) TypeOf() string {
+func (p KaProto) TypeOf() string {
 	return p.ProtoName[1:] /* remove the leading $ */ + " prototype"
 }
 
-func (p OmmProto) Deallocate() {}
+func (p KaProto) Deallocate() {}
 
 //Range ranges over a prototype
-func (p OmmProto) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+func (p KaProto) Range(fn func(val1, val2 *KaType) Returner) *Returner {
 	return nil
 }

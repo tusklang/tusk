@@ -3,7 +3,7 @@ package interpreter
 import (
 	"math/big"
 
-	. "omm/lang/types"
+	. "ka/lang/types"
 )
 
 //convert the numbers (integers/decimals) to bigints
@@ -19,7 +19,7 @@ func sliceToBigInt(slice []int64) *big.Int {
 	return bigVal
 }
 
-func toBig(val1, val2 OmmNumber) (*big.Int, *big.Int, *big.Int, *big.Int) {
+func toBig(val1, val2 KaNumber) (*big.Int, *big.Int, *big.Int, *big.Int) {
 	int1, dec1 := val1.Integer, val1.Decimal
 	int2, dec2 := val2.Integer, val2.Decimal
 
@@ -46,24 +46,24 @@ func toBig(val1, val2 OmmNumber) (*big.Int, *big.Int, *big.Int, *big.Int) {
 	return bigInt1, bigInt2, bigDec1, bigDec2
 }
 
-func isTruthy(val OmmType) bool {
+func isTruthy(val KaType) bool {
 
 	switch val.(type) {
-	case OmmBool:
+	case KaBool:
 
-		if val.(OmmBool).Boolean == nil {
+		if val.(KaBool).Boolean == nil {
 			return false
 		}
 
-		return *val.(OmmBool).Boolean
-	case OmmUndef:
+		return *val.(KaBool).Boolean
+	case KaUndef:
 		return false
 	}
 
 	return true
 }
 
-func isLess(val1, val2 OmmNumber) bool {
+func isLess(val1, val2 KaNumber) bool {
 
 	//manage for leading zeros in the decimal
 	var num1ZeroLeadingDec int
@@ -108,7 +108,7 @@ func isLess(val1, val2 OmmNumber) bool {
 	return bigdec1.Cmp(bigdec2) == -1
 }
 
-func isEqual(val1, val2 OmmNumber) bool {
+func isEqual(val1, val2 KaNumber) bool {
 
 	//manage for leading zeros in the decimal
 	var num1ZeroLeadingDec int
@@ -153,7 +153,7 @@ func isEqual(val1, val2 OmmNumber) bool {
 	return bigdec1.Cmp(bigdec2) == 0
 }
 
-func isLessOrEqual(val1, val2 OmmNumber) bool {
+func isLessOrEqual(val1, val2 KaNumber) bool {
 
 	//manage for leading zeros in the decimal
 	var num1ZeroLeadingDec int
@@ -198,7 +198,7 @@ func isLessOrEqual(val1, val2 OmmNumber) bool {
 	return bigdec1.Cmp(bigdec2) <= 0
 }
 
-func abs(val OmmNumber, stacktrace []string, cli_params CliParams) OmmType {
+func abs(val KaNumber, stacktrace []string, cli_params CliParams) KaType {
 
 	if isLess(val, zero) {
 		var tmpInstance Instance

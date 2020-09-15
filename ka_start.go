@@ -6,23 +6,23 @@ import (
 	"os"
 	"path/filepath"
 
-	suite "omm-suite"
-	. "omm/lang/types"
+	. "ka/lang/types"
+	"kore"
 
-	"omm/lang/compiler"
+	"ka/lang/compiler"
 )
 
-var ver = flag.Bool("ver", false, "Get Omm suite version")
+var ver = flag.Bool("ver", false, "Get Ka suite version")
 
 func init() {
-	flag.Usage = suite.Usagef("Omm")
+	flag.Usage = kore.Usagef("Ka")
 }
 
 func main() {
 	flag.Parse()
 
 	if *ver {
-		fmt.Printf("Omm Beta %d.%d.%d", suite.OmmSuiteMajor, suite.OmmSuiteMinor, suite.OmmSuiteBug)
+		fmt.Printf("Kore Beta %d.%d.%d", suite.KaSuiteMajor, suite.KaSuiteMinor, suite.KaSuiteBug)
 		os.Exit(0)
 	}
 
@@ -37,7 +37,7 @@ func main() {
 
 	dirname, _ := os.Executable()
 
-	cli_params.OmmDirname = filepath.Dir(dirname)
+	cli_params.KaDirname = filepath.Dir(dirname)
 
 	//set the working directory
 	os.Chdir(cli_params.Directory)

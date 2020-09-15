@@ -1,12 +1,12 @@
 package compiler
 
 import (
-	. "omm/lang/types"
+	. "ka/lang/types"
 )
 
-func getvars(actions []Action) (map[string]*OmmType, error) {
+func getvars(actions []Action) (map[string]*KaType, error) {
 
-	var vars = make(map[string]*OmmType)
+	var vars = make(map[string]*KaType)
 
 	for _, v := range actions {
 		if v.Type != "var" && v.Type != "declare" && v.Type != "ovld" { //if it is not an assigner or overloader, it must be an error
@@ -23,7 +23,7 @@ func getvars(actions []Action) (map[string]*OmmType, error) {
 
 		if v.Type == "ovld" {
 			if _, exists := vars[v.Name]; !exists { //if it does not exist yet, declare undefined yet
-				var f OmmType = OmmFunc{}
+				var f KaType = KaFunc{}
 				vars[v.Name] = &f
 			}
 
@@ -31,10 +31,10 @@ func getvars(actions []Action) (map[string]*OmmType, error) {
 				return nil, makeCompilerErr(v.Name[1:]+" is not a function", v.File, v.Line)
 			}
 
-			tmp := (*vars[v.Name]).(OmmFunc)
-			tmp.Overloads = append(tmp.Overloads, v.ExpAct[0].Value.(OmmFunc).Overloads...)
-			var ommtype OmmType = tmp
-			vars[v.Name] = &ommtype
+			tmp := (*vars[v.Name]).(KaFunc)
+			tmp.Overloads = append(tmp.Overloads, v.ExpAct[0].Value.(KaFunc).Overloads...)
+			var katype KaType = tmp
+			vars[v.Name] = &katype
 			continue
 		}
 

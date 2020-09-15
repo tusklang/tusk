@@ -3,12 +3,11 @@ package interpreter
 import (
 	"strconv"
 
-	. "omm/lang/types"
-	"omm/native"
+	. "ka/lang/types"
 )
 
 //fill an instance to run a function
-func fillFuncInstance(fn *OmmFunc, args OmmArray, parent *Instance) *Overload {
+func fillFuncInstance(fn *KaFunc, args KaArray, parent *Instance) *Overload {
 
 	if fn.Instance == nil {
 		fn.Instance = (*parent).Copy() //copy the parent instance, if it is not part of an object
@@ -40,42 +39,42 @@ func fillFuncInstance(fn *OmmFunc, args OmmArray, parent *Instance) *Overload {
 }
 
 func funcinit() { //initialize the operations that require the use of the interpreter
-	var function__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
-		var fn = val1.(OmmFunc)
-		var arr = val2.(OmmArray)
+	var function__sync__array = func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+		var fn = val1.(KaFunc)
+		var arr = val2.(KaArray)
 
 		var overload *Overload
 
 		if overload = fillFuncInstance(&fn, arr, instance); overload == nil {
-			native.OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
+			KaPanic("Could not find a typelist for function call", line, file, stacktrace)
 		}
 
 		return Interpreter(fn.Instance, overload.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params, true).Exp
 	}
 
-	var function__async__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
-		var fn = val1.(OmmFunc)
-		var arr = val2.(OmmArray)
+	var function__async__array = func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+		var fn = val1.(KaFunc)
+		var arr = val2.(KaArray)
 
 		var overload *Overload
 
 		if overload = fillFuncInstance(&fn, arr, instance); overload == nil {
-			native.OmmPanic("Could not find a typelist for function call", line, file, stacktrace)
+			KaPanic("Could not find a typelist for function call", line, file, stacktrace)
 		}
 
-		var promise OmmType = *NewThread(func() *OmmType {
+		var promise KaType = *NewThread(func() *KaType {
 			return Interpreter(fn.Instance, overload.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params, true).Exp
 		})
 
 		return &promise
 	}
 
-	var nativefunc__sync__array = func(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *OmmType {
-		gfn := val1.(native.OmmGoFunc)
-		arr := val2.(OmmArray)
+	var nativefunc__sync__array = func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+		gfn := val1.(KaGoFunc)
+		arr := val2.(KaArray)
 
 		if gfn.Function == nil {
-			native.OmmPanic("Native function is nil", line, file, stacktrace)
+			KaPanic("Native function is nil", line, file, stacktrace)
 		}
 
 		return gfn.Function(arr.Array, stacktrace, line, file, instance)

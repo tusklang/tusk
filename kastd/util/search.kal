@@ -1,6 +1,6 @@
 var searchfor = fn(string -> str, string -> inc) { 
     
-    ;got from here https://coderscat.com/kmp-string-search-algorithm#:~:text=%20KMP%20String%20Search%20Algorithm%20%201%20Naive,the%20common...%203%20KMP%20algorithm.%20%20More%20
+    ;got from here https://coderscat.com/kmp-string-search-algorithm#:~:text=%20KMP%20String%20Search%20Algorithm%20%201%20Naive,the%20ckaon...%203%20KMP%20algorithm.%20%20More%20
     ;i dont know what algorithm this is called
 
     strlen := len(str)

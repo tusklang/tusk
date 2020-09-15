@@ -1,9 +1,9 @@
 package interpreter
 
-import . "omm/lang/types"
+import . "ka/lang/types"
 
-func naive_mul(val1, val2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
-	num1, num2 := val1.(OmmNumber), val2.(OmmNumber)
+func naive_mul(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string) *KaType {
+	num1, num2 := val1.(KaNumber), val2.(KaNumber)
 	ensurePrec(&num1, &num2, (*instance).Params)
 
 	var multFin [][]int64 //store the final values that were multiplied
@@ -58,7 +58,7 @@ func naive_mul(val1, val2 OmmType, instance *Instance, stacktrace []string, line
 		multFinAct := zero
 		multFinAct.Integer = &v
 
-		totalSum = *(*number__plus__number(totalSumAct, multFinAct, instance, stacktrace, line, file)).(OmmNumber).Integer
+		totalSum = *(*number__plus__number(totalSumAct, multFinAct, instance, stacktrace, line, file)).(KaNumber).Integer
 	}
 
 	decimalRet := totalSum[:decPlaceCount]
@@ -67,12 +67,12 @@ func naive_mul(val1, val2 OmmType, instance *Instance, stacktrace []string, line
 	returner := zero
 	returner.Integer, returner.Decimal = &integerRet, &decimalRet
 
-	var returnerType OmmType = returner
+	var returnerType KaType = returner
 
 	return &returnerType
 }
 
-func number__times__number(num1, num2 OmmType, instance *Instance, stacktrace []string, line uint64, file string) *OmmType {
+func number__times__number(num1, num2 KaType, instance *Instance, stacktrace []string, line uint64, file string) *KaType {
 
 	//maybe switch to karatsuba later?
 	//look into this: http://www.cburch.com/proj/karat/karat.txt

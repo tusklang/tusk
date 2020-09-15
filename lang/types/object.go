@@ -1,14 +1,14 @@
 package types
 
-type OmmObject struct {
+type KaObject struct {
 	Name       string
 	Instance   Instance
 	AccessList map[string][]string
 }
 
-func (o OmmObject) Get(field, file string) (*OmmType, error) {
+func (o KaObject) Get(field, file string) (*KaType, error) {
 
-	var mappedvars = make(map[string]*OmmType)
+	var mappedvars = make(map[string]*KaType)
 
 	for k, v := range o.Instance.vars {
 		mappedvars[k] = v.Value
@@ -17,21 +17,21 @@ func (o OmmObject) Get(field, file string) (*OmmType, error) {
 	return getfield(mappedvars, field, o.AccessList, file)
 }
 
-func (o OmmObject) Format() string {
+func (o KaObject) Format() string {
 	return "{" + o.Name[1:] + "}"
 }
 
-func (o OmmObject) Type() string {
+func (o KaObject) Type() string {
 	return "object"
 }
 
-func (o OmmObject) TypeOf() string {
+func (o KaObject) TypeOf() string {
 	return o.Name[1:]
 }
 
-func (o OmmObject) Deallocate() {}
+func (o KaObject) Deallocate() {}
 
 //Range ranges over an object
-func (o OmmObject) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+func (o KaObject) Range(fn func(val1, val2 *KaType) Returner) *Returner {
 	return nil
 }

@@ -2,33 +2,33 @@ package types
 
 import "fmt"
 
-type OmmRune struct {
+type KaRune struct {
 	Rune *rune
 }
 
-func (r *OmmRune) FromGoType(val rune) {
+func (r *KaRune) FromGoType(val rune) {
 	r.Rune = &val
 }
 
-func (r OmmRune) ToGoType() rune {
+func (r KaRune) ToGoType() rune {
 	return *r.Rune
 }
 
-func (r OmmRune) Format() string {
+func (r KaRune) Format() string {
 	return fmt.Sprintf("%c", *r.Rune)
 }
 
-func (r OmmRune) Type() string {
+func (r KaRune) Type() string {
 	return "rune"
 }
 
-func (r OmmRune) TypeOf() string {
+func (r KaRune) TypeOf() string {
 	return r.Type()
 }
 
-func (r OmmRune) Deallocate() {}
+func (r KaRune) Deallocate() {}
 
 //Range ranges over a rune
-func (r OmmRune) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+func (r KaRune) Range(fn func(val1, val2 *KaType) Returner) *Returner {
 	return nil
 }

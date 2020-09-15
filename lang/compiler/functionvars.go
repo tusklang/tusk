@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	. "omm/lang/types"
+	. "ka/lang/types"
 )
 
 func putFunctionVarRefs(body []Action) []string {
@@ -12,7 +12,7 @@ func putFunctionVarRefs(body []Action) []string {
 
 		if v.Type == "function" {
 
-			var fn = v.Value.(OmmFunc)
+			var fn = v.Value.(KaFunc)
 
 			for k := range fn.Overloads {
 				fn.Overloads[k].VarRefs = putFunctionVarRefs(fn.Overloads[k].Body)
@@ -25,7 +25,7 @@ func putFunctionVarRefs(body []Action) []string {
 
 		if v.Type == "proto" {
 
-			var proto = v.Value.(OmmProto)
+			var proto = v.Value.(KaProto)
 
 			for k, v := range proto.Static {
 				var passarr = []Action{Action{

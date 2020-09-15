@@ -7,26 +7,26 @@ type Overload struct {
 	VarRefs []string //variables that this function use
 }
 
-type OmmFunc struct {
+type KaFunc struct {
 	Overloads []Overload
 	Instance  *Instance
 }
 
-func (f OmmFunc) Format() string {
+func (f KaFunc) Format() string {
 	return "(function) { ... }"
 }
 
-func (f OmmFunc) Type() string {
+func (f KaFunc) Type() string {
 	return "function"
 }
 
-func (f OmmFunc) TypeOf() string {
+func (f KaFunc) TypeOf() string {
 	return f.Type()
 }
 
-func (f OmmFunc) Deallocate() {}
+func (f KaFunc) Deallocate() {}
 
 //Range ranges over a function
-func (f OmmFunc) Range(fn func(val1, val2 *OmmType) Returner) *Returner {
+func (f KaFunc) Range(fn func(val1, val2 *KaType) Returner) *Returner {
 	return nil
 }

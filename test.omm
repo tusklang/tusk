@@ -1,6 +1,0 @@
-;include:
-;s ommstd/bitwise
-
-var main = fn() => {
-    each (1, a, b) => log 1
-}
