@@ -459,9 +459,9 @@ func actionizer(operations []Operation) ([]Action, error) {
 			//if it is ::, and the next action is a variable, then convert to a string
 			//to get index of a variable's value, use ::()
 			//for example,
-			//  var a: [:
-			//    "hello": "world",
-			//  :]
+			//  var a: [
+			//    "hello" = "world",
+			//  ]
 			//  log a::hello ; would log "world"
 			//
 			//  var idx: "hello"
@@ -481,6 +481,8 @@ func actionizer(operations []Operation) ([]Action, error) {
 					File:  right[0].File,
 					Line:  right[0].Line,
 				}
+			} else if right[0].Type == "r-array" || right[0].Type == "c-array" { //detect ::()
+				right = arraytogroup(right)
 			}
 
 			fallthrough

@@ -17,4 +17,4 @@ clean:
 
 .PHONY: language
 language:
-	go build -a ka_start.go
+	go build ka_start.go

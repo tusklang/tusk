@@ -1,3 +1,0 @@
-var main = fn() => {
-    syscall:(55)
-}

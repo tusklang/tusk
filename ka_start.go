@@ -22,7 +22,7 @@ func main() {
 	flag.Parse()
 
 	if *ver {
-		fmt.Printf("Kore Beta %d.%d.%d", suite.KaSuiteMajor, suite.KaSuiteMinor, suite.KaSuiteBug)
+		fmt.Printf("Kore Beta %d.%d.%d", kore.KoreMajor, kore.KoreMinor, kore.KoreBug)
 		os.Exit(0)
 	}
 

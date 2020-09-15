@@ -1,0 +1,23 @@
+;include:
+;s kastd/util/alloc.ka
+
+var normalize = fn(b1, b2) => {
+
+    b1ref := clone:(b1)
+    b2ref := clone:(b2)
+
+    if (len:(b1ref) < len:(b2ref)) => {
+        tmp := clone:(b1ref)
+        b1ref = clone:(b2ref)
+        b2ref = clone:(tmp)
+    }
+    
+    ;force the numbers to have the same amount
+    while (len:(b2ref) != len:(b1ref)) => b2ref = prepend:(b2ref, 0)
+
+    var final = alloc:(len:(b1ref))
+
+    b1 = b1ref
+    b2 = b2ref
+    return final
+}

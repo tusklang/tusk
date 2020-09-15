@@ -47,12 +47,6 @@ func includeSingle(filename string) ([]Action, error) {
 		return actions, nil
 	}
 
-	if strings.HasSuffix(filename, ".kal") {
-		filename = strings.TrimSuffix(filename, ".kal")
-	}
-
-	filename += ".kal"
-
 	for _, v := range included {
 		if v == filename {
 			return []Action{}, nil

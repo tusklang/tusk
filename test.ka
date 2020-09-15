@@ -1,0 +1,6 @@
+;include:
+;s kastd/bitwise
+
+var main = fn() => {
+    log:(bitwise.xor:(10, 2))
+}
