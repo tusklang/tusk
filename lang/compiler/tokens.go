@@ -17,6 +17,18 @@ var tokensJSON = []byte(
     "type": "id_non_tilde"
   },
   {
+    "name": "build",
+    "remove": "build",
+    "pattern": "(build(\\s*)\\()",
+    "type": "id"
+  },
+  {
+    "name": "build",
+    "remove": "build",
+    "pattern": "(build(\\s*)\\~(\\s*)\\()",
+    "type": "id_non_tilde"
+  },
+  {
     "name": "access",
     "remove": "access",
     "pattern": "(access(\\s+))",
@@ -50,30 +62,6 @@ var tokensJSON = []byte(
     "name": "ovld",
     "remove": "ovld",
     "pattern": "(ovld(\\s*)\\~)",
-    "type": "id_non_tilde"
-  },
-  {
-    "name": "ifwin",
-    "remove": "ifwin",
-    "pattern": "(ifwin(\\s+))",
-    "type": "id"
-  },
-  {
-    "name": "ifwin",
-    "remove": "ifwin",
-    "pattern": "(ifwin(\\s*)\\~)",
-    "type": "id_non_tilde"
-  },
-  {
-    "name": "ifnwin",
-    "remove": "ifnwin",
-    "pattern": "(ifnwin(\\s+))",
-    "type": "id"
-  },
-  {
-    "name": "ifnwin",
-    "remove": "ifnwin",
-    "pattern": "(ifnwin(\\s*)\\~)",
     "type": "id_non_tilde"
   },
   {

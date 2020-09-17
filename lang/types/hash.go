@@ -2,26 +2,26 @@ package types
 
 import "strings"
 
-type KaHash struct {
-	Hash   map[string]*KaType
+type TuskHash struct {
+	Hash   map[string]*TuskType
 	keys   []string
 	Length uint64
 }
 
-func (hash KaHash) At(idx string) *KaType {
+func (hash TuskHash) At(idx string) *TuskType {
 
 	if _, exists := hash.Hash[idx]; !exists {
-		var undef KaType = KaUndef{}
+		var undef TuskType = TuskUndef{}
 		hash.Hash[idx] = &undef
 	}
 
 	return hash.Hash[idx]
 }
 
-func (hash *KaHash) Set(idx string, val KaType) {
+func (hash *TuskHash) Set(idx string, val TuskType) {
 
 	if hash.Hash == nil {
-		hash.Hash = make(map[string]*KaType)
+		hash.Hash = make(map[string]*TuskType)
 	}
 
 	if _, exists := hash.Hash[idx]; !exists {
@@ -32,12 +32,12 @@ func (hash *KaHash) Set(idx string, val KaType) {
 	hash.Hash[idx] = &val
 }
 
-func (hash KaHash) Exists(idx string) bool {
+func (hash TuskHash) Exists(idx string) bool {
 	_, exists := hash.Hash[idx]
 	return exists
 }
 
-func (hash KaHash) Format() string {
+func (hash TuskHash) Format() string {
 
 	return func() string {
 
@@ -52,7 +52,7 @@ func (hash KaHash) Format() string {
 			vFormatted := (*v).Format()
 
 			switch (*v).(type) {
-			case KaHash: //if it is another hash, add the indents
+			case TuskHash: //if it is another hash, add the indents
 				if vFormatted != "[]" {
 					newlineSplit := strings.Split(vFormatted, "\n")
 
@@ -73,26 +73,26 @@ func (hash KaHash) Format() string {
 	}() //staring with 2
 }
 
-func (hash KaHash) Type() string {
+func (hash TuskHash) Type() string {
 	return "hash"
 }
 
-func (hash KaHash) TypeOf() string {
+func (hash TuskHash) TypeOf() string {
 	return hash.Type()
 }
 
-func (hash KaHash) Deallocate() {}
+func (hash TuskHash) Deallocate() {}
 
 //Range ranges over a hash
-func (hash KaHash) Range(fn func(val1, val2 *KaType) Returner) *Returner {
+func (hash TuskHash) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 
 	for _, keyi := range hash.keys {
 
 		k, v := keyi, hash.Hash[keyi]
 
-		var key KaString
+		var key TuskString
 		key.FromGoType(k)
-		var katypekey KaType = key
+		var katypekey TuskType = key
 		ret := fn(&katypekey, v)
 
 		if ret.Type == "break" {

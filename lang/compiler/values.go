@@ -3,7 +3,7 @@ package compiler
 import (
 	"unicode"
 
-	. "ka/lang/types"
+	. "tusk/lang/types"
 )
 
 func valueActions(item Item) (Action, error) {
@@ -33,7 +33,7 @@ func valueActions(item Item) (Action, error) {
 	case "(":
 
 		var arr [][]Action
-		var carr KaArray
+		var carr TuskArray
 
 		var arrtype = "c-array" //compile time array
 
@@ -88,7 +88,7 @@ func valueActions(item Item) (Action, error) {
 	case "[":
 
 		var hash = make([][2][]Action, 0)
-		var chash KaHash
+		var chash TuskHash
 
 		var hashtype = "c-hash" //compile time hash
 
@@ -162,7 +162,7 @@ func valueActions(item Item) (Action, error) {
 		var val = item.Token.Name
 
 		if val[0] == '"' || val[0] == '`' { //detect string
-			var str = KaString{}
+			var str = TuskString{}
 			str.FromGoType(val[1 : len(val)-1])
 			return Action{
 				Type:  "string",
@@ -171,7 +171,7 @@ func valueActions(item Item) (Action, error) {
 				Line:  item.Line,
 			}, nil
 		} else if val[0] == '\'' { //detect a rune
-			var oRune = KaRune{}
+			var oRune = TuskRune{}
 
 			qrem := val[1 : len(val)-1] //remove quotes
 
@@ -187,7 +187,7 @@ func valueActions(item Item) (Action, error) {
 				Line:  item.Line,
 			}, nil
 		} else if val == "true" || val == "false" { //detect a bool
-			var boolean = KaBool{}
+			var boolean = TuskBool{}
 			boolean.FromGoType(val == "true" /* convert to a boolean */)
 			return Action{
 				Type:  "bool",
@@ -196,7 +196,7 @@ func valueActions(item Item) (Action, error) {
 				Line:  item.Line,
 			}, nil
 		} else if val == "undef" { //detect an undef value
-			var undef KaUndef
+			var undef TuskUndef
 			return Action{
 				Type:  "undef",
 				Value: undef,
@@ -204,7 +204,7 @@ func valueActions(item Item) (Action, error) {
 				Line:  item.Line,
 			}, nil
 		} else if unicode.IsDigit(rune(val[0])) || val[0] == '.' || val[0] == '+' || val[0] == '-' { //detect a number
-			var number = KaNumber{}
+			var number = TuskNumber{}
 			number.FromString(val)
 			return Action{
 				Type:  "number",

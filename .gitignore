@@ -1,10 +1,7 @@
-/ka_start
+/tusk_start
 *.exe
 *.o
 *.dll
 *.lib
 *.so
 *.a
-/installers/windows/setup.msi
-/goatv.h
-syscall_switch.h

@@ -6,7 +6,7 @@ import (
 )
 
 //export NumNormalize
-func NumNormalize(num KaNumber) string {
+func NumNormalize(num TuskNumber) string {
 
 	/*
 	  ALGORITHM TO NORMALIZE:
@@ -40,7 +40,7 @@ func NumNormalize(num KaNumber) string {
 	decimal := *num.Decimal
 
 	//the first digit is actually the last index
-	//because ka numbers are stored as so [1234, 5678, 9101] = 910, 156, 781, 234
+	//because tusk numbers are stored as so [1234, 5678, 9101] = 910, 156, 781, 234
 
 	//alloc amounts into the copies
 	var decimalCopy = make([]int64, len(decimal))

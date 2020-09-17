@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"ka/lang/types"
+	"tusk/lang/types"
 
-	"ka/lang/interpreter"
+	"tusk/lang/interpreter"
 )
 
 func Run(params types.CliParams) {
@@ -17,7 +17,7 @@ func Run(params types.CliParams) {
 		os.Exit(1)
 	}
 
-	os.Args = os.Args[1:] //remove the `ka` <file.ka>
+	os.Args = os.Args[1:] //remove the `tusk` <file.tusk>
 
 	interpreter.RunInterpreter(variables, params)
 }

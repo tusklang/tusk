@@ -1,24 +1,24 @@
 package types
 
-type KaUndef struct {
+type TuskUndef struct {
 	None struct{}
 }
 
-func (u KaUndef) Format() string {
+func (u TuskUndef) Format() string {
 	return "undef"
 }
 
-func (u KaUndef) Type() string {
+func (u TuskUndef) Type() string {
 	return "none"
 }
 
-func (u KaUndef) TypeOf() string {
+func (u TuskUndef) TypeOf() string {
 	return u.Type()
 }
 
-func (u KaUndef) Deallocate() {}
+func (u TuskUndef) Deallocate() {}
 
 //Range ranges over an undef type
-func (u KaUndef) Range(fn func(val1, val2 *KaType) Returner) *Returner {
+func (u TuskUndef) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 	return nil
 }

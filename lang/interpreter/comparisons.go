@@ -3,7 +3,7 @@ package interpreter
 import (
 	"math/big"
 
-	. "ka/lang/types"
+	. "tusk/lang/types"
 )
 
 //convert the numbers (integers/decimals) to bigints
@@ -19,7 +19,7 @@ func sliceToBigInt(slice []int64) *big.Int {
 	return bigVal
 }
 
-func toBig(val1, val2 KaNumber) (*big.Int, *big.Int, *big.Int, *big.Int) {
+func toBig(val1, val2 TuskNumber) (*big.Int, *big.Int, *big.Int, *big.Int) {
 	int1, dec1 := val1.Integer, val1.Decimal
 	int2, dec2 := val2.Integer, val2.Decimal
 
@@ -46,24 +46,24 @@ func toBig(val1, val2 KaNumber) (*big.Int, *big.Int, *big.Int, *big.Int) {
 	return bigInt1, bigInt2, bigDec1, bigDec2
 }
 
-func isTruthy(val KaType) bool {
+func isTruthy(val TuskType) bool {
 
 	switch val.(type) {
-	case KaBool:
+	case TuskBool:
 
-		if val.(KaBool).Boolean == nil {
+		if val.(TuskBool).Boolean == nil {
 			return false
 		}
 
-		return *val.(KaBool).Boolean
-	case KaUndef:
+		return *val.(TuskBool).Boolean
+	case TuskUndef:
 		return false
 	}
 
 	return true
 }
 
-func isLess(val1, val2 KaNumber) bool {
+func isLess(val1, val2 TuskNumber) bool {
 
 	//manage for leading zeros in the decimal
 	var num1ZeroLeadingDec int
@@ -108,7 +108,7 @@ func isLess(val1, val2 KaNumber) bool {
 	return bigdec1.Cmp(bigdec2) == -1
 }
 
-func isEqual(val1, val2 KaNumber) bool {
+func isEqual(val1, val2 TuskNumber) bool {
 
 	//manage for leading zeros in the decimal
 	var num1ZeroLeadingDec int
@@ -153,7 +153,7 @@ func isEqual(val1, val2 KaNumber) bool {
 	return bigdec1.Cmp(bigdec2) == 0
 }
 
-func isLessOrEqual(val1, val2 KaNumber) bool {
+func isLessOrEqual(val1, val2 TuskNumber) bool {
 
 	//manage for leading zeros in the decimal
 	var num1ZeroLeadingDec int
@@ -198,7 +198,7 @@ func isLessOrEqual(val1, val2 KaNumber) bool {
 	return bigdec1.Cmp(bigdec2) <= 0
 }
 
-func abs(val KaNumber, stacktrace []string, cli_params CliParams) KaType {
+func abs(val TuskNumber, stacktrace []string, cli_params CliParams) TuskType {
 
 	if isLess(val, zero) {
 		var tmpInstance Instance

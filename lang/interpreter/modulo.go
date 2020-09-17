@@ -1,9 +1,9 @@
 package interpreter
 
-import . "ka/lang/types"
+import . "tusk/lang/types"
 
-func number__mod__number(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string) *KaType {
-	num1, num2 := val1.(KaNumber), val2.(KaNumber)
+func number__mod__number(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) *TuskType {
+	num1, num2 := val1.(TuskNumber), val2.(TuskNumber)
 	ensurePrec(&num1, &num2, (*instance).Params)
 
 	//ALGORITHM:
@@ -18,9 +18,9 @@ func number__mod__number(val1, val2 KaType, instance *Instance, stacktrace []str
 	num2P.Integer, num2P.Decimal = &tmpInt, &tmpDec
 
 	//if you set the prec to 0 here, it will mutate it
-	divided := (*number__divide__number(num1, num2, instance, stacktrace, line, file)).(KaNumber)
+	divided := (*number__divide__number(num1, num2, instance, stacktrace, line, file)).(TuskNumber)
 	*divided.Decimal = nil //round down
 
-	multiplied := (*number__times__number(divided, num2, instance, stacktrace, line, file)).(KaNumber)
+	multiplied := (*number__times__number(divided, num2, instance, stacktrace, line, file)).(TuskNumber)
 	return number__minus__number(num1, multiplied, instance, stacktrace, line, file)
 }

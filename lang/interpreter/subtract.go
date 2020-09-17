@@ -1,9 +1,9 @@
 package interpreter
 
-import . "ka/lang/types"
+import . "tusk/lang/types"
 
-func number__minus__number(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string) *KaType {
-	num1, num2 := val1.(KaNumber), val2.(KaNumber)
+func number__minus__number(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) *TuskType {
+	num1, num2 := val1.(TuskNumber), val2.(TuskNumber)
 	ensurePrec(&num1, &num2, (*instance).Params)
 
 	num2Placeholder := zero                                                                //create a placeholder for num2 (so it wont mutate)

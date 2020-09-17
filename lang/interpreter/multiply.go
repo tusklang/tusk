@@ -1,9 +1,9 @@
 package interpreter
 
-import . "ka/lang/types"
+import . "tusk/lang/types"
 
-func naive_mul(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string) *KaType {
-	num1, num2 := val1.(KaNumber), val2.(KaNumber)
+func naive_mul(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) *TuskType {
+	num1, num2 := val1.(TuskNumber), val2.(TuskNumber)
 	ensurePrec(&num1, &num2, (*instance).Params)
 
 	var multFin [][]int64 //store the final values that were multiplied
@@ -58,7 +58,7 @@ func naive_mul(val1, val2 KaType, instance *Instance, stacktrace []string, line 
 		multFinAct := zero
 		multFinAct.Integer = &v
 
-		totalSum = *(*number__plus__number(totalSumAct, multFinAct, instance, stacktrace, line, file)).(KaNumber).Integer
+		totalSum = *(*number__plus__number(totalSumAct, multFinAct, instance, stacktrace, line, file)).(TuskNumber).Integer
 	}
 
 	decimalRet := totalSum[:decPlaceCount]
@@ -67,12 +67,12 @@ func naive_mul(val1, val2 KaType, instance *Instance, stacktrace []string, line 
 	returner := zero
 	returner.Integer, returner.Decimal = &integerRet, &decimalRet
 
-	var returnerType KaType = returner
+	var returnerType TuskType = returner
 
 	return &returnerType
 }
 
-func number__times__number(num1, num2 KaType, instance *Instance, stacktrace []string, line uint64, file string) *KaType {
+func number__times__number(num1, num2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) *TuskType {
 
 	//maybe switch to karatsuba later?
 	//look into this: http://www.cburch.com/proj/karat/karat.txt

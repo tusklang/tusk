@@ -1,8 +1,8 @@
 ifeq ($(OS),Windows_NT)
-	BINARY = ka_start.exe
+	BINARY = tusk_start.exe
 	CLEAN_CMD = del
 else
-	BINARY = ka_start
+	BINARY = tusk_start
 	CLEAN_CMD = rm -f
 endif
 
@@ -17,4 +17,4 @@ clean:
 
 .PHONY: language
 language:
-	go build ka_start.go
+	go build -a tusk_start.go

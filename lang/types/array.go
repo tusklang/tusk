@@ -1,47 +1,47 @@
 package types
 
-type KaArray struct {
-	Array  []*KaType
+type TuskArray struct {
+	Array  []*TuskType
 	Length uint64
 }
 
-func (arr KaArray) At(idx int64) *KaType {
+func (arr TuskArray) At(idx int64) *TuskType {
 
 	length := arr.Length
 
 	if uint64(idx) >= length || idx < 0 {
-		var undef KaType = KaUndef{}
+		var undef TuskType = TuskUndef{}
 		return &undef
 	}
 
 	return arr.Array[idx]
 }
 
-func (arr KaArray) Exists(idx int64) bool {
+func (arr TuskArray) Exists(idx int64) bool {
 	return arr.Length != 0 && uint64(idx) < arr.Length && idx >= 0
 }
 
-func (arr *KaArray) PushBack(val KaType) {
+func (arr *TuskArray) PushBack(val TuskType) {
 	arr.Length++
 	arr.Array = append(arr.Array, &val)
 }
 
-func (arr *KaArray) PushFront(val KaType) {
+func (arr *TuskArray) PushFront(val TuskType) {
 	arr.Length++
-	arr.Array = append([]*KaType{&val}, arr.Array...)
+	arr.Array = append([]*TuskType{&val}, arr.Array...)
 }
 
-func (arr *KaArray) PopBack(val KaType) {
+func (arr *TuskArray) PopBack(val TuskType) {
 	arr.Length--
 	arr.Array = arr.Array[:arr.Length]
 }
 
-func (arr *KaArray) PopFront(val KaType) {
+func (arr *TuskArray) PopFront(val TuskType) {
 	arr.Length--
 	arr.Array = arr.Array[1:]
 }
 
-func (arr KaArray) Format() string {
+func (arr TuskArray) Format() string {
 	var formatted = "("
 	for _, v := range arr.Array {
 		formatted += (*v).Format() + ", "
@@ -55,23 +55,23 @@ func (arr KaArray) Format() string {
 	return formatted
 }
 
-func (arr KaArray) Type() string {
+func (arr TuskArray) Type() string {
 	return "array"
 }
 
-func (arr KaArray) TypeOf() string {
+func (arr TuskArray) TypeOf() string {
 	return arr.Type()
 }
 
-func (arr KaArray) Deallocate() {}
+func (arr TuskArray) Deallocate() {}
 
 //Range ranges over an array
-func (arr KaArray) Range(fn func(val1, val2 *KaType) Returner) *Returner {
+func (arr TuskArray) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 
 	for k, v := range arr.Array {
-		var key KaNumber
+		var key TuskNumber
 		key.FromGoType(float64(k))
-		var katypekey KaType = key
+		var katypekey TuskType = key
 		ret := fn(&katypekey, v)
 
 		if ret.Type == "break" {

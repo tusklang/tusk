@@ -7,12 +7,12 @@ import (
 	"path"
 	"strings"
 
-	"ka/lang/interpreter"
+	"tusk/lang/interpreter"
 
-	. "ka/lang/types"
+	. "tusk/lang/types"
 )
 
-//CompileError represents a compile-time error in Ka, and it implements the `error` interface
+//CompileError represents a compile-time error in Tusk, and it implements the `error` interface
 type CompileError struct {
 	Msg   string
 	FName string
@@ -111,9 +111,9 @@ func inclCompile(filename string) ([]Action, error) {
 	return actions, e
 }
 
-func Compile(params CliParams) (map[string]*KaType, error) {
+func Compile(params CliParams) (map[string]*TuskType, error) {
 
-	kabasedir = params.KaDirname
+	kabasedir = params.TuskDirname
 
 	var e error
 

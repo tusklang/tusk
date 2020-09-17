@@ -2,14 +2,14 @@ package types
 
 import "fmt"
 
-type KaThread struct {
+type TuskThread struct {
 	thread *cthread
 	ptr    uint64
 }
 
 //export NewThread
-func NewThread(cb func() *KaType) *KaThread {
-	//wrapper for other packages to create KaThreads
+func NewThread(cb func() *TuskType) *TuskThread {
+	//wrapper for other packages to create TuskThreads
 	return newthread(cb)
 }
 
@@ -21,24 +21,24 @@ func WaitAllThreads() {
 	}
 }
 
-func (ot KaThread) Join() *KaType {
+func (ot TuskThread) Join() *TuskType {
 	return jointhread(ot)
 }
 
-func (ot KaThread) Format() string {
+func (ot TuskThread) Format() string {
 	//format it (with all the data)
 	return fmt.Sprintf("{ Thread }")
 }
 
-func (ot KaThread) Type() string {
+func (ot TuskThread) Type() string {
 	return "thread"
 }
 
-func (ot KaThread) TypeOf() string {
+func (ot TuskThread) TypeOf() string {
 	return ot.Type()
 }
 
-func (ot KaThread) Deallocate() {
+func (ot TuskThread) Deallocate() {
 	//threads must be deallocated with a special way (because of the menace that is c)
 	//but, i am grateful for c because without it, i would have has to use asm
 	//and with asm, i would have to write 20 asm source files for each platform
@@ -47,6 +47,6 @@ func (ot KaThread) Deallocate() {
 }
 
 //Range ranges over a thread
-func (ot KaThread) Range(fn func(val1, val2 *KaType) Returner) *Returner {
+func (ot TuskThread) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 	return nil
 }

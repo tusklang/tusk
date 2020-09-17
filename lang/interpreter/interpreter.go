@@ -1,16 +1,16 @@
 package interpreter
 
 import (
-	. "ka/lang/types"
+	. "tusk/lang/types"
 )
 
 const MAX_STACKSIZE = 100001
 
-func dealloc(ins *Instance, varnames []string, value *KaType) { //function to remove the variables declared in that scope
+func dealloc(ins *Instance, varnames []string, value *TuskType) { //function to remove the variables declared in that scope
 	for _, v := range varnames {
 		if (*value).Type() == "function" { //if it is a curryed function, make sure it does not garbage collect the vars used
 
-			for _, vv := range (*value).(KaFunc).Overloads {
+			for _, vv := range (*value).(TuskFunc).Overloads {
 				for _, vvv := range vv.VarRefs {
 					if vvv == v {
 						goto nodealloc
@@ -28,7 +28,7 @@ func dealloc(ins *Instance, varnames []string, value *KaType) { //function to re
 func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize uint, varnames []string /* varnames to deallocate */, expReturn bool) Returner {
 
 	if stacksize > MAX_STACKSIZE {
-		KaPanic("Stack size was exceeded", 0, "none", stacktrace)
+		TuskPanic("Stack size was exceeded", 0, "none", stacktrace)
 	}
 
 	for _, v := range actions {
@@ -55,11 +55,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			interpreted := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
 
 			if (*(*ins.Fetch(v.Name)).Value).Type() != "function" {
-				*(*ins.Fetch(v.Name)).Value = KaFunc{}
+				*(*ins.Fetch(v.Name)).Value = TuskFunc{}
 			}
 
-			var appended_ovld KaType = KaFunc{
-				Overloads: append((*(*ins.Fetch(v.Name)).Value).(KaFunc).Overloads, (*interpreted.Exp).(KaFunc).Overloads[0]),
+			var appended_ovld TuskType = TuskFunc{
+				Overloads: append((*(*ins.Fetch(v.Name)).Value).(TuskFunc).Overloads, (*interpreted.Exp).(TuskFunc).Overloads[0]),
 			}
 
 			ins.Allocate(v.Name, &appended_ovld)
@@ -75,7 +75,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "declare":
 
-			var tmpundef KaType = undef
+			var tmpundef TuskType = undef
 
 			varnames = append(varnames, v.Name)
 			ins.Allocate(v.Name, &tmpundef)
@@ -134,27 +134,27 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "function":
 			//for a function, add the instance
-			var nf = v.Value.(KaFunc)
+			var nf = v.Value.(TuskFunc)
 			nf.Instance = ins
-			var katype KaType = nf
+			var tusktype TuskType = nf
 			if expReturn {
-				defer dealloc(ins, varnames, &katype)
+				defer dealloc(ins, varnames, &tusktype)
 				return Returner{
 					Type: "expression",
-					Exp:  &katype,
+					Exp:  &tusktype,
 				}
 			}
 
 		//arrays, hashes are a bit different
 		case "r-array":
 
-			var nArr = make([]*KaType, len(v.Array))
+			var nArr = make([]*TuskType, len(v.Array))
 
 			for k, i := range v.Array {
 				nArr[k] = Interpreter(ins, i, stacktrace, stacksize+1, nil, true).Exp
 			}
 
-			var kaType KaType = KaArray{
+			var kaType TuskType = TuskArray{
 				Array:  nArr,
 				Length: uint64(len(v.Array)),
 			}
@@ -169,13 +169,13 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "r-hash":
 
-			var nHash = make(map[string]*KaType)
+			var nHash = make(map[string]*TuskType)
 
 			for _, i := range v.Hash {
 				nHash[(*Interpreter(ins, i[0], stacktrace, stacksize+1, nil, true).Exp).Format()] = Interpreter(ins, i[1], stacktrace, stacksize+1, nil, true).Exp
 			}
 
-			var kaType KaType = KaHash{
+			var kaType TuskType = TuskHash{
 				Hash:   nHash,
 				Length: uint64(len(v.Hash)),
 			}
@@ -270,7 +270,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			//& and | can be a bit different for bool and bool
 			if v.Type == "&" || v.Type == "|" {
 				firstInterpreted = Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
-				var computed KaType
+				var computed TuskType
 
 				if (*firstInterpreted.Exp).Type() == "bool" {
 
@@ -284,7 +284,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 					if assumeVal {
 						var retVal = v.Type == "|"
-						computed = KaBool{
+						computed = TuskBool{
 							Boolean: &retVal,
 						}
 					} else {
@@ -292,7 +292,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 						if (*secondInterpreted.Exp).Type() == "bool" {
 							var gobool = isTruthy(*secondInterpreted.Exp)
-							computed = KaBool{
+							computed = TuskBool{
 								Boolean: &gobool,
 							}
 						} else {
@@ -324,7 +324,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			}
 
 			if !exists { //if there is no operation for that type, panic
-				KaPanic("Could not find "+v.Type+" operator for types "+(*firstInterpreted.Exp).TypeOf()+" and "+(*secondInterpreted.Exp).TypeOf(), v.Line, v.File, stacktrace)
+				TuskPanic("Could not find "+v.Type+" operator for types "+(*firstInterpreted.Exp).TypeOf()+" and "+(*secondInterpreted.Exp).TypeOf(), v.Line, v.File, stacktrace)
 			}
 
 			computed := operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, ins, stacktrace, v.Line, v.File, stacksize+1)
@@ -417,7 +417,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			keyName := v.First[1].Name //get name of key
 			valName := v.First[2].Name //get name of val
 
-			it.Range(func(key, val *KaType) Returner {
+			it.Range(func(key, val *TuskType) Returner {
 
 				ins.Allocate(keyName, key)
 				ins.Allocate(valName, val)
@@ -436,7 +436,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 					}
 				}
 
-				var undefval KaType = undef
+				var undefval TuskType = undef
 
 				return Returner{
 					Type: "none",
@@ -451,10 +451,10 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" + number"]
 
 			if !exists { //if there is no operation for that type, panic
-				KaPanic("Could not find + operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
+				TuskPanic("Could not find + operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
 			}
 
-			var onetype KaType = one
+			var onetype TuskType = one
 			*variable.Exp = *operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize)
 
 			if expReturn {
@@ -472,10 +472,10 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" - number"]
 
 			if !exists { //if there is no operation for that type, panic
-				KaPanic("Could not find - operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
+				TuskPanic("Could not find - operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
 			}
 
-			var onetype KaType = one
+			var onetype TuskType = one
 			*variable.Exp = *operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize)
 
 			if expReturn {
@@ -504,7 +504,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" "+string(v.Type[0])+" "+interpreted.Type()]
 
 			if !exists { //if there is no operation for that type, panic
-				KaPanic("Could not find "+string(v.Type[0])+" operation for types "+(*variable.Exp).Type()+" and "+interpreted.Type(), v.Line, v.File, stacktrace)
+				TuskPanic("Could not find "+string(v.Type[0])+" operation for types "+(*variable.Exp).Type()+" and "+interpreted.Type(), v.Line, v.File, stacktrace)
 			}
 
 			*variable.Exp = *operationFunc(*variable.Exp, interpreted, ins, stacktrace, v.Line, v.File, stacksize)
@@ -520,7 +520,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 		}
 	}
 
-	var undefval KaType = undef
+	var undefval TuskType = undef
 
 	defer dealloc(ins, varnames, &undefval)
 

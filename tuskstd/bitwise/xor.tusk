@@ -1,5 +1,5 @@
 ;include:
-;s kastd/bitwise/normalize.ka
+;s kastd/bitwise/normalize.tusk
 
 var bitwise.xor = fn(number -> n1, number -> n2) => {
     b1 := tobits:(n1)

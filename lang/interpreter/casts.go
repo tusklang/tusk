@@ -1,11 +1,11 @@
 package interpreter
 
 import (
-	"ka/lang/types"
+	"tusk/lang/types"
 )
 
-//Cast casts one ka value to another type
-func Cast(val types.KaType, nType string, stacktrace []string, line uint64, file string) *types.KaType {
+//Cast casts one tusk value to another type
+func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, file string) *types.TuskType {
 
 	if val.Type() == nType {
 		return &val
@@ -14,56 +14,56 @@ func Cast(val types.KaType, nType string, stacktrace []string, line uint64, file
 	switch nType + "->" + val.TypeOf() {
 
 	case "string->number":
-		str := types.NumNormalize(val.(types.KaNumber)) //convert to string
-		var kastr types.KaString                       //create an kastring
+		str := types.NumNormalize(val.(types.TuskNumber)) //convert to string
+		var kastr types.TuskString                       //create an kastring
 		kastr.FromGoType(str)
-		var katype types.KaType = kastr //create an katype interface
-		return &katype
+		var tusktype types.TuskType = kastr //create an tusktype interface
+		return &tusktype
 
 	case "number->string":
-		integer, decimal := types.BigNumConverter(val.(types.KaString).ToGoType())
-		var newNum types.KaType = types.KaNumber{
+		integer, decimal := types.BigNumConverter(val.(types.TuskString).ToGoType())
+		var newNum types.TuskType = types.TuskNumber{
 			Integer: &integer,
 			Decimal: &decimal,
 		}
 		return &newNum
 
 	case "number->rune":
-		var gonum = float64(val.(types.KaRune).ToGoType())
-		var number types.KaNumber
+		var gonum = float64(val.(types.TuskRune).ToGoType())
+		var number types.TuskNumber
 		number.FromGoType(gonum)
-		var katype types.KaType = number
-		return &katype
+		var tusktype types.TuskType = number
+		return &tusktype
 
 	case "rune->number":
-		var gorune = rune(val.(types.KaNumber).ToGoType())
-		var karune types.KaRune
+		var gorune = rune(val.(types.TuskNumber).ToGoType())
+		var karune types.TuskRune
 		karune.FromGoType(gorune)
-		var katype types.KaType = karune
-		return &katype
+		var tusktype types.TuskType = karune
+		return &tusktype
 
 	case "number->bool":
-		var gobool = val.(types.KaBool).ToGoType()
+		var gobool = val.(types.TuskBool).ToGoType()
 		if gobool {
-			var katype types.KaType = one
-			return &katype
+			var tusktype types.TuskType = one
+			return &tusktype
 		}
 
-		var katype types.KaType = zero
-		return &katype
+		var tusktype types.TuskType = zero
+		return &tusktype
 
 	case "string->rune":
-		var runelist = val.(types.KaRune).ToGoType()
-		var kastr types.KaString
+		var runelist = val.(types.TuskRune).ToGoType()
+		var kastr types.TuskString
 		kastr.FromRuneList([]rune{runelist})
-		var katype types.KaType = kastr
-		return &katype
+		var tusktype types.TuskType = kastr
+		return &tusktype
 
 	}
 
-	KaPanic("Cannot cast a "+val.Type()+" into a "+nType, line, file, stacktrace)
+	TuskPanic("Cannot cast a "+val.Type()+" into a "+nType, line, file, stacktrace)
 
 	//here because it wont work without it
-	var none types.KaType = undef
+	var none types.TuskType = undef
 	return &none
 }

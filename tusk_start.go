@@ -6,16 +6,16 @@ import (
 	"os"
 	"path/filepath"
 
-	. "ka/lang/types"
+	. "tusk/lang/types"
 	"kore"
 
-	"ka/lang/compiler"
+	"tusk/lang/compiler"
 )
 
-var ver = flag.Bool("ver", false, "Get Ka suite version")
+var ver = flag.Bool("ver", false, "Get Tusk suite version")
 
 func init() {
-	flag.Usage = kore.Usagef("Ka")
+	flag.Usage = kore.Usagef("Tusk")
 }
 
 func main() {
@@ -37,7 +37,7 @@ func main() {
 
 	dirname, _ := os.Executable()
 
-	cli_params.KaDirname = filepath.Dir(dirname)
+	cli_params.TuskDirname = filepath.Dir(dirname)
 
 	//set the working directory
 	os.Chdir(cli_params.Directory)

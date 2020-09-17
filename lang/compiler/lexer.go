@@ -38,7 +38,7 @@ func lexer(file, filename string) ([]Lex, error) {
 
 		//detect a comment
 		//single line comments are written as ;comment
-		//like in assembly
+		//like in assembly and lisp
 		if strings.TrimLeft(file[i:], " ")[0] == ';' {
 
 			var end = strings.Index(file[i:], "\n")

@@ -15,15 +15,15 @@ import "C"
 type cthread C.struct_Thread
 
 var curptr uint64 = 0
-var asyncfuncs = make(map[uint64]func() *KaType)
-var allthreads = make(map[uint64]KaThread)
+var asyncfuncs = make(map[uint64]func() *TuskType)
+var allthreads = make(map[uint64]TuskThread)
 
-func newthread(cb func() *KaType) *KaThread {
+func newthread(cb func() *TuskType) *TuskThread {
 
 	asyncfuncs[curptr] = cb
 
 	created := cthread(C.newThread(C.ulonglong(curptr)))
-	var kathread KaThread
+	var kathread TuskThread
 	kathread.thread = &created
 	kathread.ptr = curptr
 
@@ -33,12 +33,12 @@ func newthread(cb func() *KaType) *KaThread {
 	return &kathread
 }
 
-func jointhread(thread KaThread) *KaType {
+func jointhread(thread TuskThread) *TuskType {
 	var joined = C.waitfor((C.struct_Thread)(*thread.thread))
-	return *(**KaType)(joined)
+	return *(**TuskType)(joined)
 }
 
-func thread_dealloc(thread KaThread) {
+func thread_dealloc(thread TuskThread) {
 	C.freeThread(C.struct_Thread(*thread.thread))
 	delete(asyncfuncs, thread.ptr) //remove from the asyncfuncs
 }

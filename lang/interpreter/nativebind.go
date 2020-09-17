@@ -1,29 +1,29 @@
 package interpreter
 
 import (
-	. "ka/lang/types"
+	. "tusk/lang/types"
 )
 
-type KaGoFunc struct {
-	Function func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType
+type TuskGoFunc struct {
+	Function func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType
 }
 
-func (ogf KaGoFunc) Format() string {
+func (ogf TuskGoFunc) Format() string {
 	return "{ native go func }"
 }
 
-func (ogf KaGoFunc) Type() string {
+func (ogf TuskGoFunc) Type() string {
 	return "native_func"
 }
 
-func (ogf KaGoFunc) TypeOf() string {
+func (ogf TuskGoFunc) TypeOf() string {
 	return ogf.Type()
 }
 
-func (ogf KaGoFunc) Deallocate() {}
+func (ogf TuskGoFunc) Deallocate() {}
 
-//Range ranges over an ka native function
-func (ogf KaGoFunc) Range(fn func(val1, val2 *KaType) Returner) *Returner {
+//Range ranges over an tusk native function
+func (ogf TuskGoFunc) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 	return nil
 }
 
@@ -31,7 +31,7 @@ func nativeinit() {
 
 	//init the simple native values first
 	for k, v := range native {
-		var gofunc KaType = KaGoFunc{
+		var gofunc TuskType = TuskGoFunc{
 			Function: v,
 		}
 

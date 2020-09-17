@@ -1,10 +1,10 @@
 package compiler
 
-import "ka/lang/types"
+import "tusk/lang/types"
 
-func getvars(actions []types.Action) (map[string]*types.KaType, error) {
+func getvars(actions []types.Action) (map[string]*types.TuskType, error) {
 
-	var vars = make(map[string]*types.KaType)
+	var vars = make(map[string]*types.TuskType)
 
 	for _, v := range actions {
 		if v.Type != "var" && v.Type != "declare" && v.Type != "ovld" { //if it is not an assigner or overloader, it must be an error
@@ -21,7 +21,7 @@ func getvars(actions []types.Action) (map[string]*types.KaType, error) {
 
 		if v.Type == "ovld" {
 			if _, exists := vars[v.Name]; !exists { //if it does not exist yet, declare undefined yet
-				var f types.KaType = types.KaFunc{}
+				var f types.TuskType = types.TuskFunc{}
 				vars[v.Name] = &f
 			}
 
@@ -29,10 +29,10 @@ func getvars(actions []types.Action) (map[string]*types.KaType, error) {
 				return nil, makeCompilerErr(v.Name[1:]+" is not a function", v.File, v.Line)
 			}
 
-			tmp := (*vars[v.Name]).(types.KaFunc)
-			tmp.Overloads = append(tmp.Overloads, v.ExpAct[0].Value.(types.KaFunc).Overloads...)
-			var katype types.KaType = tmp
-			vars[v.Name] = &katype
+			tmp := (*vars[v.Name]).(types.TuskFunc)
+			tmp.Overloads = append(tmp.Overloads, v.ExpAct[0].Value.(types.TuskFunc).Overloads...)
+			var tusktype types.TuskType = tmp
+			vars[v.Name] = &tusktype
 			continue
 		}
 

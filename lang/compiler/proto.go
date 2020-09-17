@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	. "ka/lang/types"
+	. "tusk/lang/types"
 )
 
 var protos []string
@@ -26,8 +26,8 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) error {
 
 		if v.Type == "proto" {
 
-			for i := range v.Value.(KaProto).Static {
-				var val = *v.Value.(KaProto).Static[i]
+			for i := range v.Value.(TuskProto).Static {
+				var val = *v.Value.(TuskProto).Static[i]
 
 				if val.Type() == "function" {
 					e = has_non_global_prototypes([]Action{Action{
@@ -39,8 +39,8 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) error {
 					}
 				}
 			}
-			for i := range v.Value.(KaProto).Instance {
-				var val = *v.Value.(KaProto).Instance[i]
+			for i := range v.Value.(TuskProto).Instance {
+				var val = *v.Value.(TuskProto).Instance[i]
 
 				if val.Type() == "function" {
 					e = has_non_global_prototypes([]Action{Action{
@@ -56,7 +56,7 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) error {
 			continue
 		}
 		if v.Type == "function" {
-			e = has_non_global_prototypes(v.Value.(KaFunc).Overloads[0].Body, false)
+			e = has_non_global_prototypes(v.Value.(TuskFunc).Overloads[0].Body, false)
 			if e != nil {
 				return e
 			}
@@ -115,7 +115,7 @@ func put_proto_types(actions []Action) {
 		if v.Type == "var" && len(v.ExpAct) != 0 && v.ExpAct[0].Type == "proto" {
 			validtypes = append(validtypes, v.Name[1:])
 
-			var proto = v.ExpAct[0].Value.(KaProto)
+			var proto = v.ExpAct[0].Value.(TuskProto)
 			proto.ProtoName = v.Name
 			actions[k].ExpAct[0].Value = proto
 		}

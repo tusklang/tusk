@@ -1,10 +1,10 @@
 package types
 
-type KaVar struct {
+type TuskVar struct {
 	Name  string
-	Value *KaType
+	Value *TuskType
 }
 
-func (v KaVar) Format() string {
+func (v TuskVar) Format() string {
 	return v.Name
 }

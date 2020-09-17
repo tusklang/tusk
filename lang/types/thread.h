@@ -1,5 +1,5 @@
-#ifndef OMM_THREAD_H_
-#define OMM_THREAD_H_
+#ifndef TUSK_THREAD_H_
+#define TUSK_THREAD_H_
 
 #ifdef __cplusplus
 extern "C" {

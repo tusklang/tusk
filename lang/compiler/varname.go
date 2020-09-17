@@ -3,13 +3,13 @@ package compiler
 import (
 	"strconv"
 
-	. "ka/lang/types"
+	. "tusk/lang/types"
 )
 
 /*
 Explanation of why this exists:
 
-  In ka (and java/c/c++ I think), there is one list of variables at compile time. For security, some variables cannot be accessed from different scopes, and it will
+  In tusk (and java/c/c++ I think), there is one list of variables at compile time. For security, some variables cannot be accessed from different scopes, and it will
   give a **compile time** error. In a lot of dynamic languages, like javascript and python, "variable not existsing" errors happen at runtime. If you run the
   following python code:
 
@@ -25,7 +25,7 @@ Explanation of why this exists:
       std::cout << testvariable << std::endl;
     }
 
-  a compiler error would come. Now I will explain why we need to change the variable names in the compiler. Imagine we have some ka code like this:
+  a compiler error would come. Now I will explain why we need to change the variable names in the compiler. Imagine we have some tusk code like this:
 
     var main: fn() => {
       var test: 1
@@ -43,7 +43,7 @@ Explanation of why this exists:
   It would give 3, not 2 because testf and main have the same variable set. This can open a security leak, so that is why this file exists.
 
   Also this file kinda kills two birds with one stone because it also serves as the variable existance checker (which prevents a user from refrencing a variable that was not yet declared)
-  most statically typed languages do this, but the dynamic languages dont. Ka is dynamic, but acts like a static language in this regard.
+  most statically typed languages do this, but the dynamic languages dont. Tusk is dynamic, but acts like a static language in this regard.
 
 */
 
@@ -64,7 +64,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 
 		if v.Type == "function" {
 
-			var fn = v.Value.(KaFunc)
+			var fn = v.Value.(TuskFunc)
 
 			var params = make(map[string]string)
 
@@ -124,9 +124,9 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 		}
 		if v.Type == "proto" {
 
-			for i := range v.Value.(KaProto).Static {
+			for i := range v.Value.(TuskProto).Static {
 
-				var val = v.Value.(KaProto).Static[i]
+				var val = v.Value.(TuskProto).Static[i]
 
 				var passvals = make(map[string]string)
 
@@ -145,21 +145,21 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 					return nil, e
 				}
 
-				var tmp = actions[k].Value.(KaProto)
+				var tmp = actions[k].Value.(TuskProto)
 				tmp.Static[i] = val
 				actions[k].Value = tmp
 			}
 
 			var instanceproto = make(map[string]string)
 
-			for k := range v.Value.(KaProto).Instance {
+			for k := range v.Value.(TuskProto).Instance {
 				instanceproto[k] = k
 				curvar++
 			}
 
-			for i := range v.Value.(KaProto).Instance {
+			for i := range v.Value.(TuskProto).Instance {
 
-				var val = v.Value.(KaProto).Instance[i]
+				var val = v.Value.(TuskProto).Instance[i]
 
 				var passvals = make(map[string]string)
 
@@ -181,7 +181,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 					return nil, e
 				}
 
-				var tmp = actions[k].Value.(KaProto)
+				var tmp = actions[k].Value.(TuskProto)
 				tmp.Instance[i] = val
 				actions[k].Value = tmp
 			}

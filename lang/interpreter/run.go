@@ -4,47 +4,47 @@ import (
 	"fmt"
 	"os"
 
-	. "ka/lang/types"
+	. "tusk/lang/types"
 )
 
 type overload_after struct {
 	name string
-	val  *KaType
+	val  *TuskType
 }
 
 //export FillIns
-func FillIns(instance *Instance, compiledVars map[string]*KaType, dirname string, args []string) map[string]*KaVar {
-	globals := make(map[string]*KaVar)
-	var dirnameKaStr KaString
-	dirnameKaStr.FromGoType(dirname)
-	var dirnameKaType KaType = dirnameKaStr
+func FillIns(instance *Instance, compiledVars map[string]*TuskType, dirname string, args []string) map[string]*TuskVar {
+	globals := make(map[string]*TuskVar)
+	var dirnameTuskStr TuskString
+	dirnameTuskStr.FromGoType(dirname)
+	var dirnameTuskType TuskType = dirnameTuskStr
 
-	globals["$__dirname"] = &KaVar{
+	globals["$__dirname"] = &TuskVar{
 		Name:  "$__dirname",
-		Value: &dirnameKaType,
+		Value: &dirnameTuskType,
 	}
 
-	var argv = make([]*KaType, len(args))
+	var argv = make([]*TuskType, len(args))
 
 	for k, v := range args {
-		var kastr KaString
+		var kastr TuskString
 		kastr.FromGoType(v)
-		var katype KaType = kastr
-		argv[k] = &katype
+		var tusktype TuskType = kastr
+		argv[k] = &tusktype
 	}
 
-	var arr KaType = KaArray{
+	var arr TuskType = TuskArray{
 		Array:  argv,
 		Length: uint64(len(args)),
 	}
 
-	globals["$argv"] = &KaVar{
+	globals["$argv"] = &TuskVar{
 		Name:  "$argv",
 		Value: &arr,
 	}
 
 	for k, v := range compiledVars {
-		var global = KaVar{
+		var global = TuskVar{
 			Name:  k,
 			Value: v,
 		}
@@ -63,7 +63,7 @@ func FillIns(instance *Instance, compiledVars map[string]*KaType, dirname string
 	return globals
 }
 
-func RunInterpreter(compiledVars map[string]*KaType, cli_params CliParams) {
+func RunInterpreter(compiledVars map[string]*TuskType, cli_params CliParams) {
 
 	var instance Instance
 	instance.Params = cli_params
@@ -75,10 +75,10 @@ func RunInterpreter(compiledVars map[string]*KaType, cli_params CliParams) {
 	} else {
 
 		switch (*globals["$main"].Value).(type) {
-		case KaFunc:
+		case TuskFunc:
 			main := globals["$main"]
 
-			calledP := Interpreter(&instance, (*main.Value).(KaFunc).Overloads[0].Body, []string{"at the entry caller"}, 0, nil, false).Exp
+			calledP := Interpreter(&instance, (*main.Value).(TuskFunc).Overloads[0].Body, []string{"at the entry caller"}, 0, nil, false).Exp
 			WaitAllThreads() //finish up any remaining threads
 
 			if calledP == nil {
@@ -90,8 +90,8 @@ func RunInterpreter(compiledVars map[string]*KaType, cli_params CliParams) {
 			var exitType int64
 
 			switch called.(type) {
-			case KaNumber:
-				exitType = int64(called.(KaNumber).ToGoType())
+			case TuskNumber:
+				exitType = int64(called.(TuskNumber).ToGoType())
 			}
 
 			os.Exit(int(exitType))

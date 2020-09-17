@@ -1,16 +1,16 @@
 package types
 
-//package to store all of the datatypes in ka
+//package to store all of the datatypes in tusk
 
 type CliParams struct {
 	Prec       uint64
 	Output     string
 	Name       string
 	Directory  string
-	KaDirname string
+	TuskDirname string
 }
 
-type KaType interface {
+type TuskType interface {
 	Format() string
 
 	//difference between type and typeof is for prototypes
@@ -21,5 +21,5 @@ type KaType interface {
 	//////////////////////////////////////////////////////
 
 	Deallocate()
-	Range(func(val1, val2 *KaType) Returner) *Returner
+	Range(func(val1, val2 *TuskType) Returner) *Returner
 }

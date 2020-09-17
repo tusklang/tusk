@@ -7,26 +7,26 @@ type Overload struct {
 	VarRefs []string //variables that this function use
 }
 
-type KaFunc struct {
+type TuskFunc struct {
 	Overloads []Overload
 	Instance  *Instance
 }
 
-func (f KaFunc) Format() string {
+func (f TuskFunc) Format() string {
 	return "(function) { ... }"
 }
 
-func (f KaFunc) Type() string {
+func (f TuskFunc) Type() string {
 	return "function"
 }
 
-func (f KaFunc) TypeOf() string {
+func (f TuskFunc) TypeOf() string {
 	return f.Type()
 }
 
-func (f KaFunc) Deallocate() {}
+func (f TuskFunc) Deallocate() {}
 
 //Range ranges over a function
-func (f KaFunc) Range(fn func(val1, val2 *KaType) Returner) *Returner {
+func (f TuskFunc) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 	return nil
 }

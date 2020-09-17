@@ -19,58 +19,58 @@ var MIN_DIGIT = -1 * MAX_DIGIT
 
 //////////////
 
-type KaNumber struct {
+type TuskNumber struct {
 	Integer *[]int64
 	Decimal *[]int64
 }
 
-func (n *KaNumber) FromGoType(val float64) {
+func (n *TuskNumber) FromGoType(val float64) {
 	numStr := fmt.Sprintf("%f", val)
 	integer, decimal := BigNumConverter(numStr)
 	n.Integer, n.Decimal = &integer, &decimal
 }
 
-func (n KaNumber) ToGoType() float64 {
+func (n TuskNumber) ToGoType() float64 {
 	f, _ := strconv.ParseFloat(NumNormalize(n), 64)
 	return float64(f)
 }
 
-func (n *KaNumber) FromString(val string) {
+func (n *TuskNumber) FromString(val string) {
 	integer, decimal := BigNumConverter(val)
 	n.Integer, n.Decimal = &integer, &decimal
 }
 
-func (n *KaNumber) SetInt(v []int64) {
+func (n *TuskNumber) SetInt(v []int64) {
 	n.Integer = &v
 }
 
-func (n *KaNumber) SetDec(v []int64) {
+func (n *TuskNumber) SetDec(v []int64) {
 	n.Decimal = &v
 }
 
-func (n KaNumber) Clone() KaNumber {
-	var newNum KaNumber
+func (n TuskNumber) Clone() TuskNumber {
+	var newNum TuskNumber
 	newNum.SetInt(append([]int64{}, *n.Integer...))
 	newNum.SetDec(append([]int64{}, *n.Decimal...))
 	return newNum
 }
 
-func (n KaNumber) Format() string {
+func (n TuskNumber) Format() string {
 	str := NumNormalize(n)
 	return str
 }
 
-func (n KaNumber) Type() string {
+func (n TuskNumber) Type() string {
 	return "number"
 }
 
-func (n KaNumber) TypeOf() string {
+func (n TuskNumber) TypeOf() string {
 	return n.Type()
 }
 
-func (n KaNumber) Deallocate() {}
+func (n TuskNumber) Deallocate() {}
 
 //Range ranges over a number
-func (n KaNumber) Range(fn func(val1, val2 *KaType) Returner) *Returner {
+func (n TuskNumber) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 	return nil
 }

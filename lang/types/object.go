@@ -1,14 +1,14 @@
 package types
 
-type KaObject struct {
+type TuskObject struct {
 	Name       string
 	Instance   Instance
 	AccessList map[string][]string
 }
 
-func (o KaObject) Get(field, file string) (*KaType, error) {
+func (o TuskObject) Get(field, file string) (*TuskType, error) {
 
-	var mappedvars = make(map[string]*KaType)
+	var mappedvars = make(map[string]*TuskType)
 
 	for k, v := range o.Instance.vars {
 		mappedvars[k] = v.Value
@@ -17,21 +17,21 @@ func (o KaObject) Get(field, file string) (*KaType, error) {
 	return getfield(mappedvars, field, o.AccessList, file)
 }
 
-func (o KaObject) Format() string {
+func (o TuskObject) Format() string {
 	return "{" + o.Name[1:] + "}"
 }
 
-func (o KaObject) Type() string {
+func (o TuskObject) Type() string {
 	return "object"
 }
 
-func (o KaObject) TypeOf() string {
+func (o TuskObject) TypeOf() string {
 	return o.Name[1:]
 }
 
-func (o KaObject) Deallocate() {}
+func (o TuskObject) Deallocate() {}
 
 //Range ranges over an object
-func (o KaObject) Range(fn func(val1, val2 *KaType) Returner) *Returner {
+func (o TuskObject) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 	return nil
 }

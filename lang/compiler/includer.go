@@ -7,12 +7,12 @@ import (
 	"path"
 	"strings"
 
-	kastenc "kast/format/encoding"
+	kastenc "oat/format/encoding"
 
-	. "ka/lang/types"
+	. "tusk/lang/types"
 )
 
-var included = []string{} //list of the included files from ka
+var included = []string{} //list of the included files from tusk
 
 func includeSingle(filename string) ([]Action, error) {
 
@@ -22,8 +22,8 @@ func includeSingle(filename string) ([]Action, error) {
 		}
 	}
 
-	if strings.HasSuffix(filename, ".kast") {
-		decoded, e := kastenc.KastDecode(filename)
+	if strings.HasSuffix(filename, ".oat") {
+		decoded, e := kastenc.TuskstDecode(filename)
 
 		if e != nil {
 			return nil, e

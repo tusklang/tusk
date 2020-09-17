@@ -1,5 +1,5 @@
 ;include:
-;s kastd/util/substr.ka
+;s kastd/util/substr.tusk
 
 var ends_with = fn(string -> str, string -> ends) {
 

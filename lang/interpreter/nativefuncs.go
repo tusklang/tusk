@@ -1,7 +1,7 @@
 package interpreter
 
 //all of the gofuncs
-//functions written in go that are used by ka
+//functions written in go that are used by tusk
 
 import (
 	"bufio"
@@ -12,18 +12,17 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unsafe"
 
-	. "ka/lang/types"
+	. "tusk/lang/types"
 )
 
 //#include "exec.h"
 import "C"
 
 //Native stores all of the native values. You can make your own by just putting it into this map
-var Native = make(map[string]*KaType)
+var Native = make(map[string]*TuskType)
 
-func kaprint(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) {
+func kaprint(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) {
 	for k, v := range args {
 		fmt.Print((*v).Format())
 		if k+1 != len(args) {
@@ -32,8 +31,8 @@ func kaprint(args []*KaType, stacktrace []string, line uint64, file string, inst
 	}
 }
 
-//KaPanic panics in an Ka instance
-func KaPanic(err string, line uint64, file string, stacktrace []string) {
+//TuskPanic panics in an Tusk instance
+func TuskPanic(err string, line uint64, file string, stacktrace []string) {
 	fmt.Println("Panic on line", line, "file", file)
 	fmt.Print(err)
 	fmt.Print("\nWhen the error was thrown, this was the stack:\n")
@@ -50,32 +49,32 @@ func KaPanic(err string, line uint64, file string, stacktrace []string) {
 }
 
 //these are the native functions that are relatively simple to implement
-var native = map[string]func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType{
-	"log": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+var native = map[string]func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType{
+	"log": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 		kaprint(args, stacktrace, line, file, instance)
 		fmt.Println() //print a newline at the end
-		var tmpundef KaType = undef
+		var tmpundef TuskType = undef
 		return &tmpundef
 	},
-	"print": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"print": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 		kaprint(args, stacktrace, line, file, instance)
-		var tmpundef KaType = undef
+		var tmpundef TuskType = undef
 		return &tmpundef
 	},
-	"await": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"await": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		if len(args) != 1 || (*args[0]).Type() != "thread" {
-			KaPanic("Function await requires (thread)", line, file, stacktrace)
+			TuskPanic("Function await requires (thread)", line, file, stacktrace)
 		}
 
 		interpreted := args[0]
-		var awaited *KaType
+		var awaited *TuskType
 
 		switch (*interpreted).(type) {
-		case KaThread:
+		case TuskThread:
 
 			//put the new value back into the given interpreted pointer
-			thread := (*interpreted).(KaThread)
+			thread := (*interpreted).(TuskThread)
 			awaited = thread.Join()
 			*interpreted = thread
 			///////////////////////////////////////////////////////////
@@ -86,7 +85,7 @@ var native = map[string]func(args []*KaType, stacktrace []string, line uint64, f
 
 		return awaited
 	},
-	"input": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"input": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		scanner := bufio.NewScanner(os.Stdin)
 
@@ -95,84 +94,84 @@ var native = map[string]func(args []*KaType, stacktrace []string, line uint64, f
 		} else if len(args) == 1 {
 
 			switch (*args[0]).(type) {
-			case KaString:
-				str := (*args[0]).(KaString).ToGoType()
+			case TuskString:
+				str := (*args[0]).(TuskString).ToGoType()
 				fmt.Print(str)
 			default:
-				KaPanic("Expected a string as the argument to input[]", line, file, stacktrace)
+				TuskPanic("Expected a string as the argument to input[]", line, file, stacktrace)
 			}
 
 		} else {
-			KaPanic("Function input requires a parameter count of 0 or 1", line, file, stacktrace)
+			TuskPanic("Function input requires a parameter count of 0 or 1", line, file, stacktrace)
 		}
 
-		//get user input and convert it to KaType
+		//get user input and convert it to TuskType
 		scanner.Scan()
 		input := scanner.Text()
-		var inputKaType KaString
-		inputKaType.FromGoType(input)
-		var inputType KaType = inputKaType
+		var inputTuskType TuskString
+		inputTuskType.FromGoType(input)
+		var inputType TuskType = inputTuskType
 
 		return &inputType
 	},
-	"typeof": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"typeof": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		if len(args) != 1 {
-			KaPanic("Function typeof requires a parameter count of 1", line, file, stacktrace)
+			TuskPanic("Function typeof requires a parameter count of 1", line, file, stacktrace)
 		}
 
 		typeof := (*args[0]).TypeOf()
 
-		var str KaString
+		var str TuskString
 		str.FromGoType(typeof)
 
-		//convert to KaType interface
-		var katype KaType = str
-		return &katype
+		//convert to TuskType interface
+		var tusktype TuskType = str
+		return &tusktype
 	},
-	"append": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"append": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		if len(args) != 2 {
-			KaPanic("Function append requires a parameter count of 2", line, file, stacktrace)
+			TuskPanic("Function append requires a parameter count of 2", line, file, stacktrace)
 		}
 
 		if (*args[0]).Type() != "array" {
-			KaPanic("Function append requires (array, any)", line, file, stacktrace)
+			TuskPanic("Function append requires (array, any)", line, file, stacktrace)
 		}
 
-		a := (*args[0]).(KaArray)
+		a := (*args[0]).(TuskArray)
 		a.PushBack(*args[1])
-		var katype KaType = a
-		return &katype
+		var tusktype TuskType = a
+		return &tusktype
 	},
-	"prepend": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"prepend": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		if len(args) != 2 {
-			KaPanic("Function prepend requires a parameter count of 2", line, file, stacktrace)
+			TuskPanic("Function prepend requires a parameter count of 2", line, file, stacktrace)
 		}
 
 		if (*args[0]).Type() != "array" {
-			KaPanic("Function prepend requires the first argument to be an array", line, file, stacktrace)
+			TuskPanic("Function prepend requires the first argument to be an array", line, file, stacktrace)
 		}
 
-		a := (*args[0]).(KaArray)
+		a := (*args[0]).(TuskArray)
 		a.PushFront(*args[1])
-		var katype KaType = a
-		return &katype
+		var tusktype TuskType = a
+		return &tusktype
 	},
-	"exit": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"exit": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		if len(args) == 1 {
 
 			switch (*args[0]).(type) {
-			case KaNumber:
+			case TuskNumber:
 
-				var gonum = (*args[0]).(KaNumber).ToGoType()
+				var gonum = (*args[0]).(TuskNumber).ToGoType()
 				os.Exit(int(gonum))
 
-			case KaBool:
+			case TuskBool:
 
-				if (*args[0]).(KaBool).ToGoType() == true {
+				if (*args[0]).(TuskBool).ToGoType() == true {
 					os.Exit(0)
 				} else {
 					os.Exit(1)
@@ -185,21 +184,21 @@ var native = map[string]func(args []*KaType, stacktrace []string, line uint64, f
 		} else if len(args) == 0 {
 			os.Exit(0)
 		} else {
-			KaPanic("Function exit requires a parameter count of 1 or 0", line, file, stacktrace)
+			TuskPanic("Function exit requires a parameter count of 1 or 0", line, file, stacktrace)
 		}
 
-		var tmpundef KaType = undef
+		var tmpundef TuskType = undef
 		return &tmpundef
 	},
-	"wait": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"wait": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		if len(args) == 1 {
 
 			if (*args[0]).Type() != "number" {
-				KaPanic("Function wait requires a number as the argument", line, file, stacktrace)
+				TuskPanic("Function wait requires a number as the argument", line, file, stacktrace)
 			}
 
-			var amt = (*args[0]).(KaNumber)
+			var amt = (*args[0]).(TuskNumber)
 
 			var n4294967295 = zero
 			n4294967295.Integer = &[]int64{5, 9, 2, 7, 6, 9, 4, 9, 2, 4}
@@ -216,126 +215,126 @@ var native = map[string]func(args []*KaType, stacktrace []string, line uint64, f
 				   in each iteration, it will wait for 2 ^ 32 - 1 milliseconds
 				*/
 
-				for i := zero; isLess(i, amt); i = (*number__plus__number(i, n4294967295, &Instance{}, stacktrace, line, file)).(KaNumber) {
+				for i := zero; isLess(i, amt); i = (*number__plus__number(i, n4294967295, &Instance{}, stacktrace, line, file)).(TuskNumber) {
 					time.Sleep(4294967295 * time.Millisecond)
 				}
 			}
 
 		} else {
-			KaPanic("Function wait requires a parameter count of 1", line, file, stacktrace)
+			TuskPanic("Function wait requires a parameter count of 1", line, file, stacktrace)
 		}
 
-		var tmpundef KaType = undef
+		var tmpundef TuskType = undef
 		return &tmpundef
 	},
-	"make": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"make": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		errmsg := "Function make requires the signature (prototype)"
 
 		if len(args) == 1 {
 
 			switch (*args[0]).(type) {
-			case KaProto:
-				var katype KaType = (*args[0]).(KaProto).New(*instance)
-				return &katype
+			case TuskProto:
+				var tusktype TuskType = (*args[0]).(TuskProto).New(*instance)
+				return &tusktype
 			default:
-				KaPanic(errmsg, line, file, stacktrace)
+				TuskPanic(errmsg, line, file, stacktrace)
 			}
 
 		} else {
-			KaPanic(errmsg, line, file, stacktrace)
+			TuskPanic(errmsg, line, file, stacktrace)
 		}
 
-		var tmpundef KaType = undef
+		var tmpundef TuskType = undef
 		return &tmpundef
 	},
-	"len": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"len": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		if len(args) != 1 {
-			KaPanic("Function len requires the signature (any)", line, file, stacktrace)
+			TuskPanic("Function len requires the signature (any)", line, file, stacktrace)
 		}
 
 		switch (*args[0]).(type) {
-		case KaString:
-			var length = (*args[0]).(KaString).Length
+		case TuskString:
+			var length = (*args[0]).(TuskString).Length
 
-			var kanumber_length KaNumber
+			var kanumber_length TuskNumber
 			kanumber_length.FromString(strconv.FormatUint(length, 10))
-			var katype KaType = kanumber_length
-			return &katype
+			var tusktype TuskType = kanumber_length
+			return &tusktype
 
-		case KaArray:
-			var length = (*args[0]).(KaArray).Length
+		case TuskArray:
+			var length = (*args[0]).(TuskArray).Length
 
-			var kanumber_length KaNumber
+			var kanumber_length TuskNumber
 			kanumber_length.FromString(strconv.FormatUint(length, 10))
-			var katype KaType = kanumber_length
-			return &katype
+			var tusktype TuskType = kanumber_length
+			return &tusktype
 
-		case KaHash:
-			var length = (*args[0]).(KaHash).Length
+		case TuskHash:
+			var length = (*args[0]).(TuskHash).Length
 
-			var kanumber_length KaNumber
+			var kanumber_length TuskNumber
 			kanumber_length.FromString(strconv.FormatUint(length, 10))
-			var katype KaType = kanumber_length
-			return &katype
+			var tusktype TuskType = kanumber_length
+			return &tusktype
 
 		}
 
-		var tmpzero KaType = zero
+		var tmpzero TuskType = zero
 		return &tmpzero
 	},
-	"clone": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"clone": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		if len(args) != 1 {
-			KaPanic("Function clone requires the signature (any)", line, file, stacktrace)
+			TuskPanic("Function clone requires the signature (any)", line, file, stacktrace)
 		}
 
 		val := *args[0]
 
 		switch val.(type) {
 
-		case KaArray:
+		case TuskArray:
 
-			var arr = val.(KaArray).Array
-			var cloned = append([]*KaType{}, arr...) //append it to nothing (to clone it)
-			var katype KaType = KaArray{
+			var arr = val.(TuskArray).Array
+			var cloned = append([]*TuskType{}, arr...) //append it to nothing (to clone it)
+			var tusktype TuskType = TuskArray{
 				Array:  cloned,
-				Length: val.(KaArray).Length,
+				Length: val.(TuskArray).Length,
 			}
 
-			return &katype
+			return &tusktype
 
-		case KaBool:
+		case TuskBool:
 
 			//take inderect of the bool, and place it in a temporary variable
-			var tmp = *val.(KaBool).Boolean
+			var tmp = *val.(TuskBool).Boolean
 
-			var returner KaType = KaBool{
+			var returner TuskType = TuskBool{
 				Boolean: &tmp, //take address of tmp and place it into `Boolean` field of returner
 			}
 
 			return &returner
 
-		case KaHash:
-			var hash = val.(KaHash).Hash
+		case TuskHash:
+			var hash = val.(TuskHash).Hash
 
 			//clone it into `cloned`
-			var cloned = make(map[string]*KaType)
+			var cloned = make(map[string]*TuskType)
 			for k, v := range hash {
 				cloned[k] = v
 			}
 			////////////////////////
 
-			var katype KaType = KaHash{
+			var tusktype TuskType = TuskHash{
 				Hash:   cloned,
-				Length: val.(KaHash).Length,
+				Length: val.(TuskHash).Length,
 			}
 
-			return &katype
+			return &tusktype
 
-		case KaNumber:
-			var number = val.(KaNumber)
+		case TuskNumber:
+			var number = val.(TuskNumber)
 
 			//copy the integer and decimal
 			var integer = append([]int64{}, *number.Integer...)
@@ -347,61 +346,61 @@ var native = map[string]func(args []*KaType, stacktrace []string, line uint64, f
 			}
 			//////////////////////////////
 
-			var newnum KaType = KaNumber{
+			var newnum TuskType = TuskNumber{
 				Integer: &integer,
 				Decimal: &decimal,
 			}
 			return &newnum
 
-		case KaRune:
+		case TuskRune:
 
 			//take inderect of the rune, and place it in a temporary variable
-			var tmp = *val.(KaRune).Rune
+			var tmp = *val.(TuskRune).Rune
 
-			var returner KaType = KaRune{
+			var returner TuskType = TuskRune{
 				Rune: &tmp, //take address of tmp and place it into `Rune` field of returner
 			}
 
 			return &returner
 
-		case KaString:
+		case TuskString:
 
-			var tmp = val.(KaString).ToRuneList() //convert it to a go type
-			var kastr KaString
+			var tmp = val.(TuskString).ToRuneList() //convert it to a go type
+			var kastr TuskString
 			kastr.FromRuneList(append(tmp, []rune{}...)) //clone tmp
-			var returner KaType = kastr
+			var returner TuskType = kastr
 			return &returner
 
 		default:
-			KaPanic("Cannot clone type \""+val.Type()+"\"", line, file, stacktrace)
+			TuskPanic("Cannot clone type \""+val.Type()+"\"", line, file, stacktrace)
 		}
 
-		var tmpundef KaType = undef
+		var tmpundef TuskType = undef
 		return &tmpundef
 	},
-	"panic": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"panic": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		if len(args) != 1 || (*args[0]).Type() != "string" {
-			KaPanic("Function panic requires the signature (string)", line, file, stacktrace)
+			TuskPanic("Function panic requires the signature (string)", line, file, stacktrace)
 		}
 
-		var err = (*args[0]).(KaString)
+		var err = (*args[0]).(TuskString)
 
-		KaPanic(err.ToGoType(), line, file, stacktrace)
+		TuskPanic(err.ToGoType(), line, file, stacktrace)
 
-		var tmpundef KaType = undef
+		var tmpundef TuskType = undef
 		return &tmpundef
 	},
-	"exec": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"exec": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		errmsg := "Function exec requires the signature (string) or (string, string)"
 
 		if len(args) == 1 {
 			if (*args[0]).Type() != "string" {
-				KaPanic(errmsg, line, file, stacktrace)
+				TuskPanic(errmsg, line, file, stacktrace)
 			}
 
-			var cmd = (*args[0]).(KaString).ToGoType()
+			var cmd = (*args[0]).(TuskString).ToGoType()
 
 			var _execdir = C.getCmdExe()
 			var _arg = C.getCmdOp()
@@ -411,17 +410,17 @@ var native = map[string]func(args []*KaType, stacktrace []string, line uint64, f
 			command := exec.Command(execdir, arg, cmd)
 			out, _ := command.CombinedOutput()
 
-			var stringValue KaString
+			var stringValue TuskString
 			stringValue.FromGoType(string(out))
-			var katype KaType = stringValue
-			return &katype
+			var tusktype TuskType = stringValue
+			return &tusktype
 		} else if len(args) == 2 {
 			if (*args[0]).Type() != "string" || (*args[1]).Type() != "string" {
-				KaPanic(errmsg, line, file, stacktrace)
+				TuskPanic(errmsg, line, file, stacktrace)
 			}
 
-			var cmd = (*args[0]).(KaString).ToGoType()
-			var stdin = (*args[1]).(KaString).ToGoType()
+			var cmd = (*args[0]).(TuskString).ToGoType()
+			var stdin = (*args[1]).(TuskString).ToGoType()
 
 			var _execdir = C.getCmdExe()
 			var _arg = C.getCmdOp()
@@ -432,77 +431,52 @@ var native = map[string]func(args []*KaType, stacktrace []string, line uint64, f
 			command.Stdin = strings.NewReader(stdin)
 			out, _ := command.CombinedOutput()
 
-			var stringValue KaString
+			var stringValue TuskString
 			stringValue.FromGoType(string(out))
-			var katype KaType = stringValue
-			return &katype
+			var tusktype TuskType = stringValue
+			return &tusktype
 		} else {
-			KaPanic(errmsg, line, file, stacktrace)
+			TuskPanic(errmsg, line, file, stacktrace)
 		}
 
-		var tmpundef KaType = undef
+		var tmpundef TuskType = undef
 		return &tmpundef
 	},
-	"chdir": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"chdir": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		if len(args) != 1 || (*args[0]).Type() != "string" {
-			KaPanic("Function chdir requires the signature (string)", line, file, stacktrace)
+			TuskPanic("Function chdir requires the signature (string)", line, file, stacktrace)
 		}
 
-		var dir = (*args[0]).(KaString).ToGoType()
+		var dir = (*args[0]).(TuskString).ToGoType()
 
 		os.Chdir(dir)
 
 		instance.Allocate("$__dirname", args[0])
 
-		var tmpundef KaType = undef
+		var tmpundef TuskType = undef
 		return &tmpundef
 	},
-	"getos": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"getos": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 		var os = runtime.GOOS
-		var kastr KaString
+		var kastr TuskString
 		kastr.FromGoType(os)
-		var katype KaType = kastr
-		return &katype
+		var tusktype TuskType = kastr
+		return &tusktype
 	},
-	"sprint": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
+	"sprint": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		if len(args) != 1 {
-			KaPanic("Function sprint requires the signature (any)", line, file, stacktrace)
+			TuskPanic("Function sprint requires the signature (any)", line, file, stacktrace)
 		}
 
 		var sprinted = (*args[0]).Format()
-		var kastr KaString
+		var kastr TuskString
 		kastr.FromGoType(sprinted)
-		var katype KaType = kastr
-		return &katype
+		var tusktype TuskType = kastr
+		return &tusktype
 	},
-	"syscall": func(args []*KaType, stacktrace []string, line uint64, file string, instance *Instance) *KaType {
-
-		const maxSyscallArgv = 18
-
-		var fullargv [19]uintptr
-
-		//convert to go types
-		for k, v := range args {
-
-			cur := &fullargv[k]
-
-			switch (*v).(type) {
-			case KaNumber:
-				*cur = uintptr((*v).(KaNumber).ToGoType())
-			case KaString:
-				gostr := (*v).(KaString).ToGoType()
-				*cur = uintptr(unsafe.Pointer(&gostr))
-			default:
-				KaPanic("Cannot use type "+(*v).Type()+" in a system call", line, file, stacktrace)
-			}
-		}
-
-		c := makeSyscall(len(args)-1, fullargv)
-
-		fmt.Println(c)
-
+	"syscall": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 		return nil
 	},
 }

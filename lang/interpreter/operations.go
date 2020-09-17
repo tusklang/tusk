@@ -3,136 +3,136 @@ package interpreter
 import (
 	"strconv"
 
-	. "ka/lang/types"
+	. "tusk/lang/types"
 )
 
 //list of operations
 //export Operations
-var Operations = map[string]func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType{
-	"number + number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType{
+	"number + number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 		return number__plus__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number - number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"number - number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 		return number__minus__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number * number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"number * number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 		return number__times__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number / number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"number / number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 		return number__divide__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number % number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"number % number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 		return number__mod__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number ^ number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"number ^ number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 		return number__pow__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number == number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"number == number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
 		var final = falsev
 
-		if isEqual(val1.(KaNumber), val2.(KaNumber)) {
+		if isEqual(val1.(TuskNumber), val2.(TuskNumber)) {
 			final = truev
 		}
 
-		var finalType KaType = final
+		var finalType TuskType = final
 
 		return &finalType
 	},
-	"number != number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"number != number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
 		var final = truev
 
-		if isEqual(val1.(KaNumber), val2.(KaNumber)) {
+		if isEqual(val1.(TuskNumber), val2.(TuskNumber)) {
 			final = falsev
 		}
 
-		var finalType KaType = final
+		var finalType TuskType = final
 
 		return &finalType
 	},
-	"string == string": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"string == string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
-		var isEqual KaType = falsev
+		var isEqual TuskType = falsev
 
-		if val1.(KaString).ToGoType() == val2.(KaString).ToGoType() {
+		if val1.(TuskString).ToGoType() == val2.(TuskString).ToGoType() {
 			isEqual = truev
 		}
 
 		return &isEqual
 	},
-	"string != string": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"string != string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
-		var isEqual KaType = truev
+		var isEqual TuskType = truev
 
-		if val1.(KaString).ToGoType() == val2.(KaString).ToGoType() {
+		if val1.(TuskString).ToGoType() == val2.(TuskString).ToGoType() {
 			isEqual = falsev
 		}
 
 		return &isEqual
 	},
-	"bool == bool": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"bool == bool": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
-		var isEqual KaType = falsev
+		var isEqual TuskType = falsev
 
-		if val1.(KaBool).ToGoType() == val2.(KaBool).ToGoType() {
+		if val1.(TuskBool).ToGoType() == val2.(TuskBool).ToGoType() {
 			isEqual = truev
 		}
 
 		return &isEqual
 	},
-	"bool != bool": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"bool != bool": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
-		var isEqual KaType = truev
+		var isEqual TuskType = truev
 
-		if val1.(KaBool).ToGoType() == val2.(KaBool).ToGoType() {
+		if val1.(TuskBool).ToGoType() == val2.(TuskBool).ToGoType() {
 			isEqual = falsev
 		}
 
 		return &isEqual
 	},
-	"rune == rune": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"rune == rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
-		var isEqual KaType = falsev
+		var isEqual TuskType = falsev
 
-		if val1.(KaRune).ToGoType() == val2.(KaRune).ToGoType() {
+		if val1.(TuskRune).ToGoType() == val2.(TuskRune).ToGoType() {
 			isEqual = truev
 		}
 
 		return &isEqual
 	},
-	"rune != rune": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"rune != rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
-		var isEqual KaType = truev
+		var isEqual TuskType = truev
 
-		if val1.(KaBool).ToGoType() == val2.(KaBool).ToGoType() {
+		if val1.(TuskBool).ToGoType() == val2.(TuskBool).ToGoType() {
 			isEqual = falsev
 		}
 
 		return &isEqual
 	},
-	"none == none": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
-		var tmp KaType = truev
+	"none == none": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
+		var tmp TuskType = truev
 		return &tmp
 	},
-	"none != none": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
-		var tmp KaType = falsev
+	"none != none": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
+		var tmp TuskType = falsev
 		return &tmp
 	},
-	"none ! bool": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"none ! bool": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
-		boolean := !val2.(KaBool).ToGoType()
+		boolean := !val2.(TuskBool).ToGoType()
 
-		var converted KaType = KaBool{
+		var converted TuskType = TuskBool{
 			Boolean: &boolean,
 		}
 
 		return &converted
 	},
-	"number > number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"number > number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
-		isGreaterv := !isLessOrEqual(val1.(KaNumber), val2.(KaNumber))
-		var isGreaterType KaType = falsev
+		isGreaterv := !isLessOrEqual(val1.(TuskNumber), val2.(TuskNumber))
+		var isGreaterType TuskType = falsev
 
 		if isGreaterv {
 			isGreaterType = truev
@@ -140,10 +140,10 @@ var Operations = map[string]func(val1, val2 KaType, instance *Instance, stacktra
 
 		return &isGreaterType
 	},
-	"number >= number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"number >= number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
-		isGreaterOrEqualv := !isLess(val1.(KaNumber), val2.(KaNumber))
-		var isGreaterOrEqualType KaType = falsev
+		isGreaterOrEqualv := !isLess(val1.(TuskNumber), val2.(TuskNumber))
+		var isGreaterOrEqualType TuskType = falsev
 
 		if isGreaterOrEqualv {
 			isGreaterOrEqualType = truev
@@ -151,10 +151,10 @@ var Operations = map[string]func(val1, val2 KaType, instance *Instance, stacktra
 
 		return &isGreaterOrEqualType
 	},
-	"number < number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"number < number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
-		isLessv := isLess(val1.(KaNumber), val2.(KaNumber))
-		var isLessType KaType = falsev
+		isLessv := isLess(val1.(TuskNumber), val2.(TuskNumber))
+		var isLessType TuskType = falsev
 
 		if isLessv {
 			isLessType = truev
@@ -162,10 +162,10 @@ var Operations = map[string]func(val1, val2 KaType, instance *Instance, stacktra
 
 		return &isLessType
 	},
-	"number <= number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"number <= number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
-		isLessOrEqualv := isLessOrEqual(val1.(KaNumber), val2.(KaNumber))
-		var isLessOrEqualType KaType = falsev
+		isLessOrEqualv := isLessOrEqual(val1.(TuskNumber), val2.(TuskNumber))
+		var isLessOrEqualType TuskType = falsev
 
 		if isLessOrEqualv {
 			isLessOrEqualType = truev
@@ -173,99 +173,99 @@ var Operations = map[string]func(val1, val2 KaType, instance *Instance, stacktra
 
 		return &isLessOrEqualType
 	},
-	"array :: number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"array :: number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
 		//convert to int64
-		idx := int64(val2.(KaNumber).ToGoType())
-		arr := val1.(KaArray)
+		idx := int64(val2.(TuskNumber).ToGoType())
+		arr := val1.(TuskArray)
 
 		if !arr.Exists(idx) {
-			KaPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
+			TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
 		}
 
 		return arr.At(idx)
 	},
-	"string :: number": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"string :: number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
 		//convert to int64
-		idx := int64(val2.(KaNumber).ToGoType())
-		str := val1.(KaString)
+		idx := int64(val2.(TuskNumber).ToGoType())
+		str := val1.(TuskString)
 
 		if !str.Exists(idx) {
-			KaPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(str.Length, 10), line, file, stacktrace)
+			TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(str.Length, 10), line, file, stacktrace)
 		}
 
-		var katype KaType = *str.At(idx)
+		var tusktype TuskType = *str.At(idx)
 
-		return &katype
+		return &tusktype
 	},
-	"hash :: string": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"hash :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
 		//convert index to go string
-		gostr := val2.(KaString).ToGoType()
+		gostr := val2.(TuskString).ToGoType()
 
-		return val1.(KaHash).At(gostr)
+		return val1.(TuskHash).At(gostr)
 	},
-	"proto :: string": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
-		v, e := val1.(KaProto).Get(val2.(KaString).ToGoType(), file)
+	"proto :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
+		v, e := val1.(TuskProto).Get(val2.(TuskString).ToGoType(), file)
 
 		if e != nil {
-			KaPanic(e.Error(), line, file, stacktrace)
+			TuskPanic(e.Error(), line, file, stacktrace)
 		}
 
 		return v
 	},
-	"object :: string": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
-		v, e := val1.(KaObject).Get(val2.(KaString).ToGoType(), file)
+	"object :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
+		v, e := val1.(TuskObject).Get(val2.(TuskString).ToGoType(), file)
 
 		if e != nil {
-			KaPanic(e.Error(), line, file, stacktrace)
+			TuskPanic(e.Error(), line, file, stacktrace)
 		}
 
 		return v
 	},
-	"string + string": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"string + string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
 		//alloc the space
-		var space = make([]rune, val1.(KaString).Length+val2.(KaString).Length)
+		var space = make([]rune, val1.(TuskString).Length+val2.(TuskString).Length)
 
 		var i uint
 		var o uint
 
-		val1l := val1.(KaString).ToRuneList()
-		val12 := val2.(KaString).ToRuneList()
+		val1l := val1.(TuskString).ToRuneList()
+		val12 := val2.(TuskString).ToRuneList()
 
-		for ; uint64(i) < val1.(KaString).Length; i++ {
+		for ; uint64(i) < val1.(TuskString).Length; i++ {
 			space[i] = val1l[i]
 		}
 
-		for ; uint64(o) < val2.(KaString).Length; i, o = i+1, o+1 {
+		for ; uint64(o) < val2.(TuskString).Length; i, o = i+1, o+1 {
 			space[i] = val12[o]
 		}
 
-		var kastr KaString
+		var kastr TuskString
 		kastr.FromRuneList(space)
-		var katype KaType = kastr
-		return &katype
+		var tusktype TuskType = kastr
+		return &tusktype
 	},
-	"string + rune": func(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *KaType {
+	"string + rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 
 		//alloc the space
-		var space = make([]rune, val1.(KaString).Length+1)
+		var space = make([]rune, val1.(TuskString).Length+1)
 
 		var i uint
 
-		val1l := val1.(KaString).ToRuneList()
+		val1l := val1.(TuskString).ToRuneList()
 
-		for ; uint64(i) < val1.(KaString).Length; i++ {
+		for ; uint64(i) < val1.(TuskString).Length; i++ {
 			space[i] = val1l[i]
 		}
 
-		space[i] = val2.(KaRune).ToGoType()
+		space[i] = val2.(TuskRune).ToGoType()
 
-		var kastr KaString
+		var kastr TuskString
 		kastr.FromRuneList(space)
-		var katype KaType = kastr
-		return &katype
+		var tusktype TuskType = kastr
+		return &tusktype
 	},
 }

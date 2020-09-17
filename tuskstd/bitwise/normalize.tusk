@@ -1,5 +1,5 @@
 ;include:
-;s kastd/util/alloc.ka
+;s kastd/util/alloc.tusk
 
 var normalize = fn(b1, b2) => {
 

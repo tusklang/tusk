@@ -4,14 +4,14 @@ import (
 	"errors"
 )
 
-type KaProto struct {
+type TuskProto struct {
 	ProtoName  string
-	Static     map[string]*KaType
-	Instance   map[string]*KaType
+	Static     map[string]*TuskType
+	Instance   map[string]*TuskType
 	AccessList map[string][]string
 }
 
-func getfield(full map[string]*KaType, field string, access map[string][]string, file string) (*KaType, error) {
+func getfield(full map[string]*TuskType, field string, access map[string][]string, file string) (*TuskType, error) {
 	if field[0] == '_' {
 		return nil, errors.New("Cannot access private member: " + field)
 	}
@@ -40,25 +40,25 @@ allowed:
 	return fieldv, nil
 }
 
-func (p KaProto) Get(field string, file string) (*KaType, error) {
+func (p TuskProto) Get(field string, file string) (*TuskType, error) {
 	return getfield(p.Static, field, p.AccessList, file)
 }
 
-func (p KaProto) Format() string {
+func (p TuskProto) Format() string {
 	return "{" + p.ProtoName[1:] + "}"
 }
 
-func (p KaProto) Type() string {
+func (p TuskProto) Type() string {
 	return "proto"
 }
 
-func (p KaProto) TypeOf() string {
+func (p TuskProto) TypeOf() string {
 	return p.ProtoName[1:] /* remove the leading $ */ + " prototype"
 }
 
-func (p KaProto) Deallocate() {}
+func (p TuskProto) Deallocate() {}
 
 //Range ranges over a prototype
-func (p KaProto) Range(fn func(val1, val2 *KaType) Returner) *Returner {
+func (p TuskProto) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 	return nil
 }

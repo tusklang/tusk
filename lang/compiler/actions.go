@@ -1,9 +1,8 @@
 package compiler
 
 import (
+	. "tusk/lang/types"
 	"runtime"
-
-	. "ka/lang/types"
 )
 
 func arraytogroup(arractions []Action) []Action {
@@ -18,7 +17,7 @@ func arraytogroup(arractions []Action) []Action {
 	case "c-array":
 
 		//range through it and append to the converted
-		arractions[0].Value.(KaArray).Range(func(_, v *KaType) Returner {
+		arractions[0].Value.(TuskArray).Range(func(_, v *TuskType) Returner {
 			converted = append(converted, Action{
 				Type:  (*v).Type(),
 				Value: *v,
@@ -68,7 +67,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 		switch v.Type {
 		case "~":
 
-			var statements = []string{"var", "if", "elif", "else", "while", "each", "include", "function", "return", "proto", "static", "instance", "ifwin", "ifnwin", "ovld", "defer", "access"} //list of statements
+			var statements = []string{"var", "if", "elif", "else", "while", "each", "include", "function", "return", "proto", "static", "instance", "build", "ovld", "defer", "access"} //list of statements
 
 			var hasStatement bool = false
 
@@ -103,7 +102,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						actions = append(actions, Action{
 							Type: "function",
-							Value: KaFunc{
+							Value: TuskFunc{
 								Overloads: []Overload{
 									Overload{
 										Params: paramList,
@@ -238,8 +237,8 @@ func actionizer(operations []Operation) ([]Action, error) {
 						}
 
 						var (
-							static   = make(map[string]*KaType)
-							instance = make(map[string]*KaType)
+							static   = make(map[string]*TuskType)
+							instance = make(map[string]*TuskType)
 							access   = make(map[string][]string)
 						)
 						var body = right[0].ExpAct //get the struct body
@@ -252,12 +251,12 @@ func actionizer(operations []Operation) ([]Action, error) {
 									return nil, makeCompilerErr("Access found twice in a row", body[i].File, body[i].Line)
 								}
 
-								for _, v := range body[i].Value.(KaArray).Array {
+								for _, v := range body[i].Value.(TuskArray).Array {
 									if (*v).Type() != "string" {
 										return nil, makeCompilerErr("Expect a string list to access", body[i].File, body[i].Line)
 									}
 
-									var cur = (*v).(KaString).ToGoType()
+									var cur = (*v).(TuskString).ToGoType()
 
 									if cur == "thisf" { //"thisf" means this file
 										cur = body[i].File
@@ -300,7 +299,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 							} else if body[i].ExpAct[0].Type == "declare" {
 
-								var tmp KaType = KaUndef{}
+								var tmp TuskType = TuskUndef{}
 
 								if body[i].Type == "static" {
 									static[name] = &tmp
@@ -312,22 +311,22 @@ func actionizer(operations []Operation) ([]Action, error) {
 								if body[i].Type == "static" {
 
 									if _, e := static[name]; !e || (*static[name]).Type() != "function" { //if the value does not exist yet (or it is not a function), make it
-										var tmp KaType = KaFunc{}
+										var tmp TuskType = TuskFunc{}
 										static[name] = &tmp
 									}
 
-									var currentfn = (*static[name]).(KaFunc)
-									currentfn.Overloads = append(currentfn.Overloads, body[i].ExpAct[0].ExpAct[0].Value.(KaFunc).Overloads[0])
+									var currentfn = (*static[name]).(TuskFunc)
+									currentfn.Overloads = append(currentfn.Overloads, body[i].ExpAct[0].ExpAct[0].Value.(TuskFunc).Overloads[0])
 									*static[name] = currentfn
 								} else {
 
 									if _, e := instance[name]; !e || (*instance[name]).Type() != "function" { //if the value does not exist yet (or it is not a function), make it
-										var tmp KaType = KaFunc{}
+										var tmp TuskType = TuskFunc{}
 										instance[name] = &tmp
 									}
 
-									var currentfn = (*instance[name]).(KaFunc)
-									currentfn.Overloads = append(currentfn.Overloads, body[i].ExpAct[0].ExpAct[0].Value.(KaFunc).Overloads[0])
+									var currentfn = (*instance[name]).(TuskFunc)
+									currentfn.Overloads = append(currentfn.Overloads, body[i].ExpAct[0].ExpAct[0].Value.(TuskFunc).Overloads[0])
 									*instance[name] = currentfn
 								}
 
@@ -340,7 +339,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						actions = append(actions, Action{
 							Type: "proto",
-							Value: KaProto{
+							Value: TuskProto{
 								Static:     static,
 								Instance:   instance,
 								AccessList: access,
@@ -349,16 +348,51 @@ func actionizer(operations []Operation) ([]Action, error) {
 							Line: v.Line,
 						})
 
-					case "ifwin":
+					case "build":
 
-						if runtime.GOOS == "windows" {
-							actions = append(actions, right...)
+						if right[0].First[0].Type != "c-array" {
+							return []Action{}, makeCompilerErr("Expected an array after build", v.File, right[0].Line)
 						}
 
-					case "ifnwin":
+						var e error
+						var dobuild bool
 
-						if runtime.GOOS != "windows" {
-							actions = append(actions, right...)
+						right[0].First[0].Value.(TuskArray).Range(func(kk *TuskType, vv *TuskType) (none Returner) {
+
+							none = Returner{
+								Type: "break",
+							}
+
+							if (*vv).Type() != "string" {
+								e = makeCompilerErr("All build conditions must be strings", v.File, right[0].Line)
+								return
+							}
+
+							condition := (*vv).(TuskString).ToGoType()
+
+							if len(condition) != 0 && condition[0] == '!' { //if it detects not that type of os
+								condition = condition[1:]
+								if runtime.GOOS != condition {
+									dobuild = false
+									return
+								}
+							}
+
+							if runtime.GOOS == condition {
+								dobuild = true
+								return
+							}
+
+							return
+						})
+
+						if e != nil {
+							return nil, e
+						}
+
+						if dobuild {
+							var block = right[0].Second
+							actions = append(actions, block...)
 						}
 
 					case "ovld":
@@ -473,7 +507,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 			}
 
 			if right[0].Type == "variable" {
-				var str = KaString{}
+				var str = TuskString{}
 				str.FromGoType(right[0].Name[1:]) //remove the $ from the varname
 				right[0] = Action{
 					Type:  "string",

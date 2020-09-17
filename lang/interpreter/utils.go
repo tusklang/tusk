@@ -1,35 +1,35 @@
 package interpreter
 
-import . "ka/lang/types"
+import . "tusk/lang/types"
 
 var tmpFalse = false
 var tmpTrue = true
 
 //list of ckaonly used values
-var undef = KaUndef{}
-var zero = KaNumber{
+var undef = TuskUndef{}
+var zero = TuskNumber{
 	Integer: &[]int64{0},
 	Decimal: &[]int64{0},
 }
-var one = KaNumber{
+var one = TuskNumber{
 	Integer: &[]int64{1},
 	Decimal: &[]int64{0},
 }
-var neg_one = KaNumber{
+var neg_one = TuskNumber{
 	Integer: &[]int64{-1},
 	Decimal: &[]int64{0},
 }
-var falsev = KaBool{
+var falsev = TuskBool{
 	Boolean: &tmpFalse,
 }
-var truev = KaBool{
+var truev = TuskBool{
 	Boolean: &tmpTrue,
 }
 
 //////////////////////////////
 
 //ensure that the decimal doesnt grow too much
-func ensurePrec(num1, num2 *KaNumber, cli_params CliParams) {
+func ensurePrec(num1, num2 *TuskNumber, cli_params CliParams) {
 
 	//ensure a nil pointer error doesnt happen
 	if (*num1).Decimal == nil {

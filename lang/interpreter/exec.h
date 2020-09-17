@@ -1,5 +1,5 @@
-#ifndef OMM_CMD_EXEC_H_
-#define OMM_CMD_EXEC_H_
+#ifndef TUSK_CMD_EXEC_H_
+#define TUSK_CMD_EXEC_H_
 
 #ifdef __cplusplus
 extern "C" {

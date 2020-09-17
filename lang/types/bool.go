@@ -2,15 +2,15 @@ package types
 
 import "strconv"
 
-type KaBool struct {
+type TuskBool struct {
 	Boolean *bool
 }
 
-func (b *KaBool) FromGoType(val bool) {
+func (b *TuskBool) FromGoType(val bool) {
 	b.Boolean = &val
 }
 
-func (b KaBool) ToGoType() bool {
+func (b TuskBool) ToGoType() bool {
 
 	if b.Boolean == nil {
 		return false
@@ -19,21 +19,21 @@ func (b KaBool) ToGoType() bool {
 	return *b.Boolean
 }
 
-func (b KaBool) Format() string {
+func (b TuskBool) Format() string {
 	return strconv.FormatBool(*b.Boolean)
 }
 
-func (b KaBool) Type() string {
+func (b TuskBool) Type() string {
 	return "bool"
 }
 
-func (b KaBool) TypeOf() string {
+func (b TuskBool) TypeOf() string {
 	return b.Type()
 }
 
-func (b KaBool) Deallocate() {}
+func (b TuskBool) Deallocate() {}
 
 //Range ranges over a bool
-func (b KaBool) Range(fn func(val1, val2 *KaType) Returner) *Returner {
+func (b TuskBool) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 	return nil
 }

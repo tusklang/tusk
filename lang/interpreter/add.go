@@ -1,9 +1,9 @@
 package interpreter
 
-import . "ka/lang/types"
+import . "tusk/lang/types"
 
-func number__plus__number(val1, val2 KaType, instance *Instance, stacktrace []string, line uint64, file string) *KaType {
-	num1, num2 := val1.(KaNumber), val2.(KaNumber)
+func number__plus__number(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) *TuskType {
+	num1, num2 := val1.(TuskNumber), val2.(TuskNumber)
 	ensurePrec(&num1, &num2, (*instance).Params)
 
 	int1 := *num1.Integer
@@ -110,7 +110,7 @@ func number__plus__number(val1, val2 KaType, instance *Instance, stacktrace []st
 	number.Integer = &newInt
 	number.Decimal = &newDec
 
-	var numtype KaType = number
+	var numtype TuskType = number
 
 	return &numtype
 }
