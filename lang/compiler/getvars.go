@@ -1,6 +1,6 @@
 package compiler
 
-import "tusk/lang/types"
+import "github.com/tusklang/tusk/lang/types"
 
 func getvars(actions []types.Action) (map[string]*types.TuskType, error) {
 

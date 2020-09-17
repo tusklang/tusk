@@ -1,8 +1,8 @@
 package compiler
 
 import (
-	"tusk/lang/interpreter"
-	. "tusk/lang/types"
+	"github.com/tusklang/tusk/lang/interpreter"
+	. "github.com/tusklang/tusk/lang/types"
 )
 
 var validtypes = []string{"string", "rune", "number", "bool", "hash", "array", "function", "none", "any"}

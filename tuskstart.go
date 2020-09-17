@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	. "tusk/lang/types"
-	"kore"
+	"github.com/tusklang/kore"
+	. "github.com/tusklang/tusk/lang/types"
 
-	"tusk/lang/compiler"
+	"github.com/tusklang/tusk/lang/compiler"
 )
 
 var ver = flag.Bool("ver", false, "Get Tusk suite version")

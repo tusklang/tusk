@@ -1,7 +1,7 @@
 package interpreter
 
 import (
-	"tusk/lang/types"
+	"github.com/tusklang/tusk/lang/types"
 )
 
 //Cast casts one tusk value to another type

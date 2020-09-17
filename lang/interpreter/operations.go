@@ -3,7 +3,7 @@ package interpreter
 import (
 	"strconv"
 
-	. "tusk/lang/types"
+	. "github.com/tusklang/tusk/lang/types"
 )
 
 //list of operations

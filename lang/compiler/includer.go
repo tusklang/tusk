@@ -7,9 +7,9 @@ import (
 	"path"
 	"strings"
 
-	kastenc "oat/format/encoding"
+	kastenc "github.com/tusklang/oat/format/encoding"
 
-	. "tusk/lang/types"
+	. "github.com/tusklang/tusk/lang/types"
 )
 
 var included = []string{} //list of the included files from tusk

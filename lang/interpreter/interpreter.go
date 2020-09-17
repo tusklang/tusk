@@ -1,7 +1,7 @@
 package interpreter
 
 import (
-	. "tusk/lang/types"
+	. "github.com/tusklang/tusk/lang/types"
 )
 
 const MAX_STACKSIZE = 100001

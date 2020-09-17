@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	. "tusk/lang/types"
+	. "github.com/tusklang/tusk/lang/types"
 )
 
 var protos []string

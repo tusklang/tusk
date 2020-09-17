@@ -3,7 +3,7 @@ package interpreter
 import (
 	"math/big"
 
-	. "tusk/lang/types"
+	. "github.com/tusklang/tusk/lang/types"
 )
 
 //convert the numbers (integers/decimals) to bigints

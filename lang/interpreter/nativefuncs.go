@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	. "tusk/lang/types"
+	. "github.com/tusklang/tusk/lang/types"
 )
 
 //#include "exec.h"

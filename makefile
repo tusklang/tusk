@@ -1,12 +1,12 @@
 ifeq ($(OS),Windows_NT)
-	BINARY = tusk_start.exe
+	BINARY = tuskstart.exe
 	CLEAN_CMD = del
 else
-	BINARY = tusk_start
+	BINARY = tuskstart
 	CLEAN_CMD = rm -f
 endif
 
-GOPATH = $(CURDIR)/../../
+GOPATH = $(CURDIR)/../../../../
 
 .PHONY: all
 all: language
@@ -17,4 +17,4 @@ clean:
 
 .PHONY: language
 language:
-	go build -a tusk_start.go
+	go build -a tuskstart.go

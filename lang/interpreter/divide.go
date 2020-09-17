@@ -1,7 +1,7 @@
 package interpreter
 
 import (
-	. "tusk/lang/types"
+	. "github.com/tusklang/tusk/lang/types"
 )
 
 func number__divide__number(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) *TuskType {

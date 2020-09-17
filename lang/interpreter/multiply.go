@@ -1,6 +1,6 @@
 package interpreter
 
-import . "tusk/lang/types"
+import . "github.com/tusklang/tusk/lang/types"
 
 func naive_mul(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) *TuskType {
 	num1, num2 := val1.(TuskNumber), val2.(TuskNumber)

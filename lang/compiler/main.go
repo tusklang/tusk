@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"tusk/lang/types"
+	"github.com/tusklang/tusk/lang/types"
 
-	"tusk/lang/interpreter"
+	"github.com/tusklang/tusk/lang/interpreter"
 )
 
 func Run(params types.CliParams) {

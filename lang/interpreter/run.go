@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	. "tusk/lang/types"
+	. "github.com/tusklang/tusk/lang/types"
 )
 
 type overload_after struct {

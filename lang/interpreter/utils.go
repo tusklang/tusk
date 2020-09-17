@@ -1,6 +1,6 @@
 package interpreter
 
-import . "tusk/lang/types"
+import . "github.com/tusklang/tusk/lang/types"
 
 var tmpFalse = false
 var tmpTrue = true

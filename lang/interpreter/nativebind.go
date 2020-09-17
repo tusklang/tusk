@@ -1,7 +1,7 @@
 package interpreter
 
 import (
-	. "tusk/lang/types"
+	. "github.com/tusklang/tusk/lang/types"
 )
 
 type TuskGoFunc struct {

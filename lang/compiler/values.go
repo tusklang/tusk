@@ -3,7 +3,7 @@ package compiler
 import (
 	"unicode"
 
-	. "tusk/lang/types"
+	. "github.com/tusklang/tusk/lang/types"
 )
 
 func valueActions(item Item) (Action, error) {

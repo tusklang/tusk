@@ -7,9 +7,9 @@ import (
 	"path"
 	"strings"
 
-	"tusk/lang/interpreter"
+	"github.com/tusklang/tusk/lang/interpreter"
 
-	. "tusk/lang/types"
+	. "github.com/tusklang/tusk/lang/types"
 )
 
 //CompileError represents a compile-time error in Tusk, and it implements the `error` interface
