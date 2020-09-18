@@ -169,10 +169,10 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "r-hash":
 
-			var nHash = make(map[string]*TuskType)
+			var nHash = make(map[*TuskType]*TuskType)
 
 			for _, i := range v.Hash {
-				nHash[(*Interpreter(ins, i[0], stacktrace, stacksize+1, nil, true).Exp).Format()] = Interpreter(ins, i[1], stacktrace, stacksize+1, nil, true).Exp
+				nHash[Interpreter(ins, i[0], stacktrace, stacksize+1, nil, true).Exp] = Interpreter(ins, i[1], stacktrace, stacksize+1, nil, true).Exp
 			}
 
 			var kaType TuskType = TuskHash{

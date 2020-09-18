@@ -200,11 +200,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		return &tusktype
 	},
 	"hash :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
-
-		//convert index to go string
-		gostr := val2.(TuskString).ToGoType()
-
-		return val1.(TuskHash).At(gostr)
+		return val1.(TuskHash).At(&val2)
 	},
 	"proto :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
 		v, e := val1.(TuskProto).Get(val2.(TuskString).ToGoType(), file)

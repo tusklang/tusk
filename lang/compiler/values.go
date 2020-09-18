@@ -131,7 +131,7 @@ func valueActions(item Item) (Action, error) {
 				hashtype = "r-hash" ///make it a runtime hash
 				goto runthash
 			} else {
-				chash.Set(key[0].Value.Format(), value[0].Value)
+				chash.Set(&key[0].Value, value[0].Value)
 			}
 
 		runthash:

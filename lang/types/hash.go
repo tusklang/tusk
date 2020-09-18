@@ -3,38 +3,56 @@ package types
 import "strings"
 
 type TuskHash struct {
-	Hash   map[string]*TuskType
-	keys   []string
+	Hash   map[*TuskType]*TuskType
+	keys   []*TuskType
 	Length uint64
 }
 
-func (hash TuskHash) At(idx string) *TuskType {
+func (hash TuskHash) At(idx *TuskType) *TuskType {
 
-	if _, exists := hash.Hash[idx]; !exists {
+	v, exists := hash.Hash[idx]
+
+	if !exists {
 		var undef TuskType = TuskUndef{}
-		hash.Hash[idx] = &undef
+		return &undef
 	}
 
-	return hash.Hash[idx]
+	return v
 }
 
-func (hash *TuskHash) Set(idx string, val TuskType) {
+func (hash *TuskHash) Set(idx *TuskType, val TuskType) {
 
 	if hash.Hash == nil {
-		hash.Hash = make(map[string]*TuskType)
+		hash.Hash = make(map[*TuskType]*TuskType)
 	}
 
-	if _, exists := hash.Hash[idx]; !exists {
+	v, exists := hash.Hash[idx]
+
+	if !exists {
 		hash.keys = append(hash.keys, idx)
 		hash.Length++
 	}
 
-	hash.Hash[idx] = &val
+	*v = val
 }
 
-func (hash TuskHash) Exists(idx string) bool {
+func (hash TuskHash) Exists(idx *TuskType) bool {
 	_, exists := hash.Hash[idx]
 	return exists
+}
+
+func formathash(v *TuskType, pformatted *string) {
+	if *pformatted != "[]" {
+		newlineSplit := strings.Split(*pformatted, "\n")
+
+		*pformatted = ""
+
+		for _, val := range newlineSplit {
+			*pformatted += strings.Repeat(" ", 2) + val + "\n"
+		}
+
+		*pformatted = strings.TrimSpace(*pformatted) //remove the trailing \n (because an extra was added) and the leading two spaces (because it will be on the same line)
+	}
 }
 
 func (hash TuskHash) Format() string {
@@ -48,25 +66,16 @@ func (hash TuskHash) Format() string {
 		var formatted = "["
 
 		for k, v := range hash.Hash {
-
+			kFormatted := (*k).Format()
 			vFormatted := (*v).Format()
 
 			switch (*v).(type) {
 			case TuskHash: //if it is another hash, add the indents
-				if vFormatted != "[]" {
-					newlineSplit := strings.Split(vFormatted, "\n")
-
-					vFormatted = ""
-
-					for _, val := range newlineSplit {
-						vFormatted += strings.Repeat(" ", 2) + val + "\n"
-					}
-
-					vFormatted = strings.TrimSpace(vFormatted) //remove the trailing \n (because an extra was added) and the leading two spaces (because it will be on the same line)
-				}
+				formathash(k, &kFormatted)
+				formathash(v, &vFormatted)
 			}
 
-			formatted += "\n" + strings.Repeat(" ", 2) + k + " = " + vFormatted + ","
+			formatted += "\n" + strings.Repeat(" ", 2) + kFormatted + " = " + vFormatted + ","
 		}
 
 		return formatted + "\n]"
@@ -90,10 +99,7 @@ func (hash TuskHash) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 
 		k, v := keyi, hash.Hash[keyi]
 
-		var key TuskString
-		key.FromGoType(k)
-		var katypekey TuskType = key
-		ret := fn(&katypekey, v)
+		ret := fn(k, v)
 
 		if ret.Type == "break" {
 			break

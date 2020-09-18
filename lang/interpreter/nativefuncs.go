@@ -320,7 +320,7 @@ var native = map[string]func(args []*TuskType, stacktrace []string, line uint64,
 			var hash = val.(TuskHash).Hash
 
 			//clone it into `cloned`
-			var cloned = make(map[string]*TuskType)
+			var cloned = make(map[*TuskType]*TuskType)
 			for k, v := range hash {
 				cloned[k] = v
 			}
