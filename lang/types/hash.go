@@ -20,6 +20,14 @@ func (hash TuskHash) At(idx *TuskType) *TuskType {
 	return v
 }
 
+//AtStr gets the value of a Tusk Hash based on a string
+func (hash TuskHash) AtStr(idx string) *TuskType {
+	var tuskstr TuskString
+	tuskstr.FromGoType(idx)
+	var tusktype TuskType = tuskstr
+	return hash.At(&tusktype)
+}
+
 func (hash *TuskHash) Set(idx *TuskType, val TuskType) {
 
 	if hash.Hash == nil {
