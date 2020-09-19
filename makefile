@@ -8,12 +8,16 @@ endif
 
 GOPATH = $(CURDIR)/../../../../
 
+.PHONY: default
+default: all
+
 .PHONY: all
 all: language
 
 .PHONY: clean
 clean:
 	-$(CLEAN_CMD) $(BINARY)
+
 .PHONY: language
 language:
-	go build -a tuskstart.go
+	go build tuskstart.go

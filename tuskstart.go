@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tusklang/kore"
+	"github.com/tusklang/tools"
 	. "github.com/tusklang/tusk/lang/types"
 
 	"github.com/tusklang/tusk/lang/compiler"
@@ -15,14 +15,14 @@ import (
 var ver = flag.Bool("ver", false, "Get Tusk suite version")
 
 func init() {
-	flag.Usage = kore.Usagef("Tusk")
+	flag.Usage = tools.Usagef("Tusk")
 }
 
 func main() {
 	flag.Parse()
 
 	if *ver {
-		fmt.Printf("Kore Beta %d.%d.%d", kore.KoreMajor, kore.KoreMinor, kore.KoreBug)
+		fmt.Printf("Tusk Beta %d.%d.%d", tools.TuskMajor, tools.TuskMinor, tools.TuskBug)
 		os.Exit(0)
 	}
 
