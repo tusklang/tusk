@@ -1,14 +1,14 @@
 package compiler
 
 import (
-	"github.com/tusklang/tusk/lang/interpreter"
 	. "github.com/tusklang/tusk/lang/types"
+	"github.com/tusklang/tusk/native"
 )
 
 var validtypes = []string{"string", "rune", "number", "bool", "hash", "array", "function", "none", "any"}
 
 func getnativetypes() {
-	for _, v := range interpreter.Native { //append all of the types of the native
+	for _, v := range native.Native { //append all of the types of the native
 		validtypes = append(validtypes, (*v).Type())
 	}
 }

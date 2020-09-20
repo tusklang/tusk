@@ -12,6 +12,8 @@ func getvars(actions []types.Action) (map[string]*types.TuskType, error) {
 		}
 
 		if v.Type == "declare" {
+			var undef types.TuskType = types.TuskUndef{}
+			vars[v.Name] = &undef
 			continue
 		}
 

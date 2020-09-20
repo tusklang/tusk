@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"github.com/tusklang/tusk/lang/types"
+	"github.com/tusklang/tusk/native"
 )
 
 //Cast casts one tusk value to another type
@@ -15,7 +16,7 @@ func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, fi
 
 	case "string->number":
 		str := types.NumNormalize(val.(types.TuskNumber)) //convert to string
-		var kastr types.TuskString                       //create an kastring
+		var kastr types.TuskString                        //create an kastring
 		kastr.FromGoType(str)
 		var tusktype types.TuskType = kastr //create an tusktype interface
 		return &tusktype
@@ -61,7 +62,7 @@ func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, fi
 
 	}
 
-	TuskPanic("Cannot cast a "+val.Type()+" into a "+nType, line, file, stacktrace)
+	native.TuskPanic("Cannot cast a "+val.Type()+" into a "+nType, line, file, stacktrace)
 
 	//here because it wont work without it
 	var none types.TuskType = undef

@@ -1,16 +1,18 @@
 package types
 
-import "strings"
+import (
+	"strings"
+)
 
 type TuskHash struct {
-	Hash   map[*TuskType]*TuskType
+	Hash   map[string]*TuskType
 	keys   []*TuskType
 	Length uint64
 }
 
 func (hash TuskHash) At(idx *TuskType) *TuskType {
 
-	v, exists := hash.Hash[idx]
+	v, exists := hash.Hash[(*idx).Format()]
 
 	if !exists {
 		var undef TuskType = TuskUndef{}
@@ -31,25 +33,34 @@ func (hash TuskHash) AtStr(idx string) *TuskType {
 func (hash *TuskHash) Set(idx *TuskType, val TuskType) {
 
 	if hash.Hash == nil {
-		hash.Hash = make(map[*TuskType]*TuskType)
+		hash.Hash = make(map[string]*TuskType)
 	}
 
-	v, exists := hash.Hash[idx]
+	v, exists := hash.Hash[(*idx).Format()]
 
 	if !exists {
 		hash.keys = append(hash.keys, idx)
 		hash.Length++
+		hash.Hash[(*idx).Format()] = &val
+		return
 	}
 
 	*v = val
 }
 
+func (hash *TuskHash) SetStr(idx string, val TuskType) {
+	var tuskstr TuskString
+	tuskstr.FromGoType(idx)
+	var tusktype TuskType = tuskstr
+	hash.Set(&tusktype, val)
+}
+
 func (hash TuskHash) Exists(idx *TuskType) bool {
-	_, exists := hash.Hash[idx]
+	_, exists := hash.Hash[(*idx).Format()]
 	return exists
 }
 
-func formathash(v *TuskType, pformatted *string) {
+func formathash(pformatted *string) {
 	if *pformatted != "[]" {
 		newlineSplit := strings.Split(*pformatted, "\n")
 
@@ -68,25 +79,25 @@ func (hash TuskHash) Format() string {
 	return func() string {
 
 		if len(hash.Hash) == 0 {
-			return "[]"
+			return "[::]"
 		}
 
-		var formatted = "["
+		var formatted = "[:"
 
 		for k, v := range hash.Hash {
-			kFormatted := (*k).Format()
+			kFormatted := k
 			vFormatted := (*v).Format()
 
 			switch (*v).(type) {
 			case TuskHash: //if it is another hash, add the indents
-				formathash(k, &kFormatted)
-				formathash(v, &vFormatted)
+				formathash(&kFormatted)
+				formathash(&vFormatted)
 			}
 
 			formatted += "\n" + strings.Repeat(" ", 2) + kFormatted + " = " + vFormatted + ","
 		}
 
-		return formatted + "\n]"
+		return formatted + "\n:]"
 	}() //staring with 2
 }
 
@@ -105,7 +116,7 @@ func (hash TuskHash) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 
 	for _, keyi := range hash.keys {
 
-		k, v := keyi, hash.Hash[keyi]
+		k, v := keyi, hash.Hash[(*keyi).Format()]
 
 		ret := fn(k, v)
 

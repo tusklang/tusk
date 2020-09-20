@@ -1,8 +1,9 @@
 package compiler
 
 import (
-	. "github.com/tusklang/tusk/lang/types"
 	"runtime"
+
+	. "github.com/tusklang/tusk/lang/types"
 )
 
 func arraytogroup(arractions []Action) []Action {
@@ -508,7 +509,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 			if right[0].Type == "variable" {
 				var str = TuskString{}
-				str.FromGoType(right[0].Name[1:]) //remove the $ from the varname
+				str.FromGoType(right[0].Name)
 				right[0] = Action{
 					Type:  "string",
 					Value: str,

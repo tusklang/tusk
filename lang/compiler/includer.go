@@ -7,7 +7,7 @@ import (
 	"path"
 	"strings"
 
-	kastenc "github.com/tusklang/oat/format/encoding"
+	oatenc "github.com/tusklang/oat/format/encoding"
 
 	. "github.com/tusklang/tusk/lang/types"
 )
@@ -23,7 +23,7 @@ func includeSingle(filename string) ([]Action, error) {
 	}
 
 	if strings.HasSuffix(filename, ".oat") {
-		decoded, e := kastenc.TuskstDecode(filename)
+		decoded, e := oatenc.OatDecode(filename)
 
 		if e != nil {
 			return nil, e

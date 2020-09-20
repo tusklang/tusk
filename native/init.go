@@ -1,4 +1,4 @@
-package interpreter
+package native
 
 import (
 	. "github.com/tusklang/tusk/lang/types"
@@ -27,15 +27,15 @@ func (ogf TuskGoFunc) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 	return nil
 }
 
-func nativeinit() {
+func init() {
 
 	//init the simple native values first
-	for k, v := range native {
+	for k, v := range NativeFuncs {
 		var gofunc TuskType = TuskGoFunc{
 			Function: v,
 		}
 
-		Native["$"+k] = &gofunc
+		Native[k] = &gofunc
 	}
 
 }

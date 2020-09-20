@@ -247,7 +247,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 
 		if v.Type == "variable" || v.Type == "ovld" {
 			if _, exists := newnames[v.Name]; !exists {
-				return nil, makeCompilerErr("Variable "+v.Name[1:]+" was not declared", v.File, v.Line)
+				return nil, makeCompilerErr("Variable "+v.Name+" was not declared", v.File, v.Line)
 			}
 			actions[k].Name = newnames[v.Name]
 		}

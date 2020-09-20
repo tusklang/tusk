@@ -7,9 +7,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/tusklang/tusk/lang/interpreter"
-
 	. "github.com/tusklang/tusk/lang/types"
+	"github.com/tusklang/tusk/native"
 )
 
 //CompileError represents a compile-time error in Tusk, and it implements the `error` interface
@@ -145,8 +144,8 @@ func Compile(params CliParams) (map[string]*TuskType, error) {
 	//make each var have only it's name
 	var varnames = make(map[string]string)
 
-	varnames["$__dirname"] = "$__dirname"
-	varnames["$argv"] = "$argv"
+	varnames["__dirname"] = "__dirname"
+	varnames["argv"] = "argv"
 
 	for k := range vars {
 
@@ -159,7 +158,7 @@ func Compile(params CliParams) (map[string]*TuskType, error) {
 	}
 
 	//also account for the gofuncs
-	for k := range interpreter.Native {
+	for k := range native.Native {
 		varnames[k] = k
 	}
 

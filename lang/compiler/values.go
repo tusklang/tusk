@@ -85,7 +85,7 @@ func valueActions(item Item) (Action, error) {
 			File:  item.File,
 			Line:  item.Line,
 		}, nil
-	case "[":
+	case "[:":
 
 		var hash = make([][2][]Action, 0)
 		var chash TuskHash
@@ -215,7 +215,7 @@ func valueActions(item Item) (Action, error) {
 		} else if val[0] == '$' { //detect a variable
 			return Action{
 				Type: "variable",
-				Name: val,
+				Name: val[1:],
 				File: item.File,
 				Line: item.Line,
 			}, nil

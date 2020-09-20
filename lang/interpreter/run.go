@@ -5,6 +5,7 @@ import (
 	"os"
 
 	. "github.com/tusklang/tusk/lang/types"
+	. "github.com/tusklang/tusk/native"
 )
 
 type overload_after struct {
@@ -19,8 +20,8 @@ func FillIns(instance *Instance, compiledVars map[string]*TuskType, dirname stri
 	dirnameTuskStr.FromGoType(dirname)
 	var dirnameTuskType TuskType = dirnameTuskStr
 
-	globals["$__dirname"] = &TuskVar{
-		Name:  "$__dirname",
+	globals["__dirname"] = &TuskVar{
+		Name:  "__dirname",
 		Value: &dirnameTuskType,
 	}
 
@@ -38,8 +39,8 @@ func FillIns(instance *Instance, compiledVars map[string]*TuskType, dirname stri
 		Length: uint64(len(args)),
 	}
 
-	globals["$argv"] = &TuskVar{
-		Name:  "$argv",
+	globals["argv"] = &TuskVar{
+		Name:  "argv",
 		Value: &arr,
 	}
 
@@ -69,14 +70,14 @@ func RunInterpreter(compiledVars map[string]*TuskType, cli_params CliParams) {
 	instance.Params = cli_params
 	globals := FillIns(&instance, compiledVars, cli_params.Directory, os.Args)
 
-	if _, exists := globals["$main"]; !exists {
+	if _, exists := globals["main"]; !exists {
 		fmt.Println("Given program has no entry point/main function")
 		os.Exit(1)
 	} else {
 
-		switch (*globals["$main"].Value).(type) {
+		switch (*globals["main"].Value).(type) {
 		case TuskFunc:
-			main := globals["$main"]
+			main := globals["main"]
 
 			calledP := Interpreter(&instance, (*main.Value).(TuskFunc).Overloads[0].Body, []string{"at the entry caller"}, 0, nil, false).Exp
 			WaitAllThreads() //finish up any remaining threads

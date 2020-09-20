@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	. "github.com/tusklang/tusk/lang/types"
+	. "github.com/tusklang/tusk/native"
 )
 
 const MAX_STACKSIZE = 100001
@@ -120,8 +121,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			fallthrough //compile-time calculated array
 		case "c-hash":
 			fallthrough //compile-time calculated hash
-		case "proto":
-			fallthrough
 		case "thread":
 
 			if expReturn {
@@ -169,10 +168,10 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "r-hash":
 
-			var nHash = make(map[*TuskType]*TuskType)
+			var nHash = make(map[string]*TuskType)
 
 			for _, i := range v.Hash {
-				nHash[Interpreter(ins, i[0], stacktrace, stacksize+1, nil, true).Exp] = Interpreter(ins, i[1], stacktrace, stacksize+1, nil, true).Exp
+				nHash[(*Interpreter(ins, i[0], stacktrace, stacksize+1, nil, true).Exp).Format()] = Interpreter(ins, i[1], stacktrace, stacksize+1, nil, true).Exp
 			}
 
 			var kaType TuskType = TuskHash{

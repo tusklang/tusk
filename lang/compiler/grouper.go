@@ -15,7 +15,6 @@ type Item struct {
 var braceMatcher = map[string]string{
 	"}":  "{",
 	":]": "[:",
-	"]":  "[",
 	")":  "(",
 }
 
@@ -33,7 +32,6 @@ func makeGroups(lex []Lex) ([][]Item, error) {
 			var braceTypes = map[string]int{
 				"{":  0,
 				"[:": 0,
-				"[":  0,
 				"(":  0,
 			}
 			/////////////
@@ -60,7 +58,7 @@ func makeGroups(lex []Lex) ([][]Item, error) {
 					braceTypes[braceMatcher[lex[i].Name]]--
 				}
 
-				if braceTypes["{"] == 0 && braceTypes["[:"] == 0 && braceTypes["["] == 0 && braceTypes["("] == 0 {
+				if braceTypes["{"] == 0 && braceTypes["[:"] == 0 && braceTypes["("] == 0 {
 					break
 				}
 

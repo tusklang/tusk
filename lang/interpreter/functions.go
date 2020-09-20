@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	. "github.com/tusklang/tusk/lang/types"
+	. "github.com/tusklang/tusk/native"
 )
 
 //fill an instance to run a function
