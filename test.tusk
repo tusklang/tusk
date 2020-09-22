@@ -1,3 +1,5 @@
 var main = fn() => {
-    log:(load:("test2.oat")::main:())
+    lib := cload:("mydll.dll")
+    proc := lib::test
+    log:(proc:())
 }

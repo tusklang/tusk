@@ -38,4 +38,6 @@ func init() {
 		Native[k] = &gofunc
 	}
 
+	initcload()
+
 }

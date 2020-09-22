@@ -405,7 +405,7 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 	"load": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
 		if len(args) != 1 || (*args[0]).Type() != "string" {
-			fmt.Println("Function load requires the signature (string)")
+			TuskPanic("Function load requires the signature (string)", line, file, stacktrace)
 		}
 
 		libname := (*args[0]).(TuskString).ToGoType()
@@ -424,7 +424,5 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 		var tusktype TuskType = tuskhash
 		return &tusktype
 	},
-	"cload": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
-		return nil
-	},
+	"cload": cload,
 }

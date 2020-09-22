@@ -1,0 +1,14 @@
+;KEEP IN MIND (FIX THIS)
+
+var main = fn() => {
+	var a = 1
+	test:(a)
+	a:()
+}
+
+var test = fn(a) => {
+	b := 2
+	a = fn() => {
+		log:(b)
+	}
+}
