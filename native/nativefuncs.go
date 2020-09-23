@@ -424,5 +424,4 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 		var tusktype TuskType = tuskhash
 		return &tusktype
 	},
-	"cload": cload,
 }

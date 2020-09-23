@@ -1,5 +1,4 @@
 var main = fn() => {
-    lib := cload:("mydll.dll")
-    proc := lib::test
-    log:(proc:())
+    lib := goload:("test.dll")
+    a := lib::test:()
 }

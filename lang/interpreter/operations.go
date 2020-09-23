@@ -265,9 +265,4 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		var tusktype TuskType = kastr
 		return &tusktype
 	},
-
-	//----- cload operations -----\\
-	"clib :: string": CloadGetProc,
-	"cproc : array":  CloadCallProc,
-	//----------------------------\\
 }
