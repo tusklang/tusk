@@ -2,7 +2,7 @@ ifeq ($(OS),Windows_NT)
 	BINARY = tuskstart.exe
 	CLEAN_CMD = del
 else
-	BINARY = tuskstart
+	BINARY = tuskstart.out
 	CLEAN_CMD = rm -f
 endif
 
@@ -20,4 +20,4 @@ clean:
 
 .PHONY: language
 language:
-	go build tuskstart.go
+	go build -o $(BINARY) tuskstart.go

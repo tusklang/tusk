@@ -1,7 +1,8 @@
-/tuskstart
+*.out
 *.exe
 *.o
 *.dll
 *.lib
 *.so
 *.a
+native/syscall_switch.h

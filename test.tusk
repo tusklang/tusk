@@ -1,4 +1,3 @@
 var main = fn() => {
-    lib := goload:("test.dll")
-    a := lib::test:()
+    log:(syscall:(39)) ;get pid
 }

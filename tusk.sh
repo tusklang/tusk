@@ -1,3 +1,3 @@
 #!/bin/sh
 chdir "$PWD"
-$(dirname "$0")/tuskstart $@
+$(dirname "$0")/tuskstart.out $@

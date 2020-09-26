@@ -9,11 +9,14 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"unsafe"
 
 	oatenc "github.com/tusklang/oat/format/encoding"
 	. "github.com/tusklang/tusk/lang/types"
 )
 
+//#include "sysarray.h"
+//#include "syscall.h"
 //#include "exec.h"
 import "C"
 
@@ -422,6 +425,59 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 		}
 
 		var tusktype TuskType = tuskhash
+		return &tusktype
+	},
+	"syscall": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+
+		if len(args) > 4 {
+			TuskPanic("Maximum 4 arguments to a syscall", line, file, stacktrace)
+		}
+
+		var cargs = C.sysarray_make(C.int(4))
+
+		var i int
+
+		for i = 0; i < len(args); i++ {
+			v := args[i]
+			var ctype unsafe.Pointer
+
+			switch (*v).(type) {
+			case TuskNumber:
+				godoub := (*v).(TuskNumber).ToGoType()
+				cdoub := C.double(godoub)
+				ctype = unsafe.Pointer(&cdoub)
+			case TuskString:
+				gostr := (*v).(TuskString).ToGoType()
+				cstr := C.CString(gostr)
+				ctype = unsafe.Pointer(&cstr)
+
+			}
+
+			C.sysarray_set(cargs, C.int(i), ctype)
+		}
+
+		for ; i < 4; i++ {
+			if i == 3 { //edx must be a string
+				cstr := C.CString("")
+				C.sysarray_set(cargs, C.int(i), unsafe.Pointer(&cstr))
+				break
+			}
+			//rest of the registers are doubles
+			cdoub := C.double(0)
+			C.sysarray_set(cargs, C.int(i), unsafe.Pointer(&cdoub))
+		}
+
+		ret := C.tusksyscall(
+			C.sysarray_get(cargs, C.int(0)),
+			C.sysarray_get(cargs, C.int(1)),
+			C.sysarray_get(cargs, C.int(2)),
+			C.sysarray_get(cargs, C.int(3)),
+		)
+
+		var tusknum TuskNumber
+		tusknum.FromGoType(float64(ret))
+
+		var tusktype TuskType = tusknum
 		return &tusktype
 	},
 }
