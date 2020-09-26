@@ -15,6 +15,7 @@ import (
 	. "github.com/tusklang/tusk/lang/types"
 )
 
+//#include <stdbool.h>
 //#include "sysarray.h"
 //#include "syscall.h"
 //#include "exec.h"
@@ -450,21 +451,21 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 				gostr := (*v).(TuskString).ToGoType()
 				cstr := C.CString(gostr)
 				ctype = unsafe.Pointer(&cstr)
-
+			case TuskBool:
+				gobool := (*v).(TuskBool).ToGoType()
+				cbool := C.bool(gobool)
+				ctype = unsafe.Pointer(&cbool)
 			}
 
 			C.sysarray_set(cargs, C.int(i), ctype)
 		}
 
 		for ; i < 4; i++ {
-			if i == 3 { //edx must be a string
-				cstr := C.CString("")
-				C.sysarray_set(cargs, C.int(i), unsafe.Pointer(&cstr))
-				break
-			}
 			//rest of the registers are doubles
 			cdoub := C.double(0)
-			C.sysarray_set(cargs, C.int(i), unsafe.Pointer(&cdoub))
+			var ctype unsafe.Pointer
+			ctype = unsafe.Pointer(&cdoub)
+			C.sysarray_set(cargs, C.int(i), ctype)
 		}
 
 		ret := C.tusksyscall(

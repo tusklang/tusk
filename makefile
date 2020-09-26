@@ -20,4 +20,5 @@ clean:
 
 .PHONY: language
 language:
+	set CC=clang
 	go build -o $(BINARY) tuskstart.go
