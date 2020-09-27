@@ -8,11 +8,18 @@ extern "C" {
 #include <stdlib.h>
 
 static inline void** sysarray_make(int size) {
-    return (void**) malloc(size);
+    return (void**) calloc(size, sizeof(void*));
 }
 
-static inline void sysarray_set(void** arr, int index, void* val) {
-    arr[index] = val;
+static inline void sysarray_setint(void** arr, int index, int val) {
+    #pragma GCC diagnostic push 
+	#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+    arr[index] = (void*)val;
+    #pragma GCC diagnostic pop 
+}
+
+static inline void sysarray_setstr(void** arr, int index, char* val) {
+    arr[index] = (void*)val;
 }
 
 static inline void* sysarray_get(void** arr, int index) {

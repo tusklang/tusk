@@ -1,4 +1,4 @@
-#ifdef _WIN32
+#ifdef _WIN32 //windows is, ..., much harder
 
 #ifndef TUSK_NATIVE_SYSCALL_WIN_H_
 #define TUSK_NATIVE_SYSCALL_WIN_H_

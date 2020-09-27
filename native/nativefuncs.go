@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"unsafe"
 
 	oatenc "github.com/tusklang/oat/format/encoding"
 	. "github.com/tusklang/tusk/lang/types"
@@ -440,32 +439,24 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 
 		for i = 0; i < len(args); i++ {
 			v := args[i]
-			var ctype unsafe.Pointer
 
 			switch (*v).(type) {
 			case TuskNumber:
 				godoub := (*v).(TuskNumber).ToGoType()
-				cdoub := C.double(godoub)
-				ctype = unsafe.Pointer(&cdoub)
+				cint := C.int(godoub)
+				C.sysarray_setint(cargs, C.int(i), cint)
 			case TuskString:
 				gostr := (*v).(TuskString).ToGoType()
 				cstr := C.CString(gostr)
-				ctype = unsafe.Pointer(&cstr)
-			case TuskBool:
-				gobool := (*v).(TuskBool).ToGoType()
-				cbool := C.bool(gobool)
-				ctype = unsafe.Pointer(&cbool)
+				C.sysarray_setstr(cargs, C.int(i), cstr)
 			}
 
-			C.sysarray_set(cargs, C.int(i), ctype)
 		}
 
 		for ; i < 4; i++ {
-			//rest of the registers are doubles
-			cdoub := C.double(0)
-			var ctype unsafe.Pointer
-			ctype = unsafe.Pointer(&cdoub)
-			C.sysarray_set(cargs, C.int(i), ctype)
+			//rest of the registers are integers
+			cint := C.int(0)
+			C.sysarray_setint(cargs, C.int(i), cint)
 		}
 
 		ret := C.tusksyscall(
