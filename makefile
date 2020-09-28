@@ -20,4 +20,4 @@ clean:
 
 .PHONY: language
 language:
-	go build -o $(BINARY) tuskstart.go
+	go build -a -o $(BINARY) tuskstart.go

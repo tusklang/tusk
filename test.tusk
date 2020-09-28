@@ -1,6 +1,5 @@
 var main = fn() => {
-    f := syscall:(2, "test.tusk", 0)
-    test := "12345"
-    log:(syscall:(0, f, test, 5))
-    log:(test)
+    f := syscall:(2, "abc.txt", 2)
+    syscall:(1, f, "hello world", len:("hello world"))
+    syscall:(3, f)
 }

@@ -9,13 +9,14 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"unsafe"
 
 	oatenc "github.com/tusklang/oat/format/encoding"
 	. "github.com/tusklang/tusk/lang/types"
+	tusksys "github.com/tusklang/tusk/native/systables"
 )
 
 //#include <stdbool.h>
-//#include "sysarray.h"
 //#include "syscall.h"
 //#include "exec.h"
 import "C"
@@ -429,6 +430,71 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 		return &tusktype
 	},
 	"syscall": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
-		return nil
+
+		if (*args[0]).Type() != "number" {
+			TuskPanic("Sysno must be a numeric value", line, file, stacktrace)
+		}
+
+		var cargs = make([]unsafe.Pointer, 7)
+
+		i := 0
+
+		for ; i < len(args); i++ {
+			switch (*args[i]).(type) {
+			case TuskNumber:
+				cnum := C.int((*args[i]).(TuskNumber).ToGoType())
+				cargs[i] = C.makeunsafeint(cnum)
+			case TuskString:
+				cstr := C.CString((*args[i]).(TuskString).ToGoType())
+				cargs[i] = unsafe.Pointer(cstr)
+			}
+		}
+
+		for ; i < 7; i++ {
+			cnum := C.int(0)
+			cargs[i] = unsafe.Pointer(&cnum)
+		}
+
+		sysno := int((*args[0]).(TuskNumber).ToGoType())
+		syscall, exists := tusksys.SysTable[sysno]
+
+		if !exists {
+			TuskPanic(fmt.Sprintf("Could not find syscall: %d", sysno), line, file, stacktrace)
+		}
+
+		called := C.callsys(
+			syscall,
+			cargs[1],
+			cargs[2],
+			cargs[3],
+			cargs[4],
+			cargs[5],
+			cargs[6],
+		)
+
+		//give back the values to the original tusk pointers
+		for i := 1; i < len(cargs); i++ {
+			if i >= len(args) { //if there are no more args to give back, break
+				break
+			}
+
+			switch (*args[i]).(type) {
+			case TuskNumber:
+				cnum := C.makeintfromunsafe(cargs[i])
+				var tusknum TuskNumber
+				tusknum.FromGoType(float64(cnum))
+				(*args[i]) = tusknum
+			case TuskString:
+				ccstr := (*C.char)(cargs[i])
+				var tuskstr TuskString
+				tuskstr.FromGoType(C.GoString(ccstr))
+				(*args[i]) = tuskstr
+			}
+		}
+
+		var tusknum TuskNumber
+		tusknum.FromGoType(float64(called))
+		var tusktype TuskType = tusknum
+		return &tusktype
 	},
 }
