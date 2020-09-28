@@ -51,6 +51,7 @@ func TuskPanic(err string, line uint64, file string, stacktrace []string) {
 
 		fmt.Print("  " + stacktrace[i] + endl)
 	}
+	fmt.Println()
 	os.Exit(1)
 }
 
@@ -428,48 +429,6 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 		return &tusktype
 	},
 	"syscall": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
-
-		if len(args) > 4 {
-			TuskPanic("Maximum 4 arguments to a syscall", line, file, stacktrace)
-		}
-
-		var cargs = C.sysarray_make(C.int(4))
-
-		var i int
-
-		for i = 0; i < len(args); i++ {
-			v := args[i]
-
-			switch (*v).(type) {
-			case TuskNumber:
-				godoub := (*v).(TuskNumber).ToGoType()
-				cint := C.int(godoub)
-				C.sysarray_setint(cargs, C.int(i), cint)
-			case TuskString:
-				gostr := (*v).(TuskString).ToGoType()
-				cstr := C.CString(gostr)
-				C.sysarray_setstr(cargs, C.int(i), cstr)
-			}
-
-		}
-
-		for ; i < 4; i++ {
-			//rest of the registers are integers
-			cint := C.int(0)
-			C.sysarray_setint(cargs, C.int(i), cint)
-		}
-
-		ret := C.tusksyscall(
-			C.sysarray_get(cargs, C.int(0)),
-			C.sysarray_get(cargs, C.int(1)),
-			C.sysarray_get(cargs, C.int(2)),
-			C.sysarray_get(cargs, C.int(3)),
-		)
-
-		var tusknum TuskNumber
-		tusknum.FromGoType(float64(ret))
-
-		var tusktype TuskType = tusknum
-		return &tusktype
+		return nil
 	},
 }
