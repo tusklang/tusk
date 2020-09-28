@@ -1,5 +1,8 @@
+;include:
+;s tuskstd/files
+
 var main = fn() => {
-    f := syscall:(2, "abc.txt", 2)
-    syscall:(1, f, "hello world", len:("hello world"))
-    syscall:(3, f)
+    f := file::open:("abc.txt")
+    f::close()
+    f::write:("This is a test")
 }

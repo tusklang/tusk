@@ -278,7 +278,11 @@ func actionizer(operations []Operation) ([]Action, error) {
 								}
 							}
 
-							name := arraytogroup(body[i].ExpAct)[0].Name[1:]
+							name := arraytogroup(body[i].ExpAct)[0].Name
+
+							if len(name) == 0 {
+								return nil, makeCompilerErr("Prototype body variable has no name", v.File, right[0].Line)
+							}
 
 							if currentaccess != nil {
 								access[name] = currentaccess

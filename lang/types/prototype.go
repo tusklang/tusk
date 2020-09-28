@@ -45,7 +45,7 @@ func (p TuskProto) Get(field string, file string) (*TuskType, error) {
 }
 
 func (p TuskProto) Format() string {
-	return "{" + p.ProtoName[1:] + "}"
+	return "{" + p.ProtoName + "}"
 }
 
 func (p TuskProto) Type() string {

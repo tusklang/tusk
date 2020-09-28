@@ -1,0 +1,30 @@
+;include:
+;s tuskstd/util/alloc.tusk
+
+var file = proto {
+    var fd
+
+    static var open = fn(string -> name, number -> mode) => {
+        var f = make:(file)
+        f::fd = syscall:(2, name, mode)
+        return f
+    }
+
+    static ovld open = fn(string -> name) => {
+        return file::open:(name, 4)
+    }
+
+    var read = fn(number -> size) => {
+        var buf = allocstr:(size)
+        syscall:(0, fd, buf, size)
+    }
+
+    var write = fn(string -> data) => {
+        syscall:(1, fd, data, len:(data))
+    }
+
+    var close = fn() => {
+        syscall:(3, fd)
+    }
+
+}

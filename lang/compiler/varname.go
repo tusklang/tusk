@@ -27,17 +27,17 @@ Explanation of why this exists:
 
   a compiler error would come. Now I will explain why we need to change the variable names in the compiler. Imagine we have some tusk code like this:
 
-    var main: fn() => {
-      var test: 1
-      testf async []
-      test: 3
+    var main = fn() => {
+      var test = 1
+      testf?()
+      test = 3
     }
 
-    var testf: fn() => {
-      var test: 2
-      var i: 0
-      while (i < 100) => i: i + 1;
-      log test
+    var testf = fn() => {
+      var test = 2
+      var i = 0
+      while (i < 100000) => i = i + 1;
+      log:(test)
     }
 
   It would give 3, not 2 because testf and main have the same variable set. This can open a security leak, so that is why this file exists.
@@ -154,7 +154,6 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 
 			for k := range v.Value.(TuskProto).Instance {
 				instanceproto[k] = k
-				curvar++
 			}
 
 			for i := range v.Value.(TuskProto).Instance {
@@ -163,10 +162,10 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 
 				var passvals = make(map[string]string)
 
-				for k, v := range instanceproto {
+				for k, v := range newnames {
 					passvals[k] = v
 				}
-				for k, v := range newnames {
+				for k, v := range instanceproto {
 					passvals[k] = v
 				}
 

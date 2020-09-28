@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "systables/sysf.h"
+typedef long int (*SYSF)(void*, void*, void*, void*, void*, void*);
 
 static inline int makeintfromunsafe(void* v) {
     //prevent the warning, because it works
@@ -16,13 +16,14 @@ static inline int makeintfromunsafe(void* v) {
 }
 
 static inline void* makeunsafeint(int v) {
+    //prevent the warning because it works
     #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     #pragma GCC diagnostic push
     return (void*) v;
     #pragma GCC diagnostic pop
 }
 
-static inline long int callsys(SYSF fn, void* a0, void* a1, void* a2, void* a3, void* a4, void* a5) {
+static inline long int callsys(void* fn, void* a0, void* a1, void* a2, void* a3, void* a4, void* a5) {
     long int called = ((SYSF)(fn))(a0, a1, a2, a3, a4, a5); //call the sycall func
     return called; //return the val
 }

@@ -10,8 +10,6 @@ long int syswrite(long int fd, char* buf, unsigned long long int size);
 long int sysopen(char* name, int mode);
 long int sysclose(int fd);
 
-#include "sysf.h"
-
 #ifdef __cplusplus
 }
 #endif
