@@ -19,4 +19,7 @@ var SysTable = map[int]unsafe.Pointer{
 	9:  C.fst_gid,
 	10: C.fst_rdev,
 	11: C.fst_size,
+	12: C.syslseek,
+	13: C.sysmmap,
+	14: C.sysmprotect,
 }

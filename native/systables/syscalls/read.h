@@ -11,7 +11,7 @@ extern "C" {
 #include <unistd.h>
 #endif
 
-long int sysread(long int fd, char* buf, unsigned long long int size) {
+long long int sysread(long int fd, char* buf, unsigned long long int size) {
     return read(fd, buf, size);
 };
 

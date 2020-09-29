@@ -11,7 +11,7 @@ extern "C" {
 #include <unistd.h>
 #endif
 
-long int syswrite(long int fd, char* buf, unsigned long long int size) {
+long long int syswrite(long int fd, char* buf, unsigned long long int size) {
     return write(fd, buf, size);
 };
 

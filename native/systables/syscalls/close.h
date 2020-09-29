@@ -11,7 +11,7 @@ extern "C" {
 #include <unistd.h>
 #endif
 
-long int sysclose(long int fd) {
+long long int sysclose(long int fd) {
     return close(fd);
 };
 

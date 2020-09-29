@@ -15,7 +15,7 @@ extern "C" {
 
 #define tuskopen(name, mode) fileno(fopen(name, mode))
 
-long int sysopen(char* name, char* mode) {
+long long int sysopen(char* name, char* mode) {
     return tuskopen(name, mode);
 };
 

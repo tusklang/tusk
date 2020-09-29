@@ -16,14 +16,14 @@ struct stat getstat(long int fd) {
 //for DRY
 #define getstatf(field) {return getstat(fd).field;}
 
-long int fst_dev(long int fd) getstatf(st_dev)
-long int fst_ino(long int fd) getstatf(st_ino)
-long int fst_mode(long int fd) getstatf(st_mode)
-long int fst_nlink(long int fd) getstatf(st_nlink)
-long int fst_uid(long int fd) getstatf(st_uid)
-long int fst_gid(long int fd) getstatf(st_gid)
-long int fst_rdev(long int fd) getstatf(st_rdev)
-long int fst_size(long int fd) getstatf(st_size)
+long long int fst_dev(long int fd) getstatf(st_dev)
+long long int fst_ino(long int fd) getstatf(st_ino)
+long long int fst_mode(long int fd) getstatf(st_mode)
+long long int fst_nlink(long int fd) getstatf(st_nlink)
+long long int fst_uid(long int fd) getstatf(st_uid)
+long long int fst_gid(long int fd) getstatf(st_gid)
+long long int fst_rdev(long int fd) getstatf(st_rdev)
+long long int fst_size(long int fd) getstatf(st_size)
 
 #ifdef __cplusplus
 }
