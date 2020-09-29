@@ -1,8 +1,3 @@
 var main = fn() => {
-    var a = undef
-    b := a = fn() => {
-        log:(a)
-    }
-
-    a:()
+    log:(syscall:(1, 1, "HELLO\n", 6))
 }

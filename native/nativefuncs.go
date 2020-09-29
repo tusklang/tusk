@@ -18,6 +18,7 @@ import (
 
 //#include <stdbool.h>
 //#include "syscall.h"
+//#include "arrayc.h"
 //#include "exec.h"
 import "C"
 
@@ -54,6 +55,65 @@ func TuskPanic(err string, line uint64, file string, stacktrace []string) {
 	}
 	fmt.Println()
 	os.Exit(1)
+}
+
+func makectype(val *TuskType) (unsafe.Pointer, error) {
+	switch (*val).(type) {
+	case TuskNumber:
+		cnum := C.int((*val).(TuskNumber).ToGoType())
+		return C.makeunsafeint(cnum), nil
+	case TuskString:
+		cstr := C.CString((*val).(TuskString).ToGoType())
+		return unsafe.Pointer(cstr), nil
+	case TuskArray:
+		carray := C.makecarray(C.long((*val).(TuskArray).Length))
+
+		var err error
+
+		(*val).(TuskArray).Range(func(k, v *TuskType) Returner {
+			idx := (*k).(TuskNumber).ToGoType()
+			cval, e := makectype(v)
+			if e != nil {
+				err = e //if there is an error, set it, then break the loop
+				return Returner{
+					Type: "break",
+				}
+			}
+			C.setcarray(carray, C.int(idx), unsafe.Pointer(cval))
+			return Returner{}
+		})
+
+		return unsafe.Pointer(carray), err
+	default:
+		return nil, fmt.Errorf("Cannot convert type %s to ctype", (*val).Type())
+	}
+}
+
+func fromctype(val unsafe.Pointer, tuskarg *TuskType) TuskType {
+	switch (*tuskarg).(type) {
+	case TuskNumber:
+		cnum := C.makeintfromunsafe(val)
+		var tusknum TuskNumber
+		tusknum.FromGoType(float64(cnum))
+		return tusknum
+	case TuskString:
+		ccstr := (*C.char)(val)
+		var tuskstr TuskString
+		tuskstr.FromGoType(C.GoString(ccstr))
+		return tuskstr
+	case TuskArray:
+		carray := (*unsafe.Pointer)(val)
+		var tuskarray TuskArray
+		(*tuskarg).(TuskArray).Range(func(k, v *TuskType) Returner {
+			idx := (*k).(TuskNumber).ToGoType()
+			safeval := fromctype(C.getcarray(carray, C.int(idx)), v)
+			tuskarray.PushBack(safeval)
+			return Returner{}
+		})
+		return tuskarray
+	}
+
+	return nil
 }
 
 //NativeFuncs are the native functions that are relatively simple to implement
@@ -440,13 +500,10 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 		i := 0
 
 		for ; i < len(args) && i < int(C.MAX_SYS_ARGC); i++ {
-			switch (*args[i]).(type) {
-			case TuskNumber:
-				cnum := C.int((*args[i]).(TuskNumber).ToGoType())
-				cargs[i] = C.makeunsafeint(cnum)
-			case TuskString:
-				cstr := C.CString((*args[i]).(TuskString).ToGoType())
-				cargs[i] = unsafe.Pointer(cstr)
+			var e error
+			cargs[i], e = makectype(args[i])
+			if e != nil {
+				TuskPanic(e.Error(), line, file, stacktrace)
 			}
 		}
 
@@ -491,19 +548,7 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 			if i >= len(args) { //if there are no more args to give back, break
 				break
 			}
-
-			switch (*args[i]).(type) {
-			case TuskNumber:
-				cnum := C.makeintfromunsafe(cargs[i])
-				var tusknum TuskNumber
-				tusknum.FromGoType(float64(cnum))
-				(*args[i]) = tusknum
-			case TuskString:
-				ccstr := (*C.char)(cargs[i])
-				var tuskstr TuskString
-				tuskstr.FromGoType(C.GoString(ccstr))
-				(*args[i]) = tuskstr
-			}
+			(*args[i]) = fromctype(cargs[i], args[i])
 		}
 
 		var tusknum TuskNumber
