@@ -202,6 +202,7 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 		}
 
 		//perform checkvars on all of the sub actions
+
 		_, e = changevarnames(actions[k].ExpAct, newnames)
 		if e != nil {
 			return nil, e

@@ -1,9 +1,8 @@
-;include:
-;s tuskstd/files
-
 var main = fn() => {
-    f := file::open:("abc.txt", "a")
-    f::clear:()
-    f::write:("Hello world")
-    log:(f::read:())
+    var a = undef
+    b := a = fn() => {
+        log:(a)
+    }
+
+    a:()
 }

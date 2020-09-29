@@ -8,21 +8,8 @@ import (
 const MAX_STACKSIZE = 100001
 
 func dealloc(ins *Instance, varnames []string, value *TuskType) { //function to remove the variables declared in that scope
-	for _, v := range varnames {
-		if (*value).Type() == "function" { //if it is a curryed function, make sure it does not garbage collect the vars used
-
-			for _, vv := range (*value).(TuskFunc).Overloads {
-				for _, vvv := range vv.VarRefs {
-					if vvv == v {
-						goto nodealloc
-					}
-				}
-			}
-
-		}
-
+	for _, v := range varnames { //dealloc from the stack (deffered garbage collection)
 		ins.Deallocate(v)
-	nodealloc:
 	}
 }
 
@@ -191,8 +178,15 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "variable":
 
+			_fetched := ins.Fetch(v.Name)
+
+			if _fetched == nil {
+				//if it is a nil pointer (only happens because tusk does not support closures)
+				TuskPanic("Invalid memory address (nil pointer reference)", v.Line, v.File, stacktrace)
+			}
+
+			fetched := _fetched.Value
 			if expReturn {
-				fetched := ins.Fetch(v.Name).Value
 				defer dealloc(ins, varnames, fetched)
 				return Returner{
 					Type: "expression",

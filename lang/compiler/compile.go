@@ -172,7 +172,6 @@ func Compile(params CliParams) (map[string]*TuskType, error) {
 			return nil, e
 		}
 
-		putFunctionVarRefs(tmp)
 		*v = tmp[0].Value
 	}
 

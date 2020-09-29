@@ -1,10 +1,9 @@
 package types
 
 type Overload struct {
-	Params  []string
-	Types   []string
-	Body    []Action
-	VarRefs []string //variables that this function use
+	Params []string
+	Types  []string
+	Body   []Action
 }
 
 type TuskFunc struct {

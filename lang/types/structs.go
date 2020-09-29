@@ -39,8 +39,3 @@ type Returner struct {
 	Exp  *TuskType
 	Type string
 }
-
-type Tuskst struct {
-	Actions   []Action
-	Variables map[string][]Action
-}
