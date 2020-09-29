@@ -1,15 +1,15 @@
 var split
 
-ovld split = fn(string -> str, rune -> del) {
+ovld split = fn(string -> str, rune -> del) => {
     
     splitted := []
 
     log str
 
-    each (str, k, v) {
-        if (v == del) splitted = append(splitted, "")
+    each (str, k, v) => {
+        if (v == del) => splitted = append:(splitted, "")
 
-        splitted::(len(splitted) - 1) = splitted::(len(splitted) - 1) + v
+        splitted::(len:(splitted) - 1) = splitted::(len:(splitted) - 1) + v
     }
 
     return splitted

@@ -11,4 +11,7 @@ var SysTable = map[int]unsafe.Pointer{
 	1: C.syswrite,
 	2: C.sysopen,
 	3: C.sysclose,
+	4: C.sysstat,
+	5: C.sysfstat,
+	6: C.syslstat,
 }

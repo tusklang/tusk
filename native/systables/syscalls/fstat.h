@@ -1,5 +1,5 @@
-#ifndef SYSTABLES_SYSCALLS_STAT_H_
-#define SYSTABLES_SYSCALLS_STAT_H_
+#ifndef SYSTABLES_SYSCALLS_FSTAT_H_
+#define SYSTABLES_SYSCALLS_FSTAT_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,10 +10,10 @@ extern "C" {
 #else
 #include <sys/stat.h>
 
-long int sysstat(char* file) {
+long int sysfstat(long int fd) {
     struct stat* buf;
-    stat(file, buf);
-    
+    fstat(fd, buf);
+
     //prevent the warning that gets the mem addr
     #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     #pragma GCC diagnostic push

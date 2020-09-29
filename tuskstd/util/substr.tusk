@@ -1,10 +1,10 @@
-var rmbegin = fn(string -> str, number -> amt) {
+var rmbegin = fn(string -> str, number -> amt) => {
     substringed := ""
 
-    strl := len(str) - 1
-    camt := clone(amt)
+    strl := len:(str) - 1
+    camt := clone:(amt)
 
-    while (strl >= camt) {
+    while (strl >= camt) => {
         substringed = (string -> (str::(strl))) + substringed
         strl--
     }
@@ -12,12 +12,12 @@ var rmbegin = fn(string -> str, number -> amt) {
     return substringed
 }
 
-var rmend = fn(string -> str, number -> amt) {
+var rmend = fn(string -> str, number -> amt) => {
     substringed := ""
 
-    camt := len(str) - clone(amt) - 1
+    camt := len:(str) - clone:(amt) - 1
 
-    while (camt >= 0) {
+    while (camt >= 0) => {
         substringed = (string -> (str::(camt))) + substringed
         camt--
     }
@@ -25,13 +25,13 @@ var rmend = fn(string -> str, number -> amt) {
     return substringed
 }
 
-var rmfrom = fn(string -> str, number -> start, number -> end) {
+var rmfrom = fn(string -> str, number -> start, number -> end) => {
     substringed := ""
 
-    cstart := clone(start)
-    cend := clone(end)
+    cstart := clone:(start)
+    cend := clone:(end)
 
-    while (cstart < cend) {
+    while (cstart < cend) => {
         substringed+=(str::(cstart))
         cstart++
     }

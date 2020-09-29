@@ -435,11 +435,11 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 			TuskPanic("Sysno must be a numeric value", line, file, stacktrace)
 		}
 
-		var cargs = make([]unsafe.Pointer, 7)
+		var cargs = make([]unsafe.Pointer, int(C.MAX_SYS_ARGC))
 
 		i := 0
 
-		for ; i < len(args); i++ {
+		for ; i < len(args) && i < int(C.MAX_SYS_ARGC); i++ {
 			switch (*args[i]).(type) {
 			case TuskNumber:
 				cnum := C.int((*args[i]).(TuskNumber).ToGoType())
@@ -450,9 +450,9 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 			}
 		}
 
-		for ; i < 7; i++ {
+		for ; i < int(C.MAX_SYS_ARGC); i++ {
 			cnum := C.int(0)
-			cargs[i] = unsafe.Pointer(&cnum)
+			cargs[i] = C.makeunsafeint(cnum)
 		}
 
 		sysno := int((*args[0]).(TuskNumber).ToGoType())
@@ -470,6 +470,20 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 			cargs[4],
 			cargs[5],
 			cargs[6],
+			cargs[7],
+			cargs[8],
+			cargs[9],
+			cargs[10],
+			cargs[11],
+			cargs[12],
+			cargs[13],
+			cargs[14],
+			cargs[15],
+			cargs[16],
+			cargs[17],
+			cargs[18],
+			cargs[19],
+			cargs[20],
 		)
 
 		//give back the values to the original tusk pointers

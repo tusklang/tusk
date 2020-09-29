@@ -9,6 +9,9 @@ long int sysread(long int fd, char* buf, unsigned long long int size);
 long int syswrite(long int fd, char* buf, unsigned long long int size);
 long int sysopen(char* name, int mode);
 long int sysclose(int fd);
+long int sysstat(char* file);
+long int sysfstat(long int fd);
+long int syslstat(char* file);
 
 #ifdef __cplusplus
 }
