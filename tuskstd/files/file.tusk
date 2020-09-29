@@ -41,7 +41,10 @@ var file = proto {
 
     var clear = fn() => {
         dummyfile := file::open:(name, "w+") ;open the file again, with w+ to clear
-        dummyfile::close:() ;close it
+        dummyfile::close()
+        newfile := file::open:(name, mode)
+        fd = newfile::fd
+        mode = newfile::mode
     }
 
     var close = fn() => {

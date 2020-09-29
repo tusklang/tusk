@@ -7,11 +7,23 @@ extern "C" {
 
 #include <sys/stat.h>
 
-long int sysfsize(long int fd) {
+struct stat getstat(long int fd) {
     struct stat buf;
     fstat(fd, &buf);
-    return buf.st_size; //return the size of buf
+    return buf;
 }
+
+//for DRY
+#define getstatf(field) {return getstat(fd).field;}
+
+long int fst_dev(long int fd) getstatf(st_dev)
+long int fst_ino(long int fd) getstatf(st_ino)
+long int fst_mode(long int fd) getstatf(st_mode)
+long int fst_nlink(long int fd) getstatf(st_nlink)
+long int fst_uid(long int fd) getstatf(st_uid)
+long int fst_gid(long int fd) getstatf(st_gid)
+long int fst_rdev(long int fd) getstatf(st_rdev)
+long int fst_size(long int fd) getstatf(st_size)
 
 #ifdef __cplusplus
 }
