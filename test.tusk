@@ -2,7 +2,7 @@
 ;s tuskstd/files
 
 var main = fn() => {
-    f := file::open:("abc.txt")
-    f::close()
-    f::write:("This is a test")
+    f := file::open:("abc.txt", "a")
+    f::write:("Hello world")
+    log:(f::read:())
 }

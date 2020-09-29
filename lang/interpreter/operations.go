@@ -106,7 +106,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		var isEqual TuskType = truev
 
-		if val1.(TuskBool).ToGoType() == val2.(TuskBool).ToGoType() {
+		if val1.(TuskRune).ToGoType() == val2.(TuskRune).ToGoType() {
 			isEqual = falsev
 		}
 

@@ -5,23 +5,13 @@
 extern "C" {
 #endif
 
-#ifdef _WIN32
-//will do windows later
-#else
 #include <sys/stat.h>
 
-long int sysfstat(long int fd) {
-    struct stat* buf;
-    fstat(fd, buf);
-
-    //prevent the warning that gets the mem addr
-    #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
-    #pragma GCC diagnostic push
-    return (int) buf; //return the mem addr of buf
-    #pragma GCC diagnostic pop
+long int sysfsize(long int fd) {
+    struct stat buf;
+    fstat(fd, &buf);
+    return buf.st_size; //return the size of buf
 }
-
-#endif
 
 #ifdef __cplusplus
 }

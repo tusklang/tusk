@@ -7,9 +7,7 @@ extern "C" {
 #include "syscalls/write.h"
 #include "syscalls/open.h"
 #include "syscalls/close.h"
-#include "syscalls/stat.h"
 #include "syscalls/fstat.h"
-#include "syscalls/lstat.h"
 /////////////////////////////
 
 #ifdef __cplusplus
