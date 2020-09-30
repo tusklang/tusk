@@ -14,6 +14,8 @@ extern "C" {
 #include "syscalls/munmap.h"
 #include "syscalls/ioctl.h"
 #include "syscalls/read_writev.h"
+#include "syscalls/pipe.h"
+#include "syscalls/mem.h"
 /////////////////////////////
 
 #ifdef __cplusplus

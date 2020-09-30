@@ -5,6 +5,7 @@ import (
 	"unsafe"
 )
 
+//#include <stdlib.h>
 //#include "sys.h"
 import "C"
 
@@ -29,4 +30,7 @@ var SysTable = map[int]unsafe.Pointer{
 	16: C.sysioctl,
 	17: C.sysreadv,
 	18: C.syswritev,
+	19: C.syspipe,
+	20: C.sysmalloc,
+	21: C.sysfree,
 }

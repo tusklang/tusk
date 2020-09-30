@@ -1,7 +1,4 @@
 var main = fn() => {
-    a := "  "
-    b := "     "
-    pass := ["   ", "     "]
-    syscall:(17, 0, pass, [3, 5], 2)
-    log:(pass)
+    a := syscall:(20, 100)
+    log:(a)
 }

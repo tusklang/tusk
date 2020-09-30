@@ -14,6 +14,8 @@ extern "C" {
 #include "read.h"
 #include "write.h"
 
+//readv and writev implementation (works for both)
+//the empty /**/ are just line breaks
 #define read_writev_impl(fn)                                                               \
     for (int i = 0; i < iovcnt; ++i)                                                       \
         if (fn(fd, (char*)(iov_bases[i]), (long long int)(iov_lens[i])) == -1) return -1;  \
