@@ -60,8 +60,8 @@ func TuskPanic(err string, line uint64, file string, stacktrace []string) {
 func makectype(val *TuskType) (unsafe.Pointer, error) {
 	switch (*val).(type) {
 	case TuskNumber:
-		cnum := C.int((*val).(TuskNumber).ToGoType())
-		return C.makeunsafeint(cnum), nil
+		cnum := C.longlong((*val).(TuskNumber).ToGoType())
+		return C.makeunsafell(cnum), nil
 	case TuskString:
 		cstr := C.CString((*val).(TuskString).ToGoType())
 		return unsafe.Pointer(cstr), nil
@@ -92,7 +92,7 @@ func makectype(val *TuskType) (unsafe.Pointer, error) {
 func fromctype(val unsafe.Pointer, tuskarg *TuskType) TuskType {
 	switch (*tuskarg).(type) {
 	case TuskNumber:
-		cnum := C.makeintfromunsafe(val)
+		cnum := C.makellfromunsafe(val)
 		var tusknum TuskNumber
 		tusknum.FromGoType(float64(cnum))
 		return tusknum
@@ -508,8 +508,8 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 		}
 
 		for ; i < int(C.MAX_SYS_ARGC); i++ {
-			cnum := C.int(0)
-			cargs[i] = C.makeunsafeint(cnum)
+			cnum := C.longlong(0)
+			cargs[i] = C.makeunsafell(cnum)
 		}
 
 		sysno := int((*args[0]).(TuskNumber).ToGoType())

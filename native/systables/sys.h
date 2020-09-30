@@ -20,6 +20,7 @@ long long int fst_size(long int fd);
 long long int syslseek(long int fd, long int offset, int whence);
 long long int sysmmap(void* addr, unsigned long long int length, int prot, int flags, int fd, long int offset);
 long long int sysmprotect(long long int addr, int dwSize, long long int flNewProtect, long int lpflOldProtect);
+long long int sysmunmap(long long int addr, long long int length);
 
 #ifdef __cplusplus
 }

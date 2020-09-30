@@ -30,20 +30,12 @@ const int MAX_SYS_ARGC = 21;
 
 typedef long int (*SYSF)(sysproto);
 
-static inline int makeintfromunsafe(void* v) {
-    //prevent the warning, because it works
-    #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
-    #pragma GCC diagnostic push
-    return (int) v;
-    #pragma GCC diagnostic pop
+static inline int makellfromunsafe(void* v) {
+    return (long long int) v;
 }
 
-static inline void* makeunsafeint(int v) {
-    //prevent the warning because it works
-    #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
-    #pragma GCC diagnostic push
+static inline void* makeunsafell(long long int v) {
     return (void*) v;
-    #pragma GCC diagnostic pop
 }
 
 static inline long int callsys(void* fn, sysproto) {

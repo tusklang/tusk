@@ -1,3 +1,7 @@
 var main = fn() => {
-    log:(syscall:(1, 1, "HELLO\n", 6))
+    f := syscall:(2, "abc.txt", "w+")
+    syscall:(1, f, "HELLO WORLD", len:("HELLO WORLD"))
+    syscall:(12, f, -10, 2)
+    syscall:(1, f, "WORLD ", 6)
+    syscall:(3, f)
 }

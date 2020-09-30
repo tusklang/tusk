@@ -6,7 +6,7 @@ extern "C" {
 #include <stdlib.h>
 
 char* getCmdExe() {
-    //function to get the executable to execute a ckaand
+    //function to get the executable to execute a command
 
     #ifdef _WIN32
         char* plc = "\\windows\\system32\\cmd.exe"; //the location (not in any drive yet)
@@ -19,7 +19,7 @@ char* getCmdExe() {
         strcat(total, plc);
 
         //add it to the heap
-        char* heap_added = (char*) calloc(strlen(total), sizeof(char*));
+        char* heap_added = (char*) calloc(strlen(total), sizeof(char));
         strcpy(heap_added, total);
 
         return heap_added;
