@@ -12,7 +12,8 @@ extern "C" {
 #endif
 
 long long int sysread(long int fd, char* buf, unsigned long long int size) {
-    return read(fd, buf, size);
+    int r = read(fd, buf, size);
+    return r;
 }
 
 #ifdef __cplusplus

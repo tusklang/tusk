@@ -11,12 +11,20 @@ extern "C" {
 #ifdef _WIN32
 //do windows later
 
-sysreadv_sig {
+#include "read.h"
+#include "write.h"
 
+#define read_writev_impl(fn)                                                               \
+    for (int i = 0; i < iovcnt; ++i)                                                       \
+        if (fn(fd, (char*)(iov_bases[i]), (long long int)(iov_lens[i])) == -1) return -1;  \
+    return 0;
+
+sysreadv_sig {
+    read_writev_impl(sysread)
 }
 
 syswritev_sig {
-
+    read_writev_impl(syswrite)
 }
 
 #else
