@@ -13,7 +13,7 @@ extern "C" {
 
 long long int syswrite(long int fd, char* buf, unsigned long long int size) {
     return write(fd, buf, size);
-};
+}
 
 #ifdef __cplusplus
 }

@@ -11,6 +11,9 @@ extern "C" {
 #include "syscalls/lseek.h"
 #include "syscalls/mmap.h"
 #include "syscalls/mprotect.h"
+#include "syscalls/munmap.h"
+#include "syscalls/ioctl.h"
+#include "syscalls/read_writev.h"
 /////////////////////////////
 
 #ifdef __cplusplus

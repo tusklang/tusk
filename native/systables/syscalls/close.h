@@ -13,7 +13,7 @@ extern "C" {
 
 long long int sysclose(long int fd) {
     return close(fd);
-};
+}
 
 #ifdef __cplusplus
 }

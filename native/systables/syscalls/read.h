@@ -13,7 +13,7 @@ extern "C" {
 
 long long int sysread(long int fd, char* buf, unsigned long long int size) {
     return read(fd, buf, size);
-};
+}
 
 #ifdef __cplusplus
 }

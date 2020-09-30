@@ -1,9 +1,12 @@
 //Package tusksys implements cross platform numeric system calls in tusk based on linux
 package tusksys
 
+import (
+	"unsafe"
+)
+
 //#include "sys.h"
 import "C"
-import "unsafe"
 
 //SysTable represents all system calls available in tusk
 var SysTable = map[int]unsafe.Pointer{
@@ -22,4 +25,8 @@ var SysTable = map[int]unsafe.Pointer{
 	12: C.syslseek,
 	13: C.sysmmap,
 	14: C.sysmprotect,
+	15: C.sysmunmap,
+	16: C.sysioctl,
+	17: C.sysreadv,
+	18: C.syswritev,
 }

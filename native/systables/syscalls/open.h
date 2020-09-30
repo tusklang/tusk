@@ -13,11 +13,9 @@ extern "C" {
 #include <fcntl.h>
 #endif
 
-#define tuskopen(name, mode) fileno(fopen(name, mode))
-
 long long int sysopen(char* name, char* mode) {
-    return tuskopen(name, mode);
-};
+    return fileno(fopen(name, mode));
+}
 
 #ifdef __cplusplus
 }

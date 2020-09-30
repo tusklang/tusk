@@ -9,7 +9,8 @@ extern "C" {
 #include <memoryapi.h>
 #else
 #include <sys/mman.h>
-#define VirtualProtect(void* addr, int dwSize, long long int flNewProtect, long lpflOldProtect) mprotect(addr, dwSize, lpflOldProtect)
+#define VirtualProtect(addr, dwSize, flNewProtect, lpflOldProtect) mprotect(addr, dwSize, flNewProtect)
+#define DWORD unsigned long int
 #endif
 
 long long int sysmprotect(long long int addr, int dwSize, long long int flNewProtect, long int lpflOldProtect) {
