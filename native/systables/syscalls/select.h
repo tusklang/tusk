@@ -37,7 +37,7 @@ long long int sysselect(long int nfds,
     fdset_convert(writefds);
     fdset_convert(exceptfds);
 
-    return select(nfds, &readfds, &writefds, &exceptfds, &tv);
+    return __stdcall select(nfds, &readfds, &writefds, &exceptfds, &tv);
 }
 
 #ifdef __cplusplus

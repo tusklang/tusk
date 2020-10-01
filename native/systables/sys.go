@@ -5,7 +5,7 @@ import (
 	"unsafe"
 )
 
-//#include <stdlib.h>
+//#cgo windows LDFLAGS: -lwsock32
 //#include "sys.h"
 import "C"
 
@@ -34,5 +34,5 @@ var SysTable = map[int]unsafe.Pointer{
 	20: C.sysmalloc,
 	21: C.sysfree,
 	22: C.sysselect,
-	23: C.sysshedyield,
+	23: C.sysschedyield,
 }

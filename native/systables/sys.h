@@ -33,7 +33,7 @@ long long int sysselect(long int nfds,
     long long int exceptfds_count, void** exceptfds_sockets, 
     long long int timeout
 );
-long long int sysshedyield();
+long long int sysschedyield();
 
 #ifdef __cplusplus
 }

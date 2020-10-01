@@ -13,6 +13,7 @@ func dealloc(ins *Instance, varnames []string, value *TuskType) { //function to 
 	}
 }
 
+//Interpreter starts the Tusk runtime with a given instance, and actions tree
 func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize uint, varnames []string /* varnames to deallocate */, expReturn bool) Returner {
 
 	if stacksize > MAX_STACKSIZE {

@@ -5,4 +5,4 @@
 *.lib
 *.so
 *.a
-native/syscall_switch.h
+*.syso

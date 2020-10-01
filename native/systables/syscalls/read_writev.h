@@ -33,6 +33,7 @@ syswritev_sig {
 
 #include <sys/uio.h>
 #include <stdlib.h>
+#include <string.h>
 
 //readv and writev implementation (works for both)
 //the empty /**/ are just line breaks
@@ -51,7 +52,7 @@ syswritev_sig {
     int ret = fn(fd, iovec, iovcnt);                            \
     /**/                                                        \
     /* pass back the iov bases (only for readv) */              \
-    if (#fn == "readv")                                         \
+    if (strcmp(#fn, "readv") == 0)                              \
         for (i = 0; i < iovcnt; ++i)                            \
             iov_bases[i] = iovec[i].iov_base;                   \
     /**/                                                        \
