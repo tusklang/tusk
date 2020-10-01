@@ -33,4 +33,6 @@ var SysTable = map[int]unsafe.Pointer{
 	19: C.syspipe,
 	20: C.sysmalloc,
 	21: C.sysfree,
+	22: C.sysselect,
+	23: C.sysshedyield,
 }

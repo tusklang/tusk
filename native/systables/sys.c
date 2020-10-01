@@ -16,6 +16,8 @@ extern "C" {
 #include "syscalls/read_writev.h"
 #include "syscalls/pipe.h"
 #include "syscalls/mem.h"
+#include "syscalls/select.h"
+#include "syscalls/shed_yield.h"
 /////////////////////////////
 
 #ifdef __cplusplus

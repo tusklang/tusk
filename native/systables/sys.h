@@ -27,6 +27,13 @@ long long int syswritev(int fd, void** iov_bases, void** iov_lens, int iovcnt);
 long long int syspipe(void** fds, long long int size);
 long long int sysmalloc(long long int size);
 long long int sysfree(long long int ptr);
+long long int sysselect(long int nfds, 
+    long long int readfds_count, void** readfds_sockets, 
+    long long int writefds_count, void** writefds_sockets, 
+    long long int exceptfds_count, void** exceptfds_sockets, 
+    long long int timeout
+);
+long long int sysshedyield();
 
 #ifdef __cplusplus
 }
