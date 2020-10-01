@@ -18,9 +18,6 @@ long long int fst_gid(long int fd);
 long long int fst_rdev(long int fd);
 long long int fst_size(long int fd);
 long long int syslseek(long int fd, long int offset, int whence);
-long long int sysmmap(void* addr, unsigned long long int length, int prot, int flags, int fd, long int offset);
-long long int sysmprotect(long long int addr, int dwSize, long long int flNewProtect, long int lpflOldProtect);
-long long int sysmunmap(long long int addr, long long int length);
 long long int sysioctl(long long int fd, long long int request, char* argp);
 long long int sysreadv(int fd, void** iov_bases, void** iov_lens, int iovcnt);
 long long int syswritev(int fd, void** iov_bases, void** iov_lens, int iovcnt);
@@ -34,6 +31,9 @@ long long int sysselect(long int nfds,
     long long int timeout
 );
 long long int sysschedyield();
+long long int sysdup(long long int fd);
+long long int sysdup2(long long int fd, long long int nfd);
+long long int syspause();
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,3 @@
 var main = fn() => {
-    a := syscall:(20, 100)
-    log:(a)
+    syscall:(23)
 }

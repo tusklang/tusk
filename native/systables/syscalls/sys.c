@@ -14,13 +14,14 @@ extern "C" {
 #include "close.h"
 #include "fstat.h"
 #include "lseek.h"
-#include "mmap.h"
 #include "ioctl.h"
 #include "read_writev.h"
 #include "pipe.h"
 #include "mem.h"
 #include "select.h"
 #include "sched_yield.h"
+#include "dup.h"
+#include "pause.h"
 /////////////////////////////
 
 #ifdef __cplusplus
