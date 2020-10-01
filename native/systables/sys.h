@@ -34,6 +34,12 @@ long long int sysschedyield();
 long long int sysdup(long long int fd);
 long long int sysdup2(long long int fd, long long int nfd);
 long long int syspause();
+long long int sysgetpid();
+long long int syssocket(int domain, int type, int protocol);
+long long int sysconnect(long long int fd, int sa_family, char* sa_data);
+long long int sysaccept(long long int fd, int sa_family, char* sa_data);
+long long int syssendto(long long int fd, char* buf, int buflen, int sa_family, char* sa_data);
+long long int sysrecvfrom(long long int fd, char* buf, int buflen, int sa_family, char* sa_data);
 
 #ifdef __cplusplus
 }
