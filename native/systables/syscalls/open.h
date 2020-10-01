@@ -13,6 +13,7 @@ extern "C" {
 #include <fcntl.h>
 #endif
 
+int fileno(FILE *stream); //declare to prevent a warning
 long long int sysopen(char* name, char* mode) {
     return fileno(fopen(name, mode));
 }

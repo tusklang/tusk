@@ -12,15 +12,14 @@ extern "C" {
 #endif
 
 //function to convert raw data (from tusk) to c fdset structures
-#define fdset_convert(fdname)                           \
-        fd_set fdname;                                  \
-        fdname.fd_count = fdname##_count;               \
-        /*loop through the fdcount to put sockets*/     \
-        for (int i = 0; i < fdname##_count; ++i) {      \
-            /*set the current fd socket to the ptr*/    \
-            fdname.fd_array[i] =                        \
-            (long long int) fdname##_sockets[i];        \
-        }                                               \
+#define fdset_convert(fdname)                                   \
+        fd_set fdname;                                          \
+        for (;fdname##_count >= 0; fdname##_count--) {          \
+            FD_SET(                                             \
+                (long long int)                                 \
+                fdname##_sockets[fdname##_count], &fdname       \
+            );                                                  \
+        }                                                       \
 
 long long int sysselect(long int nfds, 
     long long int readfds_count, void** readfds_sockets, 
@@ -37,7 +36,7 @@ long long int sysselect(long int nfds,
     fdset_convert(writefds);
     fdset_convert(exceptfds);
 
-    return __stdcall select(nfds, &readfds, &writefds, &exceptfds, &tv);
+    return select(nfds, &readfds, &writefds, &exceptfds, &tv);
 }
 
 #ifdef __cplusplus
