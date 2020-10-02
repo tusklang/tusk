@@ -48,6 +48,8 @@ long long int sysexit(int code);
 long long int syswaitpid(long long int fd, long long int maxtime);
 long long int syskillpid(long long int fd, int sig);
 long long int sysuname(char* sysname, char* nodename, char* release);
+long long int sysfsync(long int fd);
+long long int sysftrucate(long int fd, long long int length);
 
 #ifdef __cplusplus
 }

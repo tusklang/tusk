@@ -49,4 +49,6 @@ var SysTable = map[int]unsafe.Pointer{
 	35: C.syswaitpid,
 	36: C.syskillpid,
 	37: C.sysuname,
+	38: C.sysfsync,
+	39: C.sysftrucate,
 }

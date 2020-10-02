@@ -1,5 +1,3 @@
 var main = fn() => {
-    var a = ""
-    syscall:(37, a);
-    log:(a)
+    
 }
