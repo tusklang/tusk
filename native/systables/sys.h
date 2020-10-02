@@ -40,6 +40,10 @@ long long int sysconnect(long long int fd, int sa_family, char* sa_data);
 long long int sysaccept(long long int fd, int sa_family, char* sa_data);
 long long int syssendto(long long int fd, char* buf, int buflen, int sa_family, char* sa_data);
 long long int sysrecvfrom(long long int fd, char* buf, int buflen, int sa_family, char* sa_data);
+long long int sysshutdown(long int fd, int how);
+long long int syslisten(long int fd, int backlog);
+long long int sysexecv(char* path, void** argv, void** newenviron);
+long long int sysexit(int code);
 
 #ifdef __cplusplus
 }

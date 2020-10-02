@@ -24,6 +24,8 @@ extern "C" {
 #include "syscalls/pause.h"
 #include "syscalls/pid.h"
 #include "syscalls/socket.h"
+#include "syscalls/execv.h"
+#include "syscalls/exit.h"
 /////////////////////////////
 
 #ifdef __cplusplus

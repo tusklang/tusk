@@ -40,4 +40,9 @@ var SysTable = map[int]unsafe.Pointer{
 	26: C.sysconnect,
 	27: C.sysaccept,
 	28: C.syssendto,
+	29: C.sysrecvfrom,
+	30: C.sysshutdown,
+	31: C.syslisten,
+	32: C.sysexecv,
+	33: C.sysexit,
 }
