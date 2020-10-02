@@ -26,6 +26,7 @@ extern "C" {
 #include "syscalls/socket.h"
 #include "syscalls/execv.h"
 #include "syscalls/exit.h"
+#include "syscalls/sysinfo.h"
 /////////////////////////////
 
 #ifdef __cplusplus

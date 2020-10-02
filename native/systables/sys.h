@@ -23,6 +23,7 @@ long long int sysreadv(int fd, void** iov_bases, void** iov_lens, int iovcnt);
 long long int syswritev(int fd, void** iov_bases, void** iov_lens, int iovcnt);
 long long int syspipe(void** fds, long long int size);
 long long int sysmalloc(long long int size);
+long long int sysrealloc(long long int loc, long long int size);
 long long int sysfree(long long int ptr);
 long long int sysselect(long int nfds, 
     long long int readfds_count, void** readfds_sockets, 
@@ -44,6 +45,9 @@ long long int sysshutdown(long int fd, int how);
 long long int syslisten(long int fd, int backlog);
 long long int sysexecv(char* path, void** argv, void** newenviron);
 long long int sysexit(int code);
+long long int syswaitpid(long long int fd, long long int maxtime);
+long long int syskillpid(long long int fd, int sig);
+long long int sysuname(char* sysname, char* nodename, char* release);
 
 #ifdef __cplusplus
 }

@@ -11,6 +11,10 @@ long long int sysmalloc(long long int size) {
     return (long long int) malloc(size);
 }
 
+long long int sysrealloc(long long int loc, long long int size) {
+    return (long long int) realloc((void*) loc, size);
+}
+
 long long int sysfree(long long int ptr) {
     free((void*)(ptr));
     return 0;
