@@ -5,7 +5,7 @@ import (
 	"unsafe"
 )
 
-//#cgo windows LDFLAGS: -lwsock32
+//#cgo windows LDFLAGS: -lwsock32 -lkernel32 -lpsapi
 //#include "sys.h"
 import "C"
 
@@ -68,5 +68,8 @@ var SysTable = map[int]unsafe.Pointer{
 	54: C.syssettimezone,
 	55: C.syschroot,
 	56: C.syssync,
-	57: C.syssyncfd,
+	57: C.sysgethostname,
+	58: C.syssethostname,
+	59: C.sysgetdomainname,
+	60: C.syssetdomainname,
 }

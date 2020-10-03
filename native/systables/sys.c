@@ -33,7 +33,7 @@ extern "C" {
 #include "syscalls/file.h"
 #include "syscalls/systime.h"
 #include "syscalls/chroot.h"
-#include "syscalls/sync.h"
+#include "syscalls/host.h"
 /////////////////////////////
 
 #ifdef __cplusplus

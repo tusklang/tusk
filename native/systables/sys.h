@@ -67,7 +67,10 @@ long long int syssettime(long long int unixtime);
 long long int syssettimezone(long long int lgmt);
 long long int syschroot(char* path);
 long long int syssync();
-long long int syssyncfd(long int fd);
+long long int sysgethostname(char* name, long long int len);
+long long int syssethostname(char* name, long long int len);
+long long int sysgetdomainname(char* name, long long int len);
+long long int syssetdomainname(char* name, long long int len);
 
 #ifdef __cplusplus
 }

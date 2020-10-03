@@ -7,6 +7,15 @@ extern "C" {
 
 #include <stdio.h>
 
+#ifdef _WIN32
+#include <fileapi.h>
+#define sync _flushall
+#endif
+
+long long int syssync() {
+    return sync();
+}
+
 long long int sysfsync(long int fd) {
     return fflush(fdopen(fd, "r+"));
 }
