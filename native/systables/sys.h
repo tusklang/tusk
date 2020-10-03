@@ -71,6 +71,8 @@ long long int sysgethostname(char* name, long long int len);
 long long int syssethostname(char* name, long long int len);
 long long int sysgetdomainname(char* name, long long int len);
 long long int syssetdomainname(char* name, long long int len);
+long long int sysgettid();
+long long int systkill(long long int tid, int exitc);
 
 #ifdef __cplusplus
 }

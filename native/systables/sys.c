@@ -2,6 +2,8 @@
 extern "C" {
 #endif
 
+#define _GNU_SOURCE
+
 #ifdef _WIN32 //because winsock2 must be included before windows.h
 #include <winsock2.h>
 #include <windows.h>

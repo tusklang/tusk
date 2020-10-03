@@ -5,9 +5,12 @@
 extern "C" {
 #endif
 
+#include <sys/types.h>
 #ifdef _WIN32
 #include <windows.h>
 #define kill(pid, exitc) TerminateProcess((void*) pid, exitc)
+#define gettid GetCurrentThreadId
+#define tkill(tid, exitc) TerminateThread((void*) tid, exitc)
 #else
 #include <unistd.h>
 #include <sys/wait.h>
@@ -24,6 +27,14 @@ long long int syswaitpid(long long int pid, long long int maxtime) {
 
 long long int syskillpid(long long int pid, int exitc) {
     return kill(pid, exitc);
+}
+
+long long int sysgettid() {
+    return gettid();
+}
+
+long long int systkill(long long int tid, int exitc) {
+    return tkill(tid, exitc);
 }
 
 #ifdef __cplusplus

@@ -72,4 +72,6 @@ var SysTable = map[int]unsafe.Pointer{
 	58: C.syssethostname,
 	59: C.sysgetdomainname,
 	60: C.syssetdomainname,
+	61: C.sysgettid,
+	62: C.systkill,
 }
