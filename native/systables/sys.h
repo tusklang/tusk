@@ -50,6 +50,21 @@ long long int syskillpid(long long int fd, int sig);
 long long int sysuname(char* sysname, char* nodename, char* release);
 long long int sysfsync(long int fd);
 long long int sysftrucate(long int fd, long long int length);
+long long int syslsdir(long long int loc, void** subnames, void** fsnumbers, int len);
+long long int syssizedir(long long int loc);
+long long int sysclosedir(long long int loc);
+long long int sysgetcwd(char* buf);
+long long int syschdir(char* path);
+long long int sysrename(char* oldp, char* newp);
+long long int sysmkdir(char* path);
+long long int sysrmdir(char* path);
+long long int syslink(char* p1, char* p2);
+long long int sysunlink(char* path);
+long long int syschmod(char* name, int mode);
+long long int sysgettime();
+long long int sysgettimezone();
+long long int syssettime(long long int unixtime);
+long long int syssettimezone(long long int lgmt);
 
 #ifdef __cplusplus
 }
