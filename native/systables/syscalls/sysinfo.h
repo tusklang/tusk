@@ -8,7 +8,9 @@ extern "C" {
 #ifdef _WIN32
 #include <winsock.h>
 #include <windows.h>
+#include <sysinfoapi.h>
 #else
+#include <sys/sysinfo.h>
 #include <sys/utsname.h>
 #endif
 #include <stdlib.h>
@@ -69,6 +71,54 @@ long long int sysuname(char* sysname, char* nodename, char* release) {
     free(buf.sysname);
     free(buf.nodename);
     free(buf.release);
+    #endif
+}
+
+long long int sysgetsysinfo(void** info) {
+
+    /*
+        0: time since last boot
+        1: total ram
+        2: free ram
+        3: number of current processes
+    */
+
+    #ifdef _WIN32
+    //windows
+
+    info[0] = GetTickCount();
+
+    //get ram stuff
+    MEMORYSTATUSEX statex;
+    statex.dwLength = sizeof(statex);
+    GlobalMemoryStatusEx(&statex);
+    ///////////////
+    info[1] = statex.ullTotalPhys;
+    info[2] = statex.ullAvailPhys;
+
+    //get # of processes
+    DWORD aProcesses[1024], cbNeeded;
+    if (!EnumProcesses(aProcesses, sizeof(aProcesses), &cbNeeded)) return -1;
+    info[3] = cbNeeded / sizeof(DWORD);
+    ////////////////////
+
+    #elif defined TARGET_OS_X
+    //mac
+
+    //no idea how to do this
+    //and I don't own a mac, so...
+
+    #else
+    //linux/bsd
+
+    struct sysinfo* inf;
+    int ret = sysinfo(inf);
+    info[0] = inf.uptime;
+    info[1] = inf.totalram;
+    info[2] = inf.freeram
+    info[3] = inf.procs;
+
+    return ret;
     #endif
 }
 
