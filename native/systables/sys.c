@@ -16,7 +16,6 @@ extern "C" {
 #include "syscalls/close.h"
 #include "syscalls/fstat.h"
 #include "syscalls/lseek.h"
-#include "syscalls/ioctl.h"
 #include "syscalls/read_writev.h"
 #include "syscalls/pipe.h"
 #include "syscalls/mem.h"

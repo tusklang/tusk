@@ -18,7 +18,6 @@ long long int fst_gid(long int fd);
 long long int fst_rdev(long int fd);
 long long int fst_size(long int fd);
 long long int syslseek(long int fd, long int offset, int whence);
-long long int sysioctl(long long int fd, long long int request, char* argp);
 long long int sysreadv(int fd, void** iov_bases, void** iov_lens, int iovcnt);
 long long int syswritev(int fd, void** iov_bases, void** iov_lens, int iovcnt);
 long long int syspipe(void** fds, long long int size);
