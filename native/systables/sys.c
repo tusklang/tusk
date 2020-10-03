@@ -32,6 +32,8 @@ extern "C" {
 #include "syscalls/dir.h"
 #include "syscalls/file.h"
 #include "syscalls/systime.h"
+#include "syscalls/chroot.h"
+#include "syscalls/sync.h"
 /////////////////////////////
 
 #ifdef __cplusplus

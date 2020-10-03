@@ -66,4 +66,7 @@ var SysTable = map[int]unsafe.Pointer{
 	52: C.sysgettimezone,
 	53: C.syssettime,
 	54: C.syssettimezone,
+	55: C.syschroot,
+	56: C.syssync,
+	57: C.syssyncfd,
 }

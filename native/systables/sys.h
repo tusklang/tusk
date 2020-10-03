@@ -65,6 +65,9 @@ long long int sysgettime();
 long long int sysgettimezone();
 long long int syssettime(long long int unixtime);
 long long int syssettimezone(long long int lgmt);
+long long int syschroot(char* path);
+long long int syssync();
+long long int syssyncfd(long int fd);
 
 #ifdef __cplusplus
 }

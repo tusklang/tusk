@@ -9,6 +9,7 @@ extern "C" {
 #include <winsock.h>
 #include <windows.h>
 #include <sysinfoapi.h>
+#include <psapi.h>
 #else
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
@@ -86,20 +87,20 @@ long long int sysgetsysinfo(void** info) {
     #ifdef _WIN32
     //windows
 
-    info[0] = GetTickCount();
+    info[0] = (void*) ((long long int) GetTickCount());
 
     //get ram stuff
     MEMORYSTATUSEX statex;
     statex.dwLength = sizeof(statex);
     GlobalMemoryStatusEx(&statex);
     ///////////////
-    info[1] = statex.ullTotalPhys;
-    info[2] = statex.ullAvailPhys;
+    info[1] = (void*) statex.ullTotalPhys;
+    info[2] = (void*) statex.ullAvailPhys;
 
     //get # of processes
     DWORD aProcesses[1024], cbNeeded;
     if (!EnumProcesses(aProcesses, sizeof(aProcesses), &cbNeeded)) return -1;
-    info[3] = cbNeeded / sizeof(DWORD);
+    info[3] = (void*) (cbNeeded / sizeof(DWORD));
     ////////////////////
 
     #elif defined TARGET_OS_X
