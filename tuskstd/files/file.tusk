@@ -18,6 +18,13 @@ var file = proto {
         return file::open:(name, "r+")
     }
 
+    static ovld open = fn(number -> fd) {
+        var f = make:(file)
+        f::fd = fd
+        ;do not put mode or name
+        return f
+    }
+
     var read = fn(number -> size) => {
         var buf = allocstr:(size)
         syscall:(0, fd, buf, size)

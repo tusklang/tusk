@@ -1,0 +1,5 @@
+var request = proto {
+    static var new = fn(uri) {
+
+    }
+}
