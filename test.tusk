@@ -1,3 +1,4 @@
+access ("not_test.tusk")
 var main = fn() {
-    log:("HELLO WORLD")
+    log:(main)
 }

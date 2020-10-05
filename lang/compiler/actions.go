@@ -1,7 +1,9 @@
 package compiler
 
 import (
+	"path/filepath"
 	"runtime"
+	"strings"
 
 	. "github.com/tusklang/tusk/lang/types"
 )
@@ -229,6 +231,8 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 					case "proto":
 
+						//prototype compilation is **pretty** messy
+
 						if len(right) == 0 {
 							return []Action{}, makeCompilerErr("Prototypes require a body", v.File, right[0].Line)
 						}
@@ -261,6 +265,8 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 									if cur == "thisf" { //"thisf" means this file
 										cur = body[i].File
+									} else if strings.HasPrefix(cur, "curdir") { //"curdir" means the current directory e.g. (curdir/test.tusks)
+										cur = filepath.Dir(body[i].File) + strings.TrimPrefix(cur, "curdir")
 									}
 
 									currentaccess = append(currentaccess, cur)
