@@ -11,6 +11,10 @@ extern "C" {
 #include <limits.h>
 #include <sys/stat.h>
 
+#ifndef _WIN32
+#define MAX_PATH FILENAME_MAX
+#endif
+
 long long int syslsdir(long long int loc, void** subnames, void** fsnumbers, int len) {
     DIR* dir = (DIR*) loc;
 
@@ -39,7 +43,7 @@ long long int sysclosedir(long long int loc) {
 
 long long int sysgetcwd(char* buf) {
     buf = (char*) realloc(buf, sizeof(char) * MAX_PATH);
-    getcwd(buf, MAX_PATH);
+    char* _ = getcwd(buf, MAX_PATH);
     return 0;
 }
 
@@ -52,7 +56,12 @@ long long int sysrename(char* oldp, char* newp) {
 }
 
 long long int sysmkdir(char* path) {
-    return mkdir(path);
+    return mkdir(path
+    //all perms
+    #ifndef _WIN32
+    ,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH
+    #endif
+    );
 }
 
 long long int sysrmdir(char* path) {

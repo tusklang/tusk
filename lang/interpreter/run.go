@@ -71,13 +71,18 @@ func RunInterpreter(compiledVars map[string]*TuskType, cli_params CliParams) {
 	globals := FillIns(&instance, compiledVars, cli_params.Directory, os.Args)
 
 	if _, exists := globals["main"]; !exists {
-		fmt.Println("Given program has no entry point/main function")
+		fmt.Println("Given program has no entry point")
 		os.Exit(1)
 	} else {
 
 		switch (*globals["main"].Value).(type) {
 		case TuskFunc:
 			main := globals["main"]
+
+			if len((*main.Value).(TuskFunc).Overloads[0].Params) != 0 {
+				fmt.Println("Invalid entry point")
+				os.Exit(1)
+			}
 
 			calledP := Interpreter(&instance, (*main.Value).(TuskFunc).Overloads[0].Body, []string{"at the entry caller"}, 0, nil, false).Exp
 			WaitAllThreads() //finish up any remaining threads

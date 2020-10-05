@@ -1,4 +1,0 @@
-access ("not_test.tusk")
-var main = fn() {
-    log:(main)
-}

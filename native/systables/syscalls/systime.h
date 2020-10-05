@@ -43,7 +43,9 @@ long long int syssettime(long long int unixtime) {
     FileTimeToSystemTime(&ft, syst);
     return SetSystemTime(syst);
     #else
-    return stime(unixtime);
+    struct timeval t;
+    t.tv_usec = 1000 * unixtime;
+    return settimeofday(&t, NULL);
     #endif
 }
 

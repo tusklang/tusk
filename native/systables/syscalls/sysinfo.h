@@ -50,8 +50,9 @@ long long int sysuname(char* sysname, char* nodename, char* release) {
     #else
 
     //for DRY
-    #define allocsp(name) realloc(name, strlen(buf.name) * sizeof(char))
-    #define sendback(name) name = strcpy(name, buf.name);
+    void* _;
+    #define allocsp(name) _ = realloc(name, strlen(buf->name) * sizeof(char))
+    #define sendback(name) name = strcpy(name, buf->name);
     /////////
 
     //get info in a buffer
@@ -69,9 +70,9 @@ long long int sysuname(char* sysname, char* nodename, char* release) {
     sendback(release);
 
     //free all the unused data now
-    free(buf.sysname);
-    free(buf.nodename);
-    free(buf.release);
+    free(buf->sysname);
+    free(buf->nodename);
+    free(buf->release);
     #endif
 }
 
@@ -114,10 +115,10 @@ long long int sysgetsysinfo(void** info) {
 
     struct sysinfo* inf;
     int ret = sysinfo(inf);
-    info[0] = inf.uptime;
-    info[1] = inf.totalram;
-    info[2] = inf.freeram
-    info[3] = inf.procs;
+    info[0] = (void*) inf->uptime;
+    info[1] = (void*) inf->totalram;
+    info[2] = (void*) inf->freeram;
+    info[3] = (void*) ((long long int) inf->procs);
 
     return ret;
     #endif

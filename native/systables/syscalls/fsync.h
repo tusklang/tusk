@@ -13,7 +13,8 @@ extern "C" {
 #endif
 
 long long int syssync() {
-    return sync();
+    sync();
+    return 0;
 }
 
 long long int sysfsync(long int fd) {

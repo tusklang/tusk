@@ -14,7 +14,7 @@ extern "C" {
 #else
 #include <unistd.h>
 #include <sys/wait.h>
-#define WaitForSingleObject(fd, maxtime) wait((long int) fd);
+#include <signal.h>
 #endif
 
 long long int sysgetpid() {
@@ -22,7 +22,11 @@ long long int sysgetpid() {
 }
 
 long long int syswaitpid(long long int pid, long long int maxtime) {
-    return WaitForSingleObject((void*) pid, maxtime);
+    #ifdef _WIN32
+    return WaitForSingleObject(OpenProcess(PROCESS_ALL_ACCESS, TRUE, pid), maxtime);
+    #else
+    return waitpid(pid, 0, 0);
+    #endif
 }
 
 long long int syskillpid(long long int pid, int exitc) {
@@ -34,7 +38,7 @@ long long int sysgettid() {
 }
 
 long long int systkill(long long int tid, int exitc) {
-    return tkill(tid, exitc);
+    return tgkill(-1, tid, exitc);
 }
 
 #ifdef __cplusplus

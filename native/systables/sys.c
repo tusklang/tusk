@@ -1,10 +1,7 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define _GNU_SOURCE
 
-#ifdef _WIN32 //because winsock2 must be included before windows.h
+#ifdef _WIN32
+//because winsock2 must be included before windows.h
 #include <winsock2.h>
 #include <windows.h>
 #endif
@@ -36,7 +33,3 @@ extern "C" {
 #include "syscalls/chroot.h"
 #include "syscalls/host.h"
 /////////////////////////////
-
-#ifdef __cplusplus
-}
-#endif

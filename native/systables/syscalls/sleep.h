@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include <unistd.h>
 #include <time.h>
 
 #ifdef _WIN32
