@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/tusklang/tools"
+	"github.com/tusklang/tusk/lang/interpreter"
 	. "github.com/tusklang/tusk/lang/types"
 
 	"github.com/tusklang/tusk/lang/compiler"
@@ -42,5 +43,14 @@ func main() {
 	//set the working directory
 	os.Chdir(cli_params.Directory)
 
-	compiler.Run(cli_params)
+	acts, e := compiler.Compile(cli_params)
+
+	if e != nil {
+		fmt.Println(e.Error())
+		os.Exit(1)
+	}
+
+	os.Args = os.Args[1:] //remove the `tusk` <file.tusk>
+
+	interpreter.RunInterpreter(acts, cli_params)
 }

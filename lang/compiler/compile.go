@@ -119,7 +119,7 @@ func Compile(params CliParams) (map[string]*TuskType, error) {
 	actions, e := includer(params.Name)
 
 	if e != nil {
-		return nil, makeCompilerErr(e.Error(), params.Name, 0)
+		return nil, e
 	}
 
 	getnativetypes()
