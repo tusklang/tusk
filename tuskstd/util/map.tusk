@@ -1,13 +1,13 @@
 var map
 
-ovld map = fn(array -> arr, function -> mapper) => {
+ovld map = fn(array -> arr, function -> mapper) {
     mapped := clone:(arr)
-    each (arr, k, v) => mapped::(k) = mapper:(v, k)
+    each (arr, k, v)mapped::(k) = mapper:(v, k)
     return mapped
 }
 
-ovld map = fn(hash -> hash, function -> mapper) => {
+ovld map = fn(hash -> hash, function -> mapper) {
     mapped := clone:(hash)
-    each (hash, k, v) => mapped::(k) = mapper:(v, k)
+    each (hash, k, v)mapped::(k) = mapper:(v, k)
     return mapped
 }

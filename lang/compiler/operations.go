@@ -87,7 +87,7 @@ func normalOpFunc(exp []Item, index int, opType string) (Operation, error) {
 }
 
 //ODO is
-// ~, ?, =>, and =
+// STATE-OP, CB-OB (compile-time inserted) and := and =
 // break and continue
 // boolean operations (except not gate)
 // comparisons
@@ -101,14 +101,14 @@ func normalOpFunc(exp []Item, index int, opType string) (Operation, error) {
 
 func makeOperations(groups [][]Item) ([]Operation, error) {
 
-	operations = []map[string]func(exp []Item, index int, opType string) (Operation, error){
-		map[string]func(exp []Item, index int, opType string) (Operation, error){ //these ones start from left to right
-			"~":  normalOpFunc,
-			"=":  normalOpFunc,
-			":=": normalOpFunc,
-			"=>": normalOpFunc,
+	operations = []map[string]func(exp []Item, index int, opType string) (Operation, error) {
+		map[string]func(exp []Item, index int, opType string) (Operation, error) { //these ones start from left to right
+			"STATE-OP": normalOpFunc,
+			"=":        normalOpFunc,
+			":=":       normalOpFunc,
+			"CB-OB":    normalOpFunc,
 		},
-		map[string]func(exp []Item, index int, opType string) (Operation, error){
+		map[string]func(exp []Item, index int, opType string) (Operation, error) {
 			"break": func(exp []Item, index int, opType string) (Operation, error) {
 				return Operation{
 					Type: opType,
@@ -120,11 +120,11 @@ func makeOperations(groups [][]Item) ([]Operation, error) {
 				}, nil
 			},
 		},
-		map[string]func(exp []Item, index int, opType string) (Operation, error){
+		map[string]func(exp []Item, index int, opType string) (Operation, error) {
 			"&": normalOpFunc,
 			"|": normalOpFunc,
 		},
-		map[string]func(exp []Item, index int, opType string) (Operation, error){
+		map[string]func(exp []Item, index int, opType string) (Operation, error) {
 			"==": normalOpFunc,
 			"!=": normalOpFunc,
 			">":  normalOpFunc,
@@ -132,7 +132,7 @@ func makeOperations(groups [][]Item) ([]Operation, error) {
 			"<":  normalOpFunc,
 			"<=": normalOpFunc,
 		},
-		map[string]func(exp []Item, index int, opType string) (Operation, error){
+		map[string]func(exp []Item, index int, opType string) (Operation, error) {
 			"++": func(exp []Item, index int, opType string) (Operation, error) {
 
 				if len(exp[:index]) == 0 {
@@ -178,24 +178,24 @@ func makeOperations(groups [][]Item) ([]Operation, error) {
 			"%=": normalOpFunc,
 			"^=": normalOpFunc,
 		},
-		map[string]func(exp []Item, index int, opType string) (Operation, error){
+		map[string]func(exp []Item, index int, opType string) (Operation, error) {
 			"^": normalOpFunc,
 		},
-		map[string]func(exp []Item, index int, opType string) (Operation, error){
+		map[string]func(exp []Item, index int, opType string) (Operation, error) {
 			"*": normalOpFunc,
 			"/": normalOpFunc,
 			"%": normalOpFunc,
 		},
-		map[string]func(exp []Item, index int, opType string) (Operation, error){
+		map[string]func(exp []Item, index int, opType string) (Operation, error) {
 			"+": normalOpFunc,
 			"-": normalOpFunc,
 		},
-		map[string]func(exp []Item, index int, opType string) (Operation, error){
+		map[string]func(exp []Item, index int, opType string) (Operation, error) {
 			"::": normalOpFunc,
 			":":  normalOpFunc,
 			"?":  normalOpFunc,
 		},
-		map[string]func(exp []Item, index int, opType string) (Operation, error){
+		map[string]func(exp []Item, index int, opType string) (Operation, error) {
 			"!": func(exp []Item, index int, opType string) (Operation, error) {
 
 				if len(exp[index+1:]) == 0 {
@@ -216,7 +216,7 @@ func makeOperations(groups [][]Item) ([]Operation, error) {
 				}, nil
 			},
 		},
-		map[string]func(exp []Item, index int, opType string) (Operation, error){
+		map[string]func(exp []Item, index int, opType string) (Operation, error) {
 			"->": normalOpFunc,
 		},
 	}

@@ -66,7 +66,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 		}
 
 		switch v.Type {
-		case "~":
+		case "STATE-OP":
 
 			var statements = []string{"var", "if", "elif", "else", "while", "each", "function", "return", "proto", "static", "instance", "build", "ovld", "defer", "access"} //list of statements
 
@@ -77,7 +77,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 					switch val {
 					case "function":
-						if right[0].Type != "=>" {
+						if right[0].Type != "CB-OB" {
 							return []Action{}, makeCompilerErr("Functions need a parameter list and a function body", v.File, right[0].Line)
 						}
 
@@ -118,7 +118,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 					case "if":
 
-						if right[0].Type != "=>" {
+						if right[0].Type != "CB-OB" {
 							return []Action{}, makeCompilerErr("If statements need a condition and a body", v.File, right[0].Line)
 						}
 
@@ -135,7 +135,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 					case "elif":
 
-						if right[0].Type != "=>" {
+						if right[0].Type != "CB-OB" {
 							return []Action{}, makeCompilerErr("Elif statements need a condition and a body", v.File, right[0].Line)
 						}
 
@@ -163,7 +163,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 						})
 
 					case "while":
-						if right[0].Type != "=>" {
+						if right[0].Type != "CB-OB" {
 							return []Action{}, makeCompilerErr("While loops need a condition and a body", v.File, right[0].Line)
 						}
 
@@ -176,7 +176,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 						})
 
 					case "each":
-						if right[0].Type != "=>" {
+						if right[0].Type != "CB-OB" {
 							return []Action{}, makeCompilerErr("Each loops need a iterator and a body", v.File, right[0].Line)
 						}
 
@@ -555,7 +555,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 			fallthrough
 		case "|":
 			fallthrough
-		case "=>":
+		case "CB-OB":
 			fallthrough
 		case ":":
 			fallthrough

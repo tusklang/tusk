@@ -6,7 +6,7 @@ var file = proto {
     var name
     var mode
 
-    static var open = fn(string -> name, string -> mode) => {
+    static var open = fn(string -> name, string -> mode) {
         var f = make:(file)
         f::fd = syscall:(2, name, mode)
         f::name = name
@@ -14,7 +14,7 @@ var file = proto {
         return f
     }
 
-    static ovld open = fn(string -> name) => {
+    static ovld open = fn(string -> name) {
         return file::open:(name, "r+")
     }
 
@@ -25,28 +25,28 @@ var file = proto {
         return f
     }
 
-    var read = fn(number -> size) => {
+    var read = fn(number -> size) {
         var buf = allocstr:(size)
         syscall:(0, fd, buf, size)
         return buf
     }
 
-    ovld read = fn() => {
+    ovld read = fn() {
         fsize := syscall:(4, fd)
         return read:(fsize)
     }
 
-    var write = fn(string -> data) => {
-        if (mode::0 != 'a') => clear:() ;clear the file first (if it is not in append mode)
+    var write = fn(string -> data) {
+        if (mode::0 != 'a')clear:() ;clear the file first (if it is not in append mode)
         writeon:(data) ;then write
     }
 
-    var writeon = fn(string -> data) => {
+    var writeon = fn(string -> data) {
         ;write to the file, without clearing it
         syscall:(1, fd, data, len:(data))
     }
 
-    var clear = fn() => {
+    var clear = fn() {
         dummyfile := file::open:(name, "w+") ;open the file again, with w+ to clear
         dummyfile::close()
         newfile := file::open:(name, mode)
@@ -54,7 +54,7 @@ var file = proto {
         mode = newfile::mode
     }
 
-    var close = fn() => {
+    var close = fn() {
         syscall:(3, fd)
     }
 

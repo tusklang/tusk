@@ -1,10 +1,10 @@
-var alloc = fn(number -> length) => {
+var alloc = fn(number -> length) {
 
     var ret = ()
 
     cl := clone:(length)
 
-    while (cl > 0) => {
+    while (cl > 0) {
         ret = append:(ret, 0)
         cl--
     }
@@ -12,13 +12,13 @@ var alloc = fn(number -> length) => {
     return ret
 }
 
-var allocstr = fn(number -> length) => {
+var allocstr = fn(number -> length) {
 
     var ret = ""
 
     cl := clone:(length)
 
-    while (cl > 0) => {
+    while (cl > 0) {
         ret+=" "
         cl--
     }

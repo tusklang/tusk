@@ -1,9 +1,9 @@
 ;include
 ;s tuskstd/util/substr
 
-var starts_with = fn(string -> str, string -> starts) => {
+var starts_with = fn(string -> str, string -> starts) {
 
-    if (len(starts) > len(str)) => return false
+    if (len(starts) > len(str))return false
 
     startlen := len(starts)
     return rmend:(str, startlen) == starts

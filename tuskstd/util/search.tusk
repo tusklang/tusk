@@ -1,4 +1,4 @@
-var searchfor = fn(string -> str, string -> inc) => { 
+var searchfor = fn(string -> str, string -> inc) { 
     
     ;got from here https://coderscat.com/kmp-string-search-algorithm#:~:text=%20KMP%20String%20Search%20Algorithm%20%201%20Naive,the%20ckaon...%203%20KMP%20algorithm.%20%20More%20
     ;i dont know what algorithm this is called
@@ -9,8 +9,8 @@ var searchfor = fn(string -> str, string -> inc) => {
     i := 0
     o := 0
 
-    while (i < strlen & o < inclen) => {
-        if (str::(i) == inc::(o)) => {
+    while (i < strlen & o < inclen) {
+        if (str::(i) == inc::(o)) {
             i++
             o++
         } else {
@@ -19,6 +19,6 @@ var searchfor = fn(string -> str, string -> inc) => {
         }
     }
 
-    if (o == inclen) => return i - o
+    if (o == inclen)return i - o
     else return (-1)
 }

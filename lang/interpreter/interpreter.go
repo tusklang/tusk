@@ -252,8 +252,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			fallthrough
 		case "&":
 			fallthrough
-		case "=>":
-			fallthrough //this is probably not necessary, but i just left it here
 		case ":":
 			fallthrough
 		case "?":

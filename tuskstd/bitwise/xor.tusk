@@ -1,18 +1,18 @@
 ;include:
 ;s kastd/bitwise/normalize.tusk
 
-var bitwise.xor = fn(number -> n1, number -> n2) => {
+var bitwise.xor = fn(number -> n1, number -> n2) {
     b1 := tobits:(n1)
     b2 := tobits:(n2)
 
     final := normalize:(b1, b2)
 
     k := 0
-    while (k < len:(b2)) => {
+    while (k < len:(b2)) {
         cb2 := b2::(k) == 1 ; if it is 1, give true, otherwise, false
         cb1 := b1::(k) == 1 ; if it is 1, give true, otherwise, false
 
-        if (cb2 != cb1) => final::(k) = 1
+        if (cb2 != cb1)final::(k) = 1
         k++
     }
 

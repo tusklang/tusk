@@ -27,16 +27,16 @@ Explanation of why this exists:
 
   a compiler error would come. Now I will explain why we need to change the variable names in the compiler. Imagine we have some tusk code like this:
 
-    var main = fn() => {
+    var main = fn() {
       var test = 1
       testf?()
       test = 3
     }
 
-    var testf = fn() => {
+    var testf = fn() {
       var test = 2
       var i = 0
-      while (i < 100000) => i = i + 1;
+      while (i < 100000) i = i + 1;
       log:(test)
     }
 

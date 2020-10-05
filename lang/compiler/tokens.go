@@ -11,22 +11,10 @@ var tokensJSON = []byte(
     "type": "id"
   },
   {
-    "name": "var",
-    "remove": "var",
-    "pattern": "(var(\\s*)\\~)",
-    "type": "id_non_tilde"
-  },
-  {
     "name": "build",
     "remove": "build",
     "pattern": "(build(\\s*)\\()",
     "type": "id"
-  },
-  {
-    "name": "build",
-    "remove": "build",
-    "pattern": "(build(\\s*)\\~(\\s*)\\()",
-    "type": "id_non_tilde"
   },
   {
     "name": "access",
@@ -35,34 +23,16 @@ var tokensJSON = []byte(
     "type": "id"
   },
   {
-    "name": "access",
-    "remove": "access",
-    "pattern": "(access(\\s*)\\~)",
-    "type": "id_non_tilde"
-  },
-  {
     "name": "defer",
     "remove": "defer",
     "pattern": "(defer(\\s+))",
     "type": "id"
   },
   {
-    "name": "defer",
-    "remove": "defer",
-    "pattern": "(defer(\\s*)\\~)",
-    "type": "id_non_tilde"
-  },
-  {
     "name": "ovld",
     "remove": "ovld",
     "pattern": "(ovld(\\s+))",
     "type": "id"
-  },
-  {
-    "name": "ovld",
-    "remove": "ovld",
-    "pattern": "(ovld(\\s*)\\~)",
-    "type": "id_non_tilde"
   },
   {
     "name": "!=",
@@ -143,21 +113,9 @@ var tokensJSON = []byte(
     "type": "operation"
   },
   {
-    "name": "=>",
-    "remove": "=>",
-    "pattern": "(\\=\\>)",
-    "type": "operation"
-  },
-  {
     "name": "^",
     "remove": "**",
     "pattern": "(\\*\\*)",
-    "type": "operation"
-  },
-  {
-    "name": "~",
-    "remove": "~",
-    "pattern": "\\~",
     "type": "operation"
   },
   {
@@ -269,22 +227,10 @@ var tokensJSON = []byte(
     "type": "id"
   },
   {
-    "name": "proto",
-    "remove": "proto",
-    "pattern": "(proto(\\s*)~)",
-    "type": "id_non_tilde"
-  },
-  {
     "name": "static",
     "remove": "static",
     "pattern": "(static(\\s+))",
     "type": "id"
-  },
-  {
-    "name": "static",
-    "remove": "static",
-    "pattern": "(static(\\s*)~)",
-    "type": "id_non_tilde"
   },
   {
     "name": "instance",
@@ -293,22 +239,10 @@ var tokensJSON = []byte(
     "type": "id"
   },
   {
-    "name": "instance",
-    "remove": "instance",
-    "pattern": "(instance(\\s*)~)",
-    "type": "id_non_tilde"
-  },
-  {
     "name": ",",
     "remove": ",",
     "pattern": "\\,",
     "type": "operation"
-  },
-  {
-    "name": "return",
-    "remove": "return",
-    "pattern": "(return(\\s*)(~))",
-    "type": "id_non_tilde"
   },
   {
     "name": "return",
@@ -452,13 +386,13 @@ var tokensJSON = []byte(
     "name": "break",
     "remove": "break",
     "pattern": "(break\\s*\\,)",
-    "type": "id_non_tilde"
+    "type": "loopcont"
   },
   {
     "name": "continue",
     "remove": "continue",
     "pattern": "(continue\\s*\\,)",
-    "type": "id_non_tilde"
+    "type": "loopcont"
   }
 ]
 `,

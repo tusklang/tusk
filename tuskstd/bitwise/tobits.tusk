@@ -1,8 +1,8 @@
-var tobits = fn(number -> _num) => {
+var tobits = fn(number -> _num) {
     var bits = ()
     var num = clone:(_num)
 
-    while (num >= 1) => {
+    while (num >= 1) {
         cur := num % 2
         num/=2
         bits = prepend:(bits, cur)
