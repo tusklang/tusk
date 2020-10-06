@@ -22,13 +22,13 @@ func getvars(actions []types.Action) (map[string]*types.TuskType, error) {
 		}
 
 		if v.Type == "ovld" {
-			if _, exists := vars[v.Name]; !exists { //if it does not exist yet, declare undefined yet
+			if _, exists := vars[v.Name]; !exists || (*vars[v.Name]).Type() == "none" { //if it does not exist yet, declare undefined yet
 				var f types.TuskType = types.TuskFunc{}
 				vars[v.Name] = &f
 			}
 
 			if (*vars[v.Name]).Type() != "function" {
-				return nil, makeCompilerErr(v.Name[1:]+" is not a function", v.File, v.Line)
+				return nil, makeCompilerErr(v.Name+" is not a function", v.File, v.Line)
 			}
 
 			tmp := (*vars[v.Name]).(types.TuskFunc)

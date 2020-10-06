@@ -1,5 +1,6 @@
 package compiler
 
+//Item represents either a token or a brace enclosed group
 type Item struct {
 
 	//if type is a brace type, the Group field will be used
@@ -23,6 +24,12 @@ func makeGroups(lex []Lex) ([][]Item, error) {
 	var groups = [][]Item{[]Item{}}
 
 	for i := 0; i < len(lex); i++ {
+
+		if lex[i].Type == "?close_brace" {
+			//error
+			//unexpected closing brace
+			return nil, makeCompilerErr("Unexpected closing brace", lex[i].Dir, lex[i].Line)
+		}
 
 		if lex[i].Type == "?open_brace" {
 
@@ -54,7 +61,7 @@ func makeGroups(lex []Lex) ([][]Item, error) {
 					braceTypes[lex[i].Name]++
 				}
 				//account for closing braces
-				if _, exists := braceMatcher[lex[i].Name]; exists {
+				if _, exists := braceTypes[braceMatcher[lex[i].Name]]; exists {
 					braceTypes[braceMatcher[lex[i].Name]]--
 				}
 
@@ -107,11 +114,11 @@ func makeGroups(lex []Lex) ([][]Item, error) {
 	//filter empty groups out
 	var filteredGroups = [][]Item{}
 
-	for _, v := range groups {
+	for _, v := range groups[:len(groups)-1] {
 		if len(v) != 0 {
 			filteredGroups = append(filteredGroups, v)
 		}
 	}
 
-	return filteredGroups, nil
+	return filteredGroups /* <-- remove the last trailing group */, nil
 }

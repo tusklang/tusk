@@ -1,4 +1,3 @@
 var main = fn() {
-    prec:(2)
-    log:(1 / 2)
+    log:1
 }
