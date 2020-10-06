@@ -1,5 +1,5 @@
 ;include:
-;s kastd/bitwise/normalize.tusk
+;s tuskstd/bitwise/normalize.tusk
 
 var bitwise.or = fn(number -> n1, number -> n2) {
     b1 := tobits:(n1)

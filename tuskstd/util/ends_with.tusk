@@ -3,7 +3,7 @@
 
 var ends_with = fn(string -> str, string -> ends) {
 
-    if (len(ends) > len(str))return false
+    if (len(ends) > len(str)) return false
 
     str_ends := len:(str) - len:(ends)
     return rmbegin:(str, str_ends) == ends

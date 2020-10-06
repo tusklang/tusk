@@ -1,5 +1,5 @@
 ;include:
-;s kastd/util
+;s tuskstd/util
 
 var json.marshal
 

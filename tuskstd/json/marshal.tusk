@@ -1,5 +1,5 @@
 ;include:
-;s kastd/util
+;s tuskstd/util
 
 var json.marshal
 
@@ -34,7 +34,10 @@ ovld json.marshal = fn(number -> n) {
 }
 
 ovld json.marshal = fn(bool -> b) {
-    return (if (b) return "true" else return "false")
+    return (
+        if (b) return "true" 
+        else return "false"
+    )
 }
 
 ovld json.marshal = fn(none -> u, string -> _) {

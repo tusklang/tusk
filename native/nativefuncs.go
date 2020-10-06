@@ -489,9 +489,20 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 		var tusktype TuskType = tuskhash
 		return &tusktype
 	},
+	"prec": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		if len(args) != 1 || (*args[0]).Type() != "number" {
+			TuskPanic("Function prec requires the signature (number)", line, file, stacktrace)
+		}
+
+		//set the instance's precision
+		precv := uint64((*args[0]).(TuskNumber).ToGoType())
+		instance.Params.Prec = precv
+
+		return args[0]
+	},
 	"syscall": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
-		if (*args[0]).Type() != "number" {
+		if len(args) != 1 || (*args[0]).Type() != "number" {
 			TuskPanic("Sysno must be a numeric value", line, file, stacktrace)
 		}
 

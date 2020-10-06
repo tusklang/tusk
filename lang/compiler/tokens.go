@@ -119,6 +119,18 @@ var tokensJSON = []byte(
     "type": "operation"
   },
   {
+    "name": "[:",
+    "remove": "[:",
+    "pattern": "\\[\\:",
+    "type": "?open_brace"
+  },
+  {
+    "name": ":]",
+    "remove": ":]",
+    "pattern": "\\:\\]",
+    "type": "?close_brace"
+  },
+  {
     "name": "::",
     "remove": "::",
     "pattern": "(\\:\\:)",
@@ -200,18 +212,6 @@ var tokensJSON = []byte(
     "name": "}",
     "remove": "}",
     "pattern": "\\}",
-    "type": "?close_brace"
-  },
-  {
-    "name": "[:",
-    "remove": "[:",
-    "pattern": "\\[\\:",
-    "type": "?open_brace"
-  },
-  {
-    "name": ":]",
-    "remove": ":]",
-    "pattern": "\\:\\]",
     "type": "?close_brace"
   },
   {

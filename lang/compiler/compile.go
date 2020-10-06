@@ -33,7 +33,7 @@ func makeCompilerErr(msg, fname string, line uint64) error {
 	}
 }
 
-var kabasedir string
+var tuskbasedir string
 
 func inclCompile(filename string) ([]Action, error) {
 
@@ -66,7 +66,7 @@ func inclCompile(filename string) ([]Action, error) {
 			case 'w': //working directory
 				includepaths = append(includepaths, cip)
 			case 's': //installation directory
-				includepaths = append(includepaths, path.Join(kabasedir, cip))
+				includepaths = append(includepaths, path.Join(tuskbasedir, cip))
 			default:
 				return nil, fmt.Errorf("Unrecognized include path '%c", dir)
 			}
@@ -112,7 +112,7 @@ func inclCompile(filename string) ([]Action, error) {
 
 func Compile(params CliParams) (map[string]*TuskType, error) {
 
-	kabasedir = params.TuskDirname
+	tuskbasedir = params.TuskDirname
 
 	var e error
 

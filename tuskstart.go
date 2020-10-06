@@ -35,6 +35,7 @@ func main() {
 	}
 
 	cli_params.Name = flag.Arg(0)
+	cli_params.Prec = 50
 
 	dirname, _ := os.Executable()
 

@@ -4,7 +4,7 @@ ovld filter = fn(array -> arr, function -> test) {
     filtered := []
 
     each (arr, k, v)
-        if (test:(v, k))filtered = append:(filtered, v)
+        if (test:(v, k)) filtered = append:(filtered, v)
 
     return filtered
 }
@@ -13,7 +13,7 @@ ovld filter = fn(hash -> hsh, function -> test) {
     filtered := [::]
 
     each (hsh, k, v)
-        if (test:(v, k))filtered::(k) = v
+        if (test:(v, k)) filtered::(k) = v
 
     return filtered
 }

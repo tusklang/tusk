@@ -6,6 +6,18 @@ func term_inserter(lex []Lex) []Lex {
 	var nLex []Lex
 
 	for k, v := range lex {
+
+		if v.Type == "?close_brace" {
+			nLex = append(nLex, Lex{
+				Name:  "$term",
+				Exp:   v.Exp,
+				Line:  v.Line,
+				Type:  "?none",
+				OName: "$term",
+				Dir:   v.Dir,
+			})
+		}
+
 		nLex = append(nLex, v)
 
 		currentType := v.Type == "operation" || v.Type == "?operation"
