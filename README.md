@@ -51,9 +51,7 @@ var f = fn(string -> a, string -> b) {
 
 This can be enourmously useful for both efficiency, and code readability.
 
-# 
-
-## Private, Public, and Protected fields
+## Private, Public, and Protected Fields
 
 Maybe as useful as optional static typing is Tusk's support for private, public, and protected fields. Tusk, like many modern languages, has object oriented features. Classes in Tusk are defined with the `proto` keyword. In JavaScript, to crrate private variables, you must use something called a closure.
 
@@ -76,7 +74,7 @@ var a = proto {
     }
 
     var _privatemethod = fn() {
-        ;private method
+        ;private method (will throw an error if it is accessed from outside this prototype)
     }
 }
 ```
