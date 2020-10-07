@@ -42,7 +42,7 @@ var f = fn(string -> a, string -> b, string -> c) {
     
 }
 
-var f = fn(string -> a, string -> b) {
+ovld f = fn(string -> a, string -> b) {
 
 }
 
