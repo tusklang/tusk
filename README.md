@@ -42,14 +42,14 @@ var f = fn(string -> a, string -> b, string -> c) {
     
 }
 
-var f = fn(string -> a, string -> b) {
+ovld f = fn(string -> a, string -> b) {
 
 }
 
 ;if f is called and the prototype is not (string, string, string) or (string, string) the program panics
 ```
 
-This can be enourmously useful for both efficiency, and code readability.
+This can be enourmously useful for code readability.
 
 # 
 
