@@ -6,7 +6,7 @@ Tusk is a dynamicly typed programming language, which also supports many strictl
 
 ## Optional Strict Typing
 
-Probably the most prominent feature is Tusk's optional strict typing. Tusk allows the developer to specify a function prototype argument types. This has no effect on compile-time error checking, but allowers for function overloading. This is already seen in Java, but JavaScript and Python both are famously known to not support function overloading. For JavaScript, overloading is very messy:
+Probably the most prominent feature is Tusk's optional strict typing. Tusk allows the developer to specify a function prototype argument types. This has no effect on compile-time error checking, but allowers for function overloading. This is already seen in Java, but JavaScript and Python both are known to not support function type overloading. For JavaScript, overloading is very messy:
 
 ```javascript
 function f(a, b, c) {
@@ -46,14 +46,14 @@ ovld f = fn(string -> a, string -> b) {
 
 }
 
-;if f is called and the prototype is not (string, string, string) or (string, string) the program panics
+;if f is called and the signature is not (string, string, string) or (string, string) the program panics
 ```
 
-This can be enourmously useful for both efficiency, and code readability.
+This can be enourmously useful for code readability.
 
 ## Private, Public, and Protected Fields
 
-Maybe as useful as optional static typing is Tusk's support for private, public, and protected fields. Tusk, like many modern languages, has object oriented features. Classes in Tusk are defined with the `proto` keyword. In JavaScript, to crrate private variables, you must use something called a closure.
+Maybe as useful as optional static typing is Tusk's support for private, public, and protected fields. Tusk, like many modern languages, has object oriented features. Classes in Tusk are defined with the `proto` keyword. In JavaScript, to create private variables, you must use something called a closure.
 
 ```javascript
 function a() {
@@ -79,7 +79,7 @@ var a = proto {
 }
 ```
 
-##### Protected Fields
+#### Protected Fields
 
 In Java, a protected field is a field in a class that can only be accessed from nested classes, or from classes within the same package. Tusk has a similar idea, but Tusk does not have a package structure. Instead, you can use the `access` keyword to specify which files can use the given field. This allows for the developer to specify access, even though Tusk is a dynamic language.
 

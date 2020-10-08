@@ -1,5 +1,22 @@
-var request = proto {
-    static var new = fn(uri) {
+;include:
+;s tuskstd/util/alloc.tusk
 
+var request = proto {
+
+    static var bufsize = 4096
+
+    static var get = fn(host) {
+        fd := syscall:(25, 2, 1, "tcp")
+        reqstr := "GET / HTTP/1.1\r\nHost: " + host + "\r\n\r\n"
+        buf := allocstr:(request::bufsize)
+
+        ;connect the socket
+        if (syscall:(26, fd, 2, host, 80) == -1) panic:("Cannot connect to host " + host)
+
+        if (syscall:(1, fd, reqstr, len:(reqstr)) >= 0) ;if it does not throw an error
+            while (syscall:(0, buf, request::bufsize) > 0) {} ;read into the buf
+        else panic:("HTTP(S) get request failed") ;if error, panic
+
+        return buf
     }
 }

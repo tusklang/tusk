@@ -53,7 +53,7 @@ func (p TuskProto) Type() string {
 }
 
 func (p TuskProto) TypeOf() string {
-	return p.ProtoName[1:] /* remove the leading $ */ + " prototype"
+	return p.ProtoName + " prototype"
 }
 
 func (p TuskProto) Deallocate() {}

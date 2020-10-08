@@ -10,7 +10,7 @@ extern "C" {
 #include <windows.h>
 #define kill(pid, exitc) TerminateProcess((void*) pid, exitc)
 #define gettid GetCurrentThreadId
-#define tkill(tid, exitc) TerminateThread((void*) tid, exitc)
+#define tgkill(_, tid, exitc) TerminateThread((void*) tid, exitc)
 #else
 #include <unistd.h>
 #include <sys/wait.h>

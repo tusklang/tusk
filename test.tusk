@@ -1,3 +1,6 @@
+;include:
+;s tuskstd/url
+
 var main = fn() {
-    log:1
+    log:(request::get:("example.com"))
 }

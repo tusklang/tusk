@@ -2,7 +2,7 @@ package interpreter
 
 import . "github.com/tusklang/tusk/lang/types"
 
-func naive_mul(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) *TuskType {
+func naiveMul(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) *TuskType {
 	num1, num2 := val1.(TuskNumber), val2.(TuskNumber)
 	ensurePrec(&num1, &num2, (*instance).Params)
 
@@ -77,5 +77,5 @@ func number__times__number(num1, num2 TuskType, instance *Instance, stacktrace [
 	//maybe switch to karatsuba later?
 	//look into this: http://www.cburch.com/proj/karat/karat.txt
 
-	return naive_mul(num1, num2, instance, stacktrace, line, file)
+	return naiveMul(num1, num2, instance, stacktrace, line, file)
 }
