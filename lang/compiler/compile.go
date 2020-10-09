@@ -35,6 +35,31 @@ func makeCompilerErr(msg, fname string, line uint64) error {
 
 var tuskbasedir string
 
+//CompileStr compiles a tusk string
+func CompileStr(data string, filename string) ([]Action, error) {
+	lex, e := lexer(data, filename)
+
+	if e != nil {
+		return []Action{}, e
+	}
+
+	groups, e := makeGroups(lex)
+
+	if e != nil {
+		return []Action{}, e
+	}
+
+	operations, e := makeOperations(groups)
+
+	if e != nil {
+		return []Action{}, e
+	}
+
+	actions, e := actionizer(operations)
+
+	return actions, e
+}
+
 func inclCompile(filename string) ([]Action, error) {
 
 	file, e := ioutil.ReadFile(filename)
@@ -85,31 +110,17 @@ func inclCompile(filename string) ([]Action, error) {
 
 	}
 
-	lex, e := lexer(strfile, filename)
+	actions, e := CompileStr(strfile, filename)
 
 	if e != nil {
-		return []Action{}, e
+		return nil, e
 	}
-
-	groups, e := makeGroups(lex)
-
-	if e != nil {
-		return []Action{}, e
-	}
-
-	operations, e := makeOperations(groups)
-
-	if e != nil {
-		return []Action{}, e
-	}
-
-	actions, e := actionizer(operations)
 
 	actions = append(includes, actions...) //append the includes
-
-	return actions, e
+	return actions, nil
 }
 
+//Compile compiles tusk code into a variable map given cli arguments
 func Compile(params CliParams) (map[string]*TuskType, error) {
 
 	tuskbasedir = params.TuskDirname

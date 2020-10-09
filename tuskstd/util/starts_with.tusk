@@ -5,6 +5,6 @@ var starts_with = fn(string -> str, string -> starts) {
 
     if (len:(starts) > len:(str)) return false
 
-    startlen := len:(starts)
+    startlen := len:(str) - len:(starts)
     return rmend:(str, startlen) == starts
 }
