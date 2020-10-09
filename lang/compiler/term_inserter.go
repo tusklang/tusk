@@ -7,7 +7,7 @@ func term_inserter(lex []Lex) []Lex {
 
 	for k, v := range lex {
 
-		if v.Type == "?close_brace" {
+		if k != 0 && lex[k-1].Type != "?open_brace" && v.Type == "?close_brace" {
 			nLex = append(nLex, Lex{
 				Name:  "$term",
 				Exp:   v.Exp,

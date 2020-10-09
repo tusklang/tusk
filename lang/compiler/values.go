@@ -70,9 +70,12 @@ func valueActions(item Item) (Action, error) {
 			carr.PushBack(value[0].Value)
 		}
 
+		var definitearray = item.Name
+
 		if arrtype == "c-array" {
 			return Action{
 				Type:  arrtype,
+				Name:  definitearray,
 				Value: carr,
 				File:  item.File,
 				Line:  item.Line,
@@ -81,6 +84,7 @@ func valueActions(item Item) (Action, error) {
 
 		return Action{
 			Type:  arrtype,
+			Name:  definitearray,
 			Array: arr,
 			File:  item.File,
 			Line:  item.Line,

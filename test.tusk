@@ -2,5 +2,5 @@
 ;s tuskstd/url
 
 var main = fn() {
-    log:(request::get:("example.com"))
+    log:(request::get:("www.menustub.com", 80))
 }

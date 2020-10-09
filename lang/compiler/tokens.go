@@ -191,14 +191,14 @@ var tokensJSON = []byte(
     "type": "?close_brace"
   },
   {
-    "name": "(",
-    "remove": "(",
+    "name": "[",
+    "remove": "[",
     "pattern": "\\[",
     "type": "?open_brace"
   },
   {
-    "name": ")",
-    "remove": ")",
+    "name": "]",
+    "remove": "]",
     "pattern": "\\]",
     "type": "?close_brace"
   },

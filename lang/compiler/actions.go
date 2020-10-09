@@ -16,8 +16,16 @@ func arraytogroup(arractions []Action) []Action {
 
 	var converted []Action
 
+	if len(arractions) == 0 {
+		return arractions
+	}
+
 	switch arractions[0].Type {
 	case "c-array":
+
+		if arractions[0].Name == "definite-array" {
+			return arractions
+		}
 
 		//range through it and append to the converted
 		arractions[0].Value.(TuskArray).Range(func(_, v *TuskType) Returner {
@@ -30,6 +38,10 @@ func arraytogroup(arractions []Action) []Action {
 		})
 
 	case "r-array":
+
+		if arractions[0].Name == "definite-array" {
+			return arractions
+		}
 
 		for _, v := range arractions[0].Array {
 			converted = append(converted, v...)
@@ -223,7 +235,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 							actions = append(actions, Action{
 								Type:   val,
 								Name:   arraytogroup(right[0].First)[0].Name,
-								ExpAct: right[0].ExpAct,
+								ExpAct: arraytogroup(right[0].ExpAct),
 								File:   v.File,
 								Line:   v.Line,
 							})
@@ -471,7 +483,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 			actions = append(actions, Action{
 				Type:   "var",
 				Name:   left[0].Name,
-				ExpAct: right,
+				ExpAct: arraytogroup(right),
 				File:   v.File,
 				Line:   v.Line,
 			})
@@ -493,7 +505,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 			actions = append(actions, Action{
 				Type:   "cast",
 				Name:   castType, //type to cast into
-				ExpAct: right,
+				ExpAct: arraytogroup(right),
 				File:   v.File,
 				Line:   v.Line,
 			})
@@ -567,10 +579,16 @@ func actionizer(operations []Operation) ([]Action, error) {
 			fallthrough
 		case "?":
 
+			rightn := right
+
+			if v.Type != ":" && v.Type != "?" { //not a function call
+				rightn = arraytogroup(right)
+			}
+
 			actions = append(actions, Action{
 				Type:   v.Type,
-				First:  left,
-				Second: right,
+				First:  arraytogroup(left),
+				Second: rightn,
 				File:   v.File,
 				Line:   v.Line,
 			})
@@ -586,7 +604,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 			actions = append(actions, Action{
 				Type:  v.Type,
-				First: left,
+				First: arraytogroup(left),
 				File:  v.File,
 				Line:  v.Line,
 			})
@@ -612,8 +630,8 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 			actions = append(actions, Action{
 				Type:   v.Type,
-				First:  left,
-				Second: right,
+				First:  arraytogroup(left),
+				Second: arraytogroup(right),
 				File:   v.File,
 				Line:   v.Line,
 			})

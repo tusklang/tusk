@@ -7,6 +7,7 @@ type Item struct {
 	//otherwise, the Token field will be used
 
 	Type  string
+	Name  string //for definite arrays
 	File  string
 	Line  uint64
 	Group [][]Item
@@ -17,6 +18,7 @@ var braceMatcher = map[string]string{
 	"}":  "{",
 	":]": "[:",
 	")":  "(",
+	"]":  "[",
 }
 
 func makeGroups(lex []Lex) ([][]Item, error) {
@@ -40,6 +42,7 @@ func makeGroups(lex []Lex) ([][]Item, error) {
 				"{":  0,
 				"[:": 0,
 				"(":  0,
+				"[":  0,
 			}
 			/////////////
 
@@ -65,7 +68,7 @@ func makeGroups(lex []Lex) ([][]Item, error) {
 					braceTypes[braceMatcher[lex[i].Name]]--
 				}
 
-				if braceTypes["{"] == 0 && braceTypes["[:"] == 0 && braceTypes["("] == 0 {
+				if braceTypes["{"] == 0 && braceTypes["[:"] == 0 && braceTypes["("] == 0 && braceTypes["["] == 0 {
 					break
 				}
 
@@ -88,8 +91,17 @@ func makeGroups(lex []Lex) ([][]Item, error) {
 			if e != nil {
 				return groupedExp, e
 			}
+
+			var definitearray string
+
+			if braceType == "[" { //definite array
+				braceType = "("
+				definitearray = "definite-array"
+			}
+
 			groups[len(groups)-1] = append(groups[len(groups)-1], Item{
 				Type:  braceType,
+				Name:  definitearray,
 				File:  lex[i].Dir,
 				Line:  line,
 				Group: groupedExp,

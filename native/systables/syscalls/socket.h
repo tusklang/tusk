@@ -11,25 +11,28 @@ extern "C" {
 #else
 #include <netdb.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #endif
 
-//def to set the socket address struct from raw tusk input
-#define setaddr \
+//definition to set the socket address struct from raw tusk input
+#define setaddr                                             \
     struct sockaddr_in addr_in;                             \
     addr_in.sin_family = sin_family;                        \
     addr_in.sin_addr.s_addr =                               \
     inet_addr( /* set s_addr based on hostname */           \
         inet_ntoa(                                          \
-            *(struct in_addr*)(*gethostbyname(hostname)     \
+            *(struct in_addr*)*(gethostbyname(hostname)     \
             ->h_addr_list)                                  \
         )                                                   \
     );                                                      \
+    if (addr_in.sin_addr.s_addr == -1) return -1;           \
     addr_in.sin_port = htons(port);                         \
     int size = sizeof(addr_in);                             \
     struct sockaddr* addr = (struct sockaddr*) &addr_in;    \
 
-long long int syssocket(int domain, int type, char* protocol, int port) {
+long long int syssocket(int domain, int type, char* protocol) {
     struct protoent* protoent = getprotobyname(protocol);
+    free(protocol);
     return socket(domain, type, protoent->p_proto);
 }
 
@@ -46,7 +49,7 @@ long long int sysaccept(long long int fd, int sin_family, char* hostname, int po
 //works for both send and recv
 #define sys_recv_impl {                                     \
     setaddr;                                                \
-    return sendto(fd, buf, buflen, 0, addr, sizeof(addr)); \
+    return sendto(fd, buf, buflen, 0, addr, size);          \
 }
 
 long long int syssendto(long long int fd, char* buf, int buflen, int sin_family, char* hostname, int port) 

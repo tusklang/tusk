@@ -1,0 +1,18 @@
+var trim
+
+ovld trim = fn(string -> data) { ;trim spaces
+    return trim:(data, " ")
+}
+
+ovld trim = fn(string -> data, string -> totrim) {
+
+    datac := clone:(data)
+
+    while (starts_with:(datac, totrim))
+        datac = rmbegin:(datac, len:(totrim))
+
+    while (ends_with:(datac, totrim))
+        datac = rmend:(datac, len:(totrim))
+
+    return datac
+}

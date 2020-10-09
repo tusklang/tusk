@@ -62,7 +62,7 @@ func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, fi
 
 	}
 
-	native.TuskPanic("Cannot cast a "+val.Type()+" into a "+nType, line, file, stacktrace)
+	native.TuskPanic("Cannot cast a "+val.TypeOf()+" into a "+nType, line, file, stacktrace)
 
 	//here because it wont work without it
 	var none types.TuskType = undef
