@@ -18,7 +18,7 @@ func (o TuskObject) Get(field, file string) (*TuskType, error) {
 }
 
 func (o TuskObject) Format() string {
-	return "{" + o.Name[1:] + "}"
+	return "{" + o.Name + "}"
 }
 
 func (o TuskObject) Type() string {

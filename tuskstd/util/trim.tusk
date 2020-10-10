@@ -4,6 +4,7 @@ ovld trim = fn(string -> data) { ;trim spaces
     return trim:(data, " ")
 }
 
+;might be a very slow solution, I dont know
 ovld trim = fn(string -> data, string -> totrim) {
 
     datac := clone:(data)

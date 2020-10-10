@@ -25,7 +25,7 @@ var rmend = fn(string -> str, number -> amt) {
     return substringed
 }
 
-var rmfrom = fn(string -> str, number -> start, number -> end) {
+var substrfrom = fn(string -> str, number -> start, number -> end) {
     substringed := ""
 
     cstart := clone:(start)

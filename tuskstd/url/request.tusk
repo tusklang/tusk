@@ -2,5 +2,10 @@
 ;s tuskstd/util
 
 var request = proto {
-    
+    static var get = fn(url) {
+
+    }
+    static var post = fn(url, data) {
+
+    }
 }

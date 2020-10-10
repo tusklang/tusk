@@ -206,12 +206,8 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 	},
 	"append": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
-		if len(args) != 2 {
-			TuskPanic("Function append requires a parameter count of 2", line, file, stacktrace)
-		}
-
-		if (*args[0]).Type() != "array" {
-			TuskPanic("Function append requires (array, any)", line, file, stacktrace)
+		if len(args) != 2 || (*args[0]).Type() != "array" {
+			TuskPanic("Function append requires the signature (array, any)", line, file, stacktrace)
 		}
 
 		a := (*args[0]).(TuskArray)
@@ -221,12 +217,8 @@ var NativeFuncs = map[string]func(args []*TuskType, stacktrace []string, line ui
 	},
 	"prepend": func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
 
-		if len(args) != 2 {
-			TuskPanic("Function prepend requires a parameter count of 2", line, file, stacktrace)
-		}
-
-		if (*args[0]).Type() != "array" {
-			TuskPanic("Function prepend requires the first argument to be an array", line, file, stacktrace)
+		if len(args) != 2 || (*args[0]).Type() != "array" {
+			TuskPanic("Function prepend requires the signature (array, any)", line, file, stacktrace)
 		}
 
 		a := (*args[0]).(TuskArray)

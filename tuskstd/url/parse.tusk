@@ -1,0 +1,75 @@
+;include:
+;s tuskstd/util
+
+var url = proto {
+
+    var orig
+    var protocol
+    var host
+    var path
+    var query
+
+    static var parse = fn(string -> _uri) {
+
+        uri := clone:(_uri)
+
+        ;parse the protocol
+        if (searchfor:(uri, "://") == -1) return undef
+        protocol := split:(uri, "://")::0
+        uri = rmbegin:(uri, len:(protocol + "://"))
+        ;;;;;;;;;;;;;;;;;;;
+
+        ;parse the host
+        var host
+        if (searchfor:(uri, "/") == -1) host = uri
+        else {
+            host = split:(uri, '/')::0
+            uri = rmbegin:(uri, len:(host))
+        }
+        ;;;;;;;;;;;;;;;
+
+        ;parse the path
+        var path
+        if (len:(uri) != 0 && uri::0 == '/') {
+            ;only if the uri looks like /a/b/c
+
+            ;cut off the query
+            ;   a/b/c?a
+            if (searchfor:(uri, "?") == -1) path = uri
+            else {
+                path = split:(uri, '?')::0
+                uri = rmbegin:(uri, len:(path))
+            }
+
+        }
+        ;;;;;;;;;;;;;;;
+
+        ;parse the query (the hard part)
+        var query = [::]
+        if (len:(uri) != 0 && uri::0 == '?') {
+            ;only if it looks some ?something
+            uri = rmbegin:(uri, 1) ;remove the leading '?'
+
+            ;now we end up with something like
+            ;   a=b&c=d
+
+            ;split by the &
+            su := split:(uri, '&')
+
+            each (su, k, v) {
+                sc := split:(v, '=') ;split by the current =
+                query[sc::0] = sc::1 ;set the key to the value
+            }
+        }
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+        var urlp = make:(url) ;create the proto instance
+        urlp::orig = _uri ;store the original uri
+        urlp::protocol = protocol
+        urlp::host = host
+        urlp::path = path
+        urlp::query = query
+
+        return urlp
+    }
+}

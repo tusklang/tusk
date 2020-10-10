@@ -19,6 +19,6 @@ var searchfor = fn(string -> str, string -> inc) {
         }
     }
 
-    if (o == inclen)return i - o
+    if (o == inclen) return i - o
     else return (-1)
 }

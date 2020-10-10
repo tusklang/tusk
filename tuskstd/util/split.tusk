@@ -1,16 +1,47 @@
 var split
 
 ovld split = fn(string -> str, rune -> del) {
+    ;split by a rune
     
     splitted := []
 
     log str
 
     each (str, k, v) {
-        if (v == del)splitted = append:(splitted, "")
+        if (v == del) splitted = append:(splitted, "")
 
         splitted::(len:(splitted) - 1) = splitted::(len:(splitted) - 1) + v
     }
 
     return splitted
+}
+
+ovld split = fn(string -> str, string -> del) {
+
+    ;got the algorithm from here
+    ;   https://hypjudy.github.io/2017/04/18/KMP-algorithm-split/#Naive-Pattern-Searching
+    ;i just adapted it to tusk
+    ;it is a naive method, but will do for now
+
+    var res = [] ;store the result
+    last := 0
+    i := 0
+    m := len:(str)
+    n := len:(del)
+
+    while (i < m) {
+        find_sep := false
+        if (str::(i) == del::0 && i + n <= m) {
+            if (substrfrom:(str, i, i + n) == del) {
+                res = append:(res, substrfrom:(str, last, i - last))
+                i+=n
+                last = i
+                find_sep = true
+            }
+        }
+        if (!find_sep) i++
+    }
+
+    res = append:(res, substrfrom:(str, last, m)) ;append the last part
+    return res
 }

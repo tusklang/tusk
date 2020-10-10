@@ -459,7 +459,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						actions = append(actions, Action{
 							Type:   val,
-							ExpAct: right,
+							ExpAct: arraytogroup(right),
 							File:   v.File,
 							Line:   v.Line,
 						})
