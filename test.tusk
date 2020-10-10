@@ -1,6 +1,3 @@
-;include:
-;s tuskstd
-
 var main = fn() {
-    log:(url::parse:("http://"))
+    log:(a) 
 }
