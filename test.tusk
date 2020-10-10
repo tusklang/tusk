@@ -2,5 +2,5 @@
 ;s tuskstd
 
 var main = fn() {
-    log:(url::parse:("http://a.com")::protocol)
+    log:(url::parse:("http://"))
 }

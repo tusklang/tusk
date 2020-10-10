@@ -183,7 +183,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			if _fetched == nil {
 				//if it is a nil pointer (only happens because tusk does not support closures)
-				TuskPanic("Invalid memory address (nil pointer reference)", v.Line, v.File, stacktrace)
+				TuskPanic("Invalid memory address", v.Line, v.File, stacktrace)
 			}
 
 			fetched := _fetched.Value

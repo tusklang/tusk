@@ -1,11 +1,12 @@
 ;include:
 ;s tuskstd/util
+;s tuskstd/url
 
 var request = proto {
-    static var get = fn(url) {
-
+    static var get = fn(string -> url) {
+        parsed := url::parse:(url)
     }
-    static var post = fn(url, data) {
-
+    static var post = fn(string -> url, hash -> data) {
+        parsed := url::parse:(url)
     }
 }
