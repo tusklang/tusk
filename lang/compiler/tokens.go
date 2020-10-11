@@ -7,31 +7,31 @@ var tokensJSON = []byte(
   {
     "name": "var",
     "remove": "var",
-    "pattern": "(var(\\s+))",
+    "pattern": "\\b(var(\\s+))",
     "type": "id"
   },
   {
     "name": "build",
     "remove": "build",
-    "pattern": "(build(\\s*)\\()",
+    "pattern": "\\b(build(\\s*)\\()",
     "type": "id"
   },
   {
     "name": "access",
     "remove": "access",
-    "pattern": "(access(\\s+))",
+    "pattern": "\\b(access(\\s+))",
     "type": "id"
   },
   {
     "name": "defer",
     "remove": "defer",
-    "pattern": "(defer(\\s+))",
+    "pattern": "\\b(defer(\\s+))",
     "type": "id"
   },
   {
     "name": "ovld",
     "remove": "ovld",
-    "pattern": "(ovld(\\s+))",
+    "pattern": "\\b(ovld(\\s+))",
     "type": "id"
   },
   {
@@ -217,25 +217,25 @@ var tokensJSON = []byte(
   {
     "name": "function",
     "remove": "fn",
-    "pattern": "(fn(\\s*)\\()",
+    "pattern": "\\b(fn(\\s*)\\()",
     "type": "id"
   },
   {
     "name": "proto",
     "remove": "proto",
-    "pattern": "(proto(\\s*)\\{)",
+    "pattern": "\\b(proto(\\s*)\\{)",
     "type": "id"
   },
   {
     "name": "static",
     "remove": "static",
-    "pattern": "(static(\\s+))",
+    "pattern": "\\b(static(\\s+))",
     "type": "id"
   },
   {
     "name": "instance",
     "remove": "instance",
-    "pattern": "(instance(\\s+))",
+    "pattern": "\\b(instance(\\s+))",
     "type": "id"
   },
   {
@@ -247,13 +247,13 @@ var tokensJSON = []byte(
   {
     "name": "return",
     "remove": "return",
-    "pattern": "(return(\\s+))",
+    "pattern": "\\b(return(\\s+))",
     "type": "id"
   },
   {
     "name": "if",
     "remove": "if",
-    "pattern": "(if\\s*\\()",
+    "pattern": "\\b(if\\s*\\()",
     "type": "id"
   },
   {
@@ -265,55 +265,55 @@ var tokensJSON = []byte(
   {
     "name": "elif",
     "remove": "elif",
-    "pattern": "(elif\\s*\\()",
+    "pattern": "\\b(elif\\s*\\()",
     "type": "id"
   },
   {
     "name": "elif",
     "remove": "elif",
-    "pattern": "(elif\\s*\\{)",
+    "pattern": "\\b(elif\\s*\\{)",
     "type": "id"
   },
   {
     "name": "else",
     "remove": "else",
-    "pattern": "(else\\s*\\{)",
+    "pattern": "\\b(else\\s*\\{)",
     "type": "id"
   },
   {
     "name": "else",
     "remove": "else",
-    "pattern": "(else\\s*\\()",
+    "pattern": "\\b(else\\s*\\()",
     "type": "id"
   },
   {
     "name": "else",
     "remove": "else",
-    "pattern": "(else\\s+)",
+    "pattern": "\\b(else\\s+)",
     "type": "id"
   },
   {
     "name": "while",
     "remove": "while",
-    "pattern": "(while(\\s*)\\()",
+    "pattern": "\\b(while(\\s*)\\()",
     "type": "id"
   },
   {
     "name": "while",
     "remove": "while",
-    "pattern": "(while(\\s*)\\{)",
+    "pattern": "\\b(while(\\s*)\\{)",
     "type": "id"
   },
   {
     "name": "each",
     "remove": "each",
-    "pattern": "(each(\\s*)\\()",
+    "pattern": "\\b(each(\\s*)\\()",
     "type": "id"
   },
   {
     "name": "each",
     "remove": "each",
-    "pattern": "(each(\\s*)\\{)",
+    "pattern": "\\b(each(\\s*)\\{)",
     "type": "id"
   },
   {
@@ -385,25 +385,25 @@ var tokensJSON = []byte(
   {
     "name": "break",
     "remove": "break",
-    "pattern": "(break\\s*\\,)",
+    "pattern": "\\b(break)\\b",
     "type": "loopcont"
   },
   {
     "name": "continue",
     "remove": "continue",
-    "pattern": "(continue\\s*\\,)",
+    "pattern": "\\b(continue)\\b",
     "type": "loopcont"
   },
   {
     "name": "try",
     "remove": "try",
-    "pattern": "(try\\s*(\\{|\\())",
+    "pattern": "\\b(try\\s*(\\{|\\())",
     "type": "id"
   },
   {
     "name": "catch",
     "remove": "catch",
-    "pattern": "(catch\\s*(\\{|\\())",
+    "pattern": "\\b(catch\\s*(\\{|\\())",
     "type": "id"
   }
 ]
