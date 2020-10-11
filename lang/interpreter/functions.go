@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"fmt"
 	"strconv"
 
 	. "github.com/tusklang/tusk/lang/types"
@@ -22,7 +23,6 @@ func fillFuncInstance(fn *TuskFunc, args TuskArray, parent *Instance) *Overload 
 		for k, vv := range v.Types {
 			if vv != (*args.At(int64(k))).TypeOf() && vv != "any" {
 				goto wrong_signature
-				break
 			}
 		}
 
@@ -78,7 +78,56 @@ func funcinit() { //initialize the operations that require the use of the interp
 			TuskPanic("Native function is nil", line, file, stacktrace)
 		}
 
-		return gfn.Function(arr.Array, stacktrace, line, file, instance)
+		//check the signatures of the function
+
+		var sigmatch bool
+
+		for _, v := range gfn.Signatures {
+			//if it is {"..."} it works no matter what
+			if len(v) != 0 && v[0] == "..." {
+				sigmatch = true
+				break
+			}
+
+			{
+				for kk, vv := range v {
+					if !(vv == "any" || (*arr.At(int64(kk))).TypeOf() == vv) {
+						break
+					}
+				}
+			}
+
+		}
+
+		if sigmatch { //if a signature matches
+			return gfn.Function(arr.Array, stacktrace, line, file, instance)
+		}
+
+		//otherwise panic
+		TuskPanic(fmt.Sprintf("Native function requires the signature %s", func() string {
+
+			//give the signature list
+
+			var ret string
+			for k, v := range gfn.Signatures {
+				ret += "("
+				for kk, vv := range v {
+					ret += vv
+					if kk+1 != len(v) {
+						ret += ", "
+					}
+				}
+				ret += ")"
+
+				if k+1 != len(gfn.Signatures) {
+					ret += " or "
+				}
+			}
+			return ret
+		}()), line, file, stacktrace)
+		return nil
+		//////////////////////////////////////
+
 	}
 
 	Operations["function : array"] = function__sync__array

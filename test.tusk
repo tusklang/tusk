@@ -1,4 +1,3 @@
 var main = fn() {
-    defer e := recover:()
-    main:(1)
+    exec:()
 }
