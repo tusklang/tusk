@@ -40,10 +40,10 @@ func tusksprint(args []*TuskType, stacktrace []string, line uint64, file string,
 
 //TuskPanic panics in an Tusk instance
 func TuskPanic(err string, line uint64, file string, stacktrace []string) {
-	fmt.Println("Panic on line", line, "file", file)
-	fmt.Print(err)
-	fmt.Print("\nWhen the error was thrown, this was the stack:\n")
-	fmt.Println("  at line", line, "in file", file)
+	fmt.Fprintln(os.Stderr, "Panic on line", line, "file", file)
+	fmt.Fprintln(os.Stderr, err)
+	fmt.Fprintln(os.Stderr, "When the error was thrown, this was the stack:")
+	fmt.Fprintln(os.Stderr, "  at line", line, "in file", file)
 	for i := len(stacktrace) - 1; i >= 0; i-- { //print the stacktrace
 
 		endl := "\n"
@@ -51,9 +51,9 @@ func TuskPanic(err string, line uint64, file string, stacktrace []string) {
 			endl = ""
 		}
 
-		fmt.Print("  " + stacktrace[i] + endl)
+		fmt.Fprint(os.Stderr, "  "+stacktrace[i]+endl)
 	}
-	fmt.Println()
+	fmt.Fprintln(os.Stderr)
 	os.Exit(1)
 }
 
