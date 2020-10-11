@@ -5,7 +5,7 @@ import (
 )
 
 type TuskGoFunc struct {
-	Function   func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType
+	Function   func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError)
 	Signatures [][]string
 }
 
@@ -24,8 +24,8 @@ func (tgf TuskGoFunc) TypeOf() string {
 func (tgf TuskGoFunc) Deallocate() {}
 
 //Range ranges over an tusk native function
-func (ogf TuskGoFunc) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
-	return nil
+func (ogf TuskGoFunc) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
+	return nil, nil
 }
 
 func init() {

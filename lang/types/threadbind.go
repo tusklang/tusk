@@ -15,10 +15,10 @@ import "C"
 type cthread C.struct_Thread
 
 var curptr uint64 = 0
-var asyncfuncs = make(map[uint64]func() *TuskType)
+var asyncfuncs = make(map[uint64]func() (*TuskType, *TuskError))
 var allthreads = make(map[uint64]TuskThread)
 
-func newthread(cb func() *TuskType) *TuskThread {
+func newthread(cb func() (*TuskType, *TuskError)) *TuskThread {
 
 	asyncfuncs[curptr] = cb
 
@@ -47,7 +47,10 @@ func thread_dealloc(thread TuskThread) {
 func CallGoCB(ptr C.ulonglong, output *unsafe.Pointer) {
 
 	if _, e := asyncfuncs[uint64(ptr)]; e { //if it does not exist, it became corrupt, so ignore it
-		ret := asyncfuncs[uint64(ptr)]() //call the func based on the unsafe pointer address
+		ret, e := asyncfuncs[uint64(ptr)]() //call the func based on the unsafe pointer address
+		if e != nil {
+			e.Print()
+		}
 		*output = unsafe.Pointer(&ret)
 	}
 }

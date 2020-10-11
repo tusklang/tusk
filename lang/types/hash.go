@@ -112,20 +112,24 @@ func (hash TuskHash) TypeOf() string {
 func (hash TuskHash) Deallocate() {}
 
 //Range ranges over a hash
-func (hash TuskHash) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
+func (hash TuskHash) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
 
 	for _, keyi := range hash.keys {
 
 		k, v := keyi, hash.Hash[(*keyi).Format()]
 
-		ret := fn(k, v)
+		ret, e := fn(k, v)
+
+		if e != nil {
+			return nil, e
+		}
 
 		if ret.Type == "break" {
 			break
 		} else if ret.Type == "return" {
-			return &ret
+			return &ret, nil
 		}
 	}
 
-	return nil
+	return nil, nil
 }

@@ -3,10 +3,10 @@ package types
 //package to store all of the datatypes in tusk
 
 type CliParams struct {
-	Prec       uint64
-	Output     string
-	Name       string
-	Directory  string
+	Prec        uint64
+	Output      string
+	Name        string
+	Directory   string
 	TuskDirname string
 }
 
@@ -21,5 +21,5 @@ type TuskType interface {
 	//////////////////////////////////////////////////////
 
 	Deallocate()
-	Range(func(val1, val2 *TuskType) Returner) *Returner
+	Range(func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError)
 }

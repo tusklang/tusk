@@ -18,7 +18,7 @@ func globalAccess(actions []types.Action) ([]types.Action, map[string][]string) 
 		if v.Type == "access" {
 			//an access list
 			if k+1 < len(actions) { //if the next action exists
-				v.Value.Range(func(kk, vv *types.TuskType) types.Returner {
+				v.Value.Range(func(kk, vv *types.TuskType) (types.Returner, *types.TuskError) {
 					//get the file
 					name := (*vv).Format()
 
@@ -30,7 +30,7 @@ func globalAccess(actions []types.Action) ([]types.Action, map[string][]string) 
 					}
 
 					accessl[actions[k+1].Name] = append(accessl[actions[k+1].Name], name)
-					return types.Returner{}
+					return types.Returner{}, nil
 				})
 			} //otherwise, just ignore it
 			continue

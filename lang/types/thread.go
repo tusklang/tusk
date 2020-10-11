@@ -8,7 +8,7 @@ type TuskThread struct {
 }
 
 //export NewThread
-func NewThread(cb func() *TuskType) *TuskThread {
+func NewThread(cb func() (*TuskType, *TuskError)) *TuskThread {
 	//wrapper for other packages to create TuskThreads
 	return newthread(cb)
 }
@@ -47,6 +47,6 @@ func (ot TuskThread) Deallocate() {
 }
 
 //Range ranges over a thread
-func (ot TuskThread) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
-	return nil
+func (ot TuskThread) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
+	return nil, nil
 }

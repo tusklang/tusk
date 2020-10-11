@@ -32,6 +32,6 @@ func (o TuskObject) TypeOf() string {
 func (o TuskObject) Deallocate() {}
 
 //Range ranges over an object
-func (o TuskObject) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
-	return nil
+func (o TuskObject) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
+	return nil, nil
 }

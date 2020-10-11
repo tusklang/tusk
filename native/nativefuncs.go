@@ -38,23 +38,25 @@ func tusksprint(args []*TuskType, stacktrace []string, line uint64, file string,
 	return sprinted
 }
 
-//TuskPanic panics in an Tusk instance
-func TuskPanic(err string, line uint64, file string, stacktrace []string) {
-	fmt.Fprintln(os.Stderr, "Panic on line", line, "file", file)
-	fmt.Fprintln(os.Stderr, err)
-	fmt.Fprintln(os.Stderr, "When the error was thrown, this was the stack:")
-	fmt.Fprintln(os.Stderr, "  at line", line, "in file", file)
+func makepanic(err string, line uint64, file string, stacktrace []string) (string, []string) {
+	var e string
+	var s []string
+	e += fmt.Sprintln("Panic on line", line, "file", file)
+	e += fmt.Sprint(err)
+	s = append(s, fmt.Sprint("at line ", line, " in file ", file))
 	for i := len(stacktrace) - 1; i >= 0; i-- { //print the stacktrace
-
-		endl := "\n"
-		if i == 0 {
-			endl = ""
-		}
-
-		fmt.Fprint(os.Stderr, "  "+stacktrace[i]+endl)
+		s = append(s, stacktrace[i])
 	}
-	fmt.Fprintln(os.Stderr)
-	os.Exit(1)
+	return e, s
+}
+
+//TuskPanic returns a panic error in an Tusk instance
+func TuskPanic(err string, line uint64, file string, stacktrace []string) *TuskError {
+	e, s := makepanic(err, line, file, stacktrace)
+	var errStruct TuskError
+	errStruct.Err = e
+	errStruct.Stacktrace = s
+	return &errStruct
 }
 
 func makectype(val *TuskType) (unsafe.Pointer, error) {
@@ -70,17 +72,17 @@ func makectype(val *TuskType) (unsafe.Pointer, error) {
 
 		var err error
 
-		(*val).(TuskArray).Range(func(k, v *TuskType) Returner {
+		(*val).(TuskArray).Range(func(k, v *TuskType) (Returner, *TuskError) {
 			idx := (*k).(TuskNumber).ToGoType()
 			cval, e := makectype(v)
 			if e != nil {
 				err = e //if there is an error, set it, then break the loop
 				return Returner{
 					Type: "break",
-				}
+				}, nil
 			}
 			C.setcarray(carray, C.int(idx), unsafe.Pointer(cval))
-			return Returner{}
+			return Returner{}, nil
 		})
 
 		return unsafe.Pointer(carray), err
@@ -104,11 +106,11 @@ func fromctype(val unsafe.Pointer, tuskarg *TuskType) TuskType {
 	case TuskArray:
 		carray := (*unsafe.Pointer)(val)
 		var tuskarray TuskArray
-		(*tuskarg).(TuskArray).Range(func(k, v *TuskType) Returner {
+		(*tuskarg).(TuskArray).Range(func(k, v *TuskType) (Returner, *TuskError) {
 			idx := (*k).(TuskNumber).ToGoType()
 			safeval := fromctype(C.getcarray(carray, C.int(idx)), v)
 			tuskarray.PushBack(safeval)
-			return Returner{}
+			return Returner{}, nil
 		})
 		return tuskarray
 	}
@@ -119,34 +121,34 @@ func fromctype(val unsafe.Pointer, tuskarg *TuskType) TuskType {
 //NativeFuncs are the native functions that are relatively simple to implement
 var NativeFuncs = map[string]TuskGoFunc{
 	"log": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			fmt.Print(tusksprint(args, stacktrace, line, file, instance))
 			fmt.Println() //print a newline at the end
 			var tmpundef TuskType = TuskUndef{}
-			return &tmpundef
+			return &tmpundef, nil
 		},
 		Signatures: [][]string{[]string{"..."}},
 	},
 	"print": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			fmt.Print(tusksprint(args, stacktrace, line, file, instance))
 			var tmpundef TuskType = TuskUndef{}
-			return &tmpundef
+			return &tmpundef, nil
 		},
 		Signatures: [][]string{[]string{"..."}},
 	},
 	"sprint": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			sprinted := tusksprint(args, stacktrace, line, file, instance)
 			var tuskstr TuskString
 			tuskstr.FromGoType(sprinted)
 			var tusktype TuskType = tuskstr
-			return &tusktype
+			return &tusktype, nil
 		},
 		Signatures: [][]string{[]string{"..."}},
 	},
 	"await": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			interpreted := args[0]
 			var awaited *TuskType
 
@@ -163,12 +165,12 @@ var NativeFuncs = map[string]TuskGoFunc{
 				awaited = interpreted
 			}
 
-			return awaited
+			return awaited, nil
 		},
 		Signatures: [][]string{[]string{"thread"}},
 	},
 	"input": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 
 			scanner := bufio.NewScanner(os.Stdin)
 
@@ -184,12 +186,12 @@ var NativeFuncs = map[string]TuskGoFunc{
 			inputTuskType.FromGoType(input)
 			var inputType TuskType = inputTuskType
 
-			return &inputType
+			return &inputType, nil
 		},
 		Signatures: [][]string{[]string{}, []string{"string"}},
 	},
 	"typeof": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			typeof := (*args[0]).TypeOf()
 
 			var str TuskString
@@ -197,41 +199,37 @@ var NativeFuncs = map[string]TuskGoFunc{
 
 			//convert to TuskType interface
 			var tusktype TuskType = str
-			return &tusktype
+			return &tusktype, nil
 		},
 		Signatures: [][]string{[]string{"any"}},
 	},
 	"append": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			a := (*args[0]).(TuskArray)
 			a.PushBack(*args[1])
 			var tusktype TuskType = a
-			return &tusktype
+			return &tusktype, nil
 		},
 		Signatures: [][]string{[]string{"array", "any"}},
 	},
 	"prepend": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
-			if len(args) != 2 || (*args[0]).Type() != "array" {
-				TuskPanic("Function prepend requires the signature (array, any)", line, file, stacktrace)
-			}
-
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			a := (*args[0]).(TuskArray)
 			a.PushFront(*args[1])
 			var tusktype TuskType = a
-			return &tusktype
+			return &tusktype, nil
 		},
 		Signatures: [][]string{[]string{"array", "any"}},
 	},
 	"make": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			var tusktype TuskType = (*args[0]).(TuskProto).New(*instance)
-			return &tusktype
+			return &tusktype, nil
 		},
 		Signatures: [][]string{[]string{"prototype"}},
 	},
 	"len": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 
 			var length uint64
 
@@ -248,12 +246,12 @@ var NativeFuncs = map[string]TuskGoFunc{
 			tusklen.FromGoType(float64(length))
 
 			var tusktype TuskType = tusklen
-			return &tusktype
+			return &tusktype, nil
 		},
 		Signatures: [][]string{[]string{"any"}},
 	},
 	"clone": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 
 			val := *args[0]
 
@@ -268,7 +266,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 					Length: val.(TuskArray).Length,
 				}
 
-				return &tusktype
+				return &tusktype, nil
 
 			case TuskBool:
 
@@ -279,7 +277,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 					Boolean: &tmp, //take address of tmp and place it into `Boolean` field of returner
 				}
 
-				return &returner
+				return &returner, nil
 
 			case TuskHash:
 				var hash = val.(TuskHash).Hash
@@ -296,7 +294,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 					Length: val.(TuskHash).Length,
 				}
 
-				return &tusktype
+				return &tusktype, nil
 
 			case TuskNumber:
 				var number = val.(TuskNumber)
@@ -315,7 +313,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 					Integer: &integer,
 					Decimal: &decimal,
 				}
-				return &newnum
+				return &newnum, nil
 
 			case TuskRune:
 
@@ -326,7 +324,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 					Rune: &tmp, //take address of tmp and place it into `Rune` field of returner
 				}
 
-				return &returner
+				return &returner, nil
 
 			case TuskString:
 
@@ -334,30 +332,30 @@ var NativeFuncs = map[string]TuskGoFunc{
 				var kastr TuskString
 				kastr.FromRuneList(append(tmp, []rune{}...)) //clone tmp
 				var returner TuskType = kastr
-				return &returner
+				return &returner, nil
 
 			default:
 				TuskPanic("Cannot clone type \""+val.Type()+"\"", line, file, stacktrace)
 			}
 
 			var tmpundef TuskType = TuskUndef{}
-			return &tmpundef
+			return &tmpundef, nil
 		},
 		Signatures: [][]string{[]string{"any"}},
 	},
 	"panic": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			var err = (*args[0]).(TuskString)
 
 			TuskPanic(err.ToGoType(), line, file, stacktrace)
 
 			var tmpundef TuskType = TuskUndef{}
-			return &tmpundef
+			return &tmpundef, nil
 		},
 		Signatures: [][]string{[]string{"string"}},
 	},
 	"exec": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 
 			if len(args) == 1 {
 				var cmd = (*args[0]).(TuskString).ToGoType()
@@ -373,7 +371,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 				var stringValue TuskString
 				stringValue.FromGoType(string(out))
 				var tusktype TuskType = stringValue
-				return &tusktype
+				return &tusktype, nil
 			} else if len(args) == 2 {
 				var cmd = (*args[0]).(TuskString).ToGoType()
 				var stdin = (*args[1]).(TuskString).ToGoType()
@@ -390,17 +388,17 @@ var NativeFuncs = map[string]TuskGoFunc{
 				var stringValue TuskString
 				stringValue.FromGoType(string(out))
 				var tusktype TuskType = stringValue
-				return &tusktype
+				return &tusktype, nil
 			}
 
 			//prevent go from compile-time erroring
 			var tmpundef TuskType = TuskUndef{}
-			return &tmpundef
+			return &tmpundef, nil
 		},
 		Signatures: [][]string{[]string{"string"}, []string{"string", "string"}},
 	},
 	"load": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			libname := (*args[0]).(TuskString).ToGoType()
 			lib, e := oatenc.OatDecode(libname)
 
@@ -415,22 +413,22 @@ var NativeFuncs = map[string]TuskGoFunc{
 			}
 
 			var tusktype TuskType = tuskhash
-			return &tusktype
+			return &tusktype, nil
 		},
 		Signatures: [][]string{[]string{"string"}},
 	},
 	"prec": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			//set the instance's precision
 			precv := uint64((*args[0]).(TuskNumber).ToGoType())
 			instance.Params.Prec = precv
 
-			return args[0]
+			return args[0], nil
 		},
 		Signatures: [][]string{[]string{"number"}},
 	},
 	"syscall": TuskGoFunc{
-		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) *TuskType {
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 
 			if len(args) < 1 || (*args[0]).Type() != "number" {
 				TuskPanic("Sysno must be a numeric value", line, file, stacktrace)
@@ -495,7 +493,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 			var tusknum TuskNumber
 			tusknum.FromGoType(float64(called))
 			var tusktype TuskType = tusknum
-			return &tusktype
+			return &tusktype, nil
 		},
 		Signatures: [][]string{[]string{"..."}},
 	},

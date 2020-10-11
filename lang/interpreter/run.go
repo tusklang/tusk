@@ -84,14 +84,20 @@ func RunInterpreter(compiledVars map[string]*TuskType, cli_params CliParams) {
 				os.Exit(1)
 			}
 
-			calledP := Interpreter(&instance, (*main.Value).(TuskFunc).Overloads[0].Body, []string{"at the entry caller"}, 0, nil, false).Exp
+			calledP, e := Interpreter(&instance, (*main.Value).(TuskFunc).Overloads[0].Body, []string{"at the entry caller"}, 0, nil, false)
+			if e != nil {
+				e.Print()
+				os.Exit(1)
+			}
 			WaitAllThreads() //finish up any remaining threads
 
-			if calledP == nil {
-				os.Exit(0)
+			//get the exit value
+			calledE := calledP.Exp
+			if calledE == nil {
+				return
 			}
-
-			called := *calledP //dereference the called ptr (to get the value)
+			called := *calledE
+			////////////////////
 
 			var exitType int64
 

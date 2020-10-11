@@ -393,6 +393,18 @@ var tokensJSON = []byte(
     "remove": "continue",
     "pattern": "(continue\\s*\\,)",
     "type": "loopcont"
+  },
+  {
+    "name": "try",
+    "remove": "try",
+    "pattern": "(try\\s*(\\{|\\())",
+    "type": "id"
+  },
+  {
+    "name": "catch",
+    "remove": "catch",
+    "pattern": "(catch\\s*(\\{|\\())",
+    "type": "id"
   }
 ]
 `,

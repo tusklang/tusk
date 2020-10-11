@@ -28,13 +28,13 @@ func arraytogroup(arractions []Action) []Action {
 		}
 
 		//range through it and append to the converted
-		arractions[0].Value.(TuskArray).Range(func(_, v *TuskType) Returner {
+		arractions[0].Value.(TuskArray).Range(func(_, v *TuskType) (Returner, *TuskError) {
 			converted = append(converted, Action{
 				Type:  (*v).Type(),
 				Value: *v,
 			})
 
-			return Returner{}
+			return Returner{}, nil
 		})
 
 	case "r-array":
@@ -82,7 +82,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 		switch v.Type {
 		case "STATE-OP":
 
-			var statements = []string{"var", "if", "elif", "else", "while", "each", "function", "return", "proto", "static", "instance", "build", "ovld", "defer", "access"} //list of statements
+			var statements = []string{"var", "if", "elif", "else", "while", "each", "function", "return", "proto", "static", "instance", "build", "ovld", "defer", "access", "try", "catch"} //list of statements
 
 			var hasStatement bool = false
 
@@ -176,6 +176,52 @@ func actionizer(operations []Operation) ([]Action, error) {
 							ExpAct: arraytogroup(right),
 						})
 
+					case "try":
+
+						actions = append(actions, Action{
+							Type:   val,
+							Second: arraytogroup(right),
+							File:   v.File,
+							Line:   v.Line,
+						})
+
+					case "catch":
+
+						if right[0].Type != "CB-OB" {
+							return []Action{}, makeCompilerErr("Catch statements need a catcher and a body", v.File, right[0].Line)
+						}
+
+						if len(actions) == 0 || actions[len(actions)-1].Type != "try" {
+							return []Action{}, makeCompilerErr("Unexpected catch statement", v.File, right[0].Line)
+						}
+
+						var catchervars = right[0].First
+
+						var tmpvar = Action{
+							Type: "variable",
+							Name: "dv 0", //dummy variable name
+							File: v.File,
+							Line: v.Line,
+						}
+
+						switch len(catchervars) {
+						case 0: //both vars are dummies
+							catchervars[0] = tmpvar
+							catchervars[1] = tmpvar
+						case 1: //only the second one is a dummy
+							catchervars[1] = tmpvar
+						case 2: //none are dummies
+						default: //error
+							return []Action{}, makeCompilerErr("Catch statement catcher list was given too many parameters", v.File, right[0].Line)
+						}
+
+						//append to the previous try statement
+
+						//prepend a dummy value (because in varname check, I am reusing the "each", and each requires an iterator for the first one)
+						actions[len(actions)-1].First = append([]Action{Action{}}, catchervars...)
+						actions[len(actions)-1].ExpAct = arraytogroup(right[0].Second)
+						//////////////////////////////////////
+
 					case "while":
 						if right[0].Type != "CB-OB" {
 							return []Action{}, makeCompilerErr("While loops need a condition and a body", v.File, right[0].Line)
@@ -191,13 +237,13 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 					case "each":
 						if right[0].Type != "CB-OB" {
-							return []Action{}, makeCompilerErr("Each loops need a iterator and a body", v.File, right[0].Line)
+							return []Action{}, makeCompilerErr("Each loops require an iterator and a body", v.File, right[0].Line)
 						}
 
 						iter := arraytogroup(right[0].First)
 
 						if len(iter) != 3 {
-							return []Action{}, makeCompilerErr("Each loops must look like this: each(iterator, key, value)", v.File, right[0].Line)
+							return []Action{}, makeCompilerErr("Each loops must have an iterator, key, and a value", v.File, right[0].Line)
 						}
 
 						for _, n := range iter[1:] {
@@ -380,7 +426,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 						var e error
 						var dobuild bool
 
-						right[0].First[0].Value.(TuskArray).Range(func(kk *TuskType, vv *TuskType) (none Returner) {
+						right[0].First[0].Value.(TuskArray).Range(func(kk *TuskType, vv *TuskType) (none Returner, err *TuskError) {
 
 							none = Returner{
 								Type: "break",

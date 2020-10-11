@@ -4,7 +4,7 @@ package interpreter
 
 import . "github.com/tusklang/tusk/lang/types"
 
-func number__pow__integer(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) TuskType {
+func number__pow__integer(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) (TuskType, *TuskError) {
 	num1, num2 := val1.(TuskNumber), val2.(TuskNumber)
 	ensurePrec(&num1, &num2, (*instance).Params)
 
@@ -12,29 +12,41 @@ func number__pow__integer(val1, val2 TuskType, instance *Instance, stacktrace []
 	//https://cp-algorithms.com/algebra/binary-exp.html#toc-tgt-1
 
 	if isEqual(num2, zero) {
-		return one
+		return one, nil
 	}
 
 	var two = zero
 	two.Integer = &[]int64{2}
 
-	divved := (*number__divide__number(num2, two, instance, stacktrace, line, file)).(TuskNumber)
+	pdivved, e := number__divide__number(num2, two, instance, stacktrace, line, file)
+	if e != nil {
+		return nil, e
+	}
+	divved := (*pdivved).(TuskNumber)
 	divved.Decimal = &[]int64{} //round down to nearest whole
 
-	res := number__pow__integer(num1, divved, instance, stacktrace, line, file).(TuskNumber)
+	pres, e := number__pow__integer(num1, divved, instance, stacktrace, line, file)
+	if e != nil {
+		return nil, e
+	}
+	res := pres.(TuskNumber)
 
 	resSquared := (*number__times__number(res, res, instance, stacktrace, line, file)).(TuskNumber)
 
-	modBy2 := (*number__mod__number(num2, two, instance, stacktrace, line, file)).(TuskNumber)
+	pmodBy2, e := number__mod__number(num2, two, instance, stacktrace, line, file)
+	if e != nil {
+		return nil, e
+	}
+	modBy2 := (*pmodBy2).(TuskNumber)
 
 	if isEqual(modBy2, one) {
-		return (*number__times__number(resSquared, num1, instance, stacktrace, line, file)).(TuskNumber)
+		return (*number__times__number(resSquared, num1, instance, stacktrace, line, file)).(TuskNumber), nil
 	}
 
-	return resSquared
+	return resSquared, nil
 }
 
-func ln(val TuskType, instance *Instance, stacktrace []string, line uint64, file string) TuskType {
+func ln(val TuskType, instance *Instance, stacktrace []string, line uint64, file string) (TuskType, *TuskError) {
 	x := val.(TuskNumber)
 	ensurePrec(&x, &TuskNumber{}, (*instance).Params)
 
@@ -48,7 +60,11 @@ func ln(val TuskType, instance *Instance, stacktrace []string, line uint64, file
 	two.Integer = &[]int64{2, 0}
 
 	//calculate (x - 1) / (x + 1)
-	xm1dxp1 := (*number__divide__number(*number__minus__number(x, one, instance, stacktrace, line, file), *number__plus__number(x, one, instance, stacktrace, line, file), instance, stacktrace, line, file)).(TuskNumber)
+	pxm1dxp1, e := number__divide__number(*number__minus__number(x, one, instance, stacktrace, line, file), *number__plus__number(x, one, instance, stacktrace, line, file), instance, stacktrace, line, file)
+	if e != nil {
+		return nil, e
+	}
+	xm1dxp1 := *pxm1dxp1
 
 	//convert precision to tusk number
 	kaNumberPrec := zero
@@ -58,10 +74,14 @@ func ln(val TuskType, instance *Instance, stacktrace []string, line uint64, file
 	for i := one; isLess(i, kaNumberPrec); i = (*number__plus__number(i, two, instance, stacktrace, line, file)).(TuskNumber) {
 
 		//calculate 1/i
-		onedi := *number__divide__number(one, i, instance, stacktrace, line, file)
+		ponedi, e := number__divide__number(one, i, instance, stacktrace, line, file)
+		if e != nil {
+			return nil, e
+		}
+		onedi := *ponedi
 
 		//calculate xm1dxp1 ^ i
-		xm1dxp1pi := number__pow__integer(xm1dxp1, i, instance, stacktrace, line, file)
+		xm1dxp1pi, e := number__pow__integer(xm1dxp1, i, instance, stacktrace, line, file)
 
 		//calculate onedi * xm1dxp1pi
 		oneditxm1dxp1pi := *number__times__number(onedi, xm1dxp1pi, instance, stacktrace, line, file)
@@ -71,7 +91,7 @@ func ln(val TuskType, instance *Instance, stacktrace []string, line uint64, file
 	}
 
 	series = (*number__times__number(series, two, instance, stacktrace, line, file)).(TuskNumber)
-	return series
+	return series, nil
 }
 
 func fac(val TuskType, instance *Instance, stacktrace []string, line uint64, file string) TuskType {
@@ -90,7 +110,7 @@ func fac(val TuskType, instance *Instance, stacktrace []string, line uint64, fil
 	return prod
 }
 
-func exp(val TuskType, instance *Instance, stacktrace []string, line uint64, file string) TuskType {
+func exp(val TuskType, instance *Instance, stacktrace []string, line uint64, file string) (TuskType, *TuskError) {
 	x := val.(TuskNumber)
 	ensurePrec(&x, &TuskNumber{}, (*instance).Params)
 
@@ -112,14 +132,21 @@ func exp(val TuskType, instance *Instance, stacktrace []string, line uint64, fil
 		i_factorial := fac(i, instance, stacktrace, line, file)
 
 		//calculate x^i
-		xpi := number__pow__integer(x, i, instance, stacktrace, line, file)
+		xpi, e := number__pow__integer(x, i, instance, stacktrace, line, file)
+		if e != nil {
+			return nil, e
+		}
 
 		//calculate x ^ i / (i!)
-		xpidifac := *number__divide__number(xpi, i_factorial, instance, stacktrace, line, file)
+		pxpidifac, e := number__divide__number(xpi, i_factorial, instance, stacktrace, line, file)
+		if e != nil {
+			return nil, e
+		}
+		xpidifac := *pxpidifac
 
 		//add x ^ i / (i!) to the series
 		series = (*number__plus__number(series, xpidifac, instance, stacktrace, line, file)).(TuskNumber)
 	}
 
-	return series
+	return series, nil
 }

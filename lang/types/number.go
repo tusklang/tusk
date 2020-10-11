@@ -71,6 +71,6 @@ func (n TuskNumber) TypeOf() string {
 func (n TuskNumber) Deallocate() {}
 
 //Range ranges over a number
-func (n TuskNumber) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
-	return nil
+func (n TuskNumber) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
+	return nil, nil
 }

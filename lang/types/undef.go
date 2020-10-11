@@ -19,6 +19,6 @@ func (u TuskUndef) TypeOf() string {
 func (u TuskUndef) Deallocate() {}
 
 //Range ranges over an undef type
-func (u TuskUndef) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
-	return nil
+func (u TuskUndef) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
+	return nil, nil
 }

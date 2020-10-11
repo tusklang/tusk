@@ -29,6 +29,6 @@ func (r TuskRune) TypeOf() string {
 func (r TuskRune) Deallocate() {}
 
 //Range ranges over a rune
-func (r TuskRune) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
-	return nil
+func (r TuskRune) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
+	return nil, nil
 }

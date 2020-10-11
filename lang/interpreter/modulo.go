@@ -2,7 +2,7 @@ package interpreter
 
 import . "github.com/tusklang/tusk/lang/types"
 
-func number__mod__number(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) *TuskType {
+func number__mod__number(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) (*TuskType, *TuskError) {
 	num1, num2 := val1.(TuskNumber), val2.(TuskNumber)
 	ensurePrec(&num1, &num2, (*instance).Params)
 
@@ -18,9 +18,13 @@ func number__mod__number(val1, val2 TuskType, instance *Instance, stacktrace []s
 	num2P.Integer, num2P.Decimal = &tmpInt, &tmpDec
 
 	//if you set the prec to 0 here, it will mutate it
-	divided := (*number__divide__number(num1, num2, instance, stacktrace, line, file)).(TuskNumber)
+	pdivided, e := number__divide__number(num1, num2, instance, stacktrace, line, file)
+	if e != nil {
+		return nil, e
+	}
+	divided := (*pdivided).(TuskNumber)
 	*divided.Decimal = nil //round down
 
 	multiplied := (*number__times__number(divided, num2, instance, stacktrace, line, file)).(TuskNumber)
-	return number__minus__number(num1, multiplied, instance, stacktrace, line, file)
+	return number__minus__number(num1, multiplied, instance, stacktrace, line, file), nil
 }

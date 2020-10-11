@@ -92,7 +92,7 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 			actions[k].Value = fn
 			continue
 		}
-		if v.Type == "each" { //if it is each, also give the key and value variables
+		if v.Type == "each" || v.Type == "try" { //if it is each, also give the key and value variables
 			key := v.First[1].Name
 			val := v.First[2].Name
 
@@ -104,23 +104,30 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 			}
 			///////////////////////////////////
 
+			//change the key and value variable names
 			keyandvalvars[key] = "v " + strconv.FormatUint(curvar, 10)
 			v.First[1].Name = "v " + strconv.FormatUint(curvar, 10)
 			curvar++
 			keyandvalvars[val] = "v " + strconv.FormatUint(curvar, 10)
 			v.First[2].Name = "v " + strconv.FormatUint(curvar, 10)
 			curvar++
+			/////////////////////////////////////////
 
+			//change var names for the iterator
 			tmp := []Action{v.First[0]}
 			_, e = changevarnames(tmp, keyandvalvars, access)
 			v.First[0] = tmp[0]
 			if e != nil {
 				return nil, e
 			}
+			///////////////////////////////////
+
+			//change var names for the body
 			_, e = changevarnames(v.ExpAct, keyandvalvars, access)
 			if e != nil {
 				return nil, e
 			}
+			///////////////////////////////
 
 			continue
 		}

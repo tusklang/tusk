@@ -73,7 +73,7 @@ func (str TuskString) TypeOf() string {
 func (str TuskString) Deallocate() {}
 
 //Range ranges over a string
-func (str TuskString) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
+func (str TuskString) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
 
 	for k, v := range str.runel {
 		var key TuskNumber
@@ -83,14 +83,18 @@ func (str TuskString) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
 
 		var keykatype TuskType = key
 		var valkatype TuskType = val
-		ret := fn(&keykatype, &valkatype)
+		ret, e := fn(&keykatype, &valkatype)
+
+		if e != nil {
+			return nil, e
+		}
 
 		if ret.Type == "break" {
 			break
 		} else if ret.Type == "return" {
-			return &ret
+			return &ret, nil
 		}
 	}
 
-	return nil
+	return nil, nil
 }

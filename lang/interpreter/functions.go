@@ -40,7 +40,7 @@ func fillFuncInstance(fn *TuskFunc, args TuskArray, parent *Instance) *Overload 
 }
 
 func funcinit() { //initialize the operations that require the use of the interpreter
-	var function__sync__array = func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
+	var function__sync__array = func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 		var fn = val1.(TuskFunc)
 		var arr = val2.(TuskArray)
 
@@ -50,10 +50,11 @@ func funcinit() { //initialize the operations that require the use of the interp
 			TuskPanic("Could not find a typelist for function call", line, file, stacktrace)
 		}
 
-		return Interpreter(fn.Instance, overload.Body, append(stacktrace, "synchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params, true).Exp
+		tmp, e := Interpreter(fn.Instance, overload.Body, append(stacktrace, "synchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params, true)
+		return tmp.Exp, e
 	}
 
-	var function__async__array = func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
+	var function__async__array = func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 		var fn = val1.(TuskFunc)
 		var arr = val2.(TuskArray)
 
@@ -63,14 +64,15 @@ func funcinit() { //initialize the operations that require the use of the interp
 			TuskPanic("Could not find a typelist for function call", line, file, stacktrace)
 		}
 
-		var promise TuskType = *NewThread(func() *TuskType {
-			return Interpreter(fn.Instance, overload.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params, true).Exp
+		var promise TuskType = *NewThread(func() (*TuskType, *TuskError) {
+			tmp, e := Interpreter(fn.Instance, overload.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params, true)
+			return tmp.Exp, e
 		})
 
-		return &promise
+		return &promise, nil
 	}
 
-	var nativefunc__sync__array = func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) *TuskType {
+	var nativefunc__sync__array = func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 		gfn := val1.(TuskGoFunc)
 		arr := val2.(TuskArray)
 
@@ -104,7 +106,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 		}
 
 		//otherwise panic
-		TuskPanic(fmt.Sprintf("Native function requires the signature %s", func() string {
+		return nil, TuskPanic(fmt.Sprintf("Native function requires the signature %s", func() string {
 
 			//give the signature list
 
@@ -125,7 +127,6 @@ func funcinit() { //initialize the operations that require the use of the interp
 			}
 			return ret
 		}()), line, file, stacktrace)
-		return nil
 		//////////////////////////////////////
 
 	}

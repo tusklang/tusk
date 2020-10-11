@@ -66,20 +66,24 @@ func (arr TuskArray) TypeOf() string {
 func (arr TuskArray) Deallocate() {}
 
 //Range ranges over an array
-func (arr TuskArray) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
+func (arr TuskArray) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
 
 	for k, v := range arr.Array {
 		var key TuskNumber
 		key.FromGoType(float64(k))
-		var katypekey TuskType = key
-		ret := fn(&katypekey, v)
+		var tusktypekey TuskType = key
+		ret, e := fn(&tusktypekey, v)
+
+		if e != nil {
+			return nil, e
+		}
 
 		if ret.Type == "break" {
 			break
 		} else if ret.Type == "return" {
-			return &ret
+			return &ret, nil
 		}
 	}
 
-	return nil
+	return nil, nil
 }

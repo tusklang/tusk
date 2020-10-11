@@ -34,6 +34,6 @@ func (b TuskBool) TypeOf() string {
 func (b TuskBool) Deallocate() {}
 
 //Range ranges over a bool
-func (b TuskBool) Range(fn func(val1, val2 *TuskType) Returner) *Returner {
-	return nil
+func (b TuskBool) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
+	return nil, nil
 }

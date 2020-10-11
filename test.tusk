@@ -1,3 +1,7 @@
 var main = fn() {
-    exec:()
+    try {
+        exec:()
+    } catch (e, s) {
+        log:(s)
+    }
 }
