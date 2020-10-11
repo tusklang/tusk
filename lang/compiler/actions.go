@@ -206,10 +206,11 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						switch len(catchervars) {
 						case 0: //both vars are dummies
+							catchervars = make([]Action, 2)
 							catchervars[0] = tmpvar
 							catchervars[1] = tmpvar
 						case 1: //only the second one is a dummy
-							catchervars[1] = tmpvar
+							catchervars = append(catchervars, tmpvar)
 						case 2: //none are dummies
 						default: //error
 							return []Action{}, makeCompilerErr("Catch statement catcher list was given too many parameters", v.File, right[0].Line)

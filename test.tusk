@@ -1,3 +1,7 @@
 var main = fn() {
-    
+    try {
+
+    } catch () {
+        log:("S")
+    }
 }
