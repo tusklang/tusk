@@ -17,7 +17,7 @@ type Lex struct {
 	Dir   string
 }
 
-//ExpressionLen is the max length of each error expression
+//ExpressionLen is the max length of each error expression (for error messages)
 const ExpressionLen = 30
 
 var tokens []map[string]string

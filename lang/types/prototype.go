@@ -49,7 +49,7 @@ func (p TuskProto) Format() string {
 }
 
 func (p TuskProto) Type() string {
-	return "proto"
+	return "prototype"
 }
 
 func (p TuskProto) TypeOf() string {

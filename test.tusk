@@ -1,7 +1,6 @@
-var main = fn() {
-    try {
+;include:
+;s tuskstd/url
 
-    } catch () {
-        log:("S")
-    }
+var main = fn() {
+    log:(request::get:("go.com"))
 }

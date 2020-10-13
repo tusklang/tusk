@@ -203,7 +203,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	"hash :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 		return val1.(TuskHash).At(&val2), nil
 	},
-	"proto :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+	"prototype :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 		v, e := val1.(TuskProto).Get(val2.(TuskString).ToGoType(), file)
 
 		if e != nil {

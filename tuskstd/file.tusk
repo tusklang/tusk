@@ -18,13 +18,6 @@ var file = proto {
         return file::open:(name, "r+")
     }
 
-    static ovld open = fn(number -> fd) {
-        var f = make:(file)
-        f::fd = fd
-        ;do not put mode or name
-        return f
-    }
-
     var read = fn(number -> size) {
         var buf = allocstr:(size)
         syscall:(0, fd, buf, size)
@@ -37,7 +30,7 @@ var file = proto {
     }
 
     var write = fn(string -> data) {
-        if (mode::0 != 'a')clear:() ;clear the file first (if it is not in append mode)
+        if (mode::0 != 'a') clear:() ;clear the file first (if it is not in append mode)
         writeon:(data) ;then write
     }
 
@@ -48,10 +41,9 @@ var file = proto {
 
     var clear = fn() {
         dummyfile := file::open:(name, "w+") ;open the file again, with w+ to clear
-        dummyfile::close()
+        dummyfile::close:()
         newfile := file::open:(name, mode)
         fd = newfile::fd
-        mode = newfile::mode
     }
 
     var close = fn() {

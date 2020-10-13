@@ -6,6 +6,7 @@ var url = proto {
     var orig
     var protocol
     var host
+    var port = 80
     var path
     var query
 
@@ -29,7 +30,7 @@ var url = proto {
         ;;;;;;;;;;;;;;;
 
         ;parse the path
-        var path
+        var path = "/" ;path is default "/"
         if (len:(uri) != 0 && uri::0 == '/') {
             ;only if the uri looks like /a/b/c
 

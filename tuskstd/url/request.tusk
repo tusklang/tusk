@@ -1,12 +1,34 @@
+  
 ;include:
 ;s tuskstd/util
-;s tuskstd/url
 
 var request = proto {
-    static var get = fn(string -> url) {
-        parsed := url::parse:(url)
-    }
-    static var post = fn(string -> url, hash -> data) {
-        parsed := url::parse:(url)
+
+    static var bufsize = 4096
+
+    static var get = fn(host, port) {
+        fd := syscall:(25, 2, 1, "tcp")
+        reqstr := "GET / HTTP/1.1\r\nHost: " + host + "\r\n\r\n"
+        buf := allocstr:(request::bufsize)
+
+        ;connect the socket
+        if (syscall:(26, fd, 2, host, port) == -1) panic:("Cannot connect to host " + host)
+
+        ;write to the socket
+        written_bytes := 0
+        while (written_bytes < len:(reqstr)) {
+            var curwritten
+
+            ;if the writing syscall gave an error
+            if ((curwritten = syscall:(1, fd, rmbegin:(reqstr, written_bytes), len:(reqstr) - written_bytes)) == -1)
+                panic:("Error writing request to socket")
+
+            written_bytes+=curwritten
+        }
+
+        ;read the resp
+        syscall:(0, fd, buf, request::bufsize)
+
+        return trim:(buf) ;trim the trailing whitespace (leftovers from bufsize)
     }
 }

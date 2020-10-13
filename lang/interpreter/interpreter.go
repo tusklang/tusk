@@ -218,7 +218,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			if _fetched == nil {
 				//if it is a nil pointer (only happens because tusk does not support closures)
-				TuskPanic("Invalid memory address", v.Line, v.File, stacktrace)
+				return Returner{}, TuskPanic("Invalid memory address", v.Line, v.File, stacktrace)
 			}
 
 			fetched := _fetched.Value
@@ -375,7 +375,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			}
 
 			if !exists { //if there is no operation for that type, panic
-				TuskPanic("Could not find "+v.Type+" operator for types "+(*firstInterpreted.Exp).TypeOf()+" and "+(*secondInterpreted.Exp).TypeOf(), v.Line, v.File, stacktrace)
+				return Returner{}, TuskPanic("Could not find "+v.Type+" operator for types "+(*firstInterpreted.Exp).TypeOf()+" and "+(*secondInterpreted.Exp).TypeOf(), v.Line, v.File, stacktrace)
 			}
 
 			computed, e := operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, ins, stacktrace, v.Line, v.File, stacksize+1)
@@ -587,7 +587,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" + number"]
 
 			if !exists { //if there is no operation for that type, panic
-				TuskPanic("Could not find + operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
+				return Returner{}, TuskPanic("Could not find + operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
 			}
 
 			var onetype TuskType = one
@@ -616,7 +616,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" - number"]
 
 			if !exists { //if there is no operation for that type, panic
-				TuskPanic("Could not find - operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
+				return Returner{}, TuskPanic("Could not find - operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
 			}
 
 			var onetype TuskType = one
@@ -659,7 +659,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" "+string(v.Type[0])+" "+interpreted.Type()]
 
 			if !exists { //if there is no operation for that type, panic
-				TuskPanic("Could not find "+string(v.Type[0])+" operation for types "+(*variable.Exp).Type()+" and "+interpreted.Type(), v.Line, v.File, stacktrace)
+				return Returner{}, TuskPanic("Could not find "+string(v.Type[0])+" operation for types "+(*variable.Exp).Type()+" and "+interpreted.Type(), v.Line, v.File, stacktrace)
 			}
 
 			calc, e := operationFunc(*variable.Exp, interpreted, ins, stacktrace, v.Line, v.File, stacksize)

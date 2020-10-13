@@ -5,7 +5,7 @@ import (
 	"github.com/tusklang/tusk/native"
 )
 
-var validtypes = []string{"string", "rune", "number", "bool", "hash", "array", "function", "none", "any"}
+var validtypes = []string{"string", "rune", "number", "bool", "hash", "array", "function", "none", "prototype", "object", "any"}
 
 func getnativetypes() {
 	for _, v := range native.Native { //append all of the types of the native

@@ -82,18 +82,24 @@ func funcinit() { //initialize the operations that require the use of the interp
 
 		//check the signatures of the function
 
-		var sigmatch bool
+		var sigmatch = true
 
 		for _, v := range gfn.Signatures {
 			//if it is {"..."} it works no matter what
 			if len(v) != 0 && v[0] == "..." {
-				sigmatch = true
 				break
 			}
 
 			{
 				for kk, vv := range v {
-					if !(vv == "any" || (*arr.At(int64(kk))).TypeOf() == vv) {
+					curv := *arr.At(int64(kk))
+					if vv == "any" || curv.TypeOf() == vv || curv.Type() == vv {
+						//all of these are good
+						sigmatch = true
+						continue
+					} else {
+						//otherwise wrong sig
+						sigmatch = false
 						break
 					}
 				}
