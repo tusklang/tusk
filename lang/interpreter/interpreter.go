@@ -218,7 +218,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			if _fetched == nil {
 				//if it is a nil pointer (only happens because tusk does not support closures)
-				return Returner{}, TuskPanic("Invalid memory address", v.Line, v.File, stacktrace)
+				return Returner{}, TuskPanic("Variable \""+v.Name+"\" was already deallocated", v.Line, v.File, stacktrace)
 			}
 
 			fetched := _fetched.Value

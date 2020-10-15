@@ -50,7 +50,6 @@ func insertArrows(lex []Lex) []Lex {
 				if braceCnt == 0 {
 					nLex = append(nLex, Lex{
 						Name:  "CB-OB",
-						Exp:   lex[i].Exp,
 						Line:  lex[i].Line,
 						Type:  "operation",
 						OName: "CB-OB",

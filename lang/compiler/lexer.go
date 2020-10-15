@@ -7,265 +7,254 @@ import (
 	"unicode"
 )
 
-//Lex represents a single a toknen
+//Lex represents a single a token
 type Lex struct {
 	Name  string
-	Exp   string
 	Line  uint64
 	Type  string
 	OName string
 	Dir   string
 }
 
-//ExpressionLen is the max length of each error expression (for error messages)
-const ExpressionLen = 30
+//see tokens JSON
+//this represents a token in tokensJSON
+type compiletoken struct {
+	Name    string `json:"name"`
+	Remove  string `json:"remove"`
+	Pattern string `json:"pattern"`
+	Type    string `json:"type"`
+}
 
-var tokens []map[string]string
-
+var tokens []compiletoken
 var _ = json.Unmarshal(tokensJSON, &tokens)
+
+var filecopy string //copy of the file, without any removed
+
+func testkey(file string, key compiletoken) bool {
+	r, _ := regexp.MatchString("^("+key.Pattern+")", file)
+
+	//- and + are a bit tricky
+
+	if key.Name == "+" || key.Name == "-" {
+		endrm := strings.TrimSpace(strings.TrimSuffix(filecopy, file))
+		isPosOrNeg := false //is it a positive or negative sign
+
+		for _, v := range tokens {
+
+			//only count operations
+			if v.Type == "operation" || v.Type == "?open_brace" || v.Type == "id" {
+				if m, _ := regexp.MatchString("("+v.Pattern+")$", endrm); m { //if it ends with an operation
+					isPosOrNeg = true //it is a positive/negative sign
+					break
+				}
+			}
+
+		}
+
+		//if its a positive or negative sign, dont count it
+		if isPosOrNeg {
+			return false
+		}
+	}
+
+	return r
+}
 
 func lexer(file, filename string) ([]Lex, error) {
 
-	var lex []Lex
-	curExp := ""
-	var line uint64 = 1
+	filecopy = file
+	var lex []Lex //lex to return
+	var curline uint64 = 1
 
-	for i := 0; i < len(file); i++ {
+	for file != "" {
+		if file[0] == '\n' { //if its a newline, add to the current line
+			file = file[1:]
+			curline++
+			continue
+		}
 
-		if len(strings.TrimLeft(file[i:], " ")) == 0 {
-			break
+		if unicode.IsSpace(rune(file[0])) { //if its whitespace, ignore it
+			file = file[1:]
+			continue
 		}
 
 		//detect a comment
 		//single line comments are written as ;comment
 		//like in assembly and lisp
-		if strings.TrimLeft(file[i:], " ")[0] == ';' {
-
-			var end = strings.Index(file[i:], "\n")
+		if file[0] == ';' {
+			var end = strings.Index(file, "\n")
 
 			//if there is no newline after the comment, just break the loop
 			if end == -1 {
 				break
 			}
+			file = file[end:]
 
-			i += end
-			line++
+			curline++
 			continue
 		}
 
-		if file[i] == '\n' {
-			line++
-			continue
-		}
+		var cont bool
 
-		if unicode.IsSpace(rune(file[i])) { //if it is a whitespace, ignore it
-			continue
-		}
+		for _, v := range tokens { //see if the current index is a key
 
-		//while the curExp is too long, pop the front
-		for ; len(curExp) > ExpressionLen; curExp = curExp[1:] {
-		}
-
-		for _, v := range tokens {
-			if testkey(v, file, i) {
-				curExp += v["remove"] + " "
-				i += len(v["remove"]) - 1
-
+			if testkey(file, v) {
+				file = strings.TrimPrefix(file, v.Remove)
 				lex = append(lex, Lex{
-					Name:  v["name"],
-					Exp:   curExp,
-					Line:  line,
-					Type:  v["type"],
-					OName: v["remove"],
+					Name:  v.Name,
+					Line:  curline,
+					Type:  v.Type,
+					OName: v.Name,
 					Dir:   filename,
 				})
-				goto contOuter
+				cont = true
+				break
 			}
 
 		}
 
-		if strings.TrimLeft(file, " ")[i:][0] == '"' || strings.TrimLeft(file, " ")[i:][0] == '\'' || strings.TrimLeft(file, " ")[i:][0] == '`' { //detect a string
-			qType := strings.TrimLeft(file, " ")[i:][0]
-			value := ""
-			escaped := false
+		if cont {
+			continue
+		}
 
-			for i++; i < len(file); i++ {
+		if file[0] == '"' || file[0] == '\'' || file[0] == '`' {
+			var escaped bool
+			qtype := file[0] //get the type of quote
+			fullstr := ""
 
-				cur := strings.TrimLeft(file, " ")[i:][0]
+			for file = file[1:]; len(file) != 0; file = file[1:] {
 
-				//for the special characters
-				if escaped && (cur == 'n' || cur == 'r' || cur == 't' || cur == 'v') {
-					switch cur {
+				if escaped {
+					switch file[0] {
+
+					//acount for special characters (\n \r \t \v)
 					case 'n':
-						value += "\n"
+						fullstr += "\n"
 					case 'r':
-						value += "\r"
+						fullstr += "\r"
 					case 't':
-						value += "\t"
+						fullstr += "\t"
 					case 'v':
-						value += "\v"
+						fullstr += "\v"
+					/////////////////////////////////////////////
+
+					default:
+						fullstr += string(file[0])
+						escaped = false
 					}
-					escaped = false
+
 					continue
 				}
 
-				if !escaped && cur == '\\' {
+				//backslash is escape
+				if file[0] == '\\' {
 					escaped = true
 					continue
 				}
-				value += string(cur)
 
-				if !escaped && cur == qType {
+				//if it is the same quote type, break
+				if file[0] == qtype {
 					break
 				}
-				escaped = false
+
+				fullstr += string(file[0])
 			}
 
-			curExp += value + " "
-			line += uint64(strings.Count(value, "\n"))
+			fullstr = string(qtype) + fullstr + string(qtype) //surround it with the quotes
+			file = file[1:]                                   //remove the ending quote from the file
 			lex = append(lex, Lex{
-				Name:  string(qType) + value,
-				Exp:   curExp,
-				Line:  line,
+				Name:  fullstr,
+				Line:  curline,
 				Type:  "expression value",
-				OName: value,
+				OName: fullstr,
 				Dir:   filename,
 			})
-			goto contOuter
-		} else if unicode.IsDigit(rune(strings.TrimLeft(file, " ")[i:][0])) || strings.TrimLeft(file, " ")[i:][0] == '+' || strings.TrimLeft(file, " ")[i:][0] == '-' || strings.TrimLeft(file, " ")[i:][0] == '.' {
-
+			continue
+		} else if unicode.IsDigit(rune(file[0])) || file[0] == '+' || file[0] == '-' || file[0] == '.' {
 			var positive = true
 
-			if strings.TrimLeft(file, " ")[i:][0] == '+' {
-				positive = true
-				i++
-			} else if strings.TrimLeft(file, " ")[i:][0] == '-' {
+			if file[0] == '-' {
 				positive = false
-				i++
+				file = file[1:]
+			} else if file[0] == '+' {
+				file = file[1:]
 			}
 
-			num := ""
+			numv := ""
 
-			for o := i; unicode.IsDigit(rune(strings.TrimLeft(file, " ")[o:][0])) || strings.TrimLeft(file, " ")[o:][0] == '.'; o++ {
-				num += string(strings.TrimLeft(file, " ")[o:][0])
-				if len(strings.TrimLeft(file, " ")[o+1:]) == 0 {
-					break
-				}
+			for len(file) != 0 && (unicode.IsDigit(rune(file[0])) || file[0] == '.') {
+				numv += string(file[0])
+				file = file[1:]
 			}
-			i += len(num) - 1
 
 			if !positive {
-				num = "-" + num
+				numv = "-" + numv
 			}
 
-			curExp += num + " "
-
 			lex = append(lex, Lex{
-				Name:  num,
-				Exp:   curExp,
-				Line:  line,
+				Name:  numv,
+				Line:  curline,
 				Type:  "expression value",
-				OName: num,
+				OName: numv,
 				Dir:   filename,
 			})
+			continue
 		} else {
 
-			if unicode.IsSpace(rune(file[i:][0])) {
+			if file[0] == '\n' { //ends in newline
+				file = file[1:]
+				curline++
+				continue
+			}
+
+			if unicode.IsSpace(rune(file[0])) { //it its a space (tab too)
+				file = file[1:]
 				continue
 			}
 
 			variable := ""
 
-			for o := i; o < len(file); o++ {
+			for ; len(file) != 0; file = file[1:] {
 
-				if unicode.IsSpace(rune(file[i:][0])) { //if it is a space, do not count it
-					i++
+				if file[0] == '\n' { //ends in newline, break
+					file = file[1:]
+					curline++
+					break
+				}
+
+				if unicode.IsSpace(rune(file[0])) { //it its a space, stop
+					file = file[1:]
 					break
 				}
 
 				for _, v := range tokens {
 
 					//only count operations
-					if v["type"] == "operation" || v["type"] == "?operation" || v["type"] == "?open_brace" || v["type"] == "?close_brace" {
-						if testkey(v, file, o) || unicode.IsSpace(rune(file[o])) || file[o] == ';' /* it is a comment */ {
-							goto break_var_loop
-						}
+					if (v.Type == "operation" || v.Type == "?operation" || v.Type == "?open_brace" || v.Type == "?close_brace") && testkey(file, v) || file[0] == ';' /* it is a comment */ {
+						goto break_var_loop
 					}
 
 				}
 
-				variable += string(file[o])
-				i++
+				variable += string(file[0])
 			}
 		break_var_loop:
 
-			curExp += variable + " "
-			variable = strings.TrimLeft(variable, " ")
-			i--
-
-			lex = append(lex, Lex{
-				Name:  "$" + variable,
-				Exp:   curExp,
-				Line:  line,
-				Type:  "expression value",
-				OName: variable,
-				Dir:   filename,
-			})
+			//only if the variable is not nothing
+			if variable != "" {
+				lex = append(lex, Lex{
+					Name:  "$" + variable,
+					Line:  curline,
+					Type:  "expression value",
+					OName: variable,
+					Dir:   filename,
+				})
+			}
 		}
 
-	contOuter: //continue the outer loop
-	}
-
-	//filter out newlines
-	var newLex []Lex
-	for _, v := range lex {
-		if v.Type == "newlineN" {
-			continue
-		}
-		if v.Name == "$false" || v.Name == "$true" || v.Name == "$undef" { //account for true, false, undef values
-			v.Name = v.Name[1:]
-			newLex = append(newLex, v)
-			continue
-		}
-		newLex = append(newLex, v)
-	}
-	lex = newLex
-	newLex = nil
-
-	//detect two operators back to back (which is an error)
-	for k, v := range lex {
-		if v.Type == "operation" && k+1 < len(lex) && lex[k+1].Type == "operation" {
-			return []Lex{}, makeCompilerErr("Cannot have two operations next to each other \nFound near this expression: "+lex[k+1].Exp, filename, lex[k+1].Line)
-		}
 	}
 
 	lex = term_inserter(tilde_inserter(insertArrows(lex)))
 
 	return lex, nil
-}
-
-func testkey(token map[string]string, file string, i int) bool {
-	re, _ := regexp.Compile("^(" + token["pattern"] + ")")
-	matched := re.MatchString(file[i:])
-
-	if matched {
-		if token["name"] == "+" || token["name"] == "-" {
-			//because + and - can also be used as signs
-			//if +/- comes after a token or operation, it must be a sign
-
-			for _, v := range tokens {
-				if v["type"] == "operation" || v["type"] == "?operation" || v["type"] == "?open_brace" || v["type"] == "id" {
-					re, _ := regexp.Compile("(" + v["pattern"] + ")$")
-					matched := re.MatchString(strings.TrimRight(file[:i], " "))
-
-					if matched {
-						return false
-					}
-				}
-			}
-
-		}
-	}
-
-	return matched
 }

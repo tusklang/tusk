@@ -1,7 +1,6 @@
 package compiler
 
 import (
-	"fmt"
 	"unicode"
 
 	. "github.com/tusklang/tusk/lang/types"
@@ -165,8 +164,6 @@ func valueActions(item Item) (Action, error) {
 	case "expression value":
 
 		var val = item.Token.Name
-
-		fmt.Printf("%#v\n", item.Token)
 
 		if len(val) == 0 {
 			return Action{}, makeCompilerErr("Value is not valid", item.File, item.Line)

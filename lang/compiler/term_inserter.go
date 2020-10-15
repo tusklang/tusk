@@ -7,17 +7,6 @@ func term_inserter(lex []Lex) []Lex {
 
 	for k, v := range lex {
 
-		if k != 0 && lex[k-1].Type != "?open_brace" && v.Type == "?close_brace" {
-			nLex = append(nLex, Lex{
-				Name:  "$term",
-				Exp:   v.Exp,
-				Line:  v.Line,
-				Type:  "?none",
-				OName: "$term",
-				Dir:   v.Dir,
-			})
-		}
-
 		nLex = append(nLex, v)
 
 		currentType := v.Type == "operation" || v.Type == "?operation"
@@ -47,7 +36,6 @@ func term_inserter(lex []Lex) []Lex {
 		if currentType == nextType || ((v.Name == "++" || v.Name == "--") && !nextType) { //because ++ and -- need terminators after them if a value is after it
 			nLex = append(nLex, Lex{
 				Name:  "$term",
-				Exp:   v.Exp,
 				Line:  v.Line,
 				Type:  "?none",
 				OName: "$term",

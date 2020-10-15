@@ -47,7 +47,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 		var overload *Overload
 
 		if overload = fillFuncInstance(&fn, arr, instance); overload == nil {
-			TuskPanic("Could not find a typelist for function call", line, file, stacktrace)
+			return nil, TuskPanic("Could not find a typelist for function call", line, file, stacktrace)
 		}
 
 		tmp, e := Interpreter(fn.Instance, overload.Body, append(stacktrace, "synchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params, true)
@@ -61,7 +61,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 		var overload *Overload
 
 		if overload = fillFuncInstance(&fn, arr, instance); overload == nil {
-			TuskPanic("Could not find a typelist for function call", line, file, stacktrace)
+			return nil, TuskPanic("Could not find a typelist for function call", line, file, stacktrace)
 		}
 
 		var promise TuskType = *NewThread(func() (*TuskType, *TuskError) {
@@ -77,7 +77,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 		arr := val2.(TuskArray)
 
 		if gfn.Function == nil {
-			TuskPanic("Native function is nil", line, file, stacktrace)
+			return nil, TuskPanic("Native function is nil", line, file, stacktrace)
 		}
 
 		//check the signatures of the function

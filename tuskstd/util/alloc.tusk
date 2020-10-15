@@ -1,6 +1,6 @@
 var alloc = fn(number -> length) {
 
-    var ret = ()
+    var ret = []
 
     cl := clone:(length)
 

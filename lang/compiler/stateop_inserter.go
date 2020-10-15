@@ -12,7 +12,6 @@ func tilde_inserter(lex []Lex) []Lex {
 		if v.Type == "id" {
 			nLex = append(nLex, Lex{
 				Name:  "STATE-OP",
-				Exp:   v.Exp,
 				Line:  v.Line,
 				Type:  "operation",
 				OName: "STATE-OP",

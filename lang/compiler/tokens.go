@@ -405,6 +405,24 @@ var tokensJSON = []byte(
     "remove": "catch",
     "pattern": "\\b(catch\\s*(\\{|\\())",
     "type": "id"
+  },
+  {
+    "name": "true",
+    "remove": "true",
+    "pattern": "\\btrue\\b",
+    "type": "expression value"
+  },
+  {
+    "name": "false",
+    "remove": "false",
+    "pattern": "\\bfalse\\b",
+    "type": "expression value"
+  },
+  {
+    "name": "undef",
+    "remove": "undef",
+    "pattern": "\\bundef\\b",
+    "type": "expression value"
   }
 ]
 `,

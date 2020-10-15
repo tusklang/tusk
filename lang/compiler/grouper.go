@@ -126,7 +126,7 @@ func makeGroups(lex []Lex) ([][]Item, error) {
 	//filter empty groups out
 	var filteredGroups = [][]Item{}
 
-	for _, v := range groups[:len(groups)-1] {
+	for _, v := range groups {
 		if len(v) != 0 {
 			filteredGroups = append(filteredGroups, v)
 		}
