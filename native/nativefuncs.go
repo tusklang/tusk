@@ -38,21 +38,18 @@ func tusksprint(args []*TuskType, stacktrace []string, line uint64, file string,
 	return sprinted
 }
 
-func makepanic(err string, line uint64, file string, stacktrace []string) (string, []string) {
-	var e string
+func makepanic(line uint64, file string, stacktrace []string) []string {
 	var s []string
-	e += fmt.Sprintln("Panic on line", line, "file", file)
-	e += fmt.Sprint(err)
 	s = append(s, fmt.Sprint("at line ", line, " in file ", file))
 	for i := len(stacktrace) - 1; i >= 0; i-- { //print the stacktrace
 		s = append(s, stacktrace[i])
 	}
-	return e, s
+	return s
 }
 
 //TuskPanic returns a panic error in an Tusk instance
-func TuskPanic(err string, line uint64, file string, stacktrace []string) *TuskError {
-	e, s := makepanic(err, line, file, stacktrace)
+func TuskPanic(e string, line uint64, file string, stacktrace []string) *TuskError {
+	s := makepanic(line, file, stacktrace)
 	var errStruct TuskError
 	errStruct.Err = e
 	errStruct.Stacktrace = s
@@ -335,7 +332,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 				return &returner, nil
 
 			default:
-				TuskPanic("Cannot clone type \""+val.Type()+"\"", line, file, stacktrace)
+				return nil, TuskPanic("Cannot clone type \""+val.Type()+"\"", line, file, stacktrace)
 			}
 
 			var tmpundef TuskType = TuskUndef{}
@@ -347,10 +344,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			var err = (*args[0]).(TuskString)
 
-			TuskPanic(err.ToGoType(), line, file, stacktrace)
-
-			var tmpundef TuskType = TuskUndef{}
-			return &tmpundef, nil
+			return nil, TuskPanic(err.ToGoType(), line, file, stacktrace)
 		},
 		Signatures: [][]string{[]string{"string"}},
 	},
@@ -403,7 +397,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 			lib, e := oatenc.OatDecode(libname)
 
 			if e != nil {
-				TuskPanic(e.Error(), line, file, stacktrace)
+				return nil, TuskPanic(e.Error(), line, file, stacktrace)
 			}
 
 			var tuskhash TuskHash
@@ -431,7 +425,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 
 			if len(args) < 1 || (*args[0]).Type() != "number" {
-				TuskPanic("Sysno must be a numeric value", line, file, stacktrace)
+				return nil, TuskPanic("Sysno must be a numeric value", line, file, stacktrace)
 			}
 
 			var cargs = make([]unsafe.Pointer, int(C.MAX_SYS_ARGC))
@@ -442,7 +436,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 				var e error
 				cargs[i], e = makectype(args[i])
 				if e != nil {
-					TuskPanic(e.Error(), line, file, stacktrace)
+					return nil, TuskPanic(e.Error(), line, file, stacktrace)
 				}
 			}
 
@@ -455,7 +449,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 			syscall, exists := tusksys.SysTable[sysno]
 
 			if !exists {
-				TuskPanic(fmt.Sprintf("Could not find syscall: %d", sysno), line, file, stacktrace)
+				return nil, TuskPanic(fmt.Sprintf("Could not find syscall: %d", sysno), line, file, stacktrace)
 			}
 
 			called := C.callsys(

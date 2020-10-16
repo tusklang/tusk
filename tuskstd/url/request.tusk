@@ -1,4 +1,3 @@
-  
 ;include:
 ;s tuskstd/util
 
@@ -15,8 +14,16 @@ var request = proto {
         if (syscall:(26, fd, 2, host, port) == -1) panic:("Cannot connect to host " + host)
 
         ;write to the socket
-        if (syscall:(1, fd, reqstr, len:(reqstr)) == -1)
-            panic:("Could not write request to socket")
+        written_bytes := 0
+        while (written_bytes < len:(reqstr)) {
+            var curwritten
+
+            ;if the writing syscall gave an error
+            if ((curwritten = syscall:(1, fd, rmbegin:(reqstr, written_bytes), len:(reqstr) - written_bytes)) == -1)
+                panic:("Error writing request to socket")
+
+            written_bytes+=curwritten
+        }
 
         ;read the resp
         syscall:(0, fd, buf, request::bufsize)
