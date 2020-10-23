@@ -9,12 +9,13 @@ import (
 	"unsafe"
 )
 
+//#cgo !windows LDFLAGS: -pthread
 //#include "thread.h"
 import "C"
 
 type cthread C.struct_Thread
 
-var curptr uint64 = 0
+var curptr uint64
 var asyncfuncs = make(map[uint64]func() (*TuskType, *TuskError))
 var allthreads = make(map[uint64]TuskThread)
 
