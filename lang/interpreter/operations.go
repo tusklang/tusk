@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"math"
 	"strconv"
 
 	. "github.com/tusklang/tusk/lang/types"
@@ -28,6 +29,52 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	"number ^ number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 		return number__pow__number(val1, val2, instance, stacktrace, line, file)
 	},
+
+	//arithmetic operators for runes
+	"rune + rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+		v := val1.(TuskRune).ToGoType() + val2.(TuskRune).ToGoType() //perform operation on runes, as go int32
+		var tuskrune TuskRune
+		tuskrune.FromGoType(v)
+		var tusktype TuskType = tuskrune
+		return &tusktype, nil
+	},
+	"rune - rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+		v := val1.(TuskRune).ToGoType() - val2.(TuskRune).ToGoType() //perform operation on runes, as go int32
+		var tuskrune TuskRune
+		tuskrune.FromGoType(v)
+		var tusktype TuskType = tuskrune
+		return &tusktype, nil
+	},
+	"rune * rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+		v := val1.(TuskRune).ToGoType() * val2.(TuskRune).ToGoType() //perform operation on runes, as go int32
+		var tuskrune TuskRune
+		tuskrune.FromGoType(v)
+		var tusktype TuskType = tuskrune
+		return &tusktype, nil
+	},
+	"rune / rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+		v := val1.(TuskRune).ToGoType() / val2.(TuskRune).ToGoType() //perform operation on runes, as go int32
+		var tuskrune TuskRune
+		tuskrune.FromGoType(v)
+		var tusktype TuskType = tuskrune
+		return &tusktype, nil
+	},
+	"rune % rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+		v := val1.(TuskRune).ToGoType() % val2.(TuskRune).ToGoType() //perform operation on runes, as go int32
+		var tuskrune TuskRune
+		tuskrune.FromGoType(v)
+		var tusktype TuskType = tuskrune
+		return &tusktype, nil
+	},
+	"rune ^ rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+		v := rune(math.Pow(float64(val1.(TuskRune).ToGoType()), float64(val2.(TuskRune).ToGoType()))) //perform operation on runes, as go int32
+		var tuskrune TuskRune
+		tuskrune.FromGoType(v)
+		var tusktype TuskType = tuskrune
+		return &tusktype, nil
+	},
+	////////////////////////////////
+
 	"number == number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 
 		var final = falsev
@@ -141,6 +188,17 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &isGreaterType, nil
 	},
+	"rune > rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+		v := val1.(TuskRune).ToGoType() > val2.(TuskRune).ToGoType() //if the first arg (as int32) is greater than the second
+
+		//value to return (return true if true and false if falsse)
+		var ret TuskType = falsev
+		if v {
+			ret = truev
+		}
+
+		return &ret, nil
+	},
 	"number >= number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 
 		isGreaterOrEqualv := !isLess(val1.(TuskNumber), val2.(TuskNumber))
@@ -151,6 +209,17 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		}
 
 		return &isGreaterOrEqualType, nil
+	},
+	"rune >= rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+		v := val1.(TuskRune).ToGoType() >= val2.(TuskRune).ToGoType() //if the first arg (as int32) is greater than or equal to the second
+
+		//value to return (return true if true and false if falsse)
+		var ret TuskType = falsev
+		if v {
+			ret = truev
+		}
+
+		return &ret, nil
 	},
 	"number < number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 
@@ -163,6 +232,17 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &isLessType, nil
 	},
+	"rune < rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+		v := val1.(TuskRune).ToGoType() < val2.(TuskRune).ToGoType() //if the first arg (as int32) is less than the second
+
+		//value to return (return true if true and false if falsse)
+		var ret TuskType = falsev
+		if v {
+			ret = truev
+		}
+
+		return &ret, nil
+	},
 	"number <= number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 
 		isLessOrEqualv := isLessOrEqual(val1.(TuskNumber), val2.(TuskNumber))
@@ -173,6 +253,17 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		}
 
 		return &isLessOrEqualType, nil
+	},
+	"rune <= rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+		v := val1.(TuskRune).ToGoType() <= val2.(TuskRune).ToGoType() //if the first arg (as int32) is less than or equal to the second
+
+		//value to return (return true if true and false if falsse)
+		var ret TuskType = falsev
+		if v {
+			ret = truev
+		}
+
+		return &ret, nil
 	},
 	"array :: number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 

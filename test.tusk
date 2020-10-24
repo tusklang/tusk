@@ -1,6 +1,6 @@
 ;include:
-;s tuskstd/url
+;s tuskstd
 
 var main = fn() {
-    log:(request::get:("shell.gnsctf.ml", 3000))
+    log:(request::get:("http://www.menustub.com/"))
 }

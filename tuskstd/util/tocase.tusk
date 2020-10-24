@@ -1,0 +1,27 @@
+;convert between upper/lower cases
+
+var toupper = fn(string -> str) {
+    fin := ""
+
+    each (str, _, v) {
+        if (v >= 'a' && v <= 'z') ;if its any lower cased letter
+            fin+=(v - ('a' - 'A')) ;convert it to uppercase and concat it to str
+        else
+            fin+=v
+    }
+
+    return fin
+}
+
+var tolower = fn(string -> str) {
+    fin := ""
+
+    each (str, _, v) {
+        if (v >= 'A' && v <= 'Z') ;if its any upper cased letter
+            fin+=(v + ('a' - 'A')) ;convert it to lowercase and concat it to str
+        else
+            fin+=v
+    }
+
+    return fin
+}

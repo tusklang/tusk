@@ -1,16 +1,29 @@
 ;include:
+;s tuskstd/url
 ;s tuskstd/util
 
 var request = proto {
 
     static var bufsize = 1
 
-    static var get = fn(host, port) {
+    static var get = fn(uri) {
+        parsed := url::parse:(uri)
+        reqstr := "GET " + parsed::path + " " + toupper:(parsed::protocol) + "/1.1\r\nHost: " + parsed::host + "\r\nConnection: close\r\n\r\n"
+        return request::request_url:(parsed, reqstr)
+    }
+
+    static var post = fn(uri, data) {
+        parsed := url::parse:(uri)
+        reqstr := "POST " + parsed::path + " " + toupper:(parsed::protocol) + "/1.1\r\nHost: " + parsed::host + "\r\nConnection: close\r\n\r\n"
+        return request::request_url:(parsed, reqstr)
+    }
+
+    static var request_url = fn(parsed, reqstr) {
+
         fd := syscall:(25, 2, 1, "tcp")
-        reqstr := "GET / HTTP/1.0\r\nHost: " + host + "\r\nConnection: close\r\n\r\n"
 
         ;connect the socket
-        if (syscall:(26, fd, 2, host, port) == -1)
+        if (syscall:(26, fd, 2, parsed::host, parsed::port) == -1)
             panic:("Cannot connect to host " + host)
 
         ;write to the socket

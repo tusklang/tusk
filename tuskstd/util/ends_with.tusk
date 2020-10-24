@@ -1,5 +1,5 @@
 ;include:
-;s tuskstd/util/substr.tusk
+;s tuskstd/util/slices.tusk
 
 var ends_with = fn(string -> str, string -> ends) {
 

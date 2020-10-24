@@ -3,7 +3,7 @@ var split
 ovld split = fn(string -> str, rune -> del) {
     ;split by a rune
     
-    splitted := []
+    splitted := [""]
 
     each (str, k, v) {
         if (v == del) splitted = append:(splitted, "")
@@ -11,7 +11,7 @@ ovld split = fn(string -> str, rune -> del) {
         splitted::(len:(splitted) - 1) = splitted::(len:(splitted) - 1) + v
     }
 
-    return splitted
+    return rmend:(splitted, 1)
 }
 
 ovld split = fn(string -> str, string -> del) {
@@ -30,8 +30,8 @@ ovld split = fn(string -> str, string -> del) {
     while (i < m) {
         find_sep := false
         if (str::(i) == del::0 && i + n <= m) {
-            if (substrfrom:(str, i, i + n) == del) {
-                res = append:(res, substrfrom:(str, last, i - last))
+            if (slice:(str, i, i + n) == del) {
+                res = append:(res, slice:(str, last, i - last))
                 i+=n
                 last = i
                 find_sep = true
@@ -40,6 +40,6 @@ ovld split = fn(string -> str, string -> del) {
         if (!find_sep) i++
     }
 
-    res = append:(res, substrfrom:(str, last, m)) ;append the last part
+    res = append:(res, slice:(str, last, m)) ;append the last part
     return res
 }
