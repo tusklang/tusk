@@ -140,9 +140,9 @@ func lexer(file, filename string) ([]Lex, error) {
 
 					default:
 						fullstr += string(file[0])
-						escaped = false
 					}
 
+					escaped = false
 					continue
 				}
 

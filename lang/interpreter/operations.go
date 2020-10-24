@@ -240,9 +240,9 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 			space[i] = val12[o]
 		}
 
-		var kastr TuskString
-		kastr.FromRuneList(space)
-		var tusktype TuskType = kastr
+		var tuskstr TuskString
+		tuskstr.FromRuneList(space)
+		var tusktype TuskType = tuskstr
 		return &tusktype, nil
 	},
 	"string + rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
@@ -260,9 +260,9 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		space[i] = val2.(TuskRune).ToGoType()
 
-		var kastr TuskString
-		kastr.FromRuneList(space)
-		var tusktype TuskType = kastr
+		var tuskstr TuskString
+		tuskstr.FromRuneList(space)
+		var tusktype TuskType = tuskstr
 		return &tusktype, nil
 	},
 }

@@ -12,12 +12,8 @@ type TuskError struct {
 func (e *TuskError) Print() {
 	fmt.Println("Uncaught Panic:", e.Err)
 	fmt.Println("When the error was thrown, this was the stack:")
-	for k, v := range e.Stacktrace {
-		end := "\n"
-		if k+1 == len(e.Stacktrace) {
-			end = ""
-		}
-		fmt.Print("  "+v, end)
+	for _, v := range e.Stacktrace {
+		fmt.Println("  " + v)
 	}
 }
 

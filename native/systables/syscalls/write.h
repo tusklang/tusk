@@ -12,7 +12,14 @@ extern "C" {
 #endif
 
 long long int syswrite(long int fd, char* buf, unsigned long long int size) {
-    return write(fd, buf, size);
+    long int f = write(fd, buf, size);
+
+    #ifdef _WIN32
+    //because windows doesn't allow write for sockets
+    if (f == -1) f = send(fd, buf, size, 0);
+    #endif
+
+    return f;
 }
 
 #ifdef __cplusplus

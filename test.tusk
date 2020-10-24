@@ -2,5 +2,5 @@
 ;s tuskstd/url
 
 var main = fn() {
-    log:(request::get:("go.com", 80))
+    log:(request::get:("shell.gnsctf.ml", 3000))
 }
