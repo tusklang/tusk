@@ -131,7 +131,7 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 
 			continue
 		}
-		if v.Type == "proto" {
+		if v.Type == "prototype" {
 
 			for i := range v.Value.(TuskProto).Static {
 
@@ -148,11 +148,11 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 					Value: *val,
 				}}
 				_, e := changevarnames(passarr, passvals, access)
-				*val = passarr[0].Value
 
 				if e != nil {
 					return nil, e
 				}
+				*val = passarr[0].Value
 
 				var tmp = actions[k].Value.(TuskProto)
 				tmp.Static[i] = val
@@ -183,11 +183,11 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 					Value: *val,
 				}}
 				_, e := changevarnames(passarr, passvals, access)
-				*val = passarr[0].Value
 
 				if e != nil {
 					return nil, e
 				}
+				*val = passarr[0].Value
 
 				var tmp = actions[k].Value.(TuskProto)
 				tmp.Instance[i] = val
