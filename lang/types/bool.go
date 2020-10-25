@@ -33,6 +33,18 @@ func (b TuskBool) TypeOf() string {
 
 func (b TuskBool) Deallocate() {}
 
+//Clone clones the value into a new pointer
+func (b TuskBool) Clone() *TuskType {
+	//store a temp bool
+	var tmp = *b.Boolean
+
+	var returner TuskType = TuskBool{
+		Boolean: &tmp, //take address of tmp and place it into `Boolean` field of returner
+	}
+
+	return &returner
+}
+
 //Range ranges over a bool
 func (b TuskBool) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
 	return nil, nil

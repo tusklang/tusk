@@ -35,6 +35,11 @@ func (e TuskError) TypeOf() string {
 //Deallocate defines extra steps to deallocate the type
 func (e TuskError) Deallocate() {}
 
+//Clone cannot be used on a TuskError
+func (e TuskError) Clone() *TuskType {
+	return nil
+}
+
 //Range ranges through the variable, does not work for this type
 func (e TuskError) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
 	return nil, nil

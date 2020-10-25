@@ -58,6 +58,10 @@ func (p TuskProto) TypeOf() string {
 
 func (p TuskProto) Deallocate() {}
 
+func (p TuskProto) Clone() *TuskType {
+	return nil
+}
+
 //Range ranges over a prototype
 func (p TuskProto) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
 	return nil, nil

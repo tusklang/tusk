@@ -10,6 +10,7 @@ type CliParams struct {
 	TuskDirname string
 }
 
+//TuskType is an interface representing any arbitrary object in Tusk
 type TuskType interface {
 	Format() string
 
@@ -21,5 +22,6 @@ type TuskType interface {
 	//////////////////////////////////////////////////////
 
 	Deallocate()
+	Clone() *TuskType
 	Range(func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError)
 }

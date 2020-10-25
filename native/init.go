@@ -23,6 +23,10 @@ func (tgf TuskGoFunc) TypeOf() string {
 
 func (tgf TuskGoFunc) Deallocate() {}
 
+func (tgf TuskGoFunc) Clone() *TuskType {
+	return nil
+}
+
 //Range ranges over an tusk native function
 func (ogf TuskGoFunc) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
 	return nil, nil

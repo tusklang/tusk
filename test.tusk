@@ -1,6 +1,18 @@
-;include:
-;s tuskstd
-
 var main = fn() {
-    log:(request::get:("http://www.menustub.com/"))
+    test:()
+    test:()
 }
+
+var test = fn() {
+    var a = [""]
+    a::0+="ABC"
+    log:(a)
+}
+
+;previously this code would output
+;["ABC"]
+;["ABCABC"]
+;while it should have outputted
+;["ABC"]
+;["ABC"]
+;now its fixed

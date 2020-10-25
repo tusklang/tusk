@@ -25,6 +25,11 @@ func (f TuskFunc) TypeOf() string {
 
 func (f TuskFunc) Deallocate() {}
 
+//Clone cannot be used on a TuskFunction
+func (f TuskFunc) Clone() *TuskType {
+	return nil
+}
+
 //Range ranges over a function
 func (f TuskFunc) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
 	return nil, nil

@@ -111,6 +111,24 @@ func (hash TuskHash) TypeOf() string {
 
 func (hash TuskHash) Deallocate() {}
 
+func (hash TuskHash) Clone() *TuskType {
+	var h = hash.Hash
+
+	//clone it into `cloned`
+	var cloned = make(map[string]*TuskType)
+	for k, v := range h {
+		cloned[k] = (*v).Clone()
+	}
+	////////////////////////
+
+	var tusktype TuskType = TuskHash{
+		Hash:   cloned,
+		Length: hash.Length,
+	}
+
+	return &tusktype
+}
+
 //Range ranges over a hash
 func (hash TuskHash) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
 

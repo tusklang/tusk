@@ -6,7 +6,10 @@ ovld split = fn(string -> str, rune -> del) {
     splitted := [""]
 
     each (str, k, v) {
-        if (v == del) splitted = append:(splitted, "")
+        if (v == del) {
+            splitted = append:(splitted, "")
+            continue
+        }
 
         splitted::(len:(splitted) - 1) = splitted::(len:(splitted) - 1) + v
     }

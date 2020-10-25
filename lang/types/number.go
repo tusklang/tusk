@@ -48,13 +48,6 @@ func (n *TuskNumber) SetDec(v []int64) {
 	n.Decimal = &v
 }
 
-func (n TuskNumber) Clone() TuskNumber {
-	var newNum TuskNumber
-	newNum.SetInt(append([]int64{}, *n.Integer...))
-	newNum.SetDec(append([]int64{}, *n.Decimal...))
-	return newNum
-}
-
 func (n TuskNumber) Format() string {
 	str := NumNormalize(n)
 	return str
@@ -69,6 +62,26 @@ func (n TuskNumber) TypeOf() string {
 }
 
 func (n TuskNumber) Deallocate() {}
+
+func (n TuskNumber) Clone() *TuskType {
+	var number = n
+
+	//copy the integer and decimal
+	var integer = append([]int64{}, *number.Integer...)
+
+	var decimal []int64
+
+	if number.Decimal != nil {
+		decimal = append([]int64{}, *number.Decimal...)
+	}
+	//////////////////////////////
+
+	var newnum TuskType = TuskNumber{
+		Integer: &integer,
+		Decimal: &decimal,
+	}
+	return &newnum
+}
 
 //Range ranges over a number
 func (n TuskNumber) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {

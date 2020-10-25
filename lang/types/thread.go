@@ -46,6 +46,10 @@ func (ot TuskThread) Deallocate() {
 	thread_dealloc(ot)
 }
 
+func (ot TuskThread) Clone() *TuskType {
+	return nil
+}
+
 //Range ranges over a thread
 func (ot TuskThread) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
 	return nil, nil

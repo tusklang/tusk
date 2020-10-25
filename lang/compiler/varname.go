@@ -77,7 +77,7 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 
 			for kk, vv := range fn.Overloads {
 				for i, p := range vv.Params { //add the params to the current variables
-					pname := "v " + strconv.FormatUint(curvar, 10)
+					pname := "v" + strconv.FormatUint(curvar, 10)
 					params[p] = pname
 					fn.Overloads[kk].Params[i] = pname //also modify the parameters in the actual function
 					curvar++
@@ -105,11 +105,11 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 			///////////////////////////////////
 
 			//change the key and value variable names
-			keyandvalvars[key] = "v " + strconv.FormatUint(curvar, 10)
-			v.First[1].Name = "v " + strconv.FormatUint(curvar, 10)
+			keyandvalvars[key] = "v" + strconv.FormatUint(curvar, 10)
+			v.First[1].Name = "v" + strconv.FormatUint(curvar, 10)
 			curvar++
-			keyandvalvars[val] = "v " + strconv.FormatUint(curvar, 10)
-			v.First[2].Name = "v " + strconv.FormatUint(curvar, 10)
+			keyandvalvars[val] = "v" + strconv.FormatUint(curvar, 10)
+			v.First[2].Name = "v" + strconv.FormatUint(curvar, 10)
 			curvar++
 			/////////////////////////////////////////
 
@@ -200,8 +200,8 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 		}
 
 		if v.Type == "var" || v.Type == "declare" {
-			newnames[v.Name] = "v " + strconv.FormatUint(curvar, 10)
-			actions[k].Name = "v " + strconv.FormatUint(curvar, 10)
+			newnames[v.Name] = "v" + strconv.FormatUint(curvar, 10) + "        " + v.Name
+			actions[k].Name = "v" + strconv.FormatUint(curvar, 10) + "        " + v.Name
 			curvar++
 			_, e = changevarnames(actions[k].ExpAct, newnames, access)
 			if e != nil {

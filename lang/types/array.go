@@ -65,6 +65,25 @@ func (arr TuskArray) TypeOf() string {
 
 func (arr TuskArray) Deallocate() {}
 
+//Clone clones the value into a new pointer
+func (arr TuskArray) Clone() *TuskType {
+	var a = arr.Array
+
+	var cloned = make([]*TuskType, arr.Length)
+
+	for k, v := range a {
+		//clone each value in the array
+		cloned[k] = (*v).Clone()
+	}
+
+	var tusktype TuskType = TuskArray{
+		Array:  cloned,
+		Length: arr.Length,
+	}
+
+	return &tusktype
+}
+
 //Range ranges over an array
 func (arr TuskArray) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
 

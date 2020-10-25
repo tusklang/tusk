@@ -251,92 +251,13 @@ var NativeFuncs = map[string]TuskGoFunc{
 		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 
 			val := *args[0]
+			cloned := val.Clone()
 
-			switch val.(type) {
-
-			case TuskArray:
-
-				var arr = val.(TuskArray).Array
-				var cloned = append([]*TuskType{}, arr...) //append it to nothing (to clone it)
-				var tusktype TuskType = TuskArray{
-					Array:  cloned,
-					Length: val.(TuskArray).Length,
-				}
-
-				return &tusktype, nil
-
-			case TuskBool:
-
-				//take inderect of the bool, and place it in a temporary variable
-				var tmp = *val.(TuskBool).Boolean
-
-				var returner TuskType = TuskBool{
-					Boolean: &tmp, //take address of tmp and place it into `Boolean` field of returner
-				}
-
-				return &returner, nil
-
-			case TuskHash:
-				var hash = val.(TuskHash).Hash
-
-				//clone it into `cloned`
-				var cloned = make(map[string]*TuskType)
-				for k, v := range hash {
-					cloned[k] = v
-				}
-				////////////////////////
-
-				var tusktype TuskType = TuskHash{
-					Hash:   cloned,
-					Length: val.(TuskHash).Length,
-				}
-
-				return &tusktype, nil
-
-			case TuskNumber:
-				var number = val.(TuskNumber)
-
-				//copy the integer and decimal
-				var integer = append([]int64{}, *number.Integer...)
-
-				var decimal []int64
-
-				if number.Decimal != nil {
-					decimal = append([]int64{}, *number.Decimal...)
-				}
-				//////////////////////////////
-
-				var newnum TuskType = TuskNumber{
-					Integer: &integer,
-					Decimal: &decimal,
-				}
-				return &newnum, nil
-
-			case TuskRune:
-
-				//take inderect of the rune, and place it in a temporary variable
-				var tmp = *val.(TuskRune).Rune
-
-				var returner TuskType = TuskRune{
-					Rune: &tmp, //take address of tmp and place it into `Rune` field of returner
-				}
-
-				return &returner, nil
-
-			case TuskString:
-
-				var tmp = val.(TuskString).ToRuneList() //convert it to a go type
-				var kastr TuskString
-				kastr.FromRuneList(append(tmp, []rune{}...)) //clone tmp
-				var returner TuskType = kastr
-				return &returner, nil
-
-			default:
-				return nil, TuskPanic("Cannot clone type \""+val.Type()+"\"", line, file, stacktrace)
+			if cloned == nil {
+				return nil, TuskPanic("Cannot clone type "+val.Type(), line, file, stacktrace)
 			}
 
-			var tmpundef TuskType = TuskUndef{}
-			return &tmpundef, nil
+			return cloned, nil
 		},
 		Signatures: [][]string{[]string{"any"}},
 	},

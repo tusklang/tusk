@@ -72,6 +72,14 @@ func (str TuskString) TypeOf() string {
 
 func (str TuskString) Deallocate() {}
 
+func (str TuskString) Clone() *TuskType {
+	var tmp = str.ToRuneList() //convert it to a go type
+	var tuskstr TuskString
+	tuskstr.FromRuneList(append(tmp, []rune{}...)) //clone tmp
+	var returner TuskType = tuskstr
+	return &returner
+}
+
 //Range ranges over a string
 func (str TuskString) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
 

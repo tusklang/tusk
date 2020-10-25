@@ -8,14 +8,40 @@ var request = proto {
 
     static var get = fn(uri) {
         parsed := url::parse:(uri)
-        reqstr := "GET " + parsed::path + " " + toupper:(parsed::protocol) + "/1.1\r\nHost: " + parsed::host + "\r\nConnection: close\r\n\r\n"
+        reqstr := "GET " + parsed::path + request::fmt_query:(parsed::query) + " " + toupper:(parsed::protocol) + "/1.1\r\nHost: " + parsed::host + "\r\nConnection: close\r\n\r\n"
         return request::request_url:(parsed, reqstr)
     }
 
     static var post = fn(uri, data) {
         parsed := url::parse:(uri)
-        reqstr := "POST " + parsed::path + " " + toupper:(parsed::protocol) + "/1.1\r\nHost: " + parsed::host + "\r\nConnection: close\r\n\r\n"
+
+        ;determine the path seperator
+        ;a post looks like
+        ;abc.com/path/a=b&b=c
+        ;if the user enters abc.com/path for the uri and a=b&b=c for data
+        ;we would get abc.com/patha=b&b=c
+        ;we need to insert that / only if the user didnt supply it
+        pathsep := "/"
+        if (len:(parsed::path) != 0 && parsed::path::(len:(parsed::path) - 1) == '/') pathsep = ""
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+        reqstr := "POST " + parsed::path + pathsep + rmbegin:(request::fmt_query:(parsed::query), 1) + " " + toupper:(parsed::protocol) + "/1.1\r\nHost: " + parsed::host + "\r\nConnection: close\r\n\r\n"
         return request::request_url:(parsed, reqstr)
+    }
+
+    static var fmt_query = fn(data) {
+        ;convert a hashmap query into a ?a=b&c=d
+        query_str := "?"
+
+        i := 0 ;if i is the last query (in above example, c=d) then do not put an & after it
+        each (data, k, v) {
+            query_str+=k + "=" + v
+
+            i++
+            if (i != len:(data)) query_str+="&"
+        }
+
+        return query_str
     }
 
     static var request_url = fn(parsed, reqstr) {
@@ -24,15 +50,15 @@ var request = proto {
 
         ;connect the socket
         if (syscall:(26, fd, 2, parsed::host, parsed::port) == -1)
-            panic:("Cannot connect to host " + host)
+            panic:("Cannot connect to host " + parsed::host + " at port " + (string -> parsed::port))
 
         ;write to the socket
         if (syscall:(1, fd, reqstr, len:(reqstr)) == -1)
             panic:("Error writing request to socket")
 
         ;read the resp
-        fin := ""
-        buf := " "
+        fin := ""  ;store the html resp
+        buf := " " ;alloc 1 byte
         while (syscall:(0, fd, buf, 1) > 0) fin+=buf
 
         return fin
