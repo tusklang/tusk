@@ -1,18 +1,9 @@
+;include:
+;s tuskstd
+
 var main = fn() {
-    test:()
-    test:()
+    log:(request::post:("http://shell.gnsctf.ml:52699/login", [:
+        "username" = "admin",
+        "password" = "gnsCTF{b37h4nkful7h3r34r3n05p4c35fSGDyrez}"
+    :]))
 }
-
-var test = fn() {
-    var a = [""]
-    a::0+="ABC"
-    log:(a)
-}
-
-;previously this code would output
-;["ABC"]
-;["ABCABC"]
-;while it should have outputted
-;["ABC"]
-;["ABC"]
-;now its fixed

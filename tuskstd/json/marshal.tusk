@@ -6,22 +6,20 @@ var json.marshal
 ovld json.marshal = fn(hash -> h) {
     var final = "{"
 
-    each (h, k, v) {
-        final+="\"" + k + "\":" + json.marshal(v) + ","
-    }
+    each (h, k, v)
+        final+="\"" + k + "\":" + json.marshal:(v) + ","
 
-    if (final != "{") final = rmend(final, 1) ;remove the trailing ckaa
+    if (final != "{") final = rmend:(final, 1) ;remove the trailing comma
     return final + "}"
 }
 
 ovld json.marshal = fn(array -> a) {
     var final = "["
 
-    each (a, _, v) {
-        final+=json.marshal(v) + ","
-    }
+    each (a, _, v)
+        final+=json.marshal:(v) + ","
 
-    if (final != "[") final = rmend(final, 1) ;remove the trailing ckaa
+    if (final != "[") final = rmend:(final, 1) ;remove the trailing comma
     return final + "]"
 }
 

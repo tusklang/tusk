@@ -1,9 +1,6 @@
 package interpreter
 
 import (
-	"fmt"
-	"strings"
-
 	. "github.com/tusklang/tusk/lang/types"
 	. "github.com/tusklang/tusk/native"
 )
@@ -32,12 +29,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			if e != nil {
 				return Returner{}, e
-			}
-
-			if strings.HasSuffix(v.Name, "splitted") {
-				fmt.Println(v.Name)
-				t := (*interpreted.Exp).(TuskArray).Array
-				fmt.Println((*t[0]).(TuskString).ToGoType())
 			}
 
 			varnames = append(varnames, v.Name)
@@ -141,10 +132,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			val := v.Value
 
 			defer dealloc(ins, varnames, &v.Value)
-
-			if v.Type == "c-array" && len(val.(TuskArray).Array) != 0 {
-				fmt.Println((*val.(TuskArray).Array[0]).(TuskString).ToGoType())
-			}
 
 			if expReturn {
 				if cloned := val.Clone(); cloned != nil { //if it can be cloned

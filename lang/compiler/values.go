@@ -124,10 +124,10 @@ func valueActions(item Item) (Action, error) {
 			}
 
 			if len(value) == 0 {
-				return Action{}, makeCompilerErr("Expected some value as after ':'", item.File, oper.Line)
+				return Action{}, makeCompilerErr("Expected value as after '='", item.File, oper.Line)
 			}
 
-			if value[0].Type == "proto" {
+			if value[0].Type == "prototype" {
 				return Action{}, makeCompilerErr("Cannot have protos outside of the global scope", item.File, item.Line)
 			}
 

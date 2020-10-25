@@ -123,6 +123,7 @@ func (hash TuskHash) Clone() *TuskType {
 
 	var tusktype TuskType = TuskHash{
 		Hash:   cloned,
+		keys:   hash.keys,
 		Length: hash.Length,
 	}
 
