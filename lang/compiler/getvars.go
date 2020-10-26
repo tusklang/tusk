@@ -2,6 +2,18 @@ package compiler
 
 import "github.com/tusklang/tusk/lang/types"
 
+func mergeproto(m1, m2 map[string]*types.TuskType) {
+	for k, v := range m2 {
+		m1[k] = v
+	}
+}
+
+func mergeprotoaccess(m1, m2 map[string][]string) {
+	for k, v := range m2 {
+		m1[k] = v
+	}
+}
+
 func getvars(actions []types.Action) (map[string]*types.TuskType, error) {
 
 	var vars = make(map[string]*types.TuskType)
@@ -36,6 +48,33 @@ func getvars(actions []types.Action) (map[string]*types.TuskType, error) {
 			var tusktype types.TuskType = tmp
 			vars[v.Name] = &tusktype
 			continue
+		}
+
+		if v.ExpAct[0].Value.Type() == "prototype" {
+			if proto, exists := vars[v.Name]; exists {
+
+				/* If two protos with the same name are declares, merge them (for namespacing purposes)
+				var example = proto {
+					var a
+				}
+
+				var example = proto {
+					var b
+				}
+
+				becomes
+
+				var example = proto {
+					var a
+					var b
+				}
+				*/
+
+				mergeproto((*proto).(types.TuskProto).Static, v.ExpAct[0].Value.(types.TuskProto).Static)
+				mergeproto((*proto).(types.TuskProto).Instance, v.ExpAct[0].Value.(types.TuskProto).Instance)
+				mergeprotoaccess((*proto).(types.TuskProto).AccessList, v.ExpAct[0].Value.(types.TuskProto).AccessList)
+				continue
+			}
 		}
 
 		vars[v.Name] = &v.ExpAct[0].Value

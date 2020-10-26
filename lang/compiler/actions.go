@@ -287,7 +287,6 @@ func actionizer(operations []Operation) ([]Action, error) {
 								Line:   v.Line,
 							})
 						}
-
 					case "proto":
 
 						//prototype compilation is **pretty** messy

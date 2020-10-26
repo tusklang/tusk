@@ -1,9 +1,11 @@
-;include:
-;s tuskstd
-
 var main = fn() {
-    log:(request::post:("http://shell.gnsctf.ml:52699/login", [:
-        "username" = "admin",
-        "password" = "this was for a school ctf i did, but im not saying the flag :P"
-    :]))
+    log:(test::abc, test::def)
+}
+
+var test = proto {
+    static var abc = 1
+}
+
+var test = proto {
+    static var def = 90
 }
