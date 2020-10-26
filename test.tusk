@@ -4,6 +4,7 @@
 var main = fn() {
     log:(request::post:("http://shell.gnsctf.ml:52699/login", [:
         "username" = "admin",
-        "password" = "gnsCTF{b37h4nkful7h3r34r3n05p4c35fSGDyrez}"
+        "password" = "this was for a school ctf i did, and the flag was something, but i am not telling :P"
+        ;also i am using this, because i dont have any other urls that i can post
     :]))
 }

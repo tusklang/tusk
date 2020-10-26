@@ -16,9 +16,9 @@ func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, fi
 
 	case "string->number":
 		str := types.NumNormalize(val.(types.TuskNumber)) //convert to string
-		var kastr types.TuskString                        //create an kastring
-		kastr.FromGoType(str)
-		var tusktype types.TuskType = kastr //create an tusktype interface
+		var tuskstr types.TuskString                      //create an tuskstring
+		tuskstr.FromGoType(str)
+		var tusktype types.TuskType = tuskstr //create an tusktype interface
 		return &tusktype
 
 	case "number->string":
@@ -38,9 +38,9 @@ func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, fi
 
 	case "rune->number":
 		var gorune = rune(val.(types.TuskNumber).ToGoType())
-		var karune types.TuskRune
-		karune.FromGoType(gorune)
-		var tusktype types.TuskType = karune
+		var tuskrune types.TuskRune
+		tuskrune.FromGoType(gorune)
+		var tusktype types.TuskType = tuskrune
 		return &tusktype
 
 	case "number->bool":
@@ -55,9 +55,9 @@ func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, fi
 
 	case "string->rune":
 		var runelist = val.(types.TuskRune).ToGoType()
-		var kastr types.TuskString
-		kastr.FromRuneList([]rune{runelist})
-		var tusktype types.TuskType = kastr
+		var tuskstr types.TuskString
+		tuskstr.FromRuneList([]rune{runelist})
+		var tusktype types.TuskType = tuskstr
 		return &tusktype
 
 	}

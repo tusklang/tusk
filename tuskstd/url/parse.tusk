@@ -28,7 +28,7 @@ var url = proto {
             else hostdel = '/' ;port is not specified, but path is (abc.com/abc)
         }
 
-        if (host = "") ;only if host was not set yet
+        if (host == "") ;only if host was not set yet
             host = split:(uri, hostdel)::0
         uri = rmbegin:(uri, len:(host))
         ;;;;;;;;;;;;;;;

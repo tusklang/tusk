@@ -200,8 +200,8 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 		}
 
 		if v.Type == "var" || v.Type == "declare" {
-			newnames[v.Name] = "v" + strconv.FormatUint(curvar, 10) + "        " + v.Name
-			actions[k].Name = "v" + strconv.FormatUint(curvar, 10) + "        " + v.Name
+			newnames[v.Name] = "v" + strconv.FormatUint(curvar, 10)
+			actions[k].Name = "v" + strconv.FormatUint(curvar, 10)
 			curvar++
 			_, e = changevarnames(actions[k].ExpAct, newnames, access)
 			if e != nil {
