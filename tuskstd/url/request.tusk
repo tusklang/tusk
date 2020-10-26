@@ -24,7 +24,7 @@ var request = proto {
 
         fmt_data := rmbegin:(request::fmt_query:(data), 1)
         reqstr :=
-        "POST " + parsed::path + " "
+        "POST " + parsed::path + " " +
         toupper:(parsed::protocol) + "/1.1" +
         "\r\nHost: " + parsed::host +
         "\r\nContent-Type: application/x-www-form-urlencoded" +
