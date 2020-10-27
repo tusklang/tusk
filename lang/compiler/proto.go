@@ -14,6 +14,9 @@ var protos []string
     }
   }
 */
+
+var proto_err_msg = "Prototypes can only be made at the global scope"
+
 func has_non_global_prototypes(actions []Action, firstLayer bool) error {
 
 	var e error
@@ -21,13 +24,17 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) error {
 	for _, v := range actions {
 
 		if v.Type == "proto" && !firstLayer {
-			return makeCompilerErr("Prototypes can only be made at the global scope", v.File, v.Line)
+			return makeCompilerErr(proto_err_msg, v.File, v.Line)
 		}
 
 		if v.Type == "proto" {
 
 			for i := range v.Value.(TuskProto).Static {
 				var val = *v.Value.(TuskProto).Static[i]
+
+				if val.Type() == "prototype" { //proto inside a proto
+					return makeCompilerErr(proto_err_msg, v.File, v.Line)
+				}
 
 				if val.Type() == "function" {
 					e = has_non_global_prototypes([]Action{Action{
@@ -41,6 +48,10 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) error {
 			}
 			for i := range v.Value.(TuskProto).Instance {
 				var val = *v.Value.(TuskProto).Instance[i]
+
+				if val.Type() == "prototype" { //proto inside a proto
+					return makeCompilerErr(proto_err_msg, v.File, v.Line)
+				}
 
 				if val.Type() == "function" {
 					e = has_non_global_prototypes([]Action{Action{

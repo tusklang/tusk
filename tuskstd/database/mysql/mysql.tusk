@@ -1,0 +1,5 @@
+var mysql = proto {
+    static var new_connection = fn(hash -> opts) {
+
+    }
+}

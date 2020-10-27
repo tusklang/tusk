@@ -2,62 +2,62 @@
 ;s tuskstd/util
 ;r marshal.tusk
 
-access ("thisf")
-var getmarshalv = fn(string -> marshalled, string -> indent) {
-    if (ends_with:(marshalled, "]")) marshalled = rmend:(marshalled, 1) + indent + "]"
-    if (ends_with:(marshalled, "}")) marshalled = rmend:(marshalled, 1) + indent + "}"
-}
-
-ovld json.marshal = fn(hash -> h, string -> indent) {
-    var final = "{\n" + indent
-
-    each (h, k, v) {
-        marshalled := json.marshal:(v, indent + indent)
-        getmarshalv:(marshalled, indent)
-        final+="\"" + k + "\": " + marshalled + ",\n" + indent
+var json = proto {
+    access ("thisf")
+    static var getmarshalv = fn(string -> marshalled, string -> indent) {
+        if (ends_with:(marshalled, "]")) marshalled = rmend:(marshalled, 1) + indent + "]"
+        if (ends_with:(marshalled, "}")) marshalled = rmend:(marshalled, 1) + indent + "}"
     }
 
-    rm := 2 + len(indent)
-    final = rmend:(final, rm) + "\n" ;remove the trailing ",\n{indent}" and add a newline
+    static ovld marshal = fn(hash -> h, string -> indent) {
+        var final = "{\n" + indent
 
-    hasp := final::0 == '{'
-    if (!hasp)
-        final = "{" + rmend:(final, 1)
-    return final + "}"
-}
+        each (h, k, v) {
+            marshalled := json.marshal:(v, indent + indent)
+            getmarshalv:(marshalled, indent)
+            final+="\"" + k + "\": " + marshalled + ",\n" + indent
+        }
 
-ovld json.marshal = fn(array -> a, string -> indent) {
-    var final = "[\n" + indent
+        rm := 2 + len(indent)
+        final = rmend:(final, rm) + "\n" ;remove the trailing ",\n{indent}" and add a newline
 
-    each (a, _, v) {
-        marshalled := json.marshal:(v, indent + indent)
-        getmarshalv:(marshalled, indent)
-        final+=marshalled + ",\n" + indent
+        hasp := final::0 == '{'
+        if (!hasp)
+            final = "{" + rmend:(final, 1)
+        return final + "}"
     }
 
-    rm := 2 + len:(indent)
-    final = rmend:(final, rm) + "\n" ;remove the trailing ",\n{indent}" and add a newline
+    static ovld marshal = fn(array -> a, string -> indent) {
+        var final = "[\n" + indent
 
-    hasp := final::0 == '['
-    if (!hasp) {
-        final = "[" + rmend:(final, 1)
+        each (a, _, v) {
+            marshalled := json.marshal:(v, indent + indent)
+            getmarshalv:(marshalled, indent)
+            final+=marshalled + ",\n" + indent
+        }
+
+        rm := 2 + len:(indent)
+        final = rmend:(final, rm) + "\n" ;remove the trailing ",\n{indent}" and add a newline
+
+        hasp := final::0 == '['
+        if (!hasp) final = "[" + rmend:(final, 1)
+
+        return final + "]"
     }
 
-    return final + "]"
-}
+    static ovld marshal = fn(string -> s, string -> _) {
+        return json.marshal:(s)
+    }
 
-ovld json.marshal = fn(string -> s, string -> _) {
-    return json.marshal:(s)
-}
+    static ovld marshal = fn(number -> n, string -> _) {
+        return json.marshal:(n)
+    }
 
-ovld json.marshal = fn(number -> n, string -> _) {
-    return json.marshal:(n)
-}
+    static ovld json.marshal = fn(bool -> b, string -> _) {
+        return json.marshal:(b)
+    }
 
-ovld json.marshal = fn(bool -> b, string -> _) {
-    return json.marshal:(b)
-}
-
-ovld json.marshal = fn(none -> u, string -> _) {
-    return json.marshal:(u)
+    static ovld json.marshal = fn(none -> u, string -> _) {
+        return json.marshal:(u)
+    }
 }

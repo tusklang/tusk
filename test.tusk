@@ -1,11 +1,12 @@
 var main = fn() {
-    log:(test::abc, test::def)
+    log:("S")
 }
 
-var test = proto {
-    static var abc = 1
-}
+var mysql = proto {
+    static var new_connection = fn(hash -> opts) {
 
-var test = proto {
-    static var def = 90
+    }
+    var a = proto {
+        
+    }
 }
