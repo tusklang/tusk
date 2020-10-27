@@ -1,21 +1,23 @@
 ;include:
-;s tuskstd/bitwise/normalize.tusk
+;s tuskstd/bitwise
 
-var bitwise.and = fn(number -> n1, number -> n2) {
+var bitwise = proto {
+    static var and = fn(number -> n1, number -> n2) {
 
-    b1 := tobits:(n1)
-    b2 := tobits:(n2)
+        b1 := tobits:(n1)
+        b2 := tobits:(n2)
 
-    final := normalize:(b1, b2)
+        final := normalize:(b1, b2)
 
-    k := 0
-    while (k < len:(b2)) {
-        cb2 := b2::(k) == 1 ; if it is 1, give true, otherwise, false
-        cb1 := b1::(k) == 1 ; if it is 1, give true, otherwise, false
+        k := 0
+        while (k < len:(b2)) {
+            cb2 := b2::(k) == 1 ; if it is 1, give true, otherwise, false
+            cb1 := b1::(k) == 1 ; if it is 1, give true, otherwise, false
 
-        if (cb2 && cb1)final::(k) = 1
-        k++
+            if (cb2 && cb1)final::(k) = 1
+            k++
+        }
+
+        return final
     }
-
-    return final
 }

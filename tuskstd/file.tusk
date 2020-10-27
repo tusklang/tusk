@@ -15,7 +15,7 @@ var file = proto {
     }
 
     static ovld open = fn(string -> name) {
-        return file::open:(name, "r+")
+        return file::open:(name, "a+")
     }
 
     var read = fn(number -> size) {

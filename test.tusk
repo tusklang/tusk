@@ -1,12 +1,3 @@
 var main = fn() {
     log:("S")
 }
-
-var mysql = proto {
-    static var new_connection = fn(hash -> opts) {
-
-    }
-    var a = proto {
-        
-    }
-}
