@@ -1,0 +1,24 @@
+;include:
+;s tuskstd/util/alloc.tusk
+
+var mysql = proto {
+    static var bufsiz = 16777216
+
+    ;got the source from here
+    ;   https://www.codeproject.com/Articles/27943/Minimalistic-Driver-less-Native-MySql-Client
+    ;except rewrote to tusk
+    ;and removed a few useless bits
+    static var connect = fn(hash -> opts) {
+        var con = make:(mysql)
+        con::fd = syscall:(25, 2, 1, "tcp") ;create the socket fd
+
+        ;connect the socket
+        if (syscall:(26, fd, 2, opts::host, opts::port) < 0) panic:("Cannot connect to socket")
+
+        var buf = allocstr:(mysql::bufsiz)
+        var max = syscall:(0, con::fd, buf, mysql::bufsiz) ;read from the socket
+        if (buf::4 < (rune -> 10)) panic:("MySQL 4.1+ is required")
+
+        
+    }
+}

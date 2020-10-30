@@ -1,5 +1,8 @@
-var mysql = proto {
-    static var new_connection = fn(hash -> opts) {
+;include:
+;r connect.tusk
 
-    }
+;this file is the declaration of the mysql proto
+;to see the actual source go to the various included files
+var mysql = proto {
+    var fd
 }
