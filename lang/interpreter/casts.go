@@ -60,6 +60,20 @@ func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, fi
 		var tusktype types.TuskType = tuskstr
 		return &tusktype
 
+	case "array->string":
+		var runelist = val.(types.TuskString).ToRuneList()
+		var tuskrunelist types.TuskArray
+
+		//convert each go rune in the array to a tusk rune
+		for _, v := range runelist {
+			var currune types.TuskRune
+			currune.FromGoType(v)
+			tuskrunelist.PushBack(currune)
+		}
+
+		var tusktype types.TuskType = tuskrunelist
+		return &tusktype
+
 	}
 
 	native.TuskPanic("Cannot cast a "+val.TypeOf()+" into a "+nType, line, file, stacktrace)

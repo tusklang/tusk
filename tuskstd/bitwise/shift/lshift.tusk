@@ -1,0 +1,8 @@
+;include:
+;s tuskstd/bitwise
+
+var bitwise = proto {
+    static var lshift = fn(number -> n, number -> by) {
+        ;TODO: implement left shift
+    }
+}

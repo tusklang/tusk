@@ -31,9 +31,8 @@ var _ = json.Unmarshal(tokensJSON, &tokens)
 func testkey(file string, key compiletoken, lex []Lex) bool {
 	r, _ := regexp.MatchString("^("+key.Pattern+")", file)
 
-	//- and + are a bit tricky
-
-	if key.Name == "+" || key.Name == "-" && len(lex) != 0 && (lex[len(lex)-1].Type == "id" || lex[len(lex)-1].Type == "operation" || lex[len(lex)-1].Type == "?open_brace") {
+	//- and + can also be a positive or negative sign
+	if r && (key.Name == "+" || key.Name == "-") && len(lex) != 0 && (lex[len(lex)-1].Type == "id" || lex[len(lex)-1].Type == "operation" || lex[len(lex)-1].Type == "?open_brace") {
 		return false
 	}
 

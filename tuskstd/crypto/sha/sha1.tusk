@@ -1,0 +1,8 @@
+var sha = proto {
+
+    ;reimplemting the code from
+    ;   https://github.com/pvorb/node-sha1/blob/master/sha1.js
+    static var sha1 = fn(string -> text) {
+        bytes := array -> string ;to rune list
+    }
+}

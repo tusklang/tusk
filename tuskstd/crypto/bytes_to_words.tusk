@@ -1,0 +1,17 @@
+var crypt = proto {
+
+    ;from the crypto npm lib
+    ;   https://gist.github.com/lancecarlson/6003283#file-crypto-js-L43
+    static var bytes_to_words = fn(array -> bytes) {
+        words := []
+        i := 0
+        b := 0
+        while (i < len:(bytes)) {
+
+            words::()
+
+            i++
+            b+=8
+        }
+    }
+}

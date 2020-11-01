@@ -1,0 +1,21 @@
+;include:
+;s tuskstd/bitwise
+
+var bitwise = proto {
+    static var rshift = fn(number -> n, number -> by) {
+        var bits = bitwise::tobits:(n)
+        var nbits = alloc:(len:(bits))
+
+        each (bits, k, v) {
+
+            npos := k + by
+
+            ;if its greater than the array length, wrap around
+            if (npos > len:(bits)) npos-=len:(bits)
+
+            nbits::(npos) = v
+        }
+
+        return bitwise::frombits:(nbits)
+    }
+}

@@ -14,7 +14,7 @@ var bitwise = proto {
         }
     
         ;force the numbers to have the same amount
-        while (len:(b2ref) != len:(b1ref))b2ref = prepend:(b2ref, 0)
+        while (len:(b2ref) != len:(b1ref)) b2ref = prepend:(b2ref, 0)
 
         var final = alloc:(len:(b1ref))
 
