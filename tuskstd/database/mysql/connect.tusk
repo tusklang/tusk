@@ -1,7 +1,13 @@
 ;include:
 ;s tuskstd/util/alloc.tusk
+;r login.tusk
 
 var mysql = proto {
+
+    ;tcp socket file descriptor to connect to database
+    var fd
+
+    ;buffer size
     static var bufsiz = 16777216
 
     ;got the source from here
@@ -9,6 +15,8 @@ var mysql = proto {
     ;except rewrote to tusk
     ;and removed a few useless bits
     static var connect = fn(hash -> opts) {
+        ;connect to a mysql database
+
         var con = make:(mysql)
         con::fd = syscall:(25, 2, 1, "tcp") ;create the socket fd
 
@@ -17,8 +25,8 @@ var mysql = proto {
 
         var buf = allocstr:(mysql::bufsiz)
         var max = syscall:(0, con::fd, buf, mysql::bufsiz) ;read from the socket
-        if (buf::4 < (rune -> 10)) panic:("MySQL 4.1+ is required")
+        if (buf::4 < (rune -> 10)) panic:("MySQL 4.1+ is required") ;detect a mysql version less than 4.1
 
-        
+        mysql_login_socket:(con::fd, opts::user, opts::pass)
     }
 }

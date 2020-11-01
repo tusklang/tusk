@@ -148,7 +148,6 @@ func Compile(params CliParams) (map[string]*TuskType, error) {
 	/////////////////////////////////////////
 
 	actions, access := globalAccess(actions)
-	_ = access
 
 	vars, e := getvars(actions)
 	if e != nil {

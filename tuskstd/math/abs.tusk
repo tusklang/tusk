@@ -1,0 +1,9 @@
+;include:
+;s tuskstd/math
+
+var math = proto {
+    static var abs = fn(number -> n) {
+        if (n < 0) return n * -1
+        return n
+    }
+}

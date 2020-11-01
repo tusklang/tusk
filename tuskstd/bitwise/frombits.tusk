@@ -1,0 +1,10 @@
+var bitwise = proto {
+    static var frombits = fn(array -> bits) {
+        fin := 0 ;final result
+
+        each (bits, k, v)
+            fin+=v * 2 ^ (len:(bits) - k - 1) ;add each digit (converting to base 10)
+
+        return fin
+    }
+}

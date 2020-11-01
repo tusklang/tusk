@@ -1,11 +1,15 @@
+;include:
+;s tuskstd/math
+
 var bitwise = proto {
     static var tobits = fn(number -> _num) {
-        var bits = ()
+        var bits = []
         var num = clone:(_num)
 
         while (num >= 1) {
             cur := num % 2
             num/=2
+            num = math::floor:(num)
             bits = prepend:(bits, cur)
         }
 

@@ -1,3 +1,6 @@
+;include:
+;s tuskstd/bitwise
+
 var main = fn() {
-    log:("S")
+    log:(math::ceil:(1.9))
 }

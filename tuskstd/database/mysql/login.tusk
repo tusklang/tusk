@@ -1,0 +1,6 @@
+var mysql = proto {
+    access ("thisf", "curdir/connect.tusk")
+    static var mysql_login_socket = fn(fd, user, pass) {
+
+    }
+}

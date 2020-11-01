@@ -28,33 +28,13 @@ type compiletoken struct {
 var tokens []compiletoken
 var _ = json.Unmarshal(tokensJSON, &tokens)
 
-var filecopy string //copy of the file, without any removed
-
-func testkey(file string, key compiletoken) bool {
+func testkey(file string, key compiletoken, lex []Lex) bool {
 	r, _ := regexp.MatchString("^("+key.Pattern+")", file)
 
 	//- and + are a bit tricky
 
-	if key.Name == "+" || key.Name == "-" {
-		endrm := strings.TrimSpace(strings.TrimSuffix(filecopy, file))
-		isPosOrNeg := false //is it a positive or negative sign
-
-		for _, v := range tokens {
-
-			//only count operations
-			if v.Type == "operation" || v.Type == "?open_brace" || v.Type == "id" {
-				if m, _ := regexp.MatchString("("+v.Pattern+")$", endrm); m { //if it ends with an operation
-					isPosOrNeg = true //it is a positive/negative sign
-					break
-				}
-			}
-
-		}
-
-		//if its a positive or negative sign, dont count it
-		if isPosOrNeg {
-			return false
-		}
+	if key.Name == "+" || key.Name == "-" && len(lex) != 0 && (lex[len(lex)-1].Type == "id" || lex[len(lex)-1].Type == "operation" || lex[len(lex)-1].Type == "?open_brace") {
+		return false
 	}
 
 	return r
@@ -62,7 +42,6 @@ func testkey(file string, key compiletoken) bool {
 
 func lexer(file, filename string) ([]Lex, error) {
 
-	filecopy = file
 	var lex []Lex //lex to return
 	var curline uint64 = 1
 
@@ -98,7 +77,7 @@ func lexer(file, filename string) ([]Lex, error) {
 
 		for _, v := range tokens { //see if the current index is a key
 
-			if testkey(file, v) {
+			if testkey(file, v, lex) {
 				file = strings.TrimPrefix(file, v.Remove)
 				lex = append(lex, Lex{
 					Name:  v.Name,
@@ -230,7 +209,7 @@ func lexer(file, filename string) ([]Lex, error) {
 				for _, v := range tokens {
 
 					//only count operations
-					if (v.Type == "operation" || v.Type == "?operation" || v.Type == "?open_brace" || v.Type == "?close_brace") && testkey(file, v) || file[0] == ';' /* it is a comment */ {
+					if (v.Type == "operation" || v.Type == "?operation" || v.Type == "?open_brace" || v.Type == "?close_brace") && testkey(file, v, lex) || file[0] == ';' /* it is a comment */ {
 						goto break_var_loop
 					}
 
