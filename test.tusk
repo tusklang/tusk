@@ -2,5 +2,5 @@
 ;s tuskstd/bitwise
 
 var main = fn() {
-    log:(bitwise::urshift:(11, 3))
+    log:(bitwise::lshift:(2 ^ 16, 1, 18))
 }

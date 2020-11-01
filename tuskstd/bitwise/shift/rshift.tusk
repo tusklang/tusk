@@ -1,5 +1,6 @@
 ;include:
 ;s tuskstd/bitwise
+;s tuskstd/util/alloc.tusk
 
 var bitwise = proto {
     static var rshift = fn(number -> n, number -> by) {
