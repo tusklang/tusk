@@ -1,8 +1,157 @@
+;include:
+;s tuskstd/bitutil
+;s tuskstd/crypto/hex.tusk
+;s tuskstd/util/repeat.tusk
+;s tuskstd/util/slices.tusk
+;s tuskstd/util/split.tusk
+;s tuskstd/util/map.tusk
+
 var sha = proto {
 
-    ;reimplemting the code from
-    ;   https://github.com/pvorb/node-sha1/blob/master/sha1.js
+    ;sha1 taken from here:
+    ;   https://modernresearchconsulting.com/2017/07/23/implementing-sha-1-in-python/
+    ;repurposed from python to tusk
+
+    static var ROTL = fn(number -> x, number -> n, number -> w) {
+        return (x << n) | (x >> w - n)
+    }
+
+    static var Ch = fn(number -> x, number -> y, number -> z) {
+        return (x ^ y) ^ ((~x) & z)
+    }
+
+    static var Parity = fn(number -> x, number -> y, number -> z) {
+        return x ^ y ^ z
+    }
+
+    static var Maj = fn(number -> x, number -> y, number -> z) {
+        return (x & y) ^ (x & z) ^ (y & z)
+    }
+
     static var sha1 = fn(string -> text) {
-        bytes := array -> string ;to rune list
+        K := []
+
+        ;predefined by the sha1 standard
+        t := 0
+        while (t < 80) {
+            if (t <= 19) K = append:(K, 1518500249)
+            elif (t <= 39) K = append:(K, 1859775393)
+            elif (t <= 59) K = append:(K, 2400959708)
+            else K = append:(K, 3395469782)
+            t++
+        }
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+        ;convert the text to a rune array
+        x_bytes := array -> text
+
+        _x_bits := []
+        each (x_bytes, _, v) {
+            ;format with 8 bits
+            ;e.g. 110 -> 00000110
+
+            tobits := bitutil::tobits:(number -> v)
+            while (len:(tobits) < 8) tobits = prepend:(tobits, 0)
+            _x_bits = append:(_x_bits, tobits)
+        }
+
+        ;join the array into a string of bits
+        x_bits := ""
+
+        each (_x_bits, _, v)
+            each (v, _, vv)
+                x_bits+=string -> vv ;concat the current bit as a string to the entire string
+
+        txtt8 := 8 * len:(text) ;calculate 8 * textlength
+        pad_end := "" ;ending of the padding (format(len(text) * 8, '064b') in python)
+        txtt8bits := bitutil::tobits:(txtt8)
+
+        each (txtt8bits, _, v)
+            pad_end+=string -> v
+
+        while (len:(pad_end) < 64) pad_end = "0" + pad_end ;force it to be >= length 64
+
+        ;make and concat the padding bits
+        padding := "1" + (repeat:("0", (448 - (txtt8 + 1)))) + pad_end
+        x_padded := x_bits + padding
+
+        ;setup the initial hash values
+        M1 := x_padded
+        H := [1732584193, 4023233417, 2562383102, 271733878, 3285377520]
+        N := 1
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+        _2p32 := 2 ** 32 ;calculate 2 ** 32
+
+        i := 1 ;loop counter
+        while (i <= N) {
+
+            W := []
+
+            t = 0
+            while (t < 80) {
+                ;fill the W array
+                if (t <= 15) W = append:(W, bitutil::frombits:( ;if t is less than 15, run this spaghetti
+                    map:(
+                        ;first we take the binary, are convert it to an array of numbers "001" -> [0, 0, 1]
+                        split:(slice:(M1, 32 * t, 32 * (t + 1)), ""),
+                        fn(_, x) return number -> x,
+                    )
+                    ;out here, we convert the binary array, to a base 10 number
+                ))
+                else W = append:(W, sha::ROTL:( ;otherwise, we do the following
+                    W::(t - 3) ^ W::(t - 8) ^ W::(t - 14) ^ W::(t - 16),
+                    1,
+                    32,
+                ))
+                t++
+            }
+
+            a := clone:(H::0)
+            b := clone:(H::1)
+            c := clone:(H::2)
+            d := clone:(H::3)
+            e := clone:(H::4)
+
+            t = 0
+            while (t < 80) {
+                var f ;function used
+                if (t <= 19) f = sha::Ch
+                elif (t <= 39) f = sha::Parity
+                elif (t <= 59) f = sha::Maj
+                else f = sha::Parity
+
+                T := (sha::ROTL:(a, 5, 32) + f:(b, c, d) + e + K::(t) + W::(t)) % clone:(_2p32)
+                e = clone:(d)
+                d = clone:(c)
+                c = sha::ROTL:(b, 30, 32)
+                b = clone:(a)
+                a = clone:(T)
+                t++
+            }
+
+            H::0 = (a + H::0) % clone:(_2p32)
+            H::1 = (b + H::1) % clone:(_2p32)
+            H::2 = (c + H::2) % clone:(_2p32)
+            H::3 = (d + H::3) % clone:(_2p32)
+            H::4 = (e + H::4) % clone:(_2p32)
+            i++
+        }
+
+        ;last step
+        ;format H as a hex string
+        final := ""
+
+        each (H, _, x) {
+            log:(x)
+            curhex := tohex:(x)
+
+            while (len:(curhex) < 8) ;format with length 8
+                curhex = "0" + curhex
+
+            final+=curhex
+        }
+
+        return final
     }
 }

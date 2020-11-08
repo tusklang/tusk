@@ -1,0 +1,11 @@
+var repeat
+
+ovld repeat = fn(string -> x, number -> _n) {
+    fin := "" ;final return var
+    n := clone:(_n) ;clone _n
+    while (n > 0) { ;keep going until n is 0
+        fin+=x ;concat the adder to fin
+        n-- ;decrement
+    }
+    return fin ;return the final return var
+}

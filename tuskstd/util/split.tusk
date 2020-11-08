@@ -1,3 +1,6 @@
+;include:
+;s tuskstd/util/slices.tusk
+
 var split
 
 ovld split = fn(string -> str, rune -> del) {
@@ -18,6 +21,16 @@ ovld split = fn(string -> str, rune -> del) {
 }
 
 ovld split = fn(string -> str, string -> del) {
+
+    if (del == "") {
+        ;special case where delimeter is every char
+        ret := []
+        each (str, _, v)
+            ;go through the string, and cur by every char
+            ret = append:(ret, string -> v)
+
+        return ret
+    }
 
     ;got the algorithm from here
     ;   https://hypjudy.github.io/2017/04/18/KMP-algorithm-split/#Naive-Pattern-Searching

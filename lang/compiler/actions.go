@@ -407,7 +407,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 						}
 
 						actions = append(actions, Action{
-							Type: "proto",
+							Type: "prototype",
 							Value: TuskProto{
 								Static:     static,
 								Instance:   instance,
@@ -597,9 +597,11 @@ func actionizer(operations []Operation) ([]Action, error) {
 			fallthrough
 		case "/":
 			fallthrough
+		case "//":
+			fallthrough
 		case "%":
 			fallthrough
-		case "^":
+		case "**":
 			fallthrough
 		case "==":
 			fallthrough
@@ -615,9 +617,23 @@ func actionizer(operations []Operation) ([]Action, error) {
 			fallthrough
 		case "!":
 			fallthrough
+		case "&&":
+			fallthrough
+		case "||":
+			fallthrough
+		case "~":
+			fallthrough
 		case "&":
 			fallthrough
 		case "|":
+			fallthrough
+		case "^":
+			fallthrough
+		case ">>":
+			fallthrough
+		case "<<":
+			fallthrough
+		case ">>>":
 			fallthrough
 		case "CB-OB":
 			fallthrough
@@ -663,9 +679,11 @@ func actionizer(operations []Operation) ([]Action, error) {
 			fallthrough
 		case "/=":
 			fallthrough
+		case "//=":
+			fallthrough
 		case "%=":
 			fallthrough
-		case "^=":
+		case "**=":
 
 			if len(left) == 0 || (left[0].Type != "variable" && left[0].Type != "::") {
 				return []Action{}, makeCompilerErr("Must have a variable before an assignment operator", v.File, v.Line)

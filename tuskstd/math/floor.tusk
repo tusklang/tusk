@@ -3,12 +3,6 @@
 
 var math = proto {
     static var floor = fn(number -> n) {
-        if (n < 0) return -1 * math::ceil:(math::abs:(n))
-
-        f := 0
-        while (f <= n)
-            f++
-
-        return f - 1
+        return n // 1
     }
 }

@@ -1,0 +1,23 @@
+[
+  {
+    "Type": "none",
+    "File": "test.tusk",
+    "Line": 7,
+    "Left": null,
+    "Right": null,
+    "Item": {
+      "Type": "expression value",
+      "Name": "",
+      "File": "test.tusk",
+      "Line": 7,
+      "Group": null,
+      "Token": {
+        "Name": "\"abcd\"",
+        "Line": 7,
+        "Type": "expression value",
+        "OName": "\"abcd\"",
+        "Dir": "test.tusk"
+      }
+    }
+  }
+]

@@ -52,7 +52,7 @@ func validate_types(actions []Action) error {
 			}
 			continue
 		}
-		if v.Type == "proto" {
+		if v.Type == "prototype" {
 
 			for i := range v.Value.(TuskProto).Static {
 				var val = *v.Value.(TuskProto).Static[i]

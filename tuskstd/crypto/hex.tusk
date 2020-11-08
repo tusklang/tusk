@@ -1,0 +1,37 @@
+var tohex = fn(number -> _n) {
+
+    n := clone:(_n)
+    neg := false
+
+    if (n < 0) {
+        n = -1 * n
+        neg = true
+    }
+
+    fin := []
+
+    var rem
+
+    while (n//=16 != 0) {
+        ;if the result is 0, stop
+        rem = n % 16
+        fin = append:(fin, rem) ;append the remainder to final result
+    }
+
+    hexstr := ""
+
+    each (fin, _, v) {
+        cur := string -> v
+        if (v == 10)   cur = "A"
+        elif (v == 11) cur = "B"
+        elif (v == 12) cur = "C"
+        elif (v == 13) cur = "D"
+        elif (v == 14) cur = "E"
+        elif (v == 15) cur = "F"
+
+        hexstr+=cur
+    }
+    
+    if (neg) hexstr = "-" + hexstr
+    return hexstr
+}

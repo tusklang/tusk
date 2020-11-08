@@ -23,12 +23,22 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	"number / number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 		return number__divide__number(val1, val2, instance, stacktrace, line, file)
 	},
+	"number // number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+		return number__floorDivide__number(val1, val2, instance, stacktrace, line, file)
+	},
 	"number % number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 		return number__mod__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number ^ number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+	"number ** number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 		return number__pow__number(val1, val2, instance, stacktrace, line, file)
 	},
+	"number & number":   bitwiseAnd,
+	"number | number":   bitwiseOr,
+	"number ^ number":   bitwiseXor,
+	"none ~ number":     bitwiseNot,
+	"number >> number":  bitwiseRShift,
+	"number << number":  bitwiseLShift,
+	"number >>> number": bitwiseURShift,
 
 	//arithmetic operators for runes
 	"rune + rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
@@ -66,7 +76,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		var tusktype TuskType = tuskrune
 		return &tusktype, nil
 	},
-	"rune ^ rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
+	"rune ** rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 		v := rune(math.Pow(float64(val1.(TuskRune).ToGoType()), float64(val2.(TuskRune).ToGoType()))) //perform operation on runes, as go int32
 		var tuskrune TuskRune
 		tuskrune.FromGoType(v)

@@ -252,7 +252,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			if expReturn {
 				defer dealloc(ins, varnames, groupRet.Exp)
 				return Returner{
-					Type: "expression",
+					Type: groupRet.Type,
 					Exp:  groupRet.Exp,
 				}, nil
 			}
@@ -282,9 +282,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			fallthrough
 		case "/":
 			fallthrough
+		case "//":
+			fallthrough
 		case "%":
 			fallthrough
-		case "^":
+		case "**":
 			fallthrough
 		case "==":
 			fallthrough
@@ -302,9 +304,23 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			fallthrough
 		case "::":
 			fallthrough
-		case "|":
+		case "||":
+			fallthrough
+		case "&&":
+			fallthrough
+		case "~":
 			fallthrough
 		case "&":
+			fallthrough
+		case "|":
+			fallthrough
+		case "^":
+			fallthrough
+		case ">>":
+			fallthrough
+		case "<<":
+			fallthrough
+		case ">>>":
 			fallthrough
 		case ":":
 			fallthrough
@@ -315,7 +331,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			var e *TuskError
 
 			//& and | can be a bit different for bool and bool
-			if v.Type == "&" || v.Type == "|" {
+			if v.Type == "&&" || v.Type == "||" {
 				firstInterpreted, e = Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
 
 				if e != nil {
@@ -328,14 +344,14 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 					var assumeVal bool
 
-					if v.Type == "&" {
+					if v.Type == "&&" {
 						assumeVal = !isTruthy(*firstInterpreted.Exp)
 					} else {
 						assumeVal = isTruthy(*firstInterpreted.Exp)
 					}
 
 					if assumeVal {
-						var retVal = v.Type == "|"
+						var retVal = v.Type == "||"
 						computed = TuskBool{
 							Boolean: &retVal,
 						}
@@ -653,9 +669,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			fallthrough
 		case "/=":
 			fallthrough
+		case "//=":
+			fallthrough
 		case "%=":
 			fallthrough
-		case "^=":
+		case "**=":
 
 			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
 			if e != nil {

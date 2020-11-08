@@ -59,6 +59,24 @@ var tokensJSON = []byte(
     "type": "operation"
   },
   {
+    "name": ">>",
+    "remove": ">>",
+    "pattern": "\\>\\>",
+    "type": "operation"
+  },
+  {
+    "name": "<<",
+    "remove": "<<",
+    "pattern": "\\<\\<",
+    "type": "operation"
+  },
+  {
+    "name": ">>>",
+    "remove": ">>>",
+    "pattern": "\\>\\>\\>",
+    "type": "operation"
+  },
+  {
     "name": "++",
     "remove": "++",
     "pattern": "(\\+\\+)",
@@ -89,6 +107,12 @@ var tokensJSON = []byte(
     "type": "?operation"
   },
   {
+    "name": "//=",
+    "remove": "//=",
+    "pattern": "(\\/\\/\\=)",
+    "type": "?operation"
+  },
+  {
     "name": "/=",
     "remove": "/=",
     "pattern": "(\\/\\=)",
@@ -101,9 +125,9 @@ var tokensJSON = []byte(
     "type": "?operation"
   },
   {
-    "name": "^=",
-    "remove": "^=",
-    "pattern": "(\\^\\=)",
+    "name": "**=",
+    "remove": "**=",
+    "pattern": "(\\*\\*\\=)",
     "type": "?operation"
   },
   {
@@ -149,9 +173,21 @@ var tokensJSON = []byte(
     "type": "operation"
   },
   {
+    "name": "**",
+    "remove": "**",
+    "pattern": "\\*\\*",
+    "type": "operation"
+  },
+  {
     "name": "*",
     "remove": "*",
     "pattern": "\\*",
+    "type": "operation"
+  },
+  {
+    "name": "//",
+    "remove": "//",
+    "pattern": "\\/\\/",
     "type": "operation"
   },
   {
@@ -164,12 +200,6 @@ var tokensJSON = []byte(
     "name": "%",
     "remove": "%",
     "pattern": "\\%",
-    "type": "operation"
-  },
-  {
-    "name": "^",
-    "remove": "^",
-    "pattern": "\\^",
     "type": "operation"
   },
   {
@@ -417,6 +447,30 @@ var tokensJSON = []byte(
     "remove": "undef",
     "pattern": "\\bundef\\b",
     "type": "expression value"
+  },
+  {
+    "name": "~",
+    "remove": "~",
+    "pattern": "\\~",
+    "type": "?operation"
+  },
+  {
+    "name": "&",
+    "remove": "&",
+    "pattern": "\\&",
+    "type": "operation"
+  },
+  {
+    "name": "|",
+    "remove": "|",
+    "pattern": "\\|",
+    "type": "operation"
+  },
+  {
+    "name": "^",
+    "remove": "^",
+    "pattern": "\\^",
+    "type": "operation"
   }
 ]
 `,

@@ -7,23 +7,13 @@ func number__mod__number(val1, val2 TuskType, instance *Instance, stacktrace []s
 	ensurePrec(&num1, &num2, (*instance).Params)
 
 	//ALGORITHM:
-	//  num1 - floor(num1 / num2) * num2
-
-	if num2.Decimal == nil { //ensure that a nil pointer reference doesnt happen
-		num2.Decimal = &[]int64{0}
-	}
-
-	num2P := zero //create a placeholder for num2 (because it will get mutated)
-	tmpInt, tmpDec := append([]int64{}, *num2.Integer...), append([]int64{}, *num2.Decimal...)
-	num2P.Integer, num2P.Decimal = &tmpInt, &tmpDec
-
-	//if you set the prec to 0 here, it will mutate it
-	pdivided, e := number__divide__number(num1, num2, instance, stacktrace, line, file)
+	//  num1 - num1 // num2 * num2
+	//floor divide num1 // num2
+	pdivided, e := number__floorDivide__number(num1, num2, instance, stacktrace, line, file)
 	if e != nil {
 		return nil, e
 	}
 	divided := (*pdivided).(TuskNumber)
-	*divided.Decimal = nil //round down
 
 	multiplied := (*number__times__number(divided, num2, instance, stacktrace, line, file)).(TuskNumber)
 	return number__minus__number(num1, multiplied, instance, stacktrace, line, file), nil

@@ -85,18 +85,39 @@ func normalOpFunc(exp []Item, index int, opType string) (Operation, error) {
 	}, nil
 }
 
+//operation function for all not gates (bitwise and normal)
+func notOpFunc(exp []Item, index int, opType string) (Operation, error) {
+
+	if len(exp[index+1:]) == 0 {
+		return Operation{}, makeCompilerErr("Must have a value to the right of the "+opType+" operator", exp[index].File, exp[index].Line)
+	}
+
+	right, e := makeOperations([][]Item{exp[index+1:]})
+
+	if e != nil {
+		return Operation{}, e
+	}
+
+	return Operation{
+		Type:  opType,
+		File:  exp[index].File,
+		Line:  exp[index].Line,
+		Right: &right[0],
+	}, nil
+}
+
 //ODO is
+// STATE-OP, CB-OB (compile-time inserted) and := and =
 // break and continue
 // comparisons
 // assignment operations
 // add, subtract
-// mult, div, modulo
+// mult, div, modulo, bitshifts
 // exponentiation
 // not gate
-// boolean operations (except not gate)
+// boolean/bitwise operations (except not gate)
 // index operation and function calls
 // cast operation
-// STATE-OP, CB-OB (compile-time inserted) and := and =
 
 func makeOperations(groups [][]Item) ([]Operation, error) {
 
@@ -120,8 +141,11 @@ func makeOperations(groups [][]Item) ([]Operation, error) {
 			},
 		},
 		map[string]func(exp []Item, index int, opType string) (Operation, error){
-			"&": normalOpFunc,
-			"|": normalOpFunc,
+			"&&": normalOpFunc,
+			"||": normalOpFunc,
+			"&":  normalOpFunc,
+			"|":  normalOpFunc,
+			"^":  normalOpFunc,
 		},
 		map[string]func(exp []Item, index int, opType string) (Operation, error){
 			"==": normalOpFunc,
@@ -170,45 +194,33 @@ func makeOperations(groups [][]Item) ([]Operation, error) {
 					Left: &left[0],
 				}, nil
 			},
-			"+=": normalOpFunc,
-			"-=": normalOpFunc,
-			"*=": normalOpFunc,
-			"/=": normalOpFunc,
-			"%=": normalOpFunc,
-			"^=": normalOpFunc,
+			"+=":  normalOpFunc,
+			"-=":  normalOpFunc,
+			"*=":  normalOpFunc,
+			"/=":  normalOpFunc,
+			"//=": normalOpFunc,
+			"%=":  normalOpFunc,
+			"^=":  normalOpFunc,
 		},
 		map[string]func(exp []Item, index int, opType string) (Operation, error){
 			"+": normalOpFunc,
 			"-": normalOpFunc,
 		},
 		map[string]func(exp []Item, index int, opType string) (Operation, error){
-			"*": normalOpFunc,
-			"/": normalOpFunc,
-			"%": normalOpFunc,
+			"*":   normalOpFunc,
+			"/":   normalOpFunc,
+			"//":  normalOpFunc,
+			"%":   normalOpFunc,
+			">>":  normalOpFunc,
+			"<<":  normalOpFunc,
+			">>>": normalOpFunc,
 		},
 		map[string]func(exp []Item, index int, opType string) (Operation, error){
-			"^": normalOpFunc,
+			"**": normalOpFunc,
 		},
 		map[string]func(exp []Item, index int, opType string) (Operation, error){
-			"!": func(exp []Item, index int, opType string) (Operation, error) {
-
-				if len(exp[index+1:]) == 0 {
-					return Operation{}, makeCompilerErr("Must have a value to the right of the "+opType+" operator", exp[index].File, exp[index].Line)
-				}
-
-				right, e := makeOperations([][]Item{exp[index+1:]})
-
-				if e != nil {
-					return Operation{}, e
-				}
-
-				return Operation{
-					Type:  opType,
-					File:  exp[index].File,
-					Line:  exp[index].Line,
-					Right: &right[0],
-				}, nil
-			},
+			"!": notOpFunc,
+			"~": notOpFunc,
 		},
 		map[string]func(exp []Item, index int, opType string) (Operation, error){
 			"->": normalOpFunc,

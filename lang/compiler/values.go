@@ -1,6 +1,8 @@
 package compiler
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"unicode"
 
 	. "github.com/tusklang/tusk/lang/types"
@@ -44,9 +46,14 @@ func valueActions(item Item) (Action, error) {
 				return Action{}, e
 			}
 
+			j, _ := json.MarshalIndent(_oper, "", "  ")
+			ioutil.WriteFile("test.json", j, 0644)
+
 			oper := _oper[0]
 
 			value, e := actionizer([]Operation{oper})
+
+			value = arraytogroup(value)
 
 			if e != nil {
 				return Action{}, e
@@ -56,8 +63,8 @@ func valueActions(item Item) (Action, error) {
 				return Action{}, makeCompilerErr("Each entry in the array must have a value", item.File, item.Line)
 			}
 
-			if value[0].Type == "proto" {
-				return Action{}, makeCompilerErr("Cannot have protos outside of the global scope", item.File, item.Line)
+			if value[0].Type == "prototype" {
+				return Action{}, makeCompilerErr("Cannot have prototypes outside of the global scope", item.File, item.Line)
 			}
 
 			if value[0].Value == nil || value[0].Type == "function" {
@@ -116,12 +123,14 @@ func valueActions(item Item) (Action, error) {
 			if e != nil {
 				return Action{}, e
 			}
+			key = arraytogroup(key)
 
 			value, e := actionizer([]Operation{*oper.Right})
 
 			if e != nil {
 				return Action{}, e
 			}
+			value = arraytogroup(value)
 
 			if len(value) == 0 {
 				return Action{}, makeCompilerErr("Expected value as after '='", item.File, oper.Line)

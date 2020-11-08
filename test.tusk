@@ -1,6 +1,6 @@
 ;include:
-;s tuskstd/bitwise
+;s tuskstd/crypto/sha
 
 var main = fn() {
-    log:(bitwise::lshift:(2 ^ 16, 1, 18))
+    log:(sha::sha1:("abcd"))
 }

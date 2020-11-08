@@ -5,6 +5,22 @@ import (
 	. "github.com/tusklang/tusk/native"
 )
 
+func number__floorDivide__number(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) (*TuskType, *TuskError) {
+	pdivided, e := number__divide__number(val1, val2, instance, stacktrace, line, file)
+	if e != nil {
+		return nil, e
+	}
+	divided := (*pdivided).(TuskNumber)
+	*divided.Decimal = nil //remove decimal
+
+	if isLess(divided, zero) { //if divided is negative, subtract 1
+		divided = (*number__minus__number(divided, one, instance, stacktrace, line, file)).(TuskNumber)
+	}
+
+	var tusktype TuskType = divided
+	return &tusktype, nil
+}
+
 func number__divide__number(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) (*TuskType, *TuskError) {
 	num1, num2 := val1.(TuskNumber), val2.(TuskNumber)
 	ensurePrec(&num1, &num2, (*instance).Params)

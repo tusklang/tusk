@@ -23,11 +23,11 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) error {
 
 	for _, v := range actions {
 
-		if v.Type == "proto" && !firstLayer {
+		if v.Type == "prototype" && !firstLayer {
 			return makeCompilerErr(proto_err_msg, v.File, v.Line)
 		}
 
-		if v.Type == "proto" {
+		if v.Type == "prototype" {
 
 			for i := range v.Value.(TuskProto).Static {
 				var val = *v.Value.(TuskProto).Static[i]
@@ -123,7 +123,7 @@ func has_non_global_prototypes(actions []Action, firstLayer bool) error {
 func put_proto_types(actions []Action) {
 
 	for k, v := range actions {
-		if v.Type == "var" && len(v.ExpAct) != 0 && v.ExpAct[0].Type == "proto" {
+		if v.Type == "var" && len(v.ExpAct) != 0 && v.ExpAct[0].Type == "prototype" {
 			validtypes = append(validtypes, v.Name[1:])
 
 			var proto = v.ExpAct[0].Value.(TuskProto)

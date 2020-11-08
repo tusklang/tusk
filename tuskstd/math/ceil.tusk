@@ -3,12 +3,8 @@
 
 var math = proto {
     static var ceil = fn(number -> n) {
-        if (n < 0) return -1 * math::floor:(math::abs:(n))
-
-        f := 0
-        while (f < n)
-            f++
-
-        return f
+        nfd1 := n // 1
+        if (nfd1 == n) return n
+        else return nfd1 + n
     }
 }
