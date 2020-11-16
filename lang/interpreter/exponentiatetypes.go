@@ -1,6 +1,8 @@
 package interpreter
 
-import . "github.com/tusklang/tusk/lang/types"
+import (
+	. "github.com/tusklang/tusk/lang/types"
+)
 
 func number__pow__number(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) (*TuskType, *TuskError) {
 	num1, num2 := val1.(TuskNumber), val2.(TuskNumber)

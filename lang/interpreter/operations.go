@@ -32,13 +32,12 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	"number ** number": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 		return number__pow__number(val1, val2, instance, stacktrace, line, file)
 	},
-	"number & number":   bitwiseAnd,
-	"number | number":   bitwiseOr,
-	"number ^ number":   bitwiseXor,
-	"none ~ number":     bitwiseNot,
-	"number >> number":  bitwiseRShift,
-	"number << number":  bitwiseLShift,
-	"number >>> number": bitwiseURShift,
+	"number & number":  bitwiseAnd,
+	"number | number":  bitwiseOr,
+	"number ^ number":  bitwiseXor,
+	"none ~ number":    bitwiseNot,
+	"number >> number": bitwiseRShift,
+	"number << number": bitwiseLShift,
 
 	//arithmetic operators for runes
 	"rune + rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {

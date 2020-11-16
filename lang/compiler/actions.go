@@ -633,8 +633,6 @@ func actionizer(operations []Operation) ([]Action, error) {
 			fallthrough
 		case "<<":
 			fallthrough
-		case ">>>":
-			fallthrough
 		case "CB-OB":
 			fallthrough
 		case ":":

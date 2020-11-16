@@ -1,6 +1,6 @@
 ;include:
-;s tuskstd/crypto/sha
+;s tuskstd/crypto
 
 var main = fn() {
-    log:(sha::sha1:("abcd"))
+    log:(sha::sha1:("abc"))
 }

@@ -1,6 +1,10 @@
+;include:
+;s tuskstd/util/search.tusk
+;r connect.tusk
+
 var mysql = proto {
     access ("thisf", "curdir/connect.tusk")
-    static var mysql_login_socket = fn(fd, user, pass) {
+    var authenticate = fn(user, pass) {
 
     }
 }

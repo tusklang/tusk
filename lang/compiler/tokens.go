@@ -71,12 +71,6 @@ var tokensJSON = []byte(
     "type": "operation"
   },
   {
-    "name": ">>>",
-    "remove": ">>>",
-    "pattern": "\\>\\>\\>",
-    "type": "operation"
-  },
-  {
     "name": "++",
     "remove": "++",
     "pattern": "(\\+\\+)",

@@ -2,7 +2,9 @@ package interpreter
 
 //file that has all of the helper funcs for exponentiation
 
-import . "github.com/tusklang/tusk/lang/types"
+import (
+	. "github.com/tusklang/tusk/lang/types"
+)
 
 func number__pow__integer(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string) (TuskType, *TuskError) {
 	num1, num2 := val1.(TuskNumber), val2.(TuskNumber)
@@ -18,18 +20,16 @@ func number__pow__integer(val1, val2 TuskType, instance *Instance, stacktrace []
 	var two = zero
 	two.Integer = &[]int64{2}
 
-	pdivved, e := number__divide__number(num2, two, instance, stacktrace, line, file)
+	pdivved, e := number__floorDivide__number(num2, two, instance, stacktrace, line, file)
 	if e != nil {
 		return nil, e
 	}
-	divved := (*pdivved).(TuskNumber)
-	divved.Decimal = &[]int64{} //round down to nearest whole
+	divved := *pdivved
 
-	pres, e := number__pow__integer(num1, divved, instance, stacktrace, line, file)
+	res, e := number__pow__integer(num1, divved, instance, stacktrace, line, file)
 	if e != nil {
 		return nil, e
 	}
-	res := pres.(TuskNumber)
 
 	resSquared := (*number__times__number(res, res, instance, stacktrace, line, file)).(TuskNumber)
 

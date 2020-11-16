@@ -11,23 +11,24 @@ var tohex = fn(number -> _n) {
     fin := []
 
     var rem
+    var tmp
 
-    while (n//=16 != 0) {
-        ;if the result is 0, stop
-        rem = n % 16
-        fin = append:(fin, rem) ;append the remainder to final result
+    while (n >= 1) {
+        cur := n % 16
+        n//=16
+        fin = prepend:(fin, cur)
     }
 
     hexstr := ""
 
     each (fin, _, v) {
         cur := string -> v
-        if (v == 10)   cur = "A"
-        elif (v == 11) cur = "B"
-        elif (v == 12) cur = "C"
-        elif (v == 13) cur = "D"
-        elif (v == 14) cur = "E"
-        elif (v == 15) cur = "F"
+        if (v == 10)   cur = "a"
+        elif (v == 11) cur = "b"
+        elif (v == 12) cur = "c"
+        elif (v == 13) cur = "d"
+        elif (v == 14) cur = "e"
+        elif (v == 15) cur = "f"
 
         hexstr+=cur
     }

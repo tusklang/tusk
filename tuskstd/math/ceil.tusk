@@ -5,6 +5,6 @@ var math = proto {
     static var ceil = fn(number -> n) {
         nfd1 := n // 1
         if (nfd1 == n) return n
-        else return nfd1 + n
+        else return nfd1 + 1
     }
 }

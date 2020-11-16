@@ -27,7 +27,12 @@ func number__divide__number(val1, val2 TuskType, instance *Instance, stacktrace 
 
 	//maybe in a future version switch to the algorithm python uses
 	//knuth division
-	//https://skanthak.homepage.t-online.de/division.html
+	//	https://skanthak.homepage.t-online.de/division.html
+
+	//this is really spaghetti sorry
+	//im looking through this for a bug
+	//and cannot read anything
+	//sorry future readers
 
 	//num2 is the divisor
 	//num1 is the dividend
@@ -73,6 +78,8 @@ func number__divide__number(val1, val2 TuskType, instance *Instance, stacktrace 
 			continue
 		}
 
+		var isNeg = isLess(curVal, zero) != isLess(num2, zero) //if the current quotient is negative (!= is an xor)
+
 		var curQuotient TuskNumber = zero
 		var added TuskNumber = zero
 
@@ -90,8 +97,14 @@ func number__divide__number(val1, val2 TuskType, instance *Instance, stacktrace 
 			curQuotient = (*number__plus__number(curQuotient, one, instance, stacktrace, line, file)).(TuskNumber)
 		}
 
-		if isLess(num1, zero) {
-			curQuotient = (*number__times__number(curQuotient, neg_one, instance, stacktrace, line, file)).(TuskNumber)
+		if isNeg { //if the final should be negative, a bit of complexity is necessary
+
+			if !isEqual(added, curValAbs) {
+				curQuotient = (*number__plus__number(curQuotient, one, instance, stacktrace, line, file)).(TuskNumber) //add one to the current quotient
+				added = (*number__plus__number(added, num2Abs, instance, stacktrace, line, file)).(TuskNumber)         //increment the added once again
+			}
+
+			curQuotient = (*number__times__number(curQuotient, neg_one, instance, stacktrace, line, file)).(TuskNumber) //now make the current quotient negative
 		}
 
 		//remove leading zeros from the curQuotient

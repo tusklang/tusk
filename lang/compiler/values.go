@@ -1,8 +1,6 @@
 package compiler
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"unicode"
 
 	. "github.com/tusklang/tusk/lang/types"
@@ -45,9 +43,6 @@ func valueActions(item Item) (Action, error) {
 			if e != nil {
 				return Action{}, e
 			}
-
-			j, _ := json.MarshalIndent(_oper, "", "  ")
-			ioutil.WriteFile("test.json", j, 0644)
 
 			oper := _oper[0]
 

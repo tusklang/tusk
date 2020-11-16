@@ -3,6 +3,24 @@
 
 var split
 
+ovld split = fn(string -> str) {
+    ;split by every char
+    return split:(str, 1)
+}
+
+ovld split = fn(string -> str, number -> amt) {
+    ;chunk into pieces
+
+    chunks := []
+
+    each (str, k, v) {
+        if (k % amt == 0) chunks = append:(chunks, "") ;if its divisible by the amt, add a new piece
+        chunks::(len:(chunks) - 1)+=v
+    }
+
+    return chunks
+}
+
 ovld split = fn(string -> str, rune -> del) {
     ;split by a rune
     

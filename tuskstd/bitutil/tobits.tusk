@@ -8,8 +8,7 @@ var bitutil = proto {
 
         while (num >= 1) {
             cur := num % 2
-            num/=2
-            num = math::floor:(num)
+            num//=2
             bits = prepend:(bits, cur)
         }
 

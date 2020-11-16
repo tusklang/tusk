@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 	"math"
+	"math/big"
 	"strconv"
 )
 
@@ -22,6 +23,18 @@ var MIN_DIGIT = -1 * MAX_DIGIT
 type TuskNumber struct {
 	Integer *[]int64
 	Decimal *[]int64
+}
+
+//ToBigInt converts a Tusk number to a *big.Int
+func (n TuskNumber) ToBigInt() *big.Int {
+	i, _ := new(big.Int).SetString(NumNormalize(n), 10)
+	return i
+}
+
+//FromBigInt converts a *big.Int to a Tusk number
+func (n *TuskNumber) FromBigInt(val *big.Int) {
+	integer, decimal := BigNumConverter(val.String())
+	n.Integer, n.Decimal = &integer, &decimal
 }
 
 func (n *TuskNumber) FromGoType(val float64) {

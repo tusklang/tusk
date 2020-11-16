@@ -1,0 +1,6 @@
+;include:
+;r connect.tusk
+
+var mysql = proto {
+    
+}

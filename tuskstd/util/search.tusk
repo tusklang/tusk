@@ -1,4 +1,9 @@
 var searchfor = fn(string -> str, string -> inc) { 
+    return searchfor:(str, inc, 0)
+}
+
+var searchfor = fn(string -> _str, string -> inc, number -> start) { 
+    str := rmbegin:(_str, start)
     
     ;got from here https://coderscat.com/kmp-string-search-algorithm#:~:text=%20KMP%20String%20Search%20Algorithm%20%201%20Naive,the%20ckaon...%203%20KMP%20algorithm.%20%20More%20
     ;i dont know what algorithm this is called
