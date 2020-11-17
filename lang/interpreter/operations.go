@@ -39,6 +39,11 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	"number >> number": bitwiseRShift,
 	"number << number": bitwiseLShift,
 
+	"string & string": strbitwiseAnd,
+	"string | string": strbitwiseOr,
+	"string ^ string": strbitwiseXor,
+	"none ~ string":   strbitwiseNot,
+
 	//arithmetic operators for runes
 	"rune + rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError) {
 		v := val1.(TuskRune).ToGoType() + val2.(TuskRune).ToGoType() //perform operation on runes, as go int32

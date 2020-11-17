@@ -7,8 +7,8 @@ var mysql = proto {
     ;tcp socket file descriptor to connect to database
     var fd
 
-    ;buffer size
-    static var bufsiz = 16777216
+    ;config opttions
+    var config
 
     ;got the source from here
     ;   https://www.codeproject.com/Articles/27943/Minimalistic-Driver-less-Native-MySql-Client
@@ -19,14 +19,15 @@ var mysql = proto {
 
         var con = make:(mysql)
         con::fd = syscall:(25, 2, 1, "tcp") ;create the socket fd
+        con::config = opts
 
         ;connect the socket
         if (syscall:(26, fd, 2, opts::host, opts::port) < 0) panic:("Cannot connect to socket")
 
-        var buf = allocstr:(mysql::bufsiz)
-        var max = syscall:(0, con::fd, buf, mysql::bufsiz) ;read from the socket
-        if (buf::4 < (rune -> 10)) panic:("MySQL 4.1+ is required") ;detect a mysql version less than 4.1
+        var fin = ""
+        var buf = allocstr:(" ")
+        while (syscall:(0, con::fd, buf, mysql::bufsiz) > 0) fin+=buf
 
-        mysql_login_socket:(con::fd, opts::user, opts::pass)
+        con::authenticate:(fin)
     }
 }

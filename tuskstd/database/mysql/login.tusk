@@ -1,10 +1,11 @@
 ;include:
 ;s tuskstd/util/search.tusk
+;s tuskstd/crypto/sha/sha1.tusk
 ;r connect.tusk
 
 var mysql = proto {
     access ("thisf", "curdir/connect.tusk")
     var authenticate = fn(user, pass) {
-
+        hashed := sha::sha1:(pass)
     }
 }
