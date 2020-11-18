@@ -1,9 +1,8 @@
 package types
 
 type TuskObject struct {
-	Name       string
-	Instance   Instance
-	AccessList map[string][]string
+	Name     string
+	Instance Instance
 }
 
 func (o TuskObject) Get(field, file string) (*TuskType, error) {
@@ -14,7 +13,7 @@ func (o TuskObject) Get(field, file string) (*TuskType, error) {
 		mappedvars[k] = v.Value
 	}
 
-	return getfield(mappedvars, field, o.AccessList, file)
+	return getfield(mappedvars, field, file)
 }
 
 func (o TuskObject) Format() string {

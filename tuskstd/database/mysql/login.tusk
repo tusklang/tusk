@@ -4,8 +4,7 @@
 ;r connect.tusk
 
 var mysql = proto {
-    access ("thisf", "curdir/connect.tusk")
-    var authenticate = fn(user, pass) {
-        hashed := sha::sha1:(pass)
+    var authenticate = fn(data) {
+
     }
 }

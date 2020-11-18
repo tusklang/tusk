@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
 
@@ -51,7 +52,7 @@ Explanation of why this exists:
 
 var curvar uint64
 
-func changevarnames(actions []Action, newnames_ map[string]string, access map[string][]string) (map[string]string, error) {
+func changevarnames(actions []Action, newnames_ map[string]string, access map[string]accessStruct) (map[string]string, error) {
 
 	var e error
 
@@ -255,14 +256,22 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 
 			vaccess := access[v.Name]
 
-			if len(vaccess) != 0 {
+			if len(vaccess.access) != 0 {
 				//no access specified means full global
-				for _, v := range vaccess {
+				for _, v := range vaccess.access {
+
+					tmp, _ := os.Getwd()
+					olddir, _ := filepath.Abs(tmp) //store the old wd
+
+					os.Chdir(v)
+
 					a1, _ := filepath.Abs(v)
 					a2, _ := filepath.Abs(actions[k].File)
 
+					os.Chdir(olddir) //change back to the old dir
+
 					//same filepath
-					if a1 == a2 {
+					if a1 == a2 { //compare the absolute paths
 						goto hasaccess
 					}
 				}

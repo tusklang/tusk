@@ -22,11 +22,11 @@ var mysql = proto {
         con::config = opts
 
         ;connect the socket
-        if (syscall:(26, fd, 2, opts::host, opts::port) < 0) panic:("Cannot connect to socket")
+        if (syscall:(26, con::fd, 2, opts::host, opts::port) == -1) panic:("Cannot connect to socket")
 
         var fin = ""
-        var buf = allocstr:(" ")
-        while (syscall:(0, con::fd, buf, mysql::bufsiz) > 0) fin+=buf
+        var buf = allocstr:(1)
+        while (syscall:(0, con::fd, buf, 1) > 0) fin+=buf
 
         con::authenticate:(fin)
     }

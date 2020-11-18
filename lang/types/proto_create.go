@@ -16,9 +16,8 @@ func (proto TuskProto) New(instance Instance) TuskObject {
 	}
 
 	var obj = TuskObject{
-		Name:       proto.ProtoName,
-		Instance:   *nins,
-		AccessList: proto.AccessList,
+		Name:     proto.ProtoName,
+		Instance: *nins,
 	}
 	return obj
 }

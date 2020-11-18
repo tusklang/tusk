@@ -5,32 +5,16 @@ import (
 )
 
 type TuskProto struct {
-	ProtoName  string
-	Static     map[string]*TuskType
-	Instance   map[string]*TuskType
-	AccessList map[string][]string
+	ProtoName string
+	Static    map[string]*TuskType
+	Instance  map[string]*TuskType
 }
 
-func getfield(full map[string]*TuskType, field string, access map[string][]string, file string) (*TuskType, error) {
+func getfield(full map[string]*TuskType, field string, file string) (*TuskType, error) {
 	if field[0] == '_' {
 		return nil, errors.New("Cannot access private member: " + field)
 	}
 
-	//check for access (protected)
-
-	if access[field] == nil || file == "" { //if it does not name any access, automatically make it public
-		goto allowed
-	}
-
-	for _, v := range access[field] {
-		if file == v {
-			goto allowed
-		}
-	}
-
-	return nil, errors.New("File cannot acces field \"" + field + "\"")
-
-allowed:
 	fieldv := full[field]
 
 	if fieldv == nil {
@@ -41,7 +25,7 @@ allowed:
 }
 
 func (p TuskProto) Get(field string, file string) (*TuskType, error) {
-	return getfield(p.Static, field, p.AccessList, file)
+	return getfield(p.Static, field, file)
 }
 
 func (p TuskProto) Format() string {

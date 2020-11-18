@@ -8,12 +8,6 @@ func mergeproto(m1, m2 map[string]*types.TuskType) {
 	}
 }
 
-func mergeprotoaccess(m1, m2 map[string][]string) {
-	for k, v := range m2 {
-		m1[k] = v
-	}
-}
-
 func getvars(actions []types.Action) (map[string]*types.TuskType, error) {
 
 	var vars = make(map[string]*types.TuskType)
@@ -72,7 +66,6 @@ func getvars(actions []types.Action) (map[string]*types.TuskType, error) {
 
 				mergeproto((*proto).(types.TuskProto).Static, v.ExpAct[0].Value.(types.TuskProto).Static)
 				mergeproto((*proto).(types.TuskProto).Instance, v.ExpAct[0].Value.(types.TuskProto).Instance)
-				mergeprotoaccess((*proto).(types.TuskProto).AccessList, v.ExpAct[0].Value.(types.TuskProto).AccessList)
 				continue
 			}
 		}

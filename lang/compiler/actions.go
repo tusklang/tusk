@@ -1,9 +1,7 @@
 package compiler
 
 import (
-	"path/filepath"
 	"runtime"
-	"strings"
 
 	. "github.com/tusklang/tusk/lang/types"
 )
@@ -302,37 +300,10 @@ func actionizer(operations []Operation) ([]Action, error) {
 						var (
 							static   = make(map[string]*TuskType)
 							instance = make(map[string]*TuskType)
-							access   = make(map[string][]string)
 						)
 						var body = right[0].ExpAct //get the struct body
-						var currentaccess []string
 
 						for i := range body {
-
-							if body[i].Type == "access" { //protected field
-								if currentaccess != nil {
-									return nil, makeCompilerErr("Access found twice in a row", body[i].File, body[i].Line)
-								}
-
-								for _, v := range body[i].Value.(TuskArray).Array {
-									if (*v).Type() != "string" {
-										return nil, makeCompilerErr("Expect a string list to access", body[i].File, body[i].Line)
-									}
-
-									var cur = (*v).(TuskString).ToGoType()
-
-									if cur == "thisf" { //"thisf" means this file
-										cur = body[i].File
-									} else if strings.HasPrefix(cur, "curdir") { //"curdir" means the current directory e.g. (curdir/test.tusks)
-										cur = filepath.Dir(body[i].File) + strings.TrimPrefix(cur, "curdir")
-									}
-
-									currentaccess = append(currentaccess, cur)
-								}
-
-								continue
-							}
-
 							if body[i].Type != "static" && body[i].Type != "instance" { //if it does not name static or instance, automatically make it instance
 								body[i] = Action{
 									Type:   "instance",
@@ -346,10 +317,6 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 							if len(name) == 0 {
 								return nil, makeCompilerErr("Prototype body variable has no name", v.File, right[0].Line)
-							}
-
-							if currentaccess != nil {
-								access[name] = currentaccess
 							}
 
 							if body[i].ExpAct[0].Type == "var" {
@@ -403,15 +370,13 @@ func actionizer(operations []Operation) ([]Action, error) {
 								return []Action{}, makeCompilerErr("Prototype bodies can only have variable assignments, declarations, and overloading", v.File, right[0].Line)
 							}
 
-							currentaccess = nil
 						}
 
 						actions = append(actions, Action{
 							Type: "prototype",
 							Value: TuskProto{
-								Static:     static,
-								Instance:   instance,
-								AccessList: access,
+								Static:   static,
+								Instance: instance,
 							},
 							File: v.File,
 							Line: v.Line,

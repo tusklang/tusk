@@ -49,7 +49,6 @@ DWORD WINAPI Sql( void* command , void* onvalue, void* onfield) {
         CryptCreateHash(prov,CALG_SHA1,0,0,&hash); CryptHashData(hash,chal, 20,0);
                                                    CryptHashData(hash,resp, 20,0); CryptGetHashParam(hash,HP_HASHVAL,resp,&no,0); CryptDestroyHash(hash);   
         CryptReleaseContext( prov,0);               
-        printf("%s\n", chal);
 
         // Construct client auth response 
         // Details at: http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Client_Authentication_Packet
