@@ -51,7 +51,7 @@ ovld f = fn(string -> a, string -> b) {
 
 This can be enourmously useful for code readability.
 
-## Private, Public, and Protected Fields
+## Private and Public Fields
 
 Maybe as useful as optional static typing is Tusk's support for private, public, and protected fields. Tusk, like many modern languages, has object oriented features. Classes in Tusk are defined with the `proto` keyword. In JavaScript, to create private variables, you must use something called a closure.
 
@@ -75,20 +75,6 @@ var a = proto {
 
     var _privatemethod = fn() {
         ;private method (will throw an error if it is accessed from outside this prototype)
-    }
-}
-```
-
-#### Protected Fields
-
-In Java, a protected field is a field in a class that can only be accessed from nested classes, or from classes within the same package. Tusk has a similar idea, but Tusk does not have a package structure. Instead, you can use the `access` keyword to specify which files can use the given field. This allows for the developer to specify access, even though Tusk is a dynamic language.
-
-```clojure
-var a = proto {
-    ;thisf is a macro for the current file
-    access ("thisf", "anotherfile.tusk")
-    var protectedfield = fn() {
-        ;this method can only be accessed in the current file `thisf` and anotherfile.tusk
     }
 }
 ```
