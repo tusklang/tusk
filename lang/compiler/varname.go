@@ -1,9 +1,6 @@
 package compiler
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
 	"strconv"
 
 	. "github.com/tusklang/tusk/lang/types"
@@ -52,7 +49,7 @@ Explanation of why this exists:
 
 var curvar uint64
 
-func changevarnames(actions []Action, newnames_ map[string]string, access map[string]accessStruct) (map[string]string, error) {
+func changevarnames(actions []Action, newnames_ map[string]string) (map[string]string, error) {
 
 	var e error
 
@@ -83,7 +80,7 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 					fn.Overloads[kk].Params[i] = pname //also modify the parameters in the actual function
 					curvar++
 				}
-				_, e = changevarnames(fn.Overloads[kk].Body, params, access)
+				_, e = changevarnames(fn.Overloads[kk].Body, params)
 
 				if e != nil {
 					return nil, e
@@ -116,7 +113,7 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 
 			//change var names for the iterator
 			tmp := []Action{v.First[0]}
-			_, e = changevarnames(tmp, keyandvalvars, access)
+			_, e = changevarnames(tmp, keyandvalvars)
 			v.First[0] = tmp[0]
 			if e != nil {
 				return nil, e
@@ -124,7 +121,7 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 			///////////////////////////////////
 
 			//change var names for the body
-			_, e = changevarnames(v.ExpAct, keyandvalvars, access)
+			_, e = changevarnames(v.ExpAct, keyandvalvars)
 			if e != nil {
 				return nil, e
 			}
@@ -148,7 +145,7 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 					Type:  (*val).Type(),
 					Value: *val,
 				}}
-				_, e := changevarnames(passarr, passvals, access)
+				_, e := changevarnames(passarr, passvals)
 
 				if e != nil {
 					return nil, e
@@ -183,7 +180,7 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 					Type:  (*val).Type(),
 					Value: *val,
 				}}
-				_, e := changevarnames(passarr, passvals, access)
+				_, e := changevarnames(passarr, passvals)
 
 				if e != nil {
 					return nil, e
@@ -204,7 +201,7 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 			newnames[v.Name] = "v" + strconv.FormatUint(curvar, 10)
 			actions[k].Name = "v" + strconv.FormatUint(curvar, 10)
 			curvar++
-			_, e = changevarnames(actions[k].ExpAct, newnames, access)
+			_, e = changevarnames(actions[k].ExpAct, newnames)
 			if e != nil {
 				return nil, e
 			}
@@ -213,34 +210,34 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 
 		//perform checkvars on all of the sub actions
 
-		_, e = changevarnames(actions[k].ExpAct, newnames, access)
+		_, e = changevarnames(actions[k].ExpAct, newnames)
 		if e != nil {
 			return nil, e
 		}
-		_, e = changevarnames(actions[k].First, newnames, access)
+		_, e = changevarnames(actions[k].First, newnames)
 		if e != nil {
 			return nil, e
 		}
-		_, e = changevarnames(actions[k].Second, newnames, access)
+		_, e = changevarnames(actions[k].Second, newnames)
 		if e != nil {
 			return nil, e
 		}
 
 		//also do it for the (runtime) arrays and hashes
 		for i := range v.Array {
-			_, e = changevarnames(v.Array[i], newnames, access)
+			_, e = changevarnames(v.Array[i], newnames)
 			if e != nil {
 				return nil, e
 			}
 		}
 		for i := range v.Hash {
-			_, e = changevarnames(v.Hash[i][0], newnames, access)
+			_, e = changevarnames(v.Hash[i][0], newnames)
 
 			if e != nil {
 				return nil, e
 			}
 
-			_, e = changevarnames(v.Hash[i][1], newnames, access)
+			_, e = changevarnames(v.Hash[i][1], newnames)
 			if e != nil {
 				return nil, e
 			}
@@ -253,33 +250,6 @@ func changevarnames(actions []Action, newnames_ map[string]string, access map[st
 			if _, exists := newnames[v.Name]; !exists {
 				return nil, makeCompilerErr("Variable "+v.Name+" was not declared", v.File, v.Line)
 			}
-
-			vaccess := access[v.Name]
-
-			if len(vaccess.access) != 0 {
-				//no access specified means full global
-				for _, v := range vaccess.access {
-
-					tmp, _ := os.Getwd()
-					olddir, _ := filepath.Abs(tmp) //store the old wd
-
-					os.Chdir(v)
-
-					a1, _ := filepath.Abs(v)
-					a2, _ := filepath.Abs(actions[k].File)
-
-					os.Chdir(olddir) //change back to the old dir
-
-					//same filepath
-					if a1 == a2 { //compare the absolute paths
-						goto hasaccess
-					}
-				}
-
-				return nil, fmt.Errorf("Permission not granted to access variable %s in file %s", actions[k].Name, actions[k].File)
-			}
-
-		hasaccess:
 
 			actions[k].Name = newnames[v.Name]
 		}

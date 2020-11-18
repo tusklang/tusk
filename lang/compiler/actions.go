@@ -453,19 +453,6 @@ func actionizer(operations []Operation) ([]Action, error) {
 							Line:   v.Line,
 						})
 
-					case "access":
-
-						if right[0].Value.Type() != "array" {
-							return nil, makeCompilerErr("Must use an array for an access list", v.File, v.Line)
-						}
-
-						actions = append(actions, Action{
-							Type:  "access",
-							Value: right[0].Value,
-							File:  v.File,
-							Line:  v.Line,
-						})
-
 					default:
 
 						actions = append(actions, Action{

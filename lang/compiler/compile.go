@@ -147,8 +147,6 @@ func Compile(params CliParams) (map[string]*TuskType, error) {
 	}
 	/////////////////////////////////////////
 
-	actions, access := globalAccess(actions)
-
 	vars, e := getvars(actions)
 	if e != nil {
 		return nil, e
@@ -180,7 +178,7 @@ func Compile(params CliParams) (map[string]*TuskType, error) {
 		tmp[0].Type = (*v).Type()
 		tmp[0].Value = *v
 
-		_, e = changevarnames(tmp, varnames, access)
+		_, e = changevarnames(tmp, varnames)
 		if e != nil {
 			return nil, e
 		}
