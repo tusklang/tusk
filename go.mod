@@ -1,8 +1,5 @@
 module github.com/tusklang/tusk
 
-go 1.13
+go 1.15
 
-require (
-	github.com/tusklang/oat v0.0.0-20201006015704-3bdccff6eb9a
-	github.com/tusklang/tools v0.0.0-20201005170534-2339ee6039b1
-)
+require github.com/tusklang/oat v0.0.0-20201118185917-95b0bddc52ef

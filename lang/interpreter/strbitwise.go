@@ -1,8 +1,6 @@
 package interpreter
 
 import (
-	"fmt"
-
 	"github.com/tusklang/tusk/lang/types"
 )
 
@@ -39,7 +37,6 @@ func strbitwiseOr(val1, val2 types.TuskType, instance *types.Instance, stacktrac
 
 func strbitwiseXor(val1, val2 types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError) {
 	return strToBits(val1, val2, func(a, b rune) rune {
-		fmt.Println(a, b)
 		return a ^ b
 	}), nil
 }

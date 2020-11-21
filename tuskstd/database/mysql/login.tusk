@@ -4,7 +4,25 @@
 ;r connect.tusk
 
 var mysql = proto {
+    var _hashpass = fn(string -> p) {
+        ;calculate hashed password
+        ;SHA1( password ) XOR SHA1( "20-bytes random data from server" <concat> SHA1( SHA1( password ) ) )
+        ;   https://dev.mysql.com/doc/internals/en/secure-password-authentication.html#packet-Authentication::Native41
+        hashed := sha::sha1:(pass) ^ sha::sha1:(data + sha::sha1:(sha::sha1:(pass)))
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    }
+
     var authenticate = fn(data) {
 
+        ;config is declared in connect.tusk
+        user := config::user
+        pass := config::pass
+        db := config::database
+        if (!db) db = "" ;if the user didn't specify a database, put ""
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+        hashed := _hashpass:(pass)
+
+        syscall:(1, hashed, len:(hashed)) ;write()
     }
 }

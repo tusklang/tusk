@@ -2,6 +2,7 @@ ifeq ($(OS),Windows_NT)
 	BINARY = tuskstart.exe
 	CLEAN_CMD = del
 else
+	SET_GOPATH = GOPATH=$(GOPATH)
 	BINARY = tuskstart.out
 	CLEAN_CMD = rm -f
 endif
@@ -20,4 +21,4 @@ clean:
 
 .PHONY: language
 language:
-	go build -a -o $(BINARY) tuskstart.go
+	$(SET_GOPATH) go build -a -o $(BINARY) tuskstart.go
