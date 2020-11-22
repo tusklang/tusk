@@ -28,7 +28,7 @@ var json = proto {
         return "\"" + s + "\""
     }
 
-    static ovld marshal = fn(number -> n) {
+    static ovld marshal = fn(int -> n) {
         return string -> n
     }
 

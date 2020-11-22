@@ -1,6 +1,6 @@
 var repeat
 
-ovld repeat = fn(string -> x, number -> _n) {
+ovld repeat = fn(string -> x, int -> _n) {
     fin := "" ;final return var
     n := clone:(_n) ;clone _n
     while (n > 0) { ;keep going until n is 0

@@ -67,7 +67,7 @@ func (n TuskNumber) Format() string {
 }
 
 func (n TuskNumber) Type() string {
-	return "number"
+	return "big"
 }
 
 func (n TuskNumber) TypeOf() string {

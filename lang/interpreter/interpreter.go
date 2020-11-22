@@ -117,7 +117,9 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			fallthrough
 		case "rune":
 			fallthrough
-		case "number":
+		case "int":
+			fallthrough
+		case "float":
 			fallthrough
 		case "bool":
 			fallthrough
@@ -263,7 +265,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			if e != nil {
 				return Returner{}, e
 			}
-			casted := Cast(*cv.Exp, v.Name, stacktrace, v.Line, v.File)
+			casted, e := Cast(*cv.Exp, v.Name, stacktrace, v.Line, v.File)
+
+			if e != nil {
+				return Returner{}, e
+			}
 
 			if expReturn {
 				defer dealloc(ins, varnames, casted)
@@ -609,13 +615,14 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				return Returner{}, e
 			}
 
-			operationFunc, exists := Operations[(*variable.Exp).Type()+" + number"]
+			operationFunc, exists := Operations[(*variable.Exp).Type()+" + int"]
 
 			if !exists { //if there is no operation for that type, panic
 				return Returner{}, TuskPanic("Could not find + operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
 			}
 
-			var onetype TuskType = one
+			var onetype TuskInt
+			onetype.FromGoType(1)
 			tmp, e := operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize)
 			if e != nil {
 				return Returner{}, e
@@ -638,13 +645,14 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				return Returner{}, e
 			}
 
-			operationFunc, exists := Operations[(*variable.Exp).Type()+" - number"]
+			operationFunc, exists := Operations[(*variable.Exp).Type()+" - int"]
 
 			if !exists { //if there is no operation for that type, panic
 				return Returner{}, TuskPanic("Could not find - operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
 			}
 
-			var onetype TuskType = one
+			var onetype TuskInt
+			onetype.FromGoType(1)
 			tmp, e := operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize)
 			if e != nil {
 				return Returner{}, e

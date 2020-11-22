@@ -2,7 +2,7 @@ var rmbegin
 var rmend
 var slice
 
-ovld rmbegin = fn(string -> str, number -> amt) {
+ovld rmbegin = fn(string -> str, int -> amt) {
     substringed := ""
 
     strl := len:(str) - 1
@@ -16,7 +16,7 @@ ovld rmbegin = fn(string -> str, number -> amt) {
     return substringed
 }
 
-ovld rmbegin = fn(array -> arr, number -> amt) {
+ovld rmbegin = fn(array -> arr, int -> amt) {
     removed := []
 
     arrl := len:(arr) - 1
@@ -30,7 +30,7 @@ ovld rmbegin = fn(array -> arr, number -> amt) {
     return removed
 }
 
-ovld rmend = fn(string -> str, number -> amt) {
+ovld rmend = fn(string -> str, int -> amt) {
     substringed := ""
 
     camt := len:(str) - clone:(amt) - 1
@@ -43,7 +43,7 @@ ovld rmend = fn(string -> str, number -> amt) {
     return substringed
 }
 
-ovld rmend = fn(array -> arr, number -> amt) {
+ovld rmend = fn(array -> arr, int -> amt) {
     removed := []
 
     camt := len:(arr) - clone:(amt) - 1
@@ -56,7 +56,7 @@ ovld rmend = fn(array -> arr, number -> amt) {
     return removed
 }
 
-ovld slice = fn(string -> str, number -> start, number -> end) {
+ovld slice = fn(string -> str, int -> start, int -> end) {
     substringed := ""
 
     cstart := clone:(start)
@@ -70,7 +70,7 @@ ovld slice = fn(string -> str, number -> start, number -> end) {
     return substringed
 }
 
-ovld slice = fn(array -> arr, number -> start, number -> end) {
+ovld slice = fn(array -> arr, int -> start, int -> end) {
     removed := []
 
     cstart := clone:(start)

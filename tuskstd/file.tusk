@@ -18,7 +18,7 @@ var file = proto {
         return file::open:(name, "a+")
     }
 
-    var read = fn(number -> size) {
+    var read = fn(int -> size) {
         var buf = allocstr:(size)
         syscall:(0, fd, buf, size)
         return buf

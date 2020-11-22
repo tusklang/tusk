@@ -58,8 +58,8 @@ func TuskPanic(e string, line uint64, file string, stacktrace []string) *TuskErr
 
 func makectype(val *TuskType) (unsafe.Pointer, error) {
 	switch (*val).(type) {
-	case TuskNumber:
-		cnum := C.longlong((*val).(TuskNumber).ToGoType())
+	case TuskInt:
+		cnum := C.longlong((*val).(TuskInt).ToGoType())
 		return C.makeunsafell(cnum), nil
 	case TuskString:
 		cstr := C.CString((*val).(TuskString).ToGoType())
@@ -70,7 +70,7 @@ func makectype(val *TuskType) (unsafe.Pointer, error) {
 		var err error
 
 		(*val).(TuskArray).Range(func(k, v *TuskType) (Returner, *TuskError) {
-			idx := (*k).(TuskNumber).ToGoType()
+			idx := (*k).(TuskInt).ToGoType()
 			cval, e := makectype(v)
 			if e != nil {
 				err = e //if there is an error, set it, then break the loop
@@ -90,10 +90,11 @@ func makectype(val *TuskType) (unsafe.Pointer, error) {
 
 func fromctype(val unsafe.Pointer, tuskarg *TuskType) TuskType {
 	switch (*tuskarg).(type) {
-	case TuskNumber:
+	case TuskInt:
 		cnum := C.makellfromunsafe(val)
-		var tusknum TuskNumber
-		tusknum.FromGoType(float64(cnum))
+		var tusknum TuskInt
+		tusknum.FromGoType(int64(cnum))
+		return tusknum
 		return tusknum
 	case TuskString:
 		ccstr := (*C.char)(val)
@@ -104,7 +105,7 @@ func fromctype(val unsafe.Pointer, tuskarg *TuskType) TuskType {
 		carray := (*unsafe.Pointer)(val)
 		var tuskarray TuskArray
 		(*tuskarg).(TuskArray).Range(func(k, v *TuskType) (Returner, *TuskError) {
-			idx := (*k).(TuskNumber).ToGoType()
+			idx := (*k).(TuskInt).ToGoType()
 			safeval := fromctype(C.getcarray(carray, C.int(idx)), v)
 			tuskarray.PushBack(safeval)
 			return Returner{}, nil
@@ -239,8 +240,8 @@ var NativeFuncs = map[string]TuskGoFunc{
 				length = (*args[0]).(TuskHash).Length
 			}
 
-			var tusklen TuskNumber
-			tusklen.FromGoType(float64(length))
+			var tusklen TuskInt
+			tusklen.FromGoType(int64(length))
 
 			var tusktype TuskType = tusklen
 			return &tusktype, nil
@@ -335,18 +336,18 @@ var NativeFuncs = map[string]TuskGoFunc{
 	"prec": TuskGoFunc{
 		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			//set the instance's precision
-			precv := uint64((*args[0]).(TuskNumber).ToGoType())
+			precv := uint64((*args[0]).(TuskInt).ToGoType())
 			instance.Params.Prec = precv
 
 			return args[0], nil
 		},
-		Signatures: [][]string{[]string{"number"}},
+		Signatures: [][]string{[]string{"int"}},
 	},
 	"syscall": TuskGoFunc{
 		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 
-			if len(args) < 1 || (*args[0]).Type() != "number" {
-				return nil, TuskPanic("Sysno must be a numeric value", line, file, stacktrace)
+			if len(args) < 1 || (*args[0]).Type() != "int" {
+				return nil, TuskPanic("Sysno must be an integer", line, file, stacktrace)
 			}
 
 			var cargs = make([]unsafe.Pointer, int(C.MAX_SYS_ARGC))
@@ -366,7 +367,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 				cargs[i] = C.makeunsafell(cnum)
 			}
 
-			sysno := int((*args[0]).(TuskNumber).ToGoType())
+			sysno := int((*args[0]).(TuskInt).ToGoType())
 			syscall, exists := tusksys.SysTable[sysno]
 
 			if !exists {
@@ -405,8 +406,8 @@ var NativeFuncs = map[string]TuskGoFunc{
 				(*args[i]) = fromctype(cargs[i], args[i])
 			}
 
-			var tusknum TuskNumber
-			tusknum.FromGoType(float64(called))
+			var tusknum TuskInt
+			tusknum.FromGoType(int64(called))
 			var tusktype TuskType = tusknum
 			return &tusktype, nil
 		},

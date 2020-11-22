@@ -12,13 +12,13 @@ var sha = proto {
     ;   https://codereview.stackexchange.com/q/37648
     ;repurposed from python to tusk, and made a few small changes
 
-    static var ROTL = fn(number -> x, number -> n) {
+    static var ROTL = fn(int -> x, int -> n) {
         return ((x << n) | (x >> (32 - n))) & 4294967295
     }
 
-    static var Ch = fn(number -> x, number -> y, number -> z) return (x & y) ^ (~x & z)
-    static var Parity = fn(number -> x, number -> y, number -> z) return x ^ y ^ z
-    static var Maj = fn(number -> x, number -> y, number -> z) return (x & y) | (x & z) | (y & z) 
+    static var Ch = fn(int -> x, int -> y, int -> z) return (x & y) ^ (~x & z)
+    static var Parity = fn(int -> x, int -> y, int -> z) return x ^ y ^ z
+    static var Maj = fn(int -> x, int -> y, int -> z) return (x & y) | (x & z) | (y & z) 
 
     static var sha1 = fn(string -> _msg) {
 
@@ -34,7 +34,7 @@ var sha = proto {
         bytes := ""
 
         each (msg, _, v) {
-            bitarr := bitutil::tobits:(number -> v)
+            bitarr := bitutil::tobits:(int -> v)
             cur := ""
             each (bitarr, _, vv) cur+=(string -> vv)
             while (len:(cur) < 8) cur = "0" + cur ;force it to be of length 8 at least
@@ -62,7 +62,7 @@ var sha = proto {
 
             n := 0
             while (n < 16) {
-                curval := map:(split:(words::(n), 1), fn(_, v) return (number -> v))
+                curval := map:(split:(words::(n), 1), fn(_, v) return (int -> v))
                 w::(n) = bitutil::frombits:(curval)
                 n++
             }

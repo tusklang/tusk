@@ -49,7 +49,7 @@ var json = proto {
         return json.marshal:(s)
     }
 
-    static ovld marshal = fn(number -> n, string -> _) {
+    static ovld marshal = fn(int -> n, string -> _) {
         return json.marshal:(n)
     }
 

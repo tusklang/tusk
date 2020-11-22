@@ -1,4 +1,4 @@
-var alloc = fn(number -> length) {
+var alloc = fn(int -> length) {
 
     var ret = []
 
@@ -12,7 +12,7 @@ var alloc = fn(number -> length) {
     return ret
 }
 
-var allocstr = fn(number -> length) {
+var allocstr = fn(int -> length) {
 
     var ret = ""
 

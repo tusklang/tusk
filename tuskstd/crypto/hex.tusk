@@ -1,4 +1,4 @@
-var tohex = fn(number -> _n) {
+var tohex = fn(int -> _n) {
 
     n := clone:(_n)
     neg := false
@@ -15,7 +15,7 @@ var tohex = fn(number -> _n) {
 
     while (n >= 1) {
         cur := n % 16
-        n//=16
+        n/=16
         fin = prepend:(fin, cur)
     }
 

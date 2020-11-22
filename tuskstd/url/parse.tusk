@@ -45,7 +45,7 @@ var url = proto {
             else portstr = clone:(uri)
 
             uri = rmbegin:(uri, len:(portstr))
-            port = number -> portstr
+            port = int -> portstr
         }
 
         ;parse the path

@@ -8,7 +8,7 @@ ovld split = fn(string -> str) {
     return split:(str, 1)
 }
 
-ovld split = fn(string -> str, number -> amt) {
+ovld split = fn(string -> str, int -> amt) {
     ;chunk into pieces
 
     chunks := []

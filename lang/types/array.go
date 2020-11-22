@@ -88,8 +88,8 @@ func (arr TuskArray) Clone() *TuskType {
 func (arr TuskArray) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)) (*Returner, *TuskError) {
 
 	for k, v := range arr.Array {
-		var key TuskNumber
-		key.FromGoType(float64(k))
+		var key TuskInt
+		key.FromGoType(int64(k))
 		var tusktypekey TuskType = key
 		ret, e := fn(&tusktypekey, v)
 

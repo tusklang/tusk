@@ -1,6 +1,8 @@
 package compiler
 
 import (
+	"strconv"
+	"strings"
 	"unicode"
 
 	. "github.com/tusklang/tusk/lang/types"
@@ -216,14 +218,29 @@ func valueActions(item Item) (Action, error) {
 				Line:  item.Line,
 			}, nil
 		} else if unicode.IsDigit(rune(val[0])) || val[0] == '.' || val[0] == '+' || val[0] == '-' { //detect a number
-			var number = TuskNumber{}
-			number.FromString(val)
-			return Action{
-				Type:  "number",
-				Value: number,
-				File:  item.File,
-				Line:  item.Line,
-			}, nil
+
+			if strings.ContainsRune(val, '.') {
+				var number = TuskFloat{}
+				n, _ := strconv.ParseFloat(val, 64)
+				number.FromGoType(n)
+				return Action{
+					Type:  "float",
+					Value: number,
+					File:  item.File,
+					Line:  item.Line,
+				}, nil
+			} else {
+				var number = TuskInt{}
+				n, _ := strconv.ParseInt(val, 10, 64)
+				number.FromGoType(n)
+				return Action{
+					Type:  "int",
+					Value: number,
+					File:  item.File,
+					Line:  item.Line,
+				}, nil
+			}
+
 		} else if val[0] == '$' { //detect a variable
 			return Action{
 				Type: "variable",

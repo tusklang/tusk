@@ -2,7 +2,7 @@
 ;s tuskstd/math
 
 var math = proto {
-    static var floor = fn(number -> n) {
+    static var floor = fn(float -> n) {
         return n // 1
     }
 }

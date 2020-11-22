@@ -2,7 +2,7 @@
 ;s tuskstd/math
 
 var math = proto {
-    static var abs = fn(number -> n) {
+    static var abs = fn(int -> n) {
         if (n < 0) return n * -1
         return n
     }

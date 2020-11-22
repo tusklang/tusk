@@ -2,7 +2,7 @@
 ;s tuskstd/math
 
 var math = proto {
-    static var ceil = fn(number -> n) {
+    static var ceil = fn(float -> n) {
         nfd1 := n // 1
         if (nfd1 == n) return n
         else return nfd1 + 1

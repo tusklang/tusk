@@ -391,7 +391,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 						var e error
 						var dobuild bool
 
-						right[0].First[0].Value.(TuskArray).Range(func(kk *TuskType, vv *TuskType) (none Returner, err *TuskError) {
+						right[0].First[0].Value.(TuskArray).Range(func(_ *TuskType, vv *TuskType) (none Returner, err *TuskError) {
 
 							none = Returner{
 								Type: "break",

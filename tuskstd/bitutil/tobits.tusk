@@ -2,13 +2,13 @@
 ;s tuskstd/math
 
 var bitutil = proto {
-    static var tobits = fn(number -> _num) {
+    static var tobits = fn(int -> _num) {
         var bits = []
         var num = clone:(_num)
 
         while (num >= 1) {
             cur := num % 2
-            num//=2
+            num/=2
             bits = prepend:(bits, cur)
         }
 

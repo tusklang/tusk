@@ -1,64 +1,109 @@
 package interpreter
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/tusklang/tusk/lang/types"
 	"github.com/tusklang/tusk/native"
 )
 
 //Cast casts one tusk value to another type
-func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, file string) *types.TuskType {
+func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, file string) (*types.TuskType, *types.TuskError) {
 
 	if val.Type() == nType {
-		return &val
+		return &val, nil
 	}
 
 	switch nType + "->" + val.TypeOf() {
 
-	case "string->number":
+	case "string->int":
+		s := strconv.FormatInt(val.(types.TuskInt).Int, 10)
+		var tuskstr types.TuskString
+		tuskstr.FromGoType(s)
+		var tusktype types.TuskType = tuskstr
+		return &tusktype, nil
+
+	case "int->string":
+		str := val.(types.TuskString).ToGoType()
+		i, e := strconv.ParseInt(str, 10, 64)
+
+		if e != nil {
+			return nil, native.TuskPanic("Invalid integer literal: \""+str+"\"", line, file, stacktrace)
+		}
+		var integertype types.TuskType = types.TuskInt{
+			Int: i,
+		}
+		return &integertype, nil
+
+	case "string->float":
+		s := fmt.Sprint(val.(types.TuskFloat).Float)
+		var tuskstr types.TuskString
+		tuskstr.FromGoType(s)
+		var tusktype types.TuskType = tuskstr
+		return &tusktype, nil
+
+	case "float->string":
+		str := val.(types.TuskString).ToGoType()
+		f, e := strconv.ParseFloat(str, 64)
+
+		if e != nil {
+			return nil, native.TuskPanic("Invalid float literal: \""+str+"\"", line, file, stacktrace)
+		}
+		var floattype types.TuskType = types.TuskFloat{
+			Float: f,
+		}
+		return &floattype, nil
+
+	case "string->big":
 		str := types.NumNormalize(val.(types.TuskNumber)) //convert to string
 		var tuskstr types.TuskString                      //create an tuskstring
 		tuskstr.FromGoType(str)
 		var tusktype types.TuskType = tuskstr //create an tusktype interface
-		return &tusktype
+		return &tusktype, nil
 
-	case "number->string":
+	case "big->string":
 		integer, decimal := types.BigNumConverter(val.(types.TuskString).ToGoType())
 		var newNum types.TuskType = types.TuskNumber{
 			Integer: &integer,
 			Decimal: &decimal,
 		}
-		return &newNum
+		return &newNum, nil
 
-	case "number->rune":
-		var gonum = float64(val.(types.TuskRune).ToGoType())
-		var number types.TuskNumber
-		number.FromGoType(gonum)
+	case "int->rune":
+		var gonum = val.(types.TuskRune).ToGoType()
+		var number types.TuskInt
+		number.FromGoType(int64(gonum))
 		var tusktype types.TuskType = number
-		return &tusktype
+		return &tusktype, nil
 
-	case "rune->number":
-		var gorune = rune(val.(types.TuskNumber).ToGoType())
+	case "rune->int":
+		var gorune = rune(val.(types.TuskInt).ToGoType())
 		var tuskrune types.TuskRune
 		tuskrune.FromGoType(gorune)
 		var tusktype types.TuskType = tuskrune
-		return &tusktype
+		return &tusktype, nil
 
-	case "number->bool":
+	case "int->bool":
 		var gobool = val.(types.TuskBool).ToGoType()
 		if gobool {
-			var tusktype types.TuskType = one
-			return &tusktype
+			var tusktype types.TuskType = types.TuskInt{
+				Int: 1,
+			}
+			return &tusktype, nil
 		}
 
-		var tusktype types.TuskType = zero
-		return &tusktype
+		var tusktype types.TuskType = types.TuskInt{
+			Int: 0,
+		}
+		return &tusktype, nil
 
 	case "string->rune":
 		var runelist = val.(types.TuskRune).ToGoType()
 		var tuskstr types.TuskString
 		tuskstr.FromRuneList([]rune{runelist})
 		var tusktype types.TuskType = tuskstr
-		return &tusktype
+		return &tusktype, nil
 
 	case "array->string":
 		var runelist = val.(types.TuskString).ToRuneList()
@@ -72,13 +117,9 @@ func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, fi
 		}
 
 		var tusktype types.TuskType = tuskrunelist
-		return &tusktype
+		return &tusktype, nil
 
 	}
 
-	native.TuskPanic("Cannot cast a "+val.TypeOf()+" into a "+nType, line, file, stacktrace)
-
-	//here because it wont work without it
-	var none types.TuskType = undef
-	return &none
+	return nil, native.TuskPanic("Cannot cast a "+val.TypeOf()+" into a "+nType, line, file, stacktrace)
 }

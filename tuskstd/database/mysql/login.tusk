@@ -4,15 +4,24 @@
 ;r connect.tusk
 
 var mysql = proto {
-    var _hashpass = fn(string -> p) {
+
+    ;authentication code also taken from here:
+    ;   https://medium.com/@asayechemeda/communicating-with-mysql-database-using-tcp-sockets-a058937024a
+
+    var _hashpass = fn(string -> d, string -> p) {
         ;calculate hashed password
         ;SHA1( password ) XOR SHA1( "20-bytes random data from server" <concat> SHA1( SHA1( password ) ) )
         ;   https://dev.mysql.com/doc/internals/en/secure-password-authentication.html#packet-Authentication::Native41
-        hashed := sha::sha1:(pass) ^ sha::sha1:(data + sha::sha1:(sha::sha1:(pass)))
+        return sha::sha1:(p) ^ sha::sha1:(d + sha::sha1:(sha::sha1:(p)))
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     }
 
-    var authenticate = fn(data) {
+    var _get_auth_data = fn(string -> data) {
+        offset := searchfor:(data, string -> (rune -> 0), 5)
+        auth1 := slice:(data, offset + 5, offset + 21)
+    }
+
+    var authenticate = fn(string -> data) {
 
         ;config is declared in connect.tusk
         user := config::user
@@ -21,7 +30,8 @@ var mysql = proto {
         if (!db) db = "" ;if the user didn't specify a database, put ""
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-        hashed := _hashpass:(pass)
+        auth_data := _get_auth_data:(data)
+        hashed := _hashpass:(data, pass)
 
         syscall:(1, hashed, len:(hashed)) ;write()
     }

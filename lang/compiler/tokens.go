@@ -377,13 +377,13 @@ var tokensJSON = []byte(
     "type": "?operation"
   },
   {
-    "name": "&",
+    "name": "&&",
     "remove": "&&",
     "pattern": "(\\&\\&)",
     "type": "operation"
   },
   {
-    "name": "|",
+    "name": "||",
     "remove": "||",
     "pattern": "(\\|\\|)",
     "type": "operation"
