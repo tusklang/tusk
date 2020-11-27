@@ -50,7 +50,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 			return nil, TuskPanic("Could not find a typelist for function call", line, file, stacktrace)
 		}
 
-		tmp, e := Interpreter(fn.Instance, overload.Body, append(stacktrace, "synchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params, true)
+		tmp, e := Interpreter(fn.Instance, overload.Body, append(stacktrace, "synchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, true)
 		return tmp.Exp, e
 	}
 
@@ -65,7 +65,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 		}
 
 		var promise TuskType = *NewThread(func() (*TuskType, *TuskError) {
-			tmp, e := Interpreter(fn.Instance, overload.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, overload.Params, true)
+			tmp, e := Interpreter(fn.Instance, overload.Body, append(stacktrace, "asynchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, true)
 			return tmp.Exp, e
 		})
 

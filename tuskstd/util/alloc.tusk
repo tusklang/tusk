@@ -19,7 +19,7 @@ var allocstr = fn(int -> length) {
     cl := clone:(length)
 
     while (cl > 0) {
-        ret+=" "
+        ret+=(rune -> 0)
         cl--
     }
 

@@ -1,0 +1,45 @@
+;serves same functionality as Buffer.readIntLE in node.js
+;   https://github.com/nodejs/node/blob/ad0a01caedbd792a7a62080439bf44ec27146798/lib/internal/buffer.js#L335
+;code adopted from there
+
+;really spaghetti sorry :(
+var read_int_fns = [:
+    6 = fn(buf, offset, first, last) {
+        val := buf::(offset + 4) + last * 2 ** 8
+        return (val | (val & 2 ** 15) * 131070) * 2 ** 32 +
+        first +
+        buf::(offset + 1) * 2 ** 8 +
+        buf::(offset + 2) * 2 ** 16 +
+        buf::(offset + 3) * 2 ** 24
+    },
+    5 = fn(buf, offset, first, last)
+        return (last | (last & 2 ** 7) * 33554430) * 2 ** 32 +
+        first +
+        buf::(offset + 1) * 2 ** 8 +
+        buf::(offset + 2) * 2 ** 16 +
+        buf::(offset + 3) * 2 ** 24,
+    4 = fn(buf, offset, first, last)
+        return first +
+        buf::(offset + 1) * 2 ** 8 +
+        buf::(offset + 2) * 2 ** 16 +
+        (last << 24),
+    3 = fn(buf, offset, first, last) {
+        val := first + buf::(offset + 1) * 2 ** 8 + last * 2 ** 16
+        return val | (val & 2 ** 23) * 510
+    },
+    2 = fn(buf, offset, first, last) {
+        val := first + last * 2 ** 8
+        return val | (val & 2 ** 15) * 131070
+    },
+    1 = fn(buf, offset, first, last) return first | (first & 2 ** 7) * 33554430,
+:]
+
+var read_int_le = fn(array -> data, int -> offset, int -> bytel) {
+
+    if (bytel > 6 || bytel < 1) panic:("Byte length must fulfill 1 <= bytel <= 6")
+    if (offset + bytel - 1 >= len:(data)) panic:("Offset out of range")
+
+    first := data::(offset)
+    last := data::(offset + bytel - 1)
+    return read_int_fns:(data, offset, first, last)
+}

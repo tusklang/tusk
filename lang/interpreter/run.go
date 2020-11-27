@@ -84,7 +84,7 @@ func RunInterpreter(compiledVars map[string]*TuskType, cli_params CliParams) {
 				os.Exit(1)
 			}
 
-			calledP, e := Interpreter(&instance, (*main.Value).(TuskFunc).Overloads[0].Body, []string{"at the entry caller"}, 0, nil, false)
+			calledP, e := Interpreter(&instance, (*main.Value).(TuskFunc).Overloads[0].Body, []string{"at the entry caller"}, 0, false)
 			if e != nil {
 				e.Print()
 				os.Exit(1)

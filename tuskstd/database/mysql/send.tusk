@@ -1,0 +1,14 @@
+;include:
+;s tuskstd/util/alloc.tusk
+
+var mysql = proto {
+    static var send = fn(string -> data) {
+        var buf = allocstr:(len:(data) + 5)
+        buf::0 = rune -> (len:(buf) - 1)
+        buf::3 = 0 ;sequence id
+        buf::4 = 3 ;COM_QUERY
+        each (data, k, v)
+            buf::(k + 5) = v
+        return syscall:(1, buf, len:(buf)) ;write()
+    }
+}

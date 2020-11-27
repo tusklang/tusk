@@ -1,0 +1,32 @@
+var mysql = proto {
+    static var types = [:
+        "0x03"= "LONG",
+	    "0x04"= "FLOAT",
+	    "0x05"= "DOUBLE",
+	    "0x06"= "NULL",
+	    "0x07"= "TIMESTAMP",
+	    "0x08"= "LONGLONG",
+	    "0x09"= "INT24",
+	    "0x0a"= "DATE",
+	    "0x0b"= "TIME",
+	    "0x0c"= "DATETIME",
+	    "0x0d"= "YEAR",
+	    "0x0e"= "DATE",
+	    "0x0f"= "VARCHAR",
+	    "0x10"= "BIT",
+	    "0x11"= "TIMESTAMP",
+	    "0x12"= "DATETIME",
+	    "0x13"= "TIME",
+	    "0xf6"= "NEWDECIMAL",
+	    "0xf7"= "ENUM",
+	    "0xf8"= "SET",
+	    "0xf9"= "TINY_BLOB",
+	    "0xfa"= "MEDIUM_BLOB",
+	    "0xfb"= "LONG_BLOB",
+	    "0xfc"= "BLOB",
+	    "0xfd"= "VAR_STRING",
+	    "0xfe"= "STRING",
+	    "0xff"= "GEOMETRY",
+	    "NUMERICS"= ["FLOAT", "LONG", "INT24", "DOUBLE", "LONGLONG"]
+    :]
+}

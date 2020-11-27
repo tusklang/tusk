@@ -7,14 +7,8 @@ import (
 
 const MAX_STACKSIZE = 100001
 
-func dealloc(ins *Instance, varnames []string, value *TuskType) { //function to remove the variables declared in that scope
-	for _, v := range varnames { //dealloc from the stack (deffered garbage collection)
-		ins.Deallocate(v)
-	}
-}
-
 //Interpreter starts the Tusk runtime with a given instance, and actions tree
-func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize uint, varnames []string /* varnames to deallocate */, expReturn bool) (Returner, *TuskError) {
+func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize uint, expReturn bool) (Returner, *TuskError) {
 
 	if stacksize > MAX_STACKSIZE {
 		TuskPanic("Stack size was exceeded", 0, "none", stacktrace)
@@ -25,18 +19,16 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "var":
 
-			interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
+			interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
 
 			if e != nil {
 				return Returner{}, e
 			}
 
-			varnames = append(varnames, v.Name)
 			ins.Allocate(v.Name, interpreted.Exp)
 
 			if expReturn {
 				variable := interpreted.Exp
-				defer dealloc(ins, varnames, variable)
 				return Returner{
 					Type: "expression",
 					Exp:  variable,
@@ -45,7 +37,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "ovld":
 
-			interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
+			interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
 
 			if e != nil {
 				return Returner{}, e
@@ -63,7 +55,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			if expReturn {
 				variable := &appended_ovld
-				defer dealloc(ins, varnames, variable)
 				return Returner{
 					Type: "expression",
 					Exp:  variable,
@@ -74,12 +65,10 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			var tmpundef TuskType = undef
 
-			varnames = append(varnames, v.Name)
 			ins.Allocate(v.Name, &tmpundef)
 
 			if expReturn {
 				variable := ins.Fetch(v.Name).Value
-				defer dealloc(ins, varnames, variable)
 				return Returner{
 					Type: "expression",
 					Exp:  variable,
@@ -88,7 +77,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "let":
 
-			pinterpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
+			pinterpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
 
 			if e != nil {
 				return Returner{}, e
@@ -96,7 +85,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			interpreted := *pinterpreted.Exp
 
-			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
+			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true)
 
 			if e != nil {
 				return Returner{}, e
@@ -105,7 +94,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			*variable.Exp = interpreted
 
 			if expReturn {
-				defer dealloc(ins, varnames, variable.Exp)
 				return Returner{
 					Type: "expression",
 					Exp:  variable.Exp,
@@ -133,8 +121,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			val := v.Value
 
-			defer dealloc(ins, varnames, &v.Value)
-
 			if expReturn {
 				if cloned := val.Clone(); cloned != nil { //if it can be cloned
 					return Returner{
@@ -156,7 +142,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			nf.Instance = ins
 			var tusktype TuskType = nf
 			if expReturn {
-				defer dealloc(ins, varnames, &tusktype)
 				return Returner{
 					Type: "expression",
 					Exp:  &tusktype,
@@ -169,7 +154,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			var nArr = make([]*TuskType, len(v.Array))
 
 			for k, i := range v.Array {
-				tmp, e := Interpreter(ins, i, stacktrace, stacksize+1, nil, true)
+				tmp, e := Interpreter(ins, i, stacktrace, stacksize+1, true)
 				if e != nil {
 					return Returner{}, e
 				}
@@ -182,7 +167,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			}
 
 			if expReturn {
-				defer dealloc(ins, varnames, &kaType)
 				return Returner{
 					Type: "expression",
 					Exp:  &kaType,
@@ -195,13 +179,13 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			for _, i := range v.Hash {
 
-				keyi, e := Interpreter(ins, i[0], stacktrace, stacksize+1, nil, true)
+				keyi, e := Interpreter(ins, i[0], stacktrace, stacksize+1, true)
 
 				if e != nil {
 					return Returner{}, e
 				}
 
-				vali, e := Interpreter(ins, i[1], stacktrace, stacksize+1, nil, true)
+				vali, e := Interpreter(ins, i[1], stacktrace, stacksize+1, true)
 
 				if e != nil {
 					return Returner{}, e
@@ -216,7 +200,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			}
 
 			if expReturn {
-				defer dealloc(ins, varnames, &kaType)
 				return Returner{
 					Type: "expression",
 					Exp:  &kaType,
@@ -230,13 +213,12 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			_fetched := ins.Fetch(v.Name)
 
 			if _fetched == nil {
-				//if it is a nil pointer (only happens because tusk does not support closures)
-				return Returner{}, TuskPanic("Variable \""+v.Name+"\" was already deallocated", v.Line, v.File, stacktrace)
+				//if it is a nil pointer
+				return Returner{}, TuskPanic("Invalid memory address referenced", v.Line, v.File, stacktrace)
 			}
 
 			fetched := _fetched.Value
 			if expReturn {
-				defer dealloc(ins, varnames, fetched)
 				return Returner{
 					Type: "expression",
 					Exp:  fetched,
@@ -245,14 +227,13 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "{":
 
-			groupRet, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, false)
+			groupRet, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, false)
 
 			if e != nil {
 				return Returner{}, e
 			}
 
 			if expReturn {
-				defer dealloc(ins, varnames, groupRet.Exp)
 				return Returner{
 					Type: groupRet.Type,
 					Exp:  groupRet.Exp,
@@ -261,7 +242,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "cast":
 
-			cv, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
+			cv, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
 			if e != nil {
 				return Returner{}, e
 			}
@@ -272,7 +253,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			}
 
 			if expReturn {
-				defer dealloc(ins, varnames, casted)
 				return Returner{
 					Type: "expression",
 					Exp:  casted,
@@ -336,7 +316,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			//& and | can be a bit different for bool and bool
 			if v.Type == "&&" || v.Type == "||" {
-				firstInterpreted, e = Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
+				firstInterpreted, e = Interpreter(ins, v.First, stacktrace, stacksize+1, true)
 
 				if e != nil {
 					return Returner{}, e
@@ -360,7 +340,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 							Boolean: &retVal,
 						}
 					} else {
-						secondInterpreted, e = Interpreter(ins, v.Second, stacktrace, stacksize+1, nil, true)
+						secondInterpreted, e = Interpreter(ins, v.Second, stacktrace, stacksize+1, true)
 
 						if e != nil {
 							return Returner{}, e
@@ -378,7 +358,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 					}
 
 					if expReturn {
-						defer dealloc(ins, varnames, &computed)
 						return Returner{
 							Type: "expression",
 							Exp:  &computed,
@@ -388,11 +367,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			}
 			//////////////////////////////////////////////////'
 
-			firstInterpreted, e = Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
+			firstInterpreted, e = Interpreter(ins, v.First, stacktrace, stacksize+1, true)
 			if e != nil {
 				return Returner{}, e
 			}
-			secondInterpreted, e = Interpreter(ins, v.Second, stacktrace, stacksize+1, nil, true)
+			secondInterpreted, e = Interpreter(ins, v.Second, stacktrace, stacksize+1, true)
 			if e != nil {
 				return Returner{}, e
 			}
@@ -416,7 +395,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			}
 
 			if expReturn {
-				defer dealloc(ins, varnames, computed)
 				return Returner{
 					Type: "expression",
 					Exp:  computed,
@@ -435,15 +413,13 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "return":
 
-			pvalue, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
+			pvalue, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
 
 			if e != nil {
 				return Returner{}, e
 			}
 
 			value := pvalue.Exp
-
-			defer dealloc(ins, varnames, value)
 
 			return Returner{
 				Type: "return",
@@ -453,7 +429,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 		case "defer":
 
 			actions := v.ExpAct
-			defer func() { Interpreter(ins, actions, stacktrace, stacksize+1, nil, true) }()
+			defer func() { Interpreter(ins, actions, stacktrace, stacksize+1, true) }()
 
 		case "condition":
 
@@ -462,7 +438,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				truthy := true
 
 				if v.Type == "if" {
-					condition, e := Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
+					condition, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true)
 					if e != nil {
 						return Returner{}, e
 					}
@@ -470,7 +446,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				}
 
 				if truthy {
-					interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
+					interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
 
 					if e != nil {
 						return Returner{}, e
@@ -489,7 +465,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "try":
 
-			_, e := Interpreter(ins, v.Second, stacktrace, stacksize+1, nil, false)
+			_, e := Interpreter(ins, v.Second, stacktrace, stacksize+1, false)
 
 			if e != nil {
 				evar := v.First[1].Name
@@ -518,24 +494,24 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				/////////////////////////////////////////////
 
 				//call the catch block
-				Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, []string{evar, svar}, false)
+				Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, false)
 			}
 
 		case "while":
 
-			cond, e := Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
+			cond, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true)
 
 			if e != nil {
 				return Returner{}, e
 			}
 
-			for ; isTruthy(*cond.Exp); cond, e = Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true) {
+			for ; isTruthy(*cond.Exp); cond, e = Interpreter(ins, v.First, stacktrace, stacksize+1, true) {
 
 				if e != nil {
 					return Returner{}, e
 				}
 
-				interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
+				interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
 
 				if e != nil {
 					return Returner{}, e
@@ -558,7 +534,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "each":
 
-			pit, e := Interpreter(ins, []Action{v.First[0]}, stacktrace, stacksize+1, nil, true)
+			pit, e := Interpreter(ins, []Action{v.First[0]}, stacktrace, stacksize+1, true)
 			if e != nil {
 				return Returner{}, e
 			}
@@ -571,18 +547,13 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				ins.Allocate(keyName, key)
 				ins.Allocate(valName, val)
 
-				interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, nil, true)
+				interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
 
 				if e != nil {
 					return Returner{}, e
 				}
 
-				Interpreter(ins, []Action{v.First[0]}, stacktrace, stacksize+1, nil, true)
-
-				//free the key and val spaces
-				ins.Deallocate(keyName)
-				ins.Deallocate(valName)
-				/////////////////////////////
+				Interpreter(ins, []Action{v.First[0]}, stacktrace, stacksize+1, true)
 
 				if interpreted.Type == "return" || interpreted.Type == "continue" || interpreted.Type == "break" {
 					return Returner{
@@ -609,7 +580,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "++":
 
-			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
+			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true)
 
 			if e != nil {
 				return Returner{}, e
@@ -630,7 +601,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			*variable.Exp = *tmp
 
 			if expReturn {
-				defer dealloc(ins, varnames, variable.Exp)
 				return Returner{
 					Type: "expression",
 					Exp:  variable.Exp,
@@ -639,7 +609,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "--":
 
-			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
+			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true)
 
 			if e != nil {
 				return Returner{}, e
@@ -660,7 +630,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			*variable.Exp = *tmp
 
 			if expReturn {
-				defer dealloc(ins, varnames, variable.Exp)
 				return Returner{
 					Type: "expression",
 					Exp:  variable.Exp,
@@ -681,11 +650,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			fallthrough
 		case "**=":
 
-			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, nil, true)
+			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true)
 			if e != nil {
 				return Returner{}, e
 			}
-			pinterpreted, e := Interpreter(ins, v.Second, stacktrace, stacksize+1, nil, true)
+			pinterpreted, e := Interpreter(ins, v.Second, stacktrace, stacksize+1, true)
 			if e != nil {
 				return Returner{}, e
 			}
@@ -705,7 +674,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			*variable.Exp = *calc
 
 			if expReturn {
-				defer dealloc(ins, varnames, variable.Exp)
 				return Returner{
 					Type: "expression",
 					Exp:  variable.Exp,
@@ -716,8 +684,6 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 	}
 
 	var undefval TuskType = undef
-
-	defer dealloc(ins, varnames, &undefval)
 
 	return Returner{
 		Type: "none",
