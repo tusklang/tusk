@@ -114,20 +114,6 @@ var sha = proto {
             H::4 = (H::4 + e) & 4294967295
         }
 
-        ;last step
-        ;format H as a hex string
-        final := ""
-
-        each (H, _, x) {
-            curhex := tohex:(x)
-
-            while (len:(curhex) < 8) ;format with length 8
-                curhex = "0" + curhex
-
-            final+=curhex
-        }
-
-        return final
-
+        return clone:(H) ;return the H array
     }
 }

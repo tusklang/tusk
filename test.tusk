@@ -1,11 +1,2 @@
-;include:
-;s tuskstd/database/mysql
-
 var main = fn() {
-    var c = mysql::connect:([:
-        "host" = "localhost",
-        "port" = 3306,
-        "user" = "root",
-        "pass" = "root",
-    :])
 }

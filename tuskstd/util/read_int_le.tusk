@@ -39,7 +39,10 @@ var read_int_le = fn(array -> data, int -> offset, int -> bytel) {
     if (bytel > 6 || bytel < 1) panic:("Byte length must fulfill 1 <= bytel <= 6")
     if (offset + bytel - 1 >= len:(data)) panic:("Offset out of range")
 
+    var datastr = ""
+    each (data, _, v) datastr+=(rune -> v)
+
     first := data::(offset)
     last := data::(offset + bytel - 1)
-    return read_int_fns:(data, offset, first, last)
+    return read_int_fns::(string -> bytel):(datastr, offset, first, last)
 }
