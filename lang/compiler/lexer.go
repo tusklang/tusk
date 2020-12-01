@@ -68,7 +68,6 @@ func lexer(file, filename string) ([]Lex, error) {
 			}
 			file = file[end:]
 
-			curline++
 			continue
 		}
 

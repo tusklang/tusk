@@ -1,7 +1,6 @@
 ;include:
 ;s tuskstd/bitutil
 ;s tuskstd/math
-;s tuskstd/crypto/hex.tusk
 ;s tuskstd/util/split.tusk
 ;s tuskstd/util/alloc.tusk
 ;s tuskstd/util/map.tusk

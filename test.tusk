@@ -1,2 +1,6 @@
+;include:
+;s tuskstd/crypto/sha
+
 var main = fn() {
+    log:(sha::sha1:("S"))
 }
