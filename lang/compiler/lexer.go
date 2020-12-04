@@ -104,15 +104,19 @@ func lexer(file, filename string) ([]Lex, error) {
 				if escaped {
 					switch file[0] {
 
-					//acount for special characters (\n \r \t \v)
+					//acount for special character escaped
 					case 'n':
 						fullstr += "\n"
 					case 'r':
 						fullstr += "\r"
+					case 'f':
+						fullstr += "\f"
 					case 't':
 						fullstr += "\t"
 					case 'v':
 						fullstr += "\v"
+					case 'b':
+						fullstr += "\b"
 					/////////////////////////////////////////////
 
 					default:

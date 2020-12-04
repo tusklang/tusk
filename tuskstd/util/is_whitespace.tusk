@@ -1,4 +1,7 @@
-var iswhitespace = fn(rune -> v) {
+var is_whitespace = fn(rune -> _v) {
+
+    v := int -> _v
+
     return (
         v == 9
         ||

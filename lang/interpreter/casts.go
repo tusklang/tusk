@@ -55,6 +55,20 @@ func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, fi
 		}
 		return &floattype, nil
 
+	case "float->int":
+		gofloat := float64(val.(types.TuskInt).Int)
+		var tuskfloat types.TuskFloat
+		tuskfloat.FromGoType(gofloat)
+		var tusktype types.TuskType = tuskfloat
+		return &tusktype, nil
+
+	case "int->float":
+		goint := int64(val.(types.TuskFloat).Float)
+		var tuskint types.TuskInt
+		tuskint.FromGoType(goint)
+		var tusktype types.TuskType = tuskint
+		return &tusktype, nil
+
 	case "string->big":
 		str := types.NumNormalize(val.(types.TuskNumber)) //convert to string
 		var tuskstr types.TuskString                      //create an tuskstring

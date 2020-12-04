@@ -3,7 +3,6 @@
 ;r marshal.tusk
 
 var json = proto {
-    access ("thisf")
     static var getmarshalv = fn(string -> marshalled, string -> indent) {
         if (ends_with:(marshalled, "]")) marshalled = rmend:(marshalled, 1) + indent + "]"
         if (ends_with:(marshalled, "}")) marshalled = rmend:(marshalled, 1) + indent + "}"
@@ -13,8 +12,8 @@ var json = proto {
         var final = "{\n" + indent
 
         each (h, k, v) {
-            marshalled := json.marshal:(v, indent + indent)
-            getmarshalv:(marshalled, indent)
+            marshalled := json::marshal:(v, indent + indent)
+            json::getmarshalv:(marshalled, indent)
             final+="\"" + k + "\": " + marshalled + ",\n" + indent
         }
 
@@ -31,8 +30,8 @@ var json = proto {
         var final = "[\n" + indent
 
         each (a, _, v) {
-            marshalled := json.marshal:(v, indent + indent)
-            getmarshalv:(marshalled, indent)
+            marshalled := json::marshal:(v, indent + indent)
+            json::getmarshalv:(marshalled, indent)
             final+=marshalled + ",\n" + indent
         }
 
@@ -46,18 +45,18 @@ var json = proto {
     }
 
     static ovld marshal = fn(string -> s, string -> _) {
-        return json.marshal:(s)
+        return json::marshal:(s)
     }
 
     static ovld marshal = fn(int -> n, string -> _) {
-        return json.marshal:(n)
+        return json::marshal:(n)
     }
 
-    static ovld json.marshal = fn(bool -> b, string -> _) {
-        return json.marshal:(b)
+    static ovld marshal = fn(bool -> b, string -> _) {
+        return json::marshal:(b)
     }
 
-    static ovld json.marshal = fn(none -> u, string -> _) {
-        return json.marshal:(u)
+    static ovld marshal = fn(none -> u, string -> _) {
+        return json::marshal:(u)
     }
 }

@@ -21,23 +21,6 @@ ovld split = fn(string -> str, int -> amt) {
     return chunks
 }
 
-ovld split = fn(string -> str, rune -> del) {
-    ;split by a rune
-    
-    splitted := [""]
-
-    each (str, k, v) {
-        if (v == del) {
-            splitted = append:(splitted, "")
-            continue
-        }
-
-        splitted::(len:(splitted) - 1) = splitted::(len:(splitted) - 1) + v
-    }
-
-    return rmend:(splitted, 1)
-}
-
 ovld split = fn(string -> str, string -> del) {
 
     if (del == "") {

@@ -1,3 +1,109 @@
-var json.parse = fn(string -> json) {
-    
+;include:
+;s tuskstd/util/search.tusk
+;s tuskstd/util/is_whitespace.tusk
+
+var json = proto {
+    static var parse = fn(string -> str) {
+        tokens := json::tokenizer:(str)
+        return tokens
+    }
+
+    static var tokenizer = fn(string -> json) {
+        tokens := []
+
+        i := 0
+        while (i < len:(json)) {
+
+            ;easy to do ones
+            if (
+                json::(i) == '{' ||
+                json::(i) == '}' || 
+                json::(i) == '[' || 
+                json::(i) == ']' ||
+                json::(i) == ':' ||
+                json::(i) == ','   ) tokens = append:(tokens, string -> json::(i))
+            ;;;;;;;;;;;;;;;;
+            else {
+
+                if (json::(i) == '\"' || json::(i) == '\'') {
+                    ;its a string
+
+                    fin := ""
+                    qtype := json::(i)
+                    is_escaped := false
+
+                    i++
+
+                    while (i < len:(json)) {
+
+                        log:(string -> json::(i), json::(i), string -> json::(i - 1), i)
+
+                        if (json::(i) == '\n') panic:("Invalid JSON data") ;strings cannot have newlines in them, unless its "\n"
+
+                        if (is_escaped) {
+
+                            var special_escaped = [:
+                                "b" = '\b',
+                                "f" = '\f',
+                                "n" = '\n',
+                                "r" = '\r',
+                                "t" = '\t',
+                            :]
+
+                            special := special_escaped::(string -> (json::(i)))
+                            if (special) ;if it exists
+                                fin+=special
+                            else ;just a normal char
+                                fin+=json::(i)
+
+                            is_escaped = false
+
+                            continue
+                        }
+
+                        if (json::(i) == '\\') {
+                            is_escaped = true
+                            continue
+                        }
+
+                        if (json::(i) == qtype) break
+                        fin+=json::(i)
+                        i++
+                    }
+
+                    tokens = append:(tokens, "\"" + fin + "\"")
+
+                } elif (is_digit:(json::(i)) json::(i) == '+' || json::(i) == '-') {
+                    ;its a number
+
+                    tokens = append:(tokens, "")
+
+                    while (is_digit:(json::(i)) || json::(i) == 'e' || json::(i) == '+' || json::(i) == '-')
+                        tokens::(len:(tokens) - 1)+=(json::(i))
+
+                } elif (starts_with:(json, "true")) {
+                    ;its a boolean (true)
+
+                    i+=len:("true")
+                    tokens = append:(tokens, "false")
+                } elif (starts_with:(json, "false")) {
+                    ;its a boolean (false)
+
+                    i+=len:("false")
+                    tokens = append:(tokens, "false")
+                } elif (starts_with:(json, "undefined")) {
+                    ;undefined
+                    i+=len:("undefined")
+                    tokens = append:(tokens, "undefined")
+                } elif (is_whitespace:(json::(i))) {
+                    i++
+                    continue
+                }
+            }
+
+            i++
+        }
+
+        return tokens
+    }
 }

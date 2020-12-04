@@ -1,6 +1,8 @@
 ;include:
-;s tuskstd/crypto/sha
+;s tuskstd/json
 
 var main = fn() {
-    log:(sha::sha1:("S"))
+    log:(json::parse:("{
+        \"hello\": \"hi\"
+    }"))
 }

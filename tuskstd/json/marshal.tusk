@@ -8,7 +8,7 @@ var json = proto {
         var final = "{"
 
         each (h, k, v)
-            final+="\"" + k + "\":" + json.marshal:(v) + ","
+            final+="\"" + k + "\":" + json::marshal:(v) + ","
 
         if (final != "{") final = rmend:(final, 1) ;remove the trailing comma
         return final + "}"
@@ -18,7 +18,7 @@ var json = proto {
         var final = "["
 
         each (a, _, v)
-            final+=json.marshal:(v) + ","
+            final+=json::marshal:(v) + ","
 
         if (final != "[") final = rmend:(final, 1) ;remove the trailing comma
         return final + "]"
