@@ -4,7 +4,7 @@
 var main = fn() {
     log:(json::parse:("{
         \"hello\": {
-            \"lllllll\": \"hi\"
+            \"lllllll\": [1, 2]
         }
     }"))
 }
