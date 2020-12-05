@@ -3,6 +3,8 @@
 
 var main = fn() {
     log:(json::parse:("{
-        \"hello\": \"hi\"
+        \"hello\": {
+            \"lllllll\": \"hi\"
+        }
     }"))
 }

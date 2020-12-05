@@ -12,11 +12,14 @@ type TuskHash struct {
 
 func (hash TuskHash) At(idx *TuskType) *TuskType {
 
-	v, exists := hash.Hash[(*idx).Format()]
+	k := (*idx).Format()
+	v, exists := hash.Hash[k]
 
 	if !exists {
 		var undef TuskType = TuskUndef{}
-		return &undef
+		var pundef *TuskType = &undef
+		hash.Hash[k] = pundef
+		return hash.Hash[k]
 	}
 
 	return v
