@@ -25,7 +25,12 @@ var file = proto {
     }
 
     ovld read = fn() {
-        fsize := syscall:(4, fd)
+
+        prev := syscall:(12, fd, 0, 1) ;get the current position and save for later (1 = SEEK_CUR)
+        syscall:(12, fd, 0, 2) ;seek to EOF (2 = SEEK_END)
+        fsize := syscall:(12, fd, 0, 1) ;get the current position (1 = SEEK_CUR)
+        syscall:(12, fd, prev, 0) ;go back to previous position (0 = SEEK_SET)
+
         return read:(fsize)
     }
 

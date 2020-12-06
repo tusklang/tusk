@@ -3,8 +3,6 @@
 
 var main = fn() {
     log:(json::parse:("{
-        \"hello\": {
-            \"lllllll\": [1, 2]
-        }
-    }"))
+            \"package\": \"testing\"
+        }"))
 }
