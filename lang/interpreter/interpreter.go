@@ -1,14 +1,49 @@
 package interpreter
 
 import (
+	"strconv"
+
 	. "github.com/tusklang/tusk/lang/types"
 	. "github.com/tusklang/tusk/native"
 )
 
 const MAX_STACKSIZE = 100001
 
+var tmpret uint64 = 0 //return values are stored in temporary new variables, and this is the counter for those
+
+func bindReturn(ins *Instance, ret *TuskType, bindto string) {
+
+	switch (*ret).TypeOf() {
+	case "function":
+
+		for _, v := range (*ret).(TuskFunc).Overloads {
+			for _, vv := range v.VarRefs {
+				ins.Bind(vv, bindto)
+			}
+		}
+
+	case "array":
+
+		(*ret).(TuskArray).Range(func(k, v *TuskType) (Returner, *TuskError) {
+			bindReturn(ins, v, bindto)
+			return Returner{}, nil
+		})
+
+	case "hash":
+
+		(*ret).(TuskHash).Range(func(k, v *TuskType) (Returner, *TuskError) {
+			bindReturn(ins, v, bindto)
+			return Returner{}, nil
+		})
+
+	}
+
+}
+
 //Interpreter starts the Tusk runtime with a given instance, and actions tree
 func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize uint, expReturn bool) (Returner, *TuskError) {
+
+	var allocated []string
 
 	if stacksize > MAX_STACKSIZE {
 		TuskPanic("Stack size was exceeded", 0, "none", stacktrace)
@@ -25,7 +60,9 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				return Returner{}, e
 			}
 
-			ins.Allocate(v.Name, interpreted.Exp)
+			name := v.Name
+			ins.Allocate(name, interpreted.Exp)
+			allocated = append(allocated, name)
 
 			if expReturn {
 				variable := interpreted.Exp
@@ -65,7 +102,9 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			var tmpundef TuskType = undef
 
-			ins.Allocate(v.Name, &tmpundef)
+			name := v.Name
+			ins.Allocate(name, &tmpundef)
+			allocated = append(allocated, name)
 
 			if expReturn {
 				variable := ins.Fetch(v.Name).Value
@@ -421,6 +460,16 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			value := pvalue.Exp
 
+			tmpName := "ret" + strconv.FormatUint(tmpret, 10)
+			tmpret++
+
+			bindReturn(ins, value, tmpName)
+			ins.Allocate(tmpName, value)
+
+			for _, v := range allocated { //remove the scope binds of all the local variables
+				ins.DeBind(v, "scope")
+			}
+
 			return Returner{
 				Type: "return",
 				Exp:  value,
@@ -429,7 +478,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 		case "defer":
 
 			actions := v.ExpAct
-			defer func() { Interpreter(ins, actions, stacktrace, stacksize+1, true) }()
+			defer Interpreter(ins, actions, stacktrace, stacksize+1, true) //call this defer before the garbage collection, because the garbage collection ones are FIFO, but regular is LIFO, so this will be executed first
 
 		case "condition":
 

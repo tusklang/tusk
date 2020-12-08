@@ -5,7 +5,7 @@ import . "github.com/tusklang/tusk/lang/types"
 var tmpFalse = false
 var tmpTrue = true
 
-//list of ckaonly used values
+//list of commonly used values
 var undef = TuskUndef{}
 var zero = TuskNumber{
 	Integer: &[]int64{0},

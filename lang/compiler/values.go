@@ -137,7 +137,7 @@ func valueActions(item Item) (Action, error) {
 				return Action{}, makeCompilerErr("Cannot have protos outside of the global scope", item.File, item.Line)
 			}
 
-			if key[0].Value == nil || value[0].Value == nil {
+			if key[0].Value == nil || value[0].Value == nil || key[0].Value.Type() == "function" || value[0].Value.Type() == "function" {
 				hashtype = "r-hash" ///make it a runtime hash
 				goto runthash
 			} else {

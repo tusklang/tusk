@@ -1,8 +1,10 @@
-;include:
-;s tuskstd/json
-
 var main = fn() {
-    log:(json::parse:("{
-            \"package\": \"testing\"
-        }"))
+	t:():()
+}
+
+var t = fn() {
+	b := 1
+	return fn() {
+		log:(b)
+	}
 }

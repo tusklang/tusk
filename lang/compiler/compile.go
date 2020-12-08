@@ -173,7 +173,7 @@ func Compile(params CliParams) (map[string]*TuskType, error) {
 		varnames[k] = k
 	}
 
-	for _, v := range vars {
+	for k, v := range vars {
 		var tmp = make([]Action, 1) //create a temporary action slice to pass to changevarnames
 		tmp[0].Type = (*v).Type()
 		tmp[0].Value = *v
@@ -184,6 +184,14 @@ func Compile(params CliParams) (map[string]*TuskType, error) {
 		}
 
 		*v = tmp[0].Value
+		if (*v).Type() == "function" {
+			tmp := (*v).(TuskFunc)
+			for kk, vv := range tmp.Overloads {
+				tmp.Overloads[kk].VarRefs = putFunctionVarRefs(vv.Body)
+			}
+			var tusktype TuskType = tmp
+			vars[k] = &tusktype
+		}
 	}
 
 	return vars, nil
