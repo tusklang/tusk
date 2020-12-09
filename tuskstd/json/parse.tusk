@@ -136,7 +136,26 @@ var json = proto {
 			val_tokens = append:(val_tokens, tokens::(i))
 
 			i++
-			if (cbCnt == 0 && bCnt == 0) break ;if it became 0 at the end of the iter, stop the loop
+			if (cbCnt == 0 && bCnt == 0) {
+                ;if it became 0 at the end of the iter, stop the loop
+
+                ;if the next item is not a closing brace/bracket or a comma, its an error
+                ;e.g.
+                ;{
+                ;   "test": "test"
+                ;   "abc": "def"
+                ;}
+                if (typeof:(tokens::(i)) == "rune" && tokens::(i) != ',' && tokens::(i) != ']' && tokens::(i) != '}') panic:("Invalid JSON data")
+
+                ;if the second next item is a closing brace/bracket, but the next item is a comma, its also an error
+                ;e.g.
+                ;{
+                ;   "test": "test",
+                ;}
+                if (typeof:(tokens::(i)) == "rune" && typeof:(tokens::(i + 1)) == "rune" && (tokens::(i) == ',' && (tokens::(i + 1) == ']') || tokens::(i + 1) == '}')) panic:("Invalid JSON data")
+
+                break
+            }
 		}
 
 		return val_tokens
