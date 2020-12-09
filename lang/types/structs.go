@@ -36,6 +36,7 @@ type Action struct {
 }
 
 type Returner struct {
-	Exp  *TuskType
-	Type string
+	Exp        *TuskType
+	Type       string
+	ReturnAddr string
 }

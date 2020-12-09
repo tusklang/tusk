@@ -427,7 +427,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				return Returner{}, TuskPanic("Could not find "+v.Type+" operator for types "+(*firstInterpreted.Exp).TypeOf()+" and "+(*secondInterpreted.Exp).TypeOf(), v.Line, v.File, stacktrace)
 			}
 
-			computed, e := operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, ins, stacktrace, v.Line, v.File, stacksize+1)
+			computed, e, retaddr := operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, ins, stacktrace, v.Line, v.File, stacksize+1)
+
+			if retaddr != "" {
+				allocated = append(allocated, retaddr)
+			}
 
 			if e != nil {
 				return Returner{}, e
@@ -471,8 +475,9 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			}
 
 			return Returner{
-				Type: "return",
-				Exp:  value,
+				Type:       "return",
+				Exp:        value,
+				ReturnAddr: tmpName,
 			}, nil
 
 		case "defer":
@@ -643,7 +648,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			var onetype TuskInt
 			onetype.FromGoType(1)
-			tmp, e := operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize)
+			tmp, e, _ := operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize)
 			if e != nil {
 				return Returner{}, e
 			}
@@ -672,7 +677,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			var onetype TuskInt
 			onetype.FromGoType(1)
-			tmp, e := operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize)
+			tmp, e, _ := operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize)
 			if e != nil {
 				return Returner{}, e
 			}
@@ -716,7 +721,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				return Returner{}, TuskPanic("Could not find "+operation+" operation for types "+(*variable.Exp).Type()+" and "+interpreted.Type(), v.Line, v.File, stacktrace)
 			}
 
-			calc, e := operationFunc(*variable.Exp, interpreted, ins, stacktrace, v.Line, v.File, stacksize)
+			calc, e, _ := operationFunc(*variable.Exp, interpreted, ins, stacktrace, v.Line, v.File, stacksize)
 			if e != nil {
 				return Returner{}, e
 			}

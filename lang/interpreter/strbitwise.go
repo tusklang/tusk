@@ -23,29 +23,29 @@ func strToBits(val1, val2 types.TuskType, operator func(a, b rune) rune) *types.
 	return &tusktype
 }
 
-func strbitwiseAnd(val1, val2 types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError) {
+func strbitwiseAnd(val1, val2 types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError, string) {
 	return strToBits(val1, val2, func(a, b rune) rune {
 		return a & b
-	}), nil
+	}), nil, ""
 }
 
-func strbitwiseOr(val1, val2 types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError) {
+func strbitwiseOr(val1, val2 types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError, string) {
 	return strToBits(val1, val2, func(a, b rune) rune {
 		return a | b
-	}), nil
+	}), nil, ""
 }
 
-func strbitwiseXor(val1, val2 types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError) {
+func strbitwiseXor(val1, val2 types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError, string) {
 	return strToBits(val1, val2, func(a, b rune) rune {
 		return a ^ b
-	}), nil
+	}), nil, ""
 }
 
-func strbitwiseNot(val1, val2 types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError) {
+func strbitwiseNot(val1, val2 types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError, string) {
 
 	val1 = types.TuskString{} //force the `none` type given to be an empty string (`b` stores the real string)
 
 	return strToBits(val1, val2, func(a, b rune) rune {
 		return ^b
-	}), nil
+	}), nil, ""
 }
