@@ -10,133 +10,133 @@ import (
 
 //list of operations
 //export Operations
-var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string){
+var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string){
 
-	"int + int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int + int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var intt TuskInt
 		intt.FromGoType(val1.(TuskInt).Int + val2.(TuskInt).Int)
 		var tusktype TuskType = intt
 		return &tusktype, nil, ""
 	},
-	"int - int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int - int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var intt TuskInt
 		intt.FromGoType(val1.(TuskInt).Int - val2.(TuskInt).Int)
 		var tusktype TuskType = intt
 		return &tusktype, nil, ""
 	},
-	"int * int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int * int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var intt TuskInt
 		intt.FromGoType(val1.(TuskInt).Int * val2.(TuskInt).Int)
 		var tusktype TuskType = intt
 		return &tusktype, nil, ""
 	},
-	"int / int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int / int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var intt TuskInt
 		intt.FromGoType(val1.(TuskInt).Int / val2.(TuskInt).Int)
 		var tusktype TuskType = intt
 		return &tusktype, nil, ""
 	},
-	"int % int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int % int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var intt TuskInt
 		intt.FromGoType(val1.(TuskInt).Int % val2.(TuskInt).Int)
 		var tusktype TuskType = intt
 		return &tusktype, nil, ""
 	},
-	"int ** int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int ** int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var intt TuskInt
 		intt.FromGoType(int64(math.Pow(float64(val1.(TuskInt).Int), float64(val2.(TuskInt).Int))))
 		var tusktype TuskType = intt
 		return &tusktype, nil, ""
 	},
 
-	"float + float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"float + float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var floatt TuskFloat
 		floatt.FromGoType(val1.(TuskFloat).Float + val2.(TuskFloat).Float)
 		var tusktype TuskType = floatt
 		return &tusktype, nil, ""
 	},
-	"float - float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"float - float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var floatt TuskFloat
 		floatt.FromGoType(val1.(TuskFloat).Float - val2.(TuskFloat).Float)
 		var tusktype TuskType = floatt
 		return &tusktype, nil, ""
 	},
-	"float * float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"float * float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var floatt TuskFloat
 		floatt.FromGoType(val1.(TuskFloat).Float * val2.(TuskFloat).Float)
 		var tusktype TuskType = floatt
 		return &tusktype, nil, ""
 	},
-	"float / float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"float / float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var floatt TuskFloat
 		floatt.FromGoType(val1.(TuskFloat).Float / val2.(TuskFloat).Float)
 		var tusktype TuskType = floatt
 		return &tusktype, nil, ""
 	},
-	"float ** float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"float ** float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var floatt TuskFloat
 		floatt.FromGoType(math.Pow(val1.(TuskFloat).Float, val2.(TuskFloat).Float))
 		var tusktype TuskType = floatt
 		return &tusktype, nil, ""
 	},
 
-	"big + big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"big + big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		return number__plus__number(val1, val2, instance, stacktrace, line, file), nil, ""
 	},
-	"big - big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"big - big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		return number__minus__number(val1, val2, instance, stacktrace, line, file), nil, ""
 	},
-	"big * big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"big * big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		return number__times__number(val1, val2, instance, stacktrace, line, file), nil, ""
 	},
-	"big / big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"big / big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		tmp, e := number__divide__number(val1, val2, instance, stacktrace, line, file)
 		return tmp, e, ""
 	},
-	"big // big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"big // big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		tmp, e := number__floorDivide__number(val1, val2, instance, stacktrace, line, file)
 		return tmp, e, ""
 	},
-	"big % big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"big % big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		tmp, e := number__mod__number(val1, val2, instance, stacktrace, line, file)
 		return tmp, e, ""
 	},
-	"big ** big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"big ** big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		tmp, e := number__pow__number(val1, val2, instance, stacktrace, line, file)
 		return tmp, e, ""
 	},
 
-	"int & int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int & int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var t TuskType = TuskInt{
 			Int: val1.(TuskInt).Int & val2.(TuskInt).Int,
 		}
 		return &t, nil, ""
 	},
-	"int | int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int | int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var t TuskType = TuskInt{
 			Int: val1.(TuskInt).Int | val2.(TuskInt).Int,
 		}
 		return &t, nil, ""
 	},
-	"int ^ int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int ^ int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var t TuskType = TuskInt{
 			Int: val1.(TuskInt).Int ^ val2.(TuskInt).Int,
 		}
 		return &t, nil, ""
 	},
-	"none ~ int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"none ~ int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var t TuskType = TuskInt{
 			Int: ^val2.(TuskInt).Int,
 		}
 		return &t, nil, ""
 	},
-	"int >> int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int >> int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var t TuskType = TuskInt{
 			Int: val1.(TuskInt).Int >> val2.(TuskInt).Int,
 		}
 		return &t, nil, ""
 	},
-	"int << int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int << int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var t TuskType = TuskInt{
 			Int: val1.(TuskInt).Int << val2.(TuskInt).Int,
 		}
@@ -156,42 +156,42 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	"none ~ string":   strbitwiseNot,
 
 	//arithmetic operators for runes
-	"rune + rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"rune + rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		v := val1.(TuskRune).ToGoType() + val2.(TuskRune).ToGoType() //perform operation on runes, as go int32
 		var tuskrune TuskRune
 		tuskrune.FromGoType(v)
 		var tusktype TuskType = tuskrune
 		return &tusktype, nil, ""
 	},
-	"rune - rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"rune - rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		v := val1.(TuskRune).ToGoType() - val2.(TuskRune).ToGoType() //perform operation on runes, as go int32
 		var tuskrune TuskRune
 		tuskrune.FromGoType(v)
 		var tusktype TuskType = tuskrune
 		return &tusktype, nil, ""
 	},
-	"rune * rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"rune * rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		v := val1.(TuskRune).ToGoType() * val2.(TuskRune).ToGoType() //perform operation on runes, as go int32
 		var tuskrune TuskRune
 		tuskrune.FromGoType(v)
 		var tusktype TuskType = tuskrune
 		return &tusktype, nil, ""
 	},
-	"rune / rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"rune / rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		v := val1.(TuskRune).ToGoType() / val2.(TuskRune).ToGoType() //perform operation on runes, as go int32
 		var tuskrune TuskRune
 		tuskrune.FromGoType(v)
 		var tusktype TuskType = tuskrune
 		return &tusktype, nil, ""
 	},
-	"rune % rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"rune % rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		v := val1.(TuskRune).ToGoType() % val2.(TuskRune).ToGoType() //perform operation on runes, as go int32
 		var tuskrune TuskRune
 		tuskrune.FromGoType(v)
 		var tusktype TuskType = tuskrune
 		return &tusktype, nil, ""
 	},
-	"rune ** rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"rune ** rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		v := rune(math.Pow(float64(val1.(TuskRune).ToGoType()), float64(val2.(TuskRune).ToGoType()))) //perform operation on runes, as go int32
 		var tuskrune TuskRune
 		tuskrune.FromGoType(v)
@@ -200,33 +200,33 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	},
 	////////////////////////////////
 
-	"int == int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int == int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var boolt TuskBool
 		boolt.FromGoType(val1.(TuskInt).Int == val2.(TuskInt).Int)
 		var tusktype TuskType = boolt
 		return &tusktype, nil, ""
 	},
-	"int != int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int != int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var boolt TuskBool
 		boolt.FromGoType(val1.(TuskInt).Int != val2.(TuskInt).Int)
 		var tusktype TuskType = boolt
 		return &tusktype, nil, ""
 	},
 
-	"float == float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"float == float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var boolt TuskBool
 		boolt.FromGoType(val1.(TuskInt).Int == val2.(TuskInt).Int)
 		var tusktype TuskType = boolt
 		return &tusktype, nil, ""
 	},
-	"float != float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"float != float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var boolt TuskBool
 		boolt.FromGoType(val1.(TuskFloat).Float == val2.(TuskFloat).Float)
 		var tusktype TuskType = boolt
 		return &tusktype, nil, ""
 	},
 
-	"big == big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"big == big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		var final = falsev
 
@@ -238,7 +238,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &finalType, nil, ""
 	},
-	"big != big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"big != big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		var final = truev
 
@@ -250,7 +250,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &finalType, nil, ""
 	},
-	"string == string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"string == string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		var isEqual TuskType = falsev
 
@@ -260,7 +260,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &isEqual, nil, ""
 	},
-	"string != string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"string != string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		var isEqual TuskType = truev
 
@@ -270,7 +270,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &isEqual, nil, ""
 	},
-	"bool == bool": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"bool == bool": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		var isEqual TuskType = falsev
 
@@ -280,7 +280,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &isEqual, nil, ""
 	},
-	"bool != bool": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"bool != bool": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		var isEqual TuskType = truev
 
@@ -290,7 +290,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &isEqual, nil, ""
 	},
-	"rune == rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"rune == rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		var isEqual TuskType = falsev
 
@@ -300,7 +300,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &isEqual, nil, ""
 	},
-	"rune != rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"rune != rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		var isEqual TuskType = truev
 
@@ -310,15 +310,15 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &isEqual, nil, ""
 	},
-	"none == none": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"none == none": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var tmp TuskType = truev
 		return &tmp, nil, ""
 	},
-	"none != none": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"none != none": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var tmp TuskType = falsev
 		return &tmp, nil, ""
 	},
-	"none ! bool": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"none ! bool": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		boolean := !val2.(TuskBool).ToGoType()
 
@@ -328,23 +328,23 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &converted, nil, ""
 	},
-	"none ! none": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"none ! none": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var tmp TuskType = truev //!undef is always true
 		return &tmp, nil, ""
 	},
-	"int > int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int > int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var boolt TuskBool
 		boolt.FromGoType(val1.(TuskInt).Int > val2.(TuskInt).Int)
 		var tusktype TuskType = boolt
 		return &tusktype, nil, ""
 	},
-	"float > float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"float > float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var boolt TuskBool
 		boolt.FromGoType(val1.(TuskFloat).Float > val2.(TuskFloat).Float)
 		var tusktype TuskType = boolt
 		return &tusktype, nil, ""
 	},
-	"big > big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"big > big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		isGreaterv := !isLessOrEqual(val1.(TuskNumber), val2.(TuskNumber))
 		var isGreaterType TuskType = falsev
@@ -355,7 +355,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &isGreaterType, nil, ""
 	},
-	"rune > rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"rune > rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		v := val1.(TuskRune).ToGoType() > val2.(TuskRune).ToGoType() //if the first arg (as int32) is greater than the second
 
 		//value to return (return true if true and false if falsse)
@@ -366,19 +366,19 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &ret, nil, ""
 	},
-	"int >= int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int >= int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var boolt TuskBool
 		boolt.FromGoType(val1.(TuskInt).Int >= val2.(TuskInt).Int)
 		var tusktype TuskType = boolt
 		return &tusktype, nil, ""
 	},
-	"float >= float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"float >= float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var boolt TuskBool
 		boolt.FromGoType(val1.(TuskFloat).Float >= val2.(TuskFloat).Float)
 		var tusktype TuskType = boolt
 		return &tusktype, nil, ""
 	},
-	"big >= big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"big >= big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		isGreaterOrEqualv := !isLess(val1.(TuskNumber), val2.(TuskNumber))
 		var isGreaterOrEqualType TuskType = falsev
@@ -389,7 +389,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &isGreaterOrEqualType, nil, ""
 	},
-	"rune >= rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"rune >= rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		v := val1.(TuskRune).ToGoType() >= val2.(TuskRune).ToGoType() //if the first arg (as int32) is greater than or equal to the second
 
 		//value to return (return true if true and false if falsse)
@@ -400,19 +400,19 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &ret, nil, ""
 	},
-	"int < int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int < int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var boolt TuskBool
 		boolt.FromGoType(val1.(TuskInt).Int < val2.(TuskInt).Int)
 		var tusktype TuskType = boolt
 		return &tusktype, nil, ""
 	},
-	"float < float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"float < float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var boolt TuskBool
 		boolt.FromGoType(val1.(TuskFloat).Float < val2.(TuskFloat).Float)
 		var tusktype TuskType = boolt
 		return &tusktype, nil, ""
 	},
-	"big < big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"big < big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		isLessv := isLess(val1.(TuskNumber), val2.(TuskNumber))
 		var isLessType TuskType = falsev
@@ -423,7 +423,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &isLessType, nil, ""
 	},
-	"rune < rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"rune < rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		v := val1.(TuskRune).ToGoType() < val2.(TuskRune).ToGoType() //if the first arg (as int32) is less than the second
 
 		//value to return (return true if true and false if falsse)
@@ -434,19 +434,19 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &ret, nil, ""
 	},
-	"int <= int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"int <= int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var boolt TuskBool
 		boolt.FromGoType(val1.(TuskInt).Int <= val2.(TuskInt).Int)
 		var tusktype TuskType = boolt
 		return &tusktype, nil, ""
 	},
-	"float <= float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"float <= float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var boolt TuskBool
 		boolt.FromGoType(val1.(TuskFloat).Float <= val2.(TuskFloat).Float)
 		var tusktype TuskType = boolt
 		return &tusktype, nil, ""
 	},
-	"big <= big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"big <= big": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		isLessOrEqualv := isLessOrEqual(val1.(TuskNumber), val2.(TuskNumber))
 		var isLessOrEqualType TuskType = falsev
@@ -457,7 +457,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &isLessOrEqualType, nil, ""
 	},
-	"rune <= rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"rune <= rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		v := val1.(TuskRune).ToGoType() <= val2.(TuskRune).ToGoType() //if the first arg (as int32) is less than or equal to the second
 
 		//value to return (return true if true and false if falsse)
@@ -468,7 +468,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &ret, nil, ""
 	},
-	"array :: int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"array :: int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		idx := val2.(TuskInt).Int
 		arr := val1.(TuskArray)
@@ -479,7 +479,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return arr.At(idx), nil, ""
 	},
-	"string :: int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"string :: int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		idx := val2.(TuskInt).Int
 		str := val1.(TuskString)
@@ -492,11 +492,11 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return &tusktype, nil, ""
 	},
-	"hash :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"hash :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		return val1.(TuskHash).At(&val2), nil, ""
 	},
-	"prototype :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
-		v, e := val1.(TuskProto).Get(val2.(TuskString).ToGoType(), file)
+	"prototype :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
+		v, e := val1.(TuskProto).Get(val2.(TuskString).ToGoType(), file, namespace)
 
 		if e != nil {
 			return nil, TuskPanic(e.Error(), line, file, stacktrace), ""
@@ -504,8 +504,8 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return v, nil, ""
 	},
-	"object :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
-		v, e := val1.(TuskObject).Get(val2.(TuskString).ToGoType(), file)
+	"object :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
+		v, e := val1.(TuskObject).Get(val2.(TuskString).ToGoType(), file, namespace)
 
 		if e != nil {
 			return nil, TuskPanic(e.Error(), line, file, stacktrace), ""
@@ -513,7 +513,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 
 		return v, nil, ""
 	},
-	"string + string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"string + string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		//alloc the space
 		var space = make([]rune, val1.(TuskString).Length+val2.(TuskString).Length)
@@ -537,7 +537,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		var tusktype TuskType = tuskstr
 		return &tusktype, nil, ""
 	},
-	"string + rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint) (*TuskType, *TuskError, string) {
+	"string + rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		//alloc the space
 		var space = make([]rune, val1.(TuskString).Length+1)

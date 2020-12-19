@@ -141,6 +141,14 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 					passvals[k] = v
 				}
 
+				if (*val).TypeOf() == "function" {
+					fnval := (*val).(TuskFunc)
+					for k := range fnval.Overloads {
+						fnval.Overloads[k].Namespace = v.Value.(TuskProto).ProtoName
+					}
+					*val = fnval
+				}
+
 				var passarr = []Action{Action{
 					Type:  (*val).Type(),
 					Value: *val,
@@ -174,6 +182,14 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 				}
 				for k, v := range instanceproto {
 					passvals[k] = v
+				}
+
+				if (*val).TypeOf() == "function" {
+					fnval := (*val).(TuskFunc)
+					for k := range fnval.Overloads {
+						fnval.Overloads[k].Namespace = v.Value.(TuskProto).ProtoName
+					}
+					*val = fnval
 				}
 
 				var passarr = []Action{Action{

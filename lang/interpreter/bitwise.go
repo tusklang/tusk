@@ -16,7 +16,7 @@ func bitwise(f func(a, b *big.Int) *big.Int, a, b types.TuskType) (*types.TuskTy
 	return &tusktype, nil, ""
 }
 
-func bitwiseNot(a, b types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError, string) {
+func bitwiseNot(a, b types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*types.TuskType, *types.TuskError, string) {
 
 	//force a to be a dummy tusk number (to not have a type assertion error)
 	a = types.TuskNumber{}
@@ -26,31 +26,31 @@ func bitwiseNot(a, b types.TuskType, instance *types.Instance, stacktrace []stri
 	}, a, b)
 }
 
-func bitwiseAnd(a, b types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError, string) {
+func bitwiseAnd(a, b types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*types.TuskType, *types.TuskError, string) {
 	return bitwise(func(a, b *big.Int) *big.Int {
 		return a.And(a, b)
 	}, a, b)
 }
 
-func bitwiseOr(a, b types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError, string) {
+func bitwiseOr(a, b types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*types.TuskType, *types.TuskError, string) {
 	return bitwise(func(a, b *big.Int) *big.Int {
 		return a.Or(a, b)
 	}, a, b)
 }
 
-func bitwiseXor(a, b types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError, string) {
+func bitwiseXor(a, b types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*types.TuskType, *types.TuskError, string) {
 	return bitwise(func(a, b *big.Int) *big.Int {
 		return a.Xor(a, b)
 	}, a, b)
 }
 
-func bitwiseRShift(a, b types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError, string) {
+func bitwiseRShift(a, b types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*types.TuskType, *types.TuskError, string) {
 	return bitwise(func(a, b *big.Int) *big.Int {
 		return a.Rsh(a, uint(b.Int64()))
 	}, a, b)
 }
 
-func bitwiseLShift(a, b types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint) (*types.TuskType, *types.TuskError, string) {
+func bitwiseLShift(a, b types.TuskType, instance *types.Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*types.TuskType, *types.TuskError, string) {
 	return bitwise(func(a, b *big.Int) *big.Int {
 		return a.Lsh(a, uint(b.Int64()))
 	}, a, b)

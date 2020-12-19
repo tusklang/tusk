@@ -10,10 +10,17 @@ type TuskProto struct {
 	Instance  map[string]*TuskType
 }
 
-func getfield(full map[string]*TuskType, field string, file string) (*TuskType, error) {
+func getfield(full map[string]*TuskType, field, file, namespace, protoname string) (*TuskType, error) {
+
+	if namespace == protoname {
+		goto has_access
+	}
+
 	if field[0] == '_' {
 		return nil, errors.New("Cannot access private member: " + field)
 	}
+
+has_access:
 
 	fieldv := full[field]
 
@@ -24,8 +31,8 @@ func getfield(full map[string]*TuskType, field string, file string) (*TuskType, 
 	return fieldv, nil
 }
 
-func (p TuskProto) Get(field string, file string) (*TuskType, error) {
-	return getfield(p.Static, field, file)
+func (p TuskProto) Get(field, file, namespace string) (*TuskType, error) {
+	return getfield(p.Static, field, file, namespace, p.ProtoName)
 }
 
 func (p TuskProto) Format() string {

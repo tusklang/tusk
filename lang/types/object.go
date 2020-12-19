@@ -5,7 +5,7 @@ type TuskObject struct {
 	Instance Instance
 }
 
-func (o TuskObject) Get(field, file string) (*TuskType, error) {
+func (o TuskObject) Get(field, file, namespace string) (*TuskType, error) {
 
 	var mappedvars = make(map[string]*TuskType)
 
@@ -13,7 +13,7 @@ func (o TuskObject) Get(field, file string) (*TuskType, error) {
 		mappedvars[k] = v.Value
 	}
 
-	return getfield(mappedvars, field, file)
+	return getfield(mappedvars, field, file, namespace, o.Name)
 }
 
 func (o TuskObject) Format() string {

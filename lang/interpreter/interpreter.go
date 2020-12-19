@@ -41,7 +41,7 @@ func bindReturn(ins *Instance, ret *TuskType, bindto string) {
 }
 
 //Interpreter starts the Tusk runtime with a given instance, and actions tree
-func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize uint, expReturn bool) (Returner, *TuskError) {
+func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize uint, expReturn bool, namespace string) (Returner, *TuskError) {
 
 	var allocated []string
 
@@ -54,7 +54,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "var":
 
-			interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
+			interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true, namespace)
 
 			if e != nil {
 				return Returner{}, e
@@ -74,7 +74,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "ovld":
 
-			interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
+			interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true, namespace)
 
 			if e != nil {
 				return Returner{}, e
@@ -116,7 +116,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "let":
 
-			pinterpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
+			pinterpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true, namespace)
 
 			if e != nil {
 				return Returner{}, e
@@ -124,7 +124,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			interpreted := *pinterpreted.Exp
 
-			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true)
+			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true, namespace)
 
 			if e != nil {
 				return Returner{}, e
@@ -193,7 +193,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			var nArr = make([]*TuskType, len(v.Array))
 
 			for k, i := range v.Array {
-				tmp, e := Interpreter(ins, i, stacktrace, stacksize+1, true)
+				tmp, e := Interpreter(ins, i, stacktrace, stacksize+1, true, namespace)
 				if e != nil {
 					return Returner{}, e
 				}
@@ -218,13 +218,13 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			for _, i := range v.Hash {
 
-				keyi, e := Interpreter(ins, i[0], stacktrace, stacksize+1, true)
+				keyi, e := Interpreter(ins, i[0], stacktrace, stacksize+1, true, namespace)
 
 				if e != nil {
 					return Returner{}, e
 				}
 
-				vali, e := Interpreter(ins, i[1], stacktrace, stacksize+1, true)
+				vali, e := Interpreter(ins, i[1], stacktrace, stacksize+1, true, namespace)
 
 				if e != nil {
 					return Returner{}, e
@@ -266,7 +266,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "{":
 
-			groupRet, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, false)
+			groupRet, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, false, namespace)
 
 			if e != nil {
 				return Returner{}, e
@@ -281,7 +281,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "cast":
 
-			cv, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
+			cv, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true, namespace)
 			if e != nil {
 				return Returner{}, e
 			}
@@ -355,7 +355,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			//& and | can be a bit different for bool and bool
 			if v.Type == "&&" || v.Type == "||" {
-				firstInterpreted, e = Interpreter(ins, v.First, stacktrace, stacksize+1, true)
+				firstInterpreted, e = Interpreter(ins, v.First, stacktrace, stacksize+1, true, namespace)
 
 				if e != nil {
 					return Returner{}, e
@@ -379,7 +379,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 							Boolean: &retVal,
 						}
 					} else {
-						secondInterpreted, e = Interpreter(ins, v.Second, stacktrace, stacksize+1, true)
+						secondInterpreted, e = Interpreter(ins, v.Second, stacktrace, stacksize+1, true, namespace)
 
 						if e != nil {
 							return Returner{}, e
@@ -406,11 +406,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			}
 			//////////////////////////////////////////////////'
 
-			firstInterpreted, e = Interpreter(ins, v.First, stacktrace, stacksize+1, true)
+			firstInterpreted, e = Interpreter(ins, v.First, stacktrace, stacksize+1, true, namespace)
 			if e != nil {
 				return Returner{}, e
 			}
-			secondInterpreted, e = Interpreter(ins, v.Second, stacktrace, stacksize+1, true)
+			secondInterpreted, e = Interpreter(ins, v.Second, stacktrace, stacksize+1, true, namespace)
 			if e != nil {
 				return Returner{}, e
 			}
@@ -427,7 +427,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				return Returner{}, TuskPanic("Could not find "+v.Type+" operator for types "+(*firstInterpreted.Exp).TypeOf()+" and "+(*secondInterpreted.Exp).TypeOf(), v.Line, v.File, stacktrace)
 			}
 
-			computed, e, retaddr := operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, ins, stacktrace, v.Line, v.File, stacksize+1)
+			computed, e, retaddr := operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, ins, stacktrace, v.Line, v.File, stacksize+1, namespace)
 
 			if retaddr != "" {
 				allocated = append(allocated, retaddr)
@@ -456,7 +456,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "return":
 
-			pvalue, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
+			pvalue, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true, namespace)
 
 			if e != nil {
 				return Returner{}, e
@@ -483,7 +483,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 		case "defer":
 
 			actions := v.ExpAct
-			defer Interpreter(ins, actions, stacktrace, stacksize+1, true) //call this defer before the garbage collection, because the garbage collection ones are FIFO, but regular is LIFO, so this will be executed first
+			defer Interpreter(ins, actions, stacktrace, stacksize+1, true, namespace) //call this defer before the garbage collection, because the garbage collection ones are FIFO, but regular is LIFO, so this will be executed first
 
 		case "condition":
 
@@ -492,7 +492,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				truthy := true
 
 				if v.Type == "if" {
-					condition, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true)
+					condition, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true, namespace)
 					if e != nil {
 						return Returner{}, e
 					}
@@ -500,7 +500,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				}
 
 				if truthy {
-					interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
+					interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true, namespace)
 
 					if e != nil {
 						return Returner{}, e
@@ -519,7 +519,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "try":
 
-			_, e := Interpreter(ins, v.Second, stacktrace, stacksize+1, false)
+			_, e := Interpreter(ins, v.Second, stacktrace, stacksize+1, false, namespace)
 
 			if e != nil {
 				evar := v.First[1].Name
@@ -548,24 +548,24 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				/////////////////////////////////////////////
 
 				//call the catch block
-				Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, false)
+				Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, false, namespace)
 			}
 
 		case "while":
 
-			cond, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true)
+			cond, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true, namespace)
 
 			if e != nil {
 				return Returner{}, e
 			}
 
-			for ; isTruthy(*cond.Exp); cond, e = Interpreter(ins, v.First, stacktrace, stacksize+1, true) {
+			for ; isTruthy(*cond.Exp); cond, e = Interpreter(ins, v.First, stacktrace, stacksize+1, true, namespace) {
 
 				if e != nil {
 					return Returner{}, e
 				}
 
-				interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
+				interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true, namespace)
 
 				if e != nil {
 					return Returner{}, e
@@ -588,7 +588,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "each":
 
-			pit, e := Interpreter(ins, []Action{v.First[0]}, stacktrace, stacksize+1, true)
+			pit, e := Interpreter(ins, []Action{v.First[0]}, stacktrace, stacksize+1, true, namespace)
 			if e != nil {
 				return Returner{}, e
 			}
@@ -601,13 +601,13 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				ins.Allocate(keyName, key)
 				ins.Allocate(valName, val)
 
-				interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true)
+				interpreted, e := Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, true, namespace)
 
 				if e != nil {
 					return Returner{}, e
 				}
 
-				Interpreter(ins, []Action{v.First[0]}, stacktrace, stacksize+1, true)
+				Interpreter(ins, []Action{v.First[0]}, stacktrace, stacksize+1, true, namespace)
 
 				if interpreted.Type == "return" || interpreted.Type == "continue" || interpreted.Type == "break" {
 					return Returner{
@@ -634,7 +634,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "++":
 
-			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true)
+			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true, namespace)
 
 			if e != nil {
 				return Returner{}, e
@@ -648,7 +648,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			var onetype TuskInt
 			onetype.FromGoType(1)
-			tmp, e, _ := operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize)
+			tmp, e, _ := operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize, namespace)
 			if e != nil {
 				return Returner{}, e
 			}
@@ -663,7 +663,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 		case "--":
 
-			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true)
+			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true, namespace)
 
 			if e != nil {
 				return Returner{}, e
@@ -677,7 +677,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			var onetype TuskInt
 			onetype.FromGoType(1)
-			tmp, e, _ := operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize)
+			tmp, e, _ := operationFunc(*variable.Exp, onetype, ins, stacktrace, v.Line, v.File, stacksize, namespace)
 			if e != nil {
 				return Returner{}, e
 			}
@@ -704,11 +704,11 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			fallthrough
 		case "**=":
 
-			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true)
+			variable, e := Interpreter(ins, v.First, stacktrace, stacksize+1, true, namespace)
 			if e != nil {
 				return Returner{}, e
 			}
-			pinterpreted, e := Interpreter(ins, v.Second, stacktrace, stacksize+1, true)
+			pinterpreted, e := Interpreter(ins, v.Second, stacktrace, stacksize+1, true, namespace)
 			if e != nil {
 				return Returner{}, e
 			}
@@ -721,7 +721,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				return Returner{}, TuskPanic("Could not find "+operation+" operation for types "+(*variable.Exp).Type()+" and "+interpreted.Type(), v.Line, v.File, stacktrace)
 			}
 
-			calc, e, _ := operationFunc(*variable.Exp, interpreted, ins, stacktrace, v.Line, v.File, stacksize)
+			calc, e, _ := operationFunc(*variable.Exp, interpreted, ins, stacktrace, v.Line, v.File, stacksize, namespace)
 			if e != nil {
 				return Returner{}, e
 			}

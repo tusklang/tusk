@@ -1,9 +1,0 @@
-github.com/tusklang/goat v0.0.0-20200929145454-716a0ba322b4/go.mod h1:KzuhOjQUFevQ3iw0Vxp961gWvO94btmdhpC9KclDrHs=
-github.com/tusklang/oat v0.0.0-20201006015704-3bdccff6eb9a/go.mod h1:B3tDe4hUsaFzunvtYdtopckBww5BgGlFI30WBtsIPw4=
-github.com/tusklang/oat v0.0.0-20201118185917-95b0bddc52ef h1:3c2+ZCYHXTWm33xyBJ4WQ+kftws7q5MCAO5oYn3kyHo=
-github.com/tusklang/oat v0.0.0-20201118185917-95b0bddc52ef/go.mod h1:8D8FATCGfkBjpNHvPQBkweRcHvQIhYCZ643+IuFdgNU=
-github.com/tusklang/tools v0.0.0-20201005170534-2339ee6039b1 h1:sKw78Exi8nKC08O1f5/XEAfbJY4GG25UsO4nzOyS7Ok=
-github.com/tusklang/tools v0.0.0-20201005170534-2339ee6039b1/go.mod h1:9NaU7jfh0STNXvU1sdqCKrWAwjSZ+3XqB35z0717dq4=
-github.com/tusklang/tools v0.0.0-20201008152006-16722054bcea h1:TA1DehNxWlt4uLJtzIytAbT+NvE+4Yj2PhI5R+0Oizw=
-github.com/tusklang/tools v0.0.0-20201008152006-16722054bcea/go.mod h1:k4SzsYSmlj7ZfNHLjt0+BG/rtKAo++Zqtl6y4CazDrI=
-github.com/tusklang/tusk v0.0.0-20201006015703-22a6e9d22afa/go.mod h1:3CInXUvPvb1SMi7E6KBNWW6f0I8+VjouNVaLIgVTxcg=
