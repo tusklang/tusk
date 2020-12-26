@@ -349,8 +349,14 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			fallthrough
 		case "?":
 
+			//this is kinda spaghetti ngl
+			//but it works for now
+
 			var firstInterpreted Returner
 			var secondInterpreted Returner
+
+			var computed *TuskType
+			var retaddr string
 			var e *TuskError
 
 			//& and | can be a bit different for bool and bool
@@ -415,27 +421,41 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				return Returner{}, e
 			}
 
+			if v.Type == "==" || v.Type == "!=" {
+				comparedVal := ((*firstInterpreted.Exp).TypeOf() == (*secondInterpreted.Exp).TypeOf()) == (v.Type == "==")
+
+				if !comparedVal {
+					var tmp TuskType = falsev
+					computed = &tmp
+					goto comparsion_false
+				}
+			}
+
 		and_or_skip:
-			//check typeof first
-			operationFunc, exists := Operations[(*firstInterpreted.Exp).TypeOf()+" "+v.Type+" "+(*secondInterpreted.Exp).TypeOf()]
+			{
+				//check typeof first
+				operationFunc, exists := Operations[(*firstInterpreted.Exp).TypeOf()+" "+v.Type+" "+(*secondInterpreted.Exp).TypeOf()]
 
-			if !exists { //if it does not exist, also check the type
-				operationFunc, exists = Operations[(*firstInterpreted.Exp).Type()+" "+v.Type+" "+(*secondInterpreted.Exp).Type()]
+				if !exists { //if it does not exist, also check the type
+					operationFunc, exists = Operations[(*firstInterpreted.Exp).Type()+" "+v.Type+" "+(*secondInterpreted.Exp).Type()]
+				}
+
+				if !exists { //if there is no operation for that type, panic
+					return Returner{}, TuskPanic("Could not find "+v.Type+" operator for types "+(*firstInterpreted.Exp).TypeOf()+" and "+(*secondInterpreted.Exp).TypeOf(), v.Line, v.File, stacktrace)
+				}
+
+				computed, e, retaddr = operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, ins, stacktrace, v.Line, v.File, stacksize+1, namespace)
+
+				if retaddr != "" {
+					allocated = append(allocated, retaddr)
+				}
+
+				if e != nil {
+					return Returner{}, e
+				}
 			}
 
-			if !exists { //if there is no operation for that type, panic
-				return Returner{}, TuskPanic("Could not find "+v.Type+" operator for types "+(*firstInterpreted.Exp).TypeOf()+" and "+(*secondInterpreted.Exp).TypeOf(), v.Line, v.File, stacktrace)
-			}
-
-			computed, e, retaddr := operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, ins, stacktrace, v.Line, v.File, stacksize+1, namespace)
-
-			if retaddr != "" {
-				allocated = append(allocated, retaddr)
-			}
-
-			if e != nil {
-				return Returner{}, e
-			}
+		comparsion_false:
 
 			if expReturn {
 				return Returner{

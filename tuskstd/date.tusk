@@ -2,14 +2,15 @@ var date = proto {
 
     ;a lot of the code here is ~~stolen~~ adapted from this stackoverflow post
     ;   https://stackoverflow.com/a/32158604/10696946
+    ;thanks :D
 
-    var _year
-    var _month
-    var _day
+    var year
+    var month
+    var day
 
-    var _hour
-    var _minute
-    var _second
+    var hour
+    var minute
+    var second
 
     static var _SEC_IN_DAY = 86400 ;amount of seconds in 1 day
 
@@ -29,13 +30,13 @@ var date = proto {
         ;;;;;;;;;;;;;;;;;;;;;;;;
 
         var datep = make:(date)
-        datep::_year = civil::0
-        datep::_month = civil::1
-        datep::_day = civil::2
+        datep::year = civil::0
+        datep::month = civil::1
+        datep::day = civil::2
 
-        datep::_hour = hour
-        datep::_minute = minute
-        datep::_second = second
+        datep::hour = hour
+        datep::minute = minute
+        datep::second = second
 
         return datep
     }
@@ -52,6 +53,13 @@ var date = proto {
     }
 
     static var _getCivil = fn(int -> _days) {
+
+        ;convert # of days since epoch into yy/mm/dd
+
+        ;magic code stuffs that i dont really understand well
+        ;all adapted from here
+        ;   https://stackoverflow.com/a/32158604/10696946
+
         days := clone:(_days)
         days+=719468
 
@@ -73,6 +81,8 @@ var date = proto {
         else m-=9
 
         if (m <= 2) y++
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
         return [y, m, d]
     }
 

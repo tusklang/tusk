@@ -1,0 +1,11 @@
+var tcp = proto {
+    ;tcp socket class
+
+    static var new = fn() {
+
+    }
+
+    var data = fn(function -> ondata) {
+
+    }
+}
