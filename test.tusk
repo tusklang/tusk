@@ -1,10 +1,6 @@
-var main = fn() {
-    log:(t::new:())
-}
+;include:
+;s tuskstd/date.tusk
 
-var t = proto {
-    static var new = fn() {
-        log:(t::_test)
-    }
-    static var _test = 1
+var main = fn() {
+    log:(date::now:())
 }
