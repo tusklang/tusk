@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	. "github.com/tusklang/tusk/lang/types"
+	"github.com/tusklang/tusk/native"
 	. "github.com/tusklang/tusk/native"
 )
 
@@ -46,7 +47,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 	var allocated []string
 
 	if stacksize > MAX_STACKSIZE {
-		TuskPanic("Stack size was exceeded", 0, "none", stacktrace)
+		TuskPanic("Stack size was exceeded", 0, "none", stacktrace, native.ErrCodes["NOMEM"])
 	}
 
 	for _, v := range actions {
@@ -253,7 +254,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			if _fetched == nil {
 				//if it is a nil pointer
-				return Returner{}, TuskPanic("Invalid memory address referenced", v.Line, v.File, stacktrace)
+				return Returner{}, TuskPanic("Invalid memory address referenced", v.Line, v.File, stacktrace, native.ErrCodes["NILPTR"])
 			}
 
 			fetched := _fetched.Value
@@ -441,7 +442,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 				}
 
 				if !exists { //if there is no operation for that type, panic
-					return Returner{}, TuskPanic("Could not find "+v.Type+" operator for types "+(*firstInterpreted.Exp).TypeOf()+" and "+(*secondInterpreted.Exp).TypeOf(), v.Line, v.File, stacktrace)
+					return Returner{}, TuskPanic("Could not find "+v.Type+" operator for types "+(*firstInterpreted.Exp).TypeOf()+" and "+(*secondInterpreted.Exp).TypeOf(), v.Line, v.File, stacktrace, native.ErrCodes["OPNOTFOUND"])
 				}
 
 				computed, e, retaddr = operationFunc(*firstInterpreted.Exp, *secondInterpreted.Exp, ins, stacktrace, v.Line, v.File, stacksize+1, namespace)
@@ -663,7 +664,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" + int"]
 
 			if !exists { //if there is no operation for that type, panic
-				return Returner{}, TuskPanic("Could not find + operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
+				return Returner{}, TuskPanic("Could not find + operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace, native.ErrCodes["OPNOTFOUND"])
 			}
 
 			var onetype TuskInt
@@ -692,7 +693,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" - int"]
 
 			if !exists { //if there is no operation for that type, panic
-				return Returner{}, TuskPanic("Could not find - operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace)
+				return Returner{}, TuskPanic("Could not find - operation for types "+(*variable.Exp).Type()+" and number", v.Line, v.File, stacktrace, native.ErrCodes["OPNOTFOUND"])
 			}
 
 			var onetype TuskInt
@@ -738,7 +739,7 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			operationFunc, exists := Operations[(*variable.Exp).Type()+" "+operation+" "+interpreted.Type()]
 
 			if !exists { //if there is no operation for that type, panic
-				return Returner{}, TuskPanic("Could not find "+operation+" operation for types "+(*variable.Exp).Type()+" and "+interpreted.Type(), v.Line, v.File, stacktrace)
+				return Returner{}, TuskPanic("Could not find "+operation+" operation for types "+(*variable.Exp).Type()+" and "+interpreted.Type(), v.Line, v.File, stacktrace, native.ErrCodes["OPNOTFOUND"])
 			}
 
 			calc, e, _ := operationFunc(*variable.Exp, interpreted, ins, stacktrace, v.Line, v.File, stacksize, namespace)

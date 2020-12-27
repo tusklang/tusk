@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	. "github.com/tusklang/tusk/lang/types"
+	"github.com/tusklang/tusk/native"
 	. "github.com/tusklang/tusk/native"
 )
 
@@ -474,7 +475,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		arr := val1.(TuskArray)
 
 		if !arr.Exists(idx) {
-			TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(arr.Length, 10), line, file, stacktrace)
+			TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(arr.Length, 10), line, file, stacktrace, native.ErrCodes["IOB"])
 		}
 
 		return arr.At(idx), nil, ""
@@ -485,7 +486,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		str := val1.(TuskString)
 
 		if !str.Exists(idx) {
-			return nil, TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(str.Length, 10), line, file, stacktrace), ""
+			return nil, TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(str.Length, 10), line, file, stacktrace, native.ErrCodes["IOB"]), ""
 		}
 
 		var tusktype TuskType = *str.At(idx)
@@ -499,7 +500,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		v, e := val1.(TuskProto).Get(val2.(TuskString).ToGoType(), file, namespace)
 
 		if e != nil {
-			return nil, TuskPanic(e.Error(), line, file, stacktrace), ""
+			return nil, TuskPanic(e.Error(), line, file, stacktrace, native.ErrCodes["ITEMNOTFOUND"]), ""
 		}
 
 		return v, nil, ""
@@ -508,7 +509,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		v, e := val1.(TuskObject).Get(val2.(TuskString).ToGoType(), file, namespace)
 
 		if e != nil {
-			return nil, TuskPanic(e.Error(), line, file, stacktrace), ""
+			return nil, TuskPanic(e.Error(), line, file, stacktrace, native.ErrCodes["ITEMNOTFOUND"]), ""
 		}
 
 		return v, nil, ""

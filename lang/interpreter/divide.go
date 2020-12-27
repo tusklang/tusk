@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	. "github.com/tusklang/tusk/lang/types"
+	"github.com/tusklang/tusk/native"
 	. "github.com/tusklang/tusk/native"
 )
 
@@ -38,7 +39,7 @@ func number__divide__number(val1, val2 TuskType, instance *Instance, stacktrace 
 	//num1 is the dividend
 
 	if isEqual(num2, zero) { //if it is n/0, throw an error
-		return nil, TuskPanic("Divide by zero error", line, file, stacktrace)
+		return nil, TuskPanic("Divide by zero error", line, file, stacktrace, native.ErrCodes["DBZ"])
 	}
 	if isEqual(num1, zero) { //if it is 0/n return 0
 		var ztype TuskType = zero

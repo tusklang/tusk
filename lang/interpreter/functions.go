@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	. "github.com/tusklang/tusk/lang/types"
+	"github.com/tusklang/tusk/native"
 	. "github.com/tusklang/tusk/native"
 )
 
@@ -47,7 +48,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 		var overload *Overload
 
 		if overload = fillFuncInstance(&fn, arr, instance); overload == nil {
-			return nil, TuskPanic("Could not find a typelist for function call", line, file, stacktrace), ""
+			return nil, TuskPanic("Could not find a typelist for function call", line, file, stacktrace, native.ErrCodes["SIGNOMATCH"]), ""
 		}
 
 		tmp, e := Interpreter(fn.Instance, overload.Body, append(stacktrace, "synchronous call at line "+strconv.FormatUint(line, 10)+" in file "+file), stacksize+1, true, overload.Namespace)
@@ -61,7 +62,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 		var overload *Overload
 
 		if overload = fillFuncInstance(&fn, arr, instance); overload == nil {
-			return nil, TuskPanic("Could not find a typelist for function call", line, file, stacktrace), ""
+			return nil, TuskPanic("Could not find a typelist for function call", line, file, stacktrace, native.ErrCodes["SIGNOMATCH"]), ""
 		}
 
 		var promise TuskType = *NewThread(func() (*TuskType, *TuskError) {
@@ -77,7 +78,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 		arr := val2.(TuskArray)
 
 		if gfn.Function == nil {
-			return nil, TuskPanic("Native function is nil", line, file, stacktrace), ""
+			return nil, TuskPanic("Native function is nil", line, file, stacktrace, native.ErrCodes["NILPTR"]), ""
 		}
 
 		//check the signatures of the function
@@ -133,7 +134,7 @@ func funcinit() { //initialize the operations that require the use of the interp
 				}
 			}
 			return ret
-		}()), line, file, stacktrace), ""
+		}()), line, file, stacktrace, native.ErrCodes["SIGNOMATCH"]), ""
 		//////////////////////////////////////
 
 	}

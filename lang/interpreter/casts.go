@@ -29,7 +29,7 @@ func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, fi
 		i, e := strconv.ParseInt(str, 10, 64)
 
 		if e != nil {
-			return nil, native.TuskPanic("Invalid integer literal: \""+str+"\"", line, file, stacktrace)
+			return nil, native.TuskPanic("Invalid integer literal: \""+str+"\"", line, file, stacktrace, native.ErrCodes["INVALIDLIT"])
 		}
 		var integertype types.TuskType = types.TuskInt{
 			Int: i,
@@ -48,7 +48,7 @@ func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, fi
 		f, e := strconv.ParseFloat(str, 64)
 
 		if e != nil {
-			return nil, native.TuskPanic("Invalid float literal: \""+str+"\"", line, file, stacktrace)
+			return nil, native.TuskPanic("Invalid float literal: \""+str+"\"", line, file, stacktrace, native.ErrCodes["INVALIDLIT"])
 		}
 		var floattype types.TuskType = types.TuskFloat{
 			Float: f,
@@ -135,5 +135,5 @@ func Cast(val types.TuskType, nType string, stacktrace []string, line uint64, fi
 
 	}
 
-	return nil, native.TuskPanic("Cannot cast a "+val.TypeOf()+" into a "+nType, line, file, stacktrace)
+	return nil, native.TuskPanic("Cannot cast a "+val.TypeOf()+" into a "+nType, line, file, stacktrace, native.ErrCodes["INVALIDCAST"])
 }
