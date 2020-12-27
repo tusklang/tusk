@@ -6,6 +6,13 @@ import (
 	. "github.com/tusklang/tusk/lang/types"
 )
 
+var tmpvar = Action{
+	Type: "variable",
+	Name: "dv 0", //dummy variable name
+	File: "dummy",
+	Line: 0,
+}
+
 func arraytogroup(arractions []Action) []Action {
 	//convert a parenthesis array to a {} group
 	//	if (true || false && !true) { ;would be registered as an array
@@ -195,31 +202,19 @@ func actionizer(operations []Operation) ([]Action, error) {
 
 						var catchervars = right[0].First
 
-						var tmpvar = Action{
-							Type: "variable",
-							Name: "dv 0", //dummy variable name
-							File: v.File,
-							Line: v.Line,
-						}
-
-						switch len(catchervars) {
-						case 0: //both vars are dummies
-							catchervars = make([]Action, 2)
-							catchervars[0] = tmpvar
-							catchervars[1] = tmpvar
-						case 1: //only the second one is a dummy
-							catchervars = append(catchervars, tmpvar)
-						case 2: //none are dummies
-						default: //error
+						if len(catchervars) > 3 {
 							return []Action{}, makeCompilerErr("Catch statement catcher list was given too many parameters", v.File, right[0].Line)
 						}
 
-						//append to the previous try statement
+						for i := 0; i < 3-len(catchervars); i++ { //append the required amount of dummy variables
+							catchervars = append(catchervars, tmpvar)
+						}
 
-						//prepend a dummy value (because in varname check, I am reusing the "each", and each requires an iterator for the first one)
-						actions[len(actions)-1].First = append([]Action{Action{}}, catchervars...)
+						catchervars = append([]Action{Action{}}, catchervars...) //prepend a dummy action in the front (because the "try" logic is the same as the "each" logic in the variable checker, and "each" requires an iterator)
+
+						//append to the previous try statement
+						actions[len(actions)-1].First = catchervars
 						actions[len(actions)-1].ExpAct = arraytogroup(right[0].Second)
-						//////////////////////////////////////
 
 					case "while":
 						if right[0].Type != "CB-OB" {
@@ -250,6 +245,7 @@ func actionizer(operations []Operation) ([]Action, error) {
 								return []Action{}, makeCompilerErr("Key or value was not given as a variable", v.File, right[0].Line)
 							}
 						}
+						iter = append(iter, tmpvar) //append a dummy variable, because the try/catch logic is the same as this logic in the variable checker
 
 						actions = append(actions, Action{
 							Type:   val,

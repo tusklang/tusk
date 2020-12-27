@@ -91,8 +91,9 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 			continue
 		}
 		if v.Type == "each" || v.Type == "try" { //if it is each, also give the key and value variables
-			key := v.First[1].Name
-			val := v.First[2].Name
+			key := v.First[1].Name        //error message in "try"
+			val := v.First[2].Name        //error code in "try"
+			stacktrace := v.First[3].Name //stacktrace in "try"
 
 			var keyandvalvars = make(map[string]string)
 
@@ -102,14 +103,17 @@ func changevarnames(actions []Action, newnames_ map[string]string) (map[string]s
 			}
 			///////////////////////////////////
 
-			//change the key and value variable names
+			//change the key and value (and stacktrace for try) variable names
 			keyandvalvars[key] = "v" + strconv.FormatUint(curvar, 10)
 			v.First[1].Name = "v" + strconv.FormatUint(curvar, 10)
 			curvar++
 			keyandvalvars[val] = "v" + strconv.FormatUint(curvar, 10)
 			v.First[2].Name = "v" + strconv.FormatUint(curvar, 10)
 			curvar++
-			/////////////////////////////////////////
+			keyandvalvars[stacktrace] = "v" + strconv.FormatUint(curvar, 10)
+			v.First[3].Name = "v" + strconv.FormatUint(curvar, 10)
+			curvar++
+			//////////////////////////////////////////////////////////////////
 
 			//change var names for the iterator
 			tmp := []Action{v.First[0]}

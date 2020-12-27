@@ -544,14 +544,23 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 
 			if e != nil {
 				evar := v.First[1].Name
-				svar := v.First[2].Name
+				ecodevar := v.First[2].Name
+				svar := v.First[3].Name
 
 				//allocate the error and stacktrace variables
+
 				{
 					var estr TuskString
 					estr.FromGoType(e.Err)
 					var tusktype TuskType = estr
 					ins.Allocate(evar, &tusktype)
+				}
+
+				{
+					var ecode TuskInt
+					ecode.FromGoType(int64(e.Code))
+					var tusktype TuskType = ecode
+					ins.Allocate(ecodevar, &tusktype)
 				}
 
 				{
@@ -567,6 +576,8 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 					ins.Allocate(svar, &tusktype)
 				}
 				/////////////////////////////////////////////
+
+				allocated = append(allocated, evar, ecodevar, svar) //append to the allocated
 
 				//call the catch block
 				Interpreter(ins, v.ExpAct, stacktrace, stacksize+1, false, namespace)

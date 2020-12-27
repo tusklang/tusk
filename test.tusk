@@ -1,3 +1,7 @@
 var main = fn() {
-    log:(1)
+    try {
+        panic:("Test", 3)
+    } catch (e, c, s) {
+        log:(e, c, s)
+    }
 }

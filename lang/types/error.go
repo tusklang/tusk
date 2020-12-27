@@ -6,6 +6,7 @@ import "fmt"
 type TuskError struct {
 	Err        string
 	Stacktrace []string
+	Code       int
 }
 
 //Print prints the error (in a formatted way)

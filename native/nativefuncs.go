@@ -53,6 +53,7 @@ func TuskPanic(e string, line uint64, file string, stacktrace []string, code int
 	var errStruct TuskError
 	errStruct.Err = e
 	errStruct.Stacktrace = s
+	errStruct.Code = code
 	return &errStruct
 }
 
