@@ -1,7 +1,3 @@
 var main = fn() {
-    try {
-        panic:("Test", 3)
-    } catch (e, c, s) {
-        log:(e, c, s)
-    }
+    log:(errnos::IOB)
 }

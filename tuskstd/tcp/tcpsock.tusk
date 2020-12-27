@@ -5,7 +5,7 @@ var tcp = proto {
 
     }
 
-    var data = fn(function -> ondata) {
+    var ondata = fn(function -> ondata) {
 
     }
 }

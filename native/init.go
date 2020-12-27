@@ -40,4 +40,17 @@ func init() {
 		Native[k] = &tmp
 	}
 
+	var errCodesProto TuskProto
+	errCodesProto.Static = make(map[string]*TuskType)
+
+	for k, v := range ErrCodes {
+		var tuskint TuskInt
+		tuskint.FromGoType(int64(v))
+		var tusktype TuskType = tuskint
+		errCodesProto.Static[k] = &tusktype
+	}
+
+	var tmp TuskType = errCodesProto
+	Native["errnos"] = &tmp
+
 }
