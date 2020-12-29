@@ -2,7 +2,8 @@
 #define SYSTABLES_SYSCALLS_PAUSE_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <unistd.h>
@@ -10,10 +11,11 @@ extern "C" {
 #define pause() Sleep(INFINITE)
 #endif
 
-long long int syspause() {
-    pause();
-    return 0;
-}
+    long long int syspause()
+    {
+        pause();
+        return 0;
+    }
 
 #ifdef __cplusplus
 }

@@ -2,7 +2,8 @@
 #define SYSTABLES_SYSCALLS_ACCESS_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <unistd.h>
@@ -13,10 +14,11 @@ extern "C" {
 #define sleep Sleep
 #endif
 
-long long int syssleep(long long int amt) {
-    sleep(amt);
-    return 0;
-}
+    long long int syssleep(long long int amt)
+    {
+        sleep(amt);
+        return 0;
+    }
 
 #ifdef __cplusplus
 }

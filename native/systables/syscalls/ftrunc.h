@@ -2,14 +2,16 @@
 #define SYSTABLES_SYSCALLS_FTRUNC_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <unistd.h>
 
-long long int sysftrucate(long int fd, long long int length) {
-    return ftruncate(fd, length);
-}
+    long long int sysftrucate(long int fd, long long int length)
+    {
+        return ftruncate(fd, length);
+    }
 
 #ifdef __cplusplus
 }

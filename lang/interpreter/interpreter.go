@@ -423,10 +423,19 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 			}
 
 			if v.Type == "==" || v.Type == "!=" {
-				comparedVal := ((*firstInterpreted.Exp).TypeOf() == (*secondInterpreted.Exp).TypeOf()) == (v.Type == "==")
+				typesSame := (*firstInterpreted.Exp).TypeOf() == (*secondInterpreted.Exp).TypeOf()
 
-				if !comparedVal {
-					var tmp TuskType = falsev
+				if !typesSame {
+					comparedVal := typesSame == (v.Type == "==")
+
+					var tmp TuskType
+
+					if !comparedVal {
+						tmp = falsev
+					} else {
+						tmp = truev
+					}
+
 					computed = &tmp
 					goto comparsion_false
 				}

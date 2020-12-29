@@ -2,32 +2,34 @@
 #define SYSTABLES_SYSCALLS_READ_WRITEV_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-#define sysreadv_sig long long int sysreadv(int fd, void** iov_bases, void** iov_lens, int iovcnt)
-#define syswritev_sig long long int syswritev(int fd, void** iov_bases, void** iov_lens, int iovcnt)
+#define sysreadv_sig long long int sysreadv(int fd, void **iov_bases, void **iov_lens, int iovcnt)
+#define syswritev_sig long long int syswritev(int fd, void **iov_bases, void **iov_lens, int iovcnt)
 
 #ifdef _WIN32
-//do windows later
+    //do windows later
 
 #include "read.h"
 #include "write.h"
 
 //readv and writev implementation (works for both)
 //the empty /**/ are just line breaks
-#define read_writev_impl(fn)                                                               \
-    for (int i = 0; i < iovcnt; ++i)                                                       \
-        if (fn(fd, (char*)(iov_bases[i]), (long long int)(iov_lens[i])) == -1) return -1;  \
+#define read_writev_impl(fn)                                                    \
+    for (int i = 0; i < iovcnt; ++i)                                            \
+        if (fn(fd, (char *)(iov_bases[i]), (long long int)(iov_lens[i])) == -1) \
+            return -1;                                                          \
     return 0;
 
-sysreadv_sig {
-    read_writev_impl(sysread)
-}
+    sysreadv_sig{
+        read_writev_impl(sysread)}
 
-syswritev_sig {
-    read_writev_impl(syswrite)
-}
+    syswritev_sig
+    {
+        read_writev_impl(syswrite)
+    }
 
 #else
 
@@ -39,12 +41,13 @@ syswritev_sig {
 //the empty /**/ are just line breaks
 #define read_writev_impl(fn)                                    \
     /* clone it into the iovec */                               \
-    struct iovec* iovec = calloc(iovcnt, sizeof(struct iovec)); \
+    struct iovec *iovec = calloc(iovcnt, sizeof(struct iovec)); \
     int i;                                                      \
-    for (i = 0; i < iovcnt; ++i) {                              \
+    for (i = 0; i < iovcnt; ++i)                                \
+    {                                                           \
         struct iovec cur;                                       \
         cur.iov_base = iov_bases[i];                            \
-        cur.iov_len = (long long int) (iov_lens[i]);            \
+        cur.iov_len = (long long int)(iov_lens[i]);             \
         iovec[i] = cur;                                         \
     }                                                           \
     /**/                                                        \
@@ -59,14 +62,16 @@ syswritev_sig {
     /* cleanup the iovec */                                     \
     free(iovec);                                                \
     /**/                                                        \
-    return ret;                                                 \
+    return ret;
 
-sysreadv_sig {
-    read_writev_impl(readv);    
+sysreadv_sig
+{
+    read_writev_impl(readv);
 }
 
-syswritev_sig {
-    read_writev_impl(writev);    
+syswritev_sig
+{
+    read_writev_impl(writev);
 }
 
 #endif

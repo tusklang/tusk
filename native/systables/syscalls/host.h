@@ -2,7 +2,8 @@
 #define SYSTABLES_SYSCALLS_HOST_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <unistd.h>
@@ -13,29 +14,33 @@ extern "C" {
 #define sethostname(name, len) SetComputerNameA(name)
 #endif
 
-long long int sysgethostname(char* name, long long int len) {
-    return gethostname(name, len);
-}
+    long long int sysgethostname(char *name, long long int len)
+    {
+        return gethostname(name, len);
+    }
 
-long long int syssethostname(char* name, long long int len) {
-    return sethostname(name, len);
-}
+    long long int syssethostname(char *name, long long int len)
+    {
+        return sethostname(name, len);
+    }
 
-long long int sysgetdomainname(char* name, long long int len) {
-    #ifndef _WIN32
-    //not on windows
-    return getdomainname(name, len);
-    #endif
-    return -1;
-}
+    long long int sysgetdomainname(char *name, long long int len)
+    {
+#ifndef _WIN32
+        //not on windows
+        return getdomainname(name, len);
+#endif
+        return -1;
+    }
 
-long long int syssetdomainname(char* name, long long int len) {
-    #ifndef _WIN32
-    //not on windows
-    return setdomainname(name, len);
-    #endif
-    return -1;
-}
+    long long int syssetdomainname(char *name, long long int len)
+    {
+#ifndef _WIN32
+        //not on windows
+        return setdomainname(name, len);
+#endif
+        return -1;
+    }
 
 #ifdef __cplusplus
 }

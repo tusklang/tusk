@@ -109,7 +109,7 @@ var json = proto {
                 } elif (is_whitespace:(json::(i))) {
                     i++
                     continue
-                } else panic:("Invalid JSON data")
+                } else panic:("Invalid JSON data", errnos::INVALIDLIT)
             }
 
             i++
@@ -162,18 +162,18 @@ var json = proto {
 	}
 
 	static var conv = fn(array -> tokens) {
-		if (len:(tokens) == 0) panic:("Invalid JSON data")
+		if (len:(tokens) == 0) panic:("Invalid JSON data", errnos::INVALIDLIT)
 
 		if (typeof:(tokens::0) == "rune" && tokens::0 == '{') {
 			fin := [::]
 
 			i := 1
 			while (i < len:(tokens) - 1) {
-				if (typeof:(tokens::(i)) != "string") panic:("Invalid JSON data")
+				if (typeof:(tokens::(i)) != "string") panic:("Invalid JSON data", errnos::INVALIDLIT)
 				curkey := clone:(tokens::(i))
 
 				i++
-				if (tokens::(i) != ':') panic:("Invalid JSON data")
+				if (tokens::(i) != ':') panic:("Invalid JSON data", errnos::INVALIDLIT)
 				i++
 
 				curval := json::getval:(tokens, i)

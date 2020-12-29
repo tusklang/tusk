@@ -222,7 +222,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	},
 	"float != float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 		var boolt TuskBool
-		boolt.FromGoType(val1.(TuskFloat).Float == val2.(TuskFloat).Float)
+		boolt.FromGoType(val1.(TuskFloat).Float != val2.(TuskFloat).Float)
 		var tusktype TuskType = boolt
 		return &tusktype, nil, ""
 	},

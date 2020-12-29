@@ -1,11 +1,40 @@
 var tcp = proto {
     ;tcp socket class
 
-    static var new = fn() {
+    var _fd
 
+    static var new = fn() {
+        var socket = make:(tcp)
+        socket::_fd = syscall:(25, 2, 1, "tcp")
+        return socket
+    }
+
+    var connect = fn(string -> host, int -> port) {
+        if (syscall:(26, _fd, 2, host, port) == -1) ;connect to the socket
+            panic:("Cannot connect to host " + host + " at port " + (string -> port), errnos::SOCKCANNOTCONNECT)
+    }
+
+    var write = fn(string -> data) {
+        if (syscall:(1, _fd, data, len:(data)) == -1) ;write to the socket
+            panic:("Error writing request to socket", errnos::SOCKCANNOTWRITE)
     }
 
     var ondata = fn(function -> ondata) {
+        d := syscall:(19, 1, 1, [_fd], 0, [], 0, [], -1)
 
+        if (d == -1) {
+            panic:("Error while waiting for socket", errnos::FDWAITERR)
+        } else if (d != 0) {
+            ;data can be recieved
+
+            var buf = " "
+            var fin = ""
+
+            ;slurp the data into `fin`
+            while (syscall:(0, _fd, buf, 1) > 0)
+                fin+=buf
+
+            ondata:(fin) ;call the `ondata` parameter function, with argument `fin`
+        } else panic:("Data not recieved", errnos::DATANOTRECV)
     }
 }

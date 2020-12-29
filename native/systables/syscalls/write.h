@@ -2,7 +2,8 @@
 #define SYSTABLES_SYSCALLS_WRITE_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #ifdef _WIN32
@@ -11,16 +12,18 @@ extern "C" {
 #include <unistd.h>
 #endif
 
-long long int syswrite(long int fd, char* buf, unsigned long long int size) {
-    long int f = write(fd, buf, size);
+    long long int syswrite(long int fd, char *buf, unsigned long long int size)
+    {
+        long int f = write(fd, buf, size);
 
-    #ifdef _WIN32
-    //because windows doesn't allow write for sockets
-    if (f == -1) f = send(fd, buf, size, 0);
-    #endif
+#ifdef _WIN32
+        //because windows doesn't allow write for sockets
+        if (f == -1)
+            f = send(fd, buf, size, 0);
+#endif
 
-    return f;
-}
+        return f;
+    }
 
 #ifdef __cplusplus
 }

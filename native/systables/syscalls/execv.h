@@ -2,14 +2,16 @@
 #define SYSTABLES_SYSCALLS_EXECV_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <unistd.h>
 
-long long int sysexecv(char* path, void** argv, void** newenviron) {
-    return execv(path, (char**) argv);
-}
+    long long int sysexecv(char *path, void **argv, void **newenviron)
+    {
+        return execv(path, (char **)argv);
+    }
 
 #ifdef __cplusplus
 }

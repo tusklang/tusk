@@ -2,7 +2,8 @@
 #define SYSTABLES_SYSCALLS_FSYNC_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdio.h>
@@ -12,14 +13,16 @@ extern "C" {
 #define sync _flushall
 #endif
 
-long long int syssync() {
-    sync();
-    return 0;
-}
+    long long int syssync()
+    {
+        sync();
+        return 0;
+    }
 
-long long int sysfsync(long int fd) {
-    return fflush(fdopen(fd, "r+"));
-}
+    long long int sysfsync(long int fd)
+    {
+        return fflush(fdopen(fd, "r+"));
+    }
 
 #ifdef __cplusplus
 }

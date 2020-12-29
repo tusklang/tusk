@@ -2,7 +2,8 @@
 #define SYSTABLES_SYSCALLS_SCHED_YIELD_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <sched.h>
@@ -12,9 +13,10 @@ extern "C" {
 #define sched_yield SwitchToThread
 #endif
 
-long long int sysschedyield() {
-    return sched_yield();
-}
+    long long int sysschedyield()
+    {
+        return sched_yield();
+    }
 
 #ifdef __cplusplus
 }
