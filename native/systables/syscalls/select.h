@@ -14,17 +14,20 @@ extern "C"
 
 //function to convert raw data (from tusk) to c fdset structures
 #define fdset_convert(fdname)                         \
-    fd_set *fdname = NULL;                            \
+    fd_set fdname;                                    \
+    fd_set *fdname##p;                                \
+    FD_ZERO(&fdname);                                 \
     if (fdname##_count != 0)                          \
     {                                                 \
-        fdname = calloc(1, sizeof(fd_set));           \
-        FD_ZERO(fdname);                              \
         for (; fdname##_count >= 0; fdname##_count--) \
             FD_SET(                                   \
                 (long long int)                       \
                     fdname##_sockets[fdname##_count], \
-                fdname);                              \
-    }
+                &fdname);                             \
+        fdname##p = &fdname;                          \
+    }                                                 \
+    else                                              \
+        fdname##p = NULL;
 
     long long int sysselect(long int nfds,
                             long long int readfds_count, void **readfds_sockets,
@@ -32,30 +35,20 @@ extern "C"
                             long long int exceptfds_count, void **exceptfds_sockets,
                             long long int timeoutsec, long long int timeoutusec)
     {
-        //set the timeouts
-        struct timeval tv;
-        tv.tv_sec = timeoutsec;
-        tv.tv_usec = timeoutusec;
-
         //convert the fds to fd_sets
         fdset_convert(readfds);
         fdset_convert(writefds);
         fdset_convert(exceptfds);
 
-        long long int r;
-
         if (timeoutsec == -1 || timeoutusec == -1)
-            r = select(nfds, readfds, writefds, exceptfds, NULL); //supply a timeout of -1 to have no timeout
-        r = select(nfds, readfds, writefds, exceptfds, &tv);
+            return select(nfds, readfdsp, writefdsp, exceptfdsp, NULL); //supply a timeout of -1 to have no timeout
 
-        if (readfds != NULL)
-            free(readfds);
-        if (writefds != NULL)
-            free(writefds);
-        if (exceptfds != NULL)
-            free(exceptfds);
+        //set the timeouts
+        struct timeval tv;
+        tv.tv_sec = timeoutsec;
+        tv.tv_usec = timeoutusec;
 
-        return r;
+        return select(nfds, readfdsp, writefdsp, exceptfdsp, &tv);
     }
 
 #ifdef __cplusplus

@@ -1,4 +1,15 @@
+;include:
+;s tuskstd/tcp
+
 var main = fn() {
-    d := syscall:(19, 1, 1, [0], 0, [], 0, [], 5, 0)
-    log:(d)
+    sock := tcp::new:()
+    sock::connect:("example.com", 80)
+    sock::write:("GET " + "/ " + 
+        "HTTP" + "/1.1" + 
+        "\r\nHost: " + "example.com" + 
+        "\r\nConnection: close" + 
+        "\r\n\r\n")
+    sock::ondata:(fn(d) {
+        log:(d)
+    })
 }
