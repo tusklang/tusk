@@ -15,6 +15,12 @@ extern "C"
 #include <arpa/inet.h>
 #endif
 
+#include <stdbool.h>
+
+#ifdef _WIN32
+    bool isInitialized = false;
+#endif
+
 //definition to set the socket address struct from raw tusk input
 #define setaddr                                                    \
     struct sockaddr_in addr_in;                                    \
@@ -32,6 +38,15 @@ extern "C"
 
     long long int syssocket(int domain, int type, char *protocol)
     {
+
+#ifdef _WIN32
+        //windows is annoying, so we have to initialize the wsa stuff
+        if (!isInitialized)
+        {
+            WSADATA wsa;
+            WSAStartup(MAKEWORD(2, 2), &wsa);
+        }
+#endif
         struct protoent *protoent = getprotobyname(protocol);
         free(protocol);
         return socket(domain, type, protoent->p_proto);
