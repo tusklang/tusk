@@ -1,3 +1,6 @@
+;include:
+;s tuskstd/util/alloc.tusk
+
 var tcp = proto {
     ;tcp socket class
 
@@ -19,22 +22,32 @@ var tcp = proto {
             panic:("Error writing request to socket", errnos::SOCKCANNOTWRITE)
     }
 
+    var read = fn(int -> amt) {
+        var buf = allocstr:(amt)
+        r := syscall:(0, _fd, buf, amt) ;read()
+        return [buf, r]
+    }
+
+    var slurp = fn() {
+        fin := ""
+        var buf
+
+        while ({
+            tmp := read:(1)
+            buf = tmp::0
+            return tmp::1 > 0
+        }) fin+=buf
+
+        return fin
+    }
+
     var ondata = fn(function -> ondata) {
         d := syscall:(19, _fd + 1, 1, [_fd], 0, [], 0, [], -1, -1)
 
         if (d == -1) {
             panic:("Error while waiting for socket", errnos::FDWAITERR)
         } else if (d != 0) {
-            ;data can be recieved
-
-            var buf = " "
-            var fin = ""
-
-            ;slurp the data into `fin`
-            while (syscall:(0, _fd, buf, 1) > 0)
-                fin+=buf
-
-            ondata:(fin) ;call the `ondata` parameter function, with argument `fin`
+            ondata:(slurp:()) ;slurp the data, and pass it into the ondata cb
         } else panic:("Data not recieved", errnos::DATANOTRECV)
     }
 }

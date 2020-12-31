@@ -29,7 +29,7 @@ var url = proto {
         }
 
         if (host == "") ;only if host was not set yet
-            host = split:(uri, hostdel)::0
+            host = split:(uri, string -> hostdel)::0
         uri = rmbegin:(uri, len:(host))
         ;;;;;;;;;;;;;;;
 
@@ -41,7 +41,7 @@ var url = proto {
             var portstr
 
             ;if there is a specified path, cut it off
-            if (searchfor:(uri, "/") != -1) portstr = split:(uri, '/')::0
+            if (searchfor:(uri, "/") != -1) portstr = split:(uri, "/")::0
             else portstr = clone:(uri)
 
             uri = rmbegin:(uri, len:(portstr))
@@ -57,7 +57,7 @@ var url = proto {
             ;   a/b/c?a
             if (searchfor:(uri, "?") == -1) path = clone:(uri)
             else {
-                path = split:(uri, '?')::0
+                path = split:(uri, "?")::0
                 uri = rmbegin:(uri, len:(path))
             }
 
@@ -74,10 +74,10 @@ var url = proto {
             ;   a=b&c=d
 
             ;split by the &
-            su := split:(uri, '&')
+            su := split:(uri, "&")
 
             each (su, k, v) {
-                sc := split:(v, '=') ;split by the current =
+                sc := split:(v, "=") ;split by the current =
                 query[sc::0] = sc::1 ;set the key to the value
             }
         }
