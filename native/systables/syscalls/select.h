@@ -22,12 +22,10 @@ extern "C"
         /*puts it in reverse but who cares*/                                \
         /*also im cool because i understand post/pre increments and stuff*/ \
         while (--fdname##_count >= 0)                                       \
-        {                                                                   \
             FD_SET(                                                         \
                 (long long int)                                             \
                     fdname##_sockets[fdname##_count],                       \
                 &fdname);                                                   \
-        }                                                                   \
         fdname##p = &fdname;                                                \
     }                                                                       \
     else                                                                    \

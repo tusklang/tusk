@@ -1,15 +1,6 @@
 ;include:
-;s tuskstd/tcp
+;s tuskstd/url
 
 var main = fn() {
-    sock := tcp::new:()
-    sock::connect:("example.com", 80)
-    sock::write:("GET " + "/ " + 
-        "HTTP" + "/1.1" + 
-        "\r\nHost: " + "example.com" + 
-        "\r\nConnection: close" + 
-        "\r\n\r\n")
-    sock::ondata:(fn(d) {
-        log:(d)
-    })
+    log:(request::get:("https://example.com/"))
 }

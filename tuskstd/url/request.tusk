@@ -1,6 +1,6 @@
 ;include:
 ;s tuskstd/util
-;s tuskstd/json/marshal.tusk
+;s tuskstd/tcp
 ;r parse.tusk
 
 var request = proto {
@@ -9,33 +9,34 @@ var request = proto {
 
     static var get = fn(uri) {
         parsed := url::parse:(uri)
-        reqstr := 
-        "GET " + parsed::path + request::fmt_query:(parsed::query) + " " + 
-        toupper:(parsed::protocol) + "/1.1" + 
-        "\r\nHost: " + parsed::host + 
-        "\r\nConnection: close" + 
-        "\r\n\r\n"
 
-        return request::request_url:(parsed, reqstr)
+        sock := tcp::new:()
+        sock::connect:(parsed::host, parsed::port)
+        sock::write:("GET " + parsed::path + request::_fmt_query:(parsed::query) + " " + 
+            toupper:(parsed::protocol) + "/1.1" + 
+            "\r\nHost: " + parsed::host + 
+            "\r\nConnection: close" + 
+            "\r\n\r\n")
+        return sock::slurp:()
     }
 
     static var post = fn(uri, hash -> data) {
         parsed := url::parse:(uri)
 
-        fmt_data := rmbegin:(request::fmt_query:(data), 1)
-        reqstr :=
-        "POST " + parsed::path + " " +
-        toupper:(parsed::protocol) + "/1.1" +
-        "\r\nHost: " + parsed::host +
-        "\r\nContent-Type: application/x-www-form-urlencoded" +
-        "\r\nContent-Length: " + (string -> len:(fmt_data)) + 
-        "\r\n" +
-        "\r\n" + fmt_data
-
-        return request::request_url:(parsed, reqstr)
+        sock := tcp::new:()
+        sock::connect:(parsed::host, parsed::port)
+        fmt_data := rmbegin:(request::_fmt_query:(data), 1)
+        sock::write:("POST " + parsed::path + " " +
+            toupper:(parsed::protocol) + "/1.1" +
+            "\r\nHost: " + parsed::host +
+            "\r\nContent-Type: application/x-www-form-urlencoded" +
+            "\r\nContent-Length: " + (string -> len:(fmt_data)) + 
+            "\r\n" +
+            "\r\n" + fmt_data)
+        return sock::slurp:()
     }
 
-    static var fmt_query = fn(data) {
+    static var _fmt_query = fn(data) {
         ;convert a hashmap query into a ?a=b&c=d
         query_str := "?"
 
@@ -48,25 +49,5 @@ var request = proto {
         }
 
         return query_str
-    }
-
-    static var request_url = fn(parsed, reqstr) {
-
-        fd := syscall:(25, 2, 1, "tcp")
-
-        ;connect the socket
-        if (syscall:(26, fd, 2, parsed::host, parsed::port) == -1)
-            panic:("Cannot connect to host " + parsed::host + " at port " + (string -> parsed::port))
-
-        ;write to the socket
-        if (syscall:(1, fd, reqstr, len:(reqstr)) == -1)
-            panic:("Error writing request to socket")
-
-        ;read the resp
-        fin := ""  ;store the html resp
-        buf := " " ;alloc 1 byte
-        while (syscall:(0, fd, buf, 1) > 0) fin+=buf
-
-        return fin
     }
 }
