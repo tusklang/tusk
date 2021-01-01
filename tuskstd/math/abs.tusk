@@ -3,6 +3,9 @@
 
 var math = proto {
     static var abs = fn(int -> n) {
+        return int -> (math::abs:(float -> n))
+    }
+    static var abs = fn(float -> n) {
         if (n < 0) return n * -1
         return n
     }

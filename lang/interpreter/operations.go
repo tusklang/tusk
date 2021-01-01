@@ -32,12 +32,22 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		return &tusktype, nil, ""
 	},
 	"int / int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
+
+		if val2.(TuskInt).Int == 0 {
+			return nil, TuskPanic("Divide By Zero Error", line, file, stacktrace, ErrCodes["DBZ"]), ""
+		}
+
 		var intt TuskInt
 		intt.FromGoType(val1.(TuskInt).Int / val2.(TuskInt).Int)
 		var tusktype TuskType = intt
 		return &tusktype, nil, ""
 	},
 	"int % int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
+
+		if val2.(TuskInt).Int == 0 {
+			return nil, TuskPanic("Divide By Zero Error", line, file, stacktrace, ErrCodes["DBZ"]), ""
+		}
+
 		var intt TuskInt
 		intt.FromGoType(val1.(TuskInt).Int % val2.(TuskInt).Int)
 		var tusktype TuskType = intt
@@ -69,6 +79,11 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		return &tusktype, nil, ""
 	},
 	"float / float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
+
+		if val2.(TuskFloat).Float == 0 {
+			return nil, TuskPanic("Divide By Zero Error", line, file, stacktrace, ErrCodes["DBZ"]), ""
+		}
+
 		var floatt TuskFloat
 		floatt.FromGoType(val1.(TuskFloat).Float / val2.(TuskFloat).Float)
 		var tusktype TuskType = floatt

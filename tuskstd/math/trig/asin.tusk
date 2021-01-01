@@ -1,0 +1,39 @@
+;include:
+;s tuskstd/math
+
+var math = proto {
+
+    static var asin
+
+    static ovld asin = fn(float -> theta, int -> prec) {
+        sum := 0.0
+        n := 0
+        
+        while (n < prec) {
+            sum+=(
+                (
+                    (float -> math::factorial:(2 * n))
+                    /
+                    (float -> ((2 ** n * math::factorial:(n)) ** 2))
+                )
+                *
+                (
+                    (theta ** (float -> (2 * n + 1)))
+                    /
+                    (float -> (2 * n + 1))
+                )
+            )
+            n++
+        }
+
+        return sum
+    }
+
+    static ovld asin = fn(float -> theta) {
+        return math::asin:(theta, 50) ;default to 100 prec
+    }
+
+    static ovld asin = fn(int -> theta) {
+        return math::asin:(float -> theta)
+    }
+}

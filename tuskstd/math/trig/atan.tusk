@@ -1,0 +1,35 @@
+;include:
+;s tuskstd/math
+
+var math = proto {
+
+    static var asin
+
+    static ovld atan = fn(float -> theta, int -> prec) {
+        sum := 0.0
+        n := 0
+
+        while (n < prec) {
+            sum+=(
+                (
+                    (float -> ((-1) ** n))
+                    *
+                    (theta ** (float -> (2 * n + 1)))
+                )
+                /
+                (float -> (2 * n + 1))
+            )
+            n++
+        }
+
+        return sum
+    }
+
+    static ovld atan = fn(float -> theta) {
+        return math::atan:(theta, 50) ;default to 100 prec
+    }
+
+    static ovld atan = fn(int -> theta) {
+        return math::atan:(float -> theta)
+    }
+}

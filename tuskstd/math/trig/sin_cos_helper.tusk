@@ -1,0 +1,31 @@
+;include:
+;s tuskstd/math
+
+var math = proto {
+    ;helper to the taylor series expansion
+    ;cos and sin are almost identical, except their starting positions
+    ;cos starts at 0
+    ;sin starts at 1
+
+    static var _sin_cos_hlp = fn(float -> theta, int -> prec, int -> start) {
+        sum := 0.0
+        n := clone:(start)
+        
+        while (n < prec) {
+
+            sum+=(
+                (float -> ((-1) ** (n - start)))
+                *
+                (
+                    (theta ** (float -> (2 * n - start)))
+                    /
+                    (float -> math::factorial:(2 * n - start))
+                )
+            )
+
+            n++
+        }
+
+        return sum
+    }
+}

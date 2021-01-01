@@ -1,0 +1,19 @@
+;include:
+;r .
+
+var math = proto {
+
+    static var tan
+
+    static ovld tan = fn(float -> theta, int -> _prec) {
+        return math::sin:(theta, _prec) / math::cos:(theta, _prec)
+    }
+
+    static ovld tan = fn(float -> theta) {
+        return math::tan:(theta, 50) ;default to 100 prec
+    }
+
+    static ovld tan = fn(int -> theta) {
+        return math::tan:(float -> theta)
+    }
+}

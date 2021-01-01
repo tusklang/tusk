@@ -17,12 +17,6 @@ var tokensJSON = []byte(
     "type": "id"
   },
   {
-    "name": "access",
-    "remove": "access",
-    "pattern": "\\b(access(\\s+))",
-    "type": "id"
-  },
-  {
     "name": "defer",
     "remove": "defer",
     "pattern": "\\b(defer(\\s+))",

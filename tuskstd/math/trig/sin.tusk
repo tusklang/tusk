@@ -1,0 +1,19 @@
+;include:
+;r sin_cos_helper.tusk
+
+var math = proto {
+
+    static var sin
+
+    static ovld sin = fn(float -> theta, int -> _prec) {
+        return math::_sin_cos_hlp:(theta, _prec, 1)
+    }
+
+    static ovld sin = fn(float -> theta) {
+        return math::sin:(theta, 50) ;default to 100 prec
+    }
+
+    static ovld sin = fn(int -> theta) {
+        return math::sin:(float -> theta)
+    }
+}

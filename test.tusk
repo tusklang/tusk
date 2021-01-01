@@ -1,6 +1,6 @@
 ;include:
-;s tuskstd/url
+;s tuskstd/math
 
 var main = fn() {
-    log:(request::get:("https://example.com/"))
+    log:(math::acos:(1.0))
 }

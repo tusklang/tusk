@@ -1,0 +1,8 @@
+;include:
+;r .
+
+var math = proto {
+    ;most of these are implemented via taylor series
+    ;   https://people.math.sc.edu/girardi/m142/handouts/10sTaylorPolySeries.pdf
+    ;considering switching to using CORDIC with syscalls
+}
