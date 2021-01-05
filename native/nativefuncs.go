@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"unsafe"
 
@@ -345,6 +346,21 @@ var NativeFuncs = map[string]TuskGoFunc{
 		},
 		Signatures: [][]string{[]string{"int"}},
 	},
+	"dlopen": TuskGoFunc{
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
+
+			curdir, _ := os.Getwd()
+			os.Chdir(filepath.Dir(file)) //go to the directory of the current file, so the files can load libraries relative to themselves
+
+			libname := (*args[0]).(TuskString).ToGoType()
+			var tusktype TuskType = LoadLib(libname)
+
+			os.Chdir(curdir) //go back to the old dir
+
+			return &tusktype, nil
+		},
+		Signatures: [][]string{[]string{"string"}},
+	},
 	"syscall": TuskGoFunc{
 		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 
@@ -352,21 +368,10 @@ var NativeFuncs = map[string]TuskGoFunc{
 				return nil, TuskPanic("Sysno must be an integer", line, file, stacktrace, ErrCodes["INVALIDARG"])
 			}
 
-			var cargs = make([]unsafe.Pointer, int(C.MAX_SYS_ARGC))
+			cargs, e := makeCargs(args)
 
-			i := 0
-
-			for ; i < len(args) && i < int(C.MAX_SYS_ARGC); i++ {
-				var e error
-				cargs[i], e = makectype(args[i])
-				if e != nil {
-					return nil, TuskPanic(e.Error(), line, file, stacktrace, ErrCodes["INVALIDARG"])
-				}
-			}
-
-			for ; i < int(C.MAX_SYS_ARGC); i++ {
-				cnum := C.longlong(0)
-				cargs[i] = C.makeunsafell(cnum)
+			if e != nil {
+				return nil, TuskPanic(e.Error(), line, file, stacktrace, ErrCodes["INVALIDARG"])
 			}
 
 			sysno := int((*args[0]).(TuskInt).ToGoType())
@@ -378,7 +383,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 
 			called := C.callsys(
 				syscall,
-				cargs[1],
+				cargs[1], //start at 1 because cargs[0] is the sysno
 				cargs[2],
 				cargs[3],
 				cargs[4],

@@ -42,7 +42,7 @@ var tcp = proto {
     }
 
     var ondata = fn(function -> ondata) {
-        d := syscall:(19, _fd + 1, 1, [_fd], 0, [], 0, [], -1, -1)
+        d := syscall:(19, _fd + 1, 1, [_fd], 0, [], 0, [], -1, -1) ;select()
 
         if (d == -1) {
             panic:("Error while waiting for socket", errnos::FDWAITERR)
