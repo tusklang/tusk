@@ -1,6 +1,4 @@
-;include:
-;s tuskstd/math
-
 var main = fn() {
-    log:(math::acos:(1.0))
+    t := dlopen:("test.dll")
+    log:(t::test:())
 }

@@ -6,7 +6,6 @@ import (
 
 	. "github.com/tusklang/tusk/lang/types"
 	"github.com/tusklang/tusk/native"
-	. "github.com/tusklang/tusk/native"
 )
 
 //list of operations
@@ -34,7 +33,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	"int / int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		if val2.(TuskInt).Int == 0 {
-			return nil, TuskPanic("Divide By Zero Error", line, file, stacktrace, ErrCodes["DBZ"]), ""
+			return nil, native.TuskPanic("Divide By Zero Error", line, file, stacktrace, native.ErrCodes["DBZ"]), ""
 		}
 
 		var intt TuskInt
@@ -45,7 +44,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	"int % int": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		if val2.(TuskInt).Int == 0 {
-			return nil, TuskPanic("Divide By Zero Error", line, file, stacktrace, ErrCodes["DBZ"]), ""
+			return nil, native.TuskPanic("Divide By Zero Error", line, file, stacktrace, native.ErrCodes["DBZ"]), ""
 		}
 
 		var intt TuskInt
@@ -81,7 +80,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	"float / float": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		if val2.(TuskFloat).Float == 0 {
-			return nil, TuskPanic("Divide By Zero Error", line, file, stacktrace, ErrCodes["DBZ"]), ""
+			return nil, native.TuskPanic("Divide By Zero Error", line, file, stacktrace, native.ErrCodes["DBZ"]), ""
 		}
 
 		var floatt TuskFloat
@@ -490,7 +489,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		arr := val1.(TuskArray)
 
 		if !arr.Exists(idx) {
-			TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(arr.Length, 10), line, file, stacktrace, native.ErrCodes["IOB"])
+			native.TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(arr.Length, 10), line, file, stacktrace, native.ErrCodes["IOB"])
 		}
 
 		return arr.At(idx), nil, ""
@@ -501,7 +500,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		str := val1.(TuskString)
 
 		if !str.Exists(idx) {
-			return nil, TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(str.Length, 10), line, file, stacktrace, native.ErrCodes["IOB"]), ""
+			return nil, native.TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(str.Length, 10), line, file, stacktrace, native.ErrCodes["IOB"]), ""
 		}
 
 		var tusktype TuskType = *str.At(idx)
@@ -515,7 +514,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		v, e := val1.(TuskProto).Get(val2.(TuskString).ToGoType(), file, namespace)
 
 		if e != nil {
-			return nil, TuskPanic(e.Error(), line, file, stacktrace, native.ErrCodes["ITEMNOTFOUND"]), ""
+			return nil, native.TuskPanic(e.Error(), line, file, stacktrace, native.ErrCodes["ITEMNOTFOUND"]), ""
 		}
 
 		return v, nil, ""
@@ -524,7 +523,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		v, e := val1.(TuskObject).Get(val2.(TuskString).ToGoType(), file, namespace)
 
 		if e != nil {
-			return nil, TuskPanic(e.Error(), line, file, stacktrace, native.ErrCodes["ITEMNOTFOUND"]), ""
+			return nil, native.TuskPanic(e.Error(), line, file, stacktrace, native.ErrCodes["ITEMNOTFOUND"]), ""
 		}
 
 		return v, nil, ""
@@ -571,6 +570,25 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		var tuskstr TuskString
 		tuskstr.FromRuneList(space)
 		var tusktype TuskType = tuskstr
+		return &tusktype, nil, ""
+	},
+	"clib :: string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
+		proc := val1.(native.CLibrary).GetProc(val2.(TuskString).ToGoType())
+		var tusktype TuskType = proc
+		return &tusktype, nil, ""
+	},
+	"cproc : array": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
+
+		args := val2.(TuskArray).Array
+		ret, e := val1.(native.CProc).Call(args)
+
+		if e != nil {
+			return nil, native.TuskPanic(e.Error(), line, file, stacktrace, native.ErrCodes["INVALIDARG"]), ""
+		}
+
+		var tuskint TuskInt
+		tuskint.FromGoType(ret)
+		var tusktype TuskType = tuskint
 		return &tusktype, nil, ""
 	},
 }
