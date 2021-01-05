@@ -1,4 +1,4 @@
 var main = fn() {
-    t := dlopen:("test.dll")
-    log:(t::test:())
+    t := dlopen:("test.so")
+    log:(t::test:("abc"))
 }

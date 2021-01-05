@@ -3,6 +3,7 @@ package native
 import "unsafe"
 import "github.com/tusklang/tusk/lang/types"
 
+//#cgo !windows LDFLAGS: -ldl
 //#include "openlib.h"
 import "C"
 
@@ -57,7 +58,9 @@ func (l CLibrary) TypeOf() string {
 	return l.Type()
 }
 
-func (l CLibrary) Deallocate() {}
+func (l CLibrary) Deallocate() {
+	C.closelib(l.lib)
+}
 
 //Clone clones the value into a new pointer
 func (l CLibrary) Clone() *types.TuskType {

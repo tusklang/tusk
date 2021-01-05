@@ -352,7 +352,7 @@ var NativeFuncs = map[string]TuskGoFunc{
 			curdir, _ := os.Getwd()
 			os.Chdir(filepath.Dir(file)) //go to the directory of the current file, so the files can load libraries relative to themselves
 
-			libname := (*args[0]).(TuskString).ToGoType()
+			libname := "./" + (*args[0]).(TuskString).ToGoType()
 			var tusktype TuskType = LoadLib(libname)
 
 			os.Chdir(curdir) //go back to the old dir
