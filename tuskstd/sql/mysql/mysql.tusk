@@ -1,0 +1,12 @@
+var mysql = proto {
+
+    static var new
+
+    static ovld new = fn(string -> user, string -> pass, string -> host, int -> port) {
+
+    }
+
+    static ovld new = fn(string -> user, string -> pass, string -> host, int -> port, string -> db) {
+        
+    }
+}

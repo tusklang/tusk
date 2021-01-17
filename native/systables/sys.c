@@ -24,7 +24,6 @@
 #include "syscalls/socket.h"
 #include "syscalls/execv.h"
 #include "syscalls/exit.h"
-#include "syscalls/sysinfo.h"
 #include "syscalls/fsync.h"
 #include "syscalls/ftrunc.h"
 #include "syscalls/dir.h"

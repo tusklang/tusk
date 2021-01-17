@@ -3,6 +3,7 @@ package compiler
 import (
 	"encoding/json"
 	"regexp"
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -161,12 +162,49 @@ func lexer(file, filename string) ([]Lex, error) {
 				file = file[1:]
 			}
 
+			var base = 10
+
+			if file[0] == '0' && len(file) > 1 {
+				switch file[1] {
+				case 'b':
+					base = 2
+				case 'o':
+					base = 8
+				case 'x':
+					base = 16
+				default:
+					goto ninc
+				}
+
+				file = file[2:]
+			ninc:
+			}
+
 			numv := ""
 
-			for len(file) != 0 && (unicode.IsDigit(rune(file[0])) || file[0] == '.') {
+			//all possible characters to be in a numeric literal (besides '.')
+			var possvals = []rune{
+				'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+			}
+
+			for file[0] == '.' || (func() bool {
+				for i := 0; i < base; i++ {
+
+					//it is a digit value within the base
+					if rune(file[0]) == possvals[i] {
+						return true
+					}
+
+				}
+
+				return false
+			}()) {
 				numv += string(file[0])
 				file = file[1:]
 			}
+
+			tmp, _ := strconv.ParseInt(numv, base, 64)
+			numv = strconv.Itoa(int(tmp))
 
 			if !positive {
 				numv = "-" + numv

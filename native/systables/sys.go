@@ -47,7 +47,9 @@ var SysTable = map[int]unsafe.Pointer{
 	33: C.sysexit,
 	34: C.syswaitpid,
 	35: C.syskillpid,
-	36: C.sysuname,
+
+	//add a syscall 36 later, i removed one of them that was useless, but the lack of a 36 triggers me
+
 	37: C.sysfsync,
 	38: C.sysftrucate,
 	39: C.syslsdir,

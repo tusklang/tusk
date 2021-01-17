@@ -1,4 +1,3 @@
 var main = fn() {
-    t := dlopen:("test.so")
-    log:(t::test:("abc"))
+    log:(0xaaa)
 }

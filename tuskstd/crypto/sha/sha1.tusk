@@ -1,0 +1,118 @@
+;include:
+;s tuskstd/bitutil
+;s tuskstd/math
+;s tuskstd/util/split.tusk
+;s tuskstd/util/alloc.tusk
+;s tuskstd/util/map.tusk
+
+var sha = proto {
+
+    ;sha1 taken from here:
+    ;   https://codereview.stackexchange.com/q/37648
+    ;repurposed from python to tusk, and made a few small changes
+
+    static var ROTL = fn(int -> x, int -> n) {
+        return ((x << n) | (x >> (32 - n))) & 0xFFFFFFFF
+    }
+
+    static var Ch = fn(int -> x, int -> y, int -> z) return (x & y) ^ (~x & z)
+    static var Parity = fn(int -> x, int -> y, int -> z) return x ^ y ^ z
+    static var Maj = fn(int -> x, int -> y, int -> z) return (x & y) | (x & z) | (y & z) 
+
+    static var sha1 = fn(string -> _msg) {
+
+        msg := clone:(_msg)
+
+        ;constants
+        K := [1518500249, 1859775393, 2400959708, 3395469782]
+
+        ;inital hash values
+        H := [1732584193, 4023233417, 2562383102, 271733878, 3285377520]
+
+        ;convert to binary
+        bytes := ""
+
+        each (msg, _, v) {
+            bitarr := bitutil::tobits:(int -> v)
+            cur := ""
+            each (bitarr, _, vv) cur+=(string -> vv)
+            while (len:(cur) < 8) cur = "0" + cur ;force it to be of length 8 at least
+            bytes+=cur
+        }
+
+        bits := bytes + "1" ;add the "1" bit
+        pBits := clone:(bits)
+
+        while (len:(pBits) % 512 != 448) pBits+="0" ;put padding
+
+        ;append the original length
+        origlen := bitutil::tobits:(len:(bytes))
+        while (len:(origlen) < 64) origlen = prepend:(origlen, 0) ;force it to be length 64 at least
+
+        ;make it a binary string
+        origlen_binstr := ""
+        each (origlen, _, v) origlen_binstr+=(string -> v)
+
+        pBits+=origlen_binstr
+
+        each (split:(pBits, 512), _, c) {
+            words := split:(c, 32)
+            w := alloc:(80)
+
+            n := 0
+            while (n < 16) {
+                curval := map:(split:(words::(n), 1), fn(_, v) return (int -> v))
+                w::(n) = bitutil::frombits:(curval)
+                n++
+            }
+            while (n < 80) {
+                w::(n) = sha::ROTL:(w::(n - 3) ^ w::(n - 8) ^ w::(n - 14) ^ w::(n - 16), 1)
+                n++
+            }
+
+            a := clone:(H::0)
+            b := clone:(H::1)
+            c := clone:(H::2)
+            d := clone:(H::3)
+            e := clone:(H::4)
+
+            ;main loop
+            i := 0
+            while (i < 80) {
+                var val
+                var k ;predefined by the sha standard
+
+                if (i <= 19) {
+                    val = sha::Ch:(b, c, d)
+                    k = 0
+                } elif (i <= 39) {
+                    val = sha::Parity:(b, c, d)
+                    k = 1
+                } elif (i <= 59) {
+                    val = sha::Maj:(b, c, d)
+                    k = 2
+                } else {
+                    val = sha::Parity:(b, c, d)
+                    k = 3
+                }
+
+                T := (sha::ROTL:(a, 5) + val + e + K::(k) + w::(i)) & 4294967295
+                e = clone:(d)
+                d = clone:(c)
+                c = sha::ROTL:(b, 30)
+                b = clone:(a)
+                a = clone:(T)
+
+                i++
+            }
+
+            H::0 = (H::0 + a) & 4294967295
+            H::1 = (H::1 + b) & 4294967295
+            H::2 = (H::2 + c) & 4294967295
+            H::3 = (H::3 + d) & 4294967295
+            H::4 = (H::4 + e) & 4294967295
+        }
+
+        return clone:(H) ;return the H array
+    }
+}
