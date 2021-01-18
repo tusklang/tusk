@@ -20,4 +20,5 @@ var ErrCodes = map[string]int{
 	"DATANOTRECV":       15, //data not recieved
 	"SOCKCANNOTCONNECT": 16, //socket cannot be connected
 	"SOCKCANNOTWRITE":   17, //socket cannot be written to
+	"FILENOTFOUND":      18, //file does not exist
 }
