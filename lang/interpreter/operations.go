@@ -489,7 +489,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		arr := val1.(TuskArray)
 
 		if !arr.Exists(idx) {
-			native.TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(arr.Length, 10), line, file, stacktrace, native.ErrCodes["IOB"])
+			native.TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(arr.Length(), 10), line, file, stacktrace, native.ErrCodes["IOB"])
 		}
 
 		return arr.At(idx), nil, ""
@@ -500,7 +500,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		str := val1.(TuskString)
 
 		if !str.Exists(idx) {
-			return nil, native.TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(str.Length, 10), line, file, stacktrace, native.ErrCodes["IOB"]), ""
+			return nil, native.TuskPanic("Index "+strconv.FormatInt(idx, 10)+" out of range with length "+strconv.FormatUint(str.Length(), 10), line, file, stacktrace, native.ErrCodes["IOB"]), ""
 		}
 
 		var tusktype TuskType = *str.At(idx)
@@ -531,7 +531,7 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	"string + string": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		//alloc the space
-		var space = make([]rune, val1.(TuskString).Length+val2.(TuskString).Length)
+		var space = make([]rune, val1.(TuskString).Length()+val2.(TuskString).Length())
 
 		var i uint
 		var o uint
@@ -539,11 +539,11 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 		val1l := val1.(TuskString).ToRuneList()
 		val12 := val2.(TuskString).ToRuneList()
 
-		for ; uint64(i) < val1.(TuskString).Length; i++ {
+		for ; uint64(i) < val1.(TuskString).Length(); i++ {
 			space[i] = val1l[i]
 		}
 
-		for ; uint64(o) < val2.(TuskString).Length; i, o = i+1, o+1 {
+		for ; uint64(o) < val2.(TuskString).Length(); i, o = i+1, o+1 {
 			space[i] = val12[o]
 		}
 
@@ -555,13 +555,13 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	"string + rune": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
 		//alloc the space
-		var space = make([]rune, val1.(TuskString).Length+1)
+		var space = make([]rune, val1.(TuskString).Length()+1)
 
 		var i uint
 
 		val1l := val1.(TuskString).ToRuneList()
 
-		for ; uint64(i) < val1.(TuskString).Length; i++ {
+		for ; uint64(i) < val1.(TuskString).Length(); i++ {
 			space[i] = val1l[i]
 		}
 
@@ -579,7 +579,11 @@ var Operations = map[string]func(val1, val2 TuskType, instance *Instance, stackt
 	},
 	"cproc : array": func(val1, val2 TuskType, instance *Instance, stacktrace []string, line uint64, file string, stacksize uint, namespace string) (*TuskType, *TuskError, string) {
 
-		args := val2.(TuskArray).Array
+		args := make([]*TuskType, val2.(TuskArray).Length())
+		val2.(TuskArray).Range(func(k, v *TuskType) (Returner, *TuskError) {
+			args[(*k).(TuskInt).ToGoType()] = v
+			return Returner{}, nil
+		})
 		ret, e := val1.(native.CProc).Call(args)
 
 		if e != nil {

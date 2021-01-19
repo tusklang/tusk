@@ -67,7 +67,7 @@ func makectype(val *TuskType) (unsafe.Pointer, error) {
 		cstr := C.CString((*val).(TuskString).ToGoType())
 		return unsafe.Pointer(cstr), nil
 	case TuskArray:
-		carray := C.makecarray(C.long((*val).(TuskArray).Length))
+		carray := C.makecarray(C.long((*val).(TuskArray).Length()))
 
 		var err error
 
@@ -235,11 +235,11 @@ var NativeFuncs = map[string]TuskGoFunc{
 
 			switch (*args[0]).(type) {
 			case TuskString:
-				length = (*args[0]).(TuskString).Length
+				length = (*args[0]).(TuskString).Length()
 			case TuskArray:
-				length = (*args[0]).(TuskArray).Length
+				length = (*args[0]).(TuskArray).Length()
 			case TuskHash:
-				length = (*args[0]).(TuskHash).Length
+				length = (*args[0]).(TuskHash).Length()
 			}
 
 			var tusklen TuskInt

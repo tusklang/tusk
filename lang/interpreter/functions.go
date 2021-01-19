@@ -17,7 +17,7 @@ func fillFuncInstance(fn *TuskFunc, args TuskArray, parent *Instance) *Overload 
 	}
 
 	for _, v := range fn.Overloads {
-		if uint64(len(v.Params)) != args.Length {
+		if uint64(len(v.Params)) != args.Length() {
 			continue
 		}
 
@@ -28,9 +28,15 @@ func fillFuncInstance(fn *TuskFunc, args TuskArray, parent *Instance) *Overload 
 		}
 
 		{
-			for k, vv := range args.Array {
+
+			args.Range(func(_k, vv *TuskType) (Returner, *TuskError) {
+
+				k := (*_k).(TuskInt).ToGoType()
+
 				fn.Instance.Allocate(v.Params[k], vv)
-			}
+				return Returner{}, nil
+			})
+
 			return &v
 		}
 
@@ -109,7 +115,18 @@ func funcinit() { //initialize the operations that require the use of the interp
 		}
 
 		if sigmatch { //if a signature matches
-			v, e := gfn.Function(arr.Array, stacktrace, line, file, instance)
+
+			var passargs = make([]*TuskType, arr.Length())
+
+			arr.Range(func(k, v *TuskType) (Returner, *TuskError) {
+
+				kint := (*k).(TuskInt).ToGoType()
+				passargs[kint] = v
+
+				return Returner{}, nil
+			})
+
+			v, e := gfn.Function(passargs, stacktrace, line, file, instance)
 			return v, e, ""
 		}
 

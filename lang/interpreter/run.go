@@ -25,23 +25,20 @@ func FillIns(instance *Instance, compiledVars map[string]*TuskType, dirname stri
 		Value: &dirnameTuskType,
 	}
 
-	var argv = make([]*TuskType, len(args))
+	var argv TuskArray
 
-	for k, v := range args {
-		var kastr TuskString
-		kastr.FromGoType(v)
-		var tusktype TuskType = kastr
-		argv[k] = &tusktype
+	for _, v := range args {
+		var tuskstr TuskString
+		tuskstr.FromGoType(v)
+		var tusktype TuskType = tuskstr
+		argv.PushBack(tusktype)
 	}
 
-	var arr TuskType = TuskArray{
-		Array:  argv,
-		Length: uint64(len(args)),
-	}
+	var argvTuskType TuskType = argv
 
 	globals["argv"] = &TuskVar{
 		Name:  "argv",
-		Value: &arr,
+		Value: &argvTuskType,
 	}
 
 	for k, v := range compiledVars {

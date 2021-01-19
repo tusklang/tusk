@@ -2,7 +2,7 @@ package types
 
 type TuskString struct {
 	runel  []rune
-	Length uint64
+	length uint64
 }
 
 func (str *TuskString) FromGoType(val string) {
@@ -14,12 +14,12 @@ func (str *TuskString) FromGoType(val string) {
 	}
 
 	str.runel = arr
-	str.Length = uint64(len(val))
+	str.length = uint64(len(val))
 }
 
 func (str *TuskString) FromRuneList(val []rune) {
 	str.runel = val
-	str.Length = uint64(len(val))
+	str.length = uint64(len(val))
 }
 
 func (str TuskString) ToGoType() string {
@@ -42,12 +42,12 @@ func (str TuskString) ToRuneList() []rune {
 }
 
 func (str TuskString) Exists(idx int64) bool {
-	return str.Length != 0 && uint64(idx) < str.Length && idx >= 0
+	return str.length != 0 && uint64(idx) < str.length && idx >= 0
 }
 
 func (str TuskString) At(idx int64) *TuskRune {
 
-	if idx < 0 || uint64(idx) >= str.Length {
+	if idx < 0 || uint64(idx) >= str.length {
 		return nil
 	}
 
@@ -60,6 +60,10 @@ func (str TuskString) At(idx int64) *TuskRune {
 
 func (str TuskString) Format() string {
 	return str.ToGoType()
+}
+
+func (str TuskString) Length() uint64 {
+	return str.length
 }
 
 func (str TuskString) Type() string {

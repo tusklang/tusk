@@ -4,28 +4,34 @@ import (
 	"strings"
 )
 
+//TuskHash represents a hash in tusk
 type TuskHash struct {
-	Hash   map[string]*TuskType
+	hash   map[string]*TuskType
 	keys   []*TuskType
-	Length uint64
+	length uint64
 }
 
+//At gets the value of a tusk hash based on a tusk type
 func (hash TuskHash) At(idx *TuskType) *TuskType {
 
 	k := (*idx).Format()
-	v, exists := hash.Hash[k]
+	v, exists := hash.hash[k]
 
 	if !exists {
 		var undef TuskType = TuskUndef{}
 		var pundef *TuskType = &undef
-		hash.Hash[k] = pundef
-		return hash.Hash[k]
+		hash.hash[k] = pundef
+		return hash.hash[k]
 	}
 
 	return v
 }
 
-//AtStr gets the value of a Tusk Hash based on a string
+func (hash TuskHash) Length() uint64 {
+	return hash.length
+}
+
+//AtStr gets the value of a tusk hash based on a string
 func (hash TuskHash) AtStr(idx string) *TuskType {
 	var tuskstr TuskString
 	tuskstr.FromGoType(idx)
@@ -33,24 +39,26 @@ func (hash TuskHash) AtStr(idx string) *TuskType {
 	return hash.At(&tusktype)
 }
 
+//Set sets a value of a hash given a key and a value
 func (hash *TuskHash) Set(idx *TuskType, val TuskType) {
 
-	if hash.Hash == nil {
-		hash.Hash = make(map[string]*TuskType)
+	if hash.hash == nil {
+		hash.hash = make(map[string]*TuskType)
 	}
 
-	v, exists := hash.Hash[(*idx).Format()]
+	v, exists := hash.hash[(*idx).Format()]
 
 	if !exists {
 		hash.keys = append(hash.keys, idx)
-		hash.Length++
-		hash.Hash[(*idx).Format()] = &val
+		hash.length++
+		hash.hash[(*idx).Format()] = &val
 		return
 	}
 
 	*v = val
 }
 
+//SetStr sets a value of a hash given a key and a value, where the key is given as a go string
 func (hash *TuskHash) SetStr(idx string, val TuskType) {
 	var tuskstr TuskString
 	tuskstr.FromGoType(idx)
@@ -58,8 +66,9 @@ func (hash *TuskHash) SetStr(idx string, val TuskType) {
 	hash.Set(&tusktype, val)
 }
 
+//Exists determines if a key exists in a hash
 func (hash TuskHash) Exists(idx *TuskType) bool {
-	_, exists := hash.Hash[(*idx).Format()]
+	_, exists := hash.hash[(*idx).Format()]
 	return exists
 }
 
@@ -77,17 +86,18 @@ func formathash(pformatted *string) {
 	}
 }
 
+//Format formats a hash
 func (hash TuskHash) Format() string {
 
 	return func() string {
 
-		if len(hash.Hash) == 0 {
+		if len(hash.hash) == 0 {
 			return "[::]"
 		}
 
 		var formatted = "[:"
 
-		for k, v := range hash.Hash {
+		for k, v := range hash.hash {
 			kFormatted := k
 			vFormatted := (*v).Format()
 
@@ -104,18 +114,25 @@ func (hash TuskHash) Format() string {
 	}() //staring with 2
 }
 
+//Type returns the type of a value
 func (hash TuskHash) Type() string {
 	return "hash"
 }
 
+//TypeOf returns the type of a value's object
 func (hash TuskHash) TypeOf() string {
 	return hash.Type()
 }
 
-func (hash TuskHash) Deallocate() {}
+//Deallocate deallocates any hanging memory in a hash
+func (hash TuskHash) Deallocate() {
+	for _, v := range hash.hash {
+		(*v).Deallocate()
+	}
+}
 
 func (hash TuskHash) Clone() *TuskType {
-	var h = hash.Hash
+	var h = hash.hash
 
 	//clone it into `cloned`
 	var cloned = make(map[string]*TuskType)
@@ -125,9 +142,9 @@ func (hash TuskHash) Clone() *TuskType {
 	////////////////////////
 
 	var tusktype TuskType = TuskHash{
-		Hash:   cloned,
+		hash:   cloned,
 		keys:   hash.keys,
-		Length: hash.Length,
+		length: hash.length,
 	}
 
 	return &tusktype
@@ -138,7 +155,7 @@ func (hash TuskHash) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError))
 
 	for _, keyi := range hash.keys {
 
-		k, v := keyi, hash.Hash[(*keyi).Format()]
+		k, v := keyi, hash.hash[(*keyi).Format()]
 
 		ret, e := fn(k, v)
 

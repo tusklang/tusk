@@ -191,31 +191,28 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 		//arrays, hashes are a bit different
 		case "r-array":
 
-			var nArr = make([]*TuskType, len(v.Array))
+			var nArr TuskArray
 
-			for k, i := range v.Array {
+			for _, i := range v.Array {
 				tmp, e := Interpreter(ins, i, stacktrace, stacksize+1, true, namespace)
 				if e != nil {
 					return Returner{}, e
 				}
-				nArr[k] = tmp.Exp
+				nArr.PushBack(*tmp.Exp)
 			}
 
-			var kaType TuskType = TuskArray{
-				Array:  nArr,
-				Length: uint64(len(v.Array)),
-			}
+			var tusktype TuskType = nArr
 
 			if expReturn {
 				return Returner{
 					Type: "expression",
-					Exp:  &kaType,
+					Exp:  &tusktype,
 				}, nil
 			}
 
 		case "r-hash":
 
-			var nHash = make(map[string]*TuskType)
+			var nHash TuskHash
 
 			for _, i := range v.Hash {
 
@@ -231,18 +228,15 @@ func Interpreter(ins *Instance, actions []Action, stacktrace []string, stacksize
 					return Returner{}, e
 				}
 
-				nHash[(*keyi.Exp).Format()] = vali.Exp
+				nHash.Set(keyi.Exp, *vali.Exp)
 			}
 
-			var kaType TuskType = TuskHash{
-				Hash:   nHash,
-				Length: uint64(len(v.Hash)),
-			}
+			var tusktype TuskType = nHash
 
 			if expReturn {
 				return Returner{
 					Type: "expression",
-					Exp:  &kaType,
+					Exp:  &tusktype,
 				}, nil
 			}
 
