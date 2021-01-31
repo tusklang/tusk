@@ -35,7 +35,7 @@ func (ogf TuskGoFunc) Range(fn func(val1, val2 *TuskType) (Returner, *TuskError)
 func init() {
 
 	//init the simple native values first
-	for k, v := range NativeFuncs {
+	for k, v := range nativeFuncs {
 		var tmp TuskType = v
 		Native[k] = &tmp
 	}

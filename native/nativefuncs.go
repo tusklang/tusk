@@ -97,7 +97,6 @@ func fromctype(val unsafe.Pointer, tuskarg *TuskType) TuskType {
 		var tusknum TuskInt
 		tusknum.FromGoType(int64(cnum))
 		return tusknum
-		return tusknum
 	case TuskString:
 		ccstr := (*C.char)(val)
 		var tuskstr TuskString
@@ -118,8 +117,8 @@ func fromctype(val unsafe.Pointer, tuskarg *TuskType) TuskType {
 	return nil
 }
 
-//NativeFuncs are the native functions that are relatively simple to implement
-var NativeFuncs = map[string]TuskGoFunc{
+//nativeFuncs are the native functions that are relatively simple to implement
+var nativeFuncs = map[string]TuskGoFunc{
 	"log": TuskGoFunc{
 		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			fmt.Print(tusksprint(args, stacktrace, line, file, instance))
