@@ -1,5 +1,7 @@
 package types
 
+import "errors"
+
 //TuskArray represents an array in tusk
 type TuskArray struct {
 	array  []*TuskType
@@ -41,16 +43,33 @@ func (arr *TuskArray) PushFront(val TuskType) {
 	arr.array = append([]*TuskType{&val}, arr.array...)
 }
 
+//thank you, KryptoCrash (Whimpers), for catching this
+//you cannot pop from a 0 length array
+
+var popErr = errors.New("Cannot pop from a zero length array")
+
 //PopBack pops an item from the end of an array
-func (arr *TuskArray) PopBack(val TuskType) {
+func (arr *TuskArray) PopBack() error {
+
+	if arr.length == 0 {
+		return popErr
+	}
+
 	arr.length--
 	arr.array = arr.array[:arr.length]
+	return nil
 }
 
 //PopFront pops an item from the start of an array
-func (arr *TuskArray) PopFront(val TuskType) {
+func (arr *TuskArray) PopFront() error {
+
+	if arr.length == 0 {
+		return popErr
+	}
+
 	arr.length--
 	arr.array = arr.array[1:]
+	return nil
 }
 
 //Format formats the array as a string

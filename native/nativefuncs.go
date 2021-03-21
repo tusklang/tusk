@@ -202,7 +202,7 @@ var nativeFuncs = map[string]TuskGoFunc{
 		},
 		Signatures: [][]string{[]string{"any"}},
 	},
-	"append": TuskGoFunc{
+	"pushback": TuskGoFunc{
 		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			a := (*args[0]).(TuskArray)
 			a.PushBack(*args[1])
@@ -211,7 +211,7 @@ var nativeFuncs = map[string]TuskGoFunc{
 		},
 		Signatures: [][]string{[]string{"array", "any"}},
 	},
-	"prepend": TuskGoFunc{
+	"pushfront": TuskGoFunc{
 		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
 			a := (*args[0]).(TuskArray)
 			a.PushFront(*args[1])
@@ -219,6 +219,34 @@ var nativeFuncs = map[string]TuskGoFunc{
 			return &tusktype, nil
 		},
 		Signatures: [][]string{[]string{"array", "any"}},
+	},
+	"popback": TuskGoFunc{
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
+			a := (*args[0]).(TuskArray)
+			e := a.PopBack()
+
+			if e != nil {
+				return nil, TuskPanic(e.Error(), line, file, stacktrace, ErrCodes["IOB"])
+			}
+
+			var tusktype TuskType = a
+			return &tusktype, nil
+		},
+		Signatures: [][]string{[]string{"array"}},
+	},
+	"popfront": TuskGoFunc{
+		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
+			a := (*args[0]).(TuskArray)
+			e := a.PopFront()
+
+			if e != nil {
+				return nil, TuskPanic(e.Error(), line, file, stacktrace, ErrCodes["IOB"])
+			}
+
+			var tusktype TuskType = a
+			return &tusktype, nil
+		},
+		Signatures: [][]string{[]string{"array"}},
 	},
 	"make": TuskGoFunc{
 		Function: func(args []*TuskType, stacktrace []string, line uint64, file string, instance *Instance) (*TuskType, *TuskError) {
