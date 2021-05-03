@@ -1,7 +1,2 @@
-*.out
 *.exe
-*.o
-*.dll
-*.lib
-*.so
-*.a
+*.bin

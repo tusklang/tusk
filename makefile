@@ -1,9 +1,9 @@
 ifeq ($(OS),Windows_NT)
-	BINARY = tuskstart.exe
+	BINARY = tusk.exe
 	CLEAN_CMD = del
 else
 	SET_GOPATH = GOPATH=$(GOPATH)
-	BINARY = tuskstart.out
+	BINARY = tusk.bin
 	CLEAN_CMD = rm -f
 endif
 
@@ -13,12 +13,13 @@ GOPATH = $(CURDIR)/../../../../
 default: all
 
 .PHONY: all
-all: language
+all: pkgs
+	$(SET_GOPATH) go build -o $(BINARY) entry.go
 
 .PHONY: clean
 clean:
 	-$(CLEAN_CMD) $(BINARY)
 
-.PHONY: language
-language:
-	$(SET_GOPATH) go build -a -o $(BINARY) tuskstart.go
+
+pkgs:
+	go get github.com/dlclark/regexp2
