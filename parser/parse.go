@@ -1,11 +1,12 @@
 package parser
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/tusklang/tusk/parser/tokenizer"
+	"github.com/tusklang/tusk/tokenizer"
 )
 
 //Parse returns the abstract syntax tree of a Tusk project
@@ -28,5 +29,13 @@ func Parse(dir string) {
 	}
 
 	tokens := tokenizer.Tokenizer(pkgfull)
-	fmt.Println(tokens)
+	groups := grouper(tokens)
+	astv := genAST(groups)
+
+	if asterr != nil {
+		//error
+	}
+
+	j, _ := json.MarshalIndent(astv, "", "  ")
+	fmt.Println(string(j))
 }
