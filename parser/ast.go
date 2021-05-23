@@ -97,18 +97,12 @@ func convertOperation(op *operation) []*astNode {
 			},
 		}
 
+	//these are special operators, but follows the same pattern as the normal operators
 	case "BODY-OP":
-
-		return []*astNode{
-			{
-				Name:  op.Item.Token.Name,
-				Left:  convertOperation(op.Left),
-				Right: convertOperation(op.Right),
-			},
-		}
+		fallthrough
 
 	case "FUNCTION-CALL":
-		fallthrough //special operator, but follows the same pattern as the normal operators
+		fallthrough
 
 	///////////////////
 

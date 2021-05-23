@@ -65,7 +65,9 @@ func parseOperations(items []gItem) (*operation, error) {
 			";": defaultOperationHandle,
 		},
 		{
-			"STATEMENT-OP": defaultOperationHandle,
+			"STATEMENT-OP":  defaultOperationHandle,
+			"BODY-OP":       defaultOperationHandle,
+			"FUNCTION-CALL": defaultOperationHandle,
 		},
 		{
 			"+": defaultOperationHandle,
