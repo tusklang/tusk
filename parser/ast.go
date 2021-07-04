@@ -107,6 +107,8 @@ func convertOperation(op *operation) []*astNode {
 	///////////////////
 
 	//operators
+	case "=":
+		fallthrough
 	case "+":
 		fallthrough
 	case "-":
@@ -132,7 +134,6 @@ func convertOperation(op *operation) []*astNode {
 		var (
 			reFloat = regexp2.MustCompile(tokenizer.FloatPat, 0) //float regex
 			reInt   = regexp2.MustCompile(tokenizer.IntPat, 0)   //int regex
-			reVar   = regexp2.MustCompile(tokenizer.VarPat, 0)   //var regex
 		)
 
 		var tname string
@@ -141,7 +142,7 @@ func convertOperation(op *operation) []*astNode {
 			tname = "float"
 		} else if b, _ := reInt.MatchString(op.Item.Token.Name); b {
 			tname = "integer"
-		} else if b, _ := reVar.MatchString(op.Item.Token.Name); b {
+		} else if tokenizer.IsVariable(op.Item.Token) { //test if its a variable
 			tname = "variable"
 		}
 
@@ -158,8 +159,6 @@ func convertOperation(op *operation) []*astNode {
 
 	}
 
-	//error
-	return nil
 }
 
 func genAST(groups []gItem) []*astNode {

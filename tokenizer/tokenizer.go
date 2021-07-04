@@ -11,6 +11,7 @@ func Tokenizer(data string) (tokens []Token) {
 	var row, col = 1, 1 //current row and column in the file
 
 	for c < len(data) {
+
 		for _, v := range tokenlist {
 
 			//find all matches (we have lookbehinds so we can't just chop off the string's first half and search after that)

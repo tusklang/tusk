@@ -1,9 +1,7 @@
 package tokenizer
 
-import "fmt"
-
 var statements = []string{"fn", "return", "var", "if", "else", "for", "while"}
-var bodykeys = []string{"fn", "if", "for", "while"}
+var bodykeys = []string{"if", "fn", "for", "while"}
 
 func addSpecialOps(tokens []Token) []Token {
 
@@ -27,7 +25,7 @@ func addSpecialOps(tokens []Token) []Token {
 
 		//body operation is inserted before curly brace blocks
 		//but only if the curly brace block is for a special block
-		//e.g. if () body-op {}, fn x() body-op {}, for () body-op {}
+		//e.g. if () body-op {}, fn () body-op {}, for () body-op {}
 		for _, vv := range bodykeys {
 			if tokens[i].Name == vv {
 
@@ -59,9 +57,28 @@ func addSpecialOps(tokens []Token) []Token {
 			}
 		}
 
-	}
+		//tusk needs an operator in between a function and the arguments
+		//f() -> f FUNCTION-CALL ()
+		//but we also need to account for one-off calls
+		/*
+			fn() {
 
-	fmt.Println(fin)
+			}() ->
+			fn() {
+
+			} FUNCTION-CALL ()
+		*/
+
+		//case 1
+		if IsVariable(tokens[i]) && (i+1 < len(tokens) && tokens[i+1].Name == "(") {
+			fin = append(fin, Token{
+				Name: "FUNCTION-CALL",
+				Row:  tokens[i].Row,
+				Col:  tokens[i].Col,
+			})
+		}
+
+	}
 
 	return fin
 }

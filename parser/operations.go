@@ -65,15 +65,23 @@ func parseOperations(items []gItem) (*operation, error) {
 			";": defaultOperationHandle,
 		},
 		{
+			"=": defaultOperationHandle,
+		},
+		{
 			"STATEMENT-OP":  defaultOperationHandle,
 			"BODY-OP":       defaultOperationHandle,
 			"FUNCTION-CALL": defaultOperationHandle,
 		},
 		{
 			"+": defaultOperationHandle,
+			"-": defaultOperationHandle,
 		},
 		{
 			"*": defaultOperationHandle,
+			"/": defaultOperationHandle,
+		},
+		{
+			"**": defaultOperationHandle,
 		},
 		//lower on this list means greater precedence
 	}

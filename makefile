@@ -20,6 +20,10 @@ all: pkgs
 clean:
 	-$(CLEAN_CMD) $(BINARY)
 
-
 pkgs:
 	go get github.com/dlclark/regexp2
+
+prod:
+
+test: all
+	./$(BINARY) -wd=./test/
