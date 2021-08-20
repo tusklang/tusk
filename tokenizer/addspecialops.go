@@ -15,7 +15,7 @@ func addSpecialOps(tokens []Token) []Token {
 		for _, vv := range statements {
 			if tokens[i].Name == vv {
 				fin = append(fin, Token{
-					Name: "STATEMENT-OP",
+					Type: "STATEMENT-OP",
 					Row:  tokens[i].Row,
 					Col:  tokens[i].Col,
 				})
@@ -48,7 +48,7 @@ func addSpecialOps(tokens []Token) []Token {
 				}
 
 				fin = append(fin, Token{
-					Name: "BODY-OP",
+					Type: "BODY-OP",
 					Row:  tokens[i-1].Row,
 					Col:  tokens[i-1].Col,
 				})
@@ -70,9 +70,9 @@ func addSpecialOps(tokens []Token) []Token {
 		*/
 
 		//case 1
-		if IsVariable(tokens[i]) && (i+1 < len(tokens) && tokens[i+1].Name == "(") {
+		if tokens[i].Type == "varname" && (i+1 < len(tokens) && tokens[i+1].Name == "(") {
 			fin = append(fin, Token{
-				Name: "FUNCTION-CALL",
+				Type: "FUNCTION-CALL",
 				Row:  tokens[i].Row,
 				Col:  tokens[i].Col,
 			})

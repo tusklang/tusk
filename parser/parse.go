@@ -32,6 +32,7 @@ func Parse(dir string) {
 	groups := grouper(tokens)
 	astv := genAST(groups)
 
+	//error variable in ast.go
 	if asterr != nil {
 		//error
 	}

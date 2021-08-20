@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"github.com/dlclark/regexp2"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -31,9 +30,9 @@ func nonZero(m map[string]int) string {
 
 func detectBrace(v tokenizer.Token, braceAmt *map[string]int) {
 	for k := range *braceAmt {
-		if v.Name == k {
+		if v.Type == k {
 			(*braceAmt)[k]++
-		} else if v.Name == braceMatcher[k] {
+		} else if v.Type == braceMatcher[k] {
 			(*braceAmt)[k]--
 		}
 
@@ -57,7 +56,7 @@ func grouper(lex []tokenizer.Token) []gItem {
 	for i := 0; i < len(lex); i++ {
 
 		//if its a whitespace token, skip it
-		if b, _ := regexp2.MustCompile("^\\s+$", 0).MatchString(lex[i].Name); b {
+		if lex[i].Type == "whitespace" {
 			continue
 		}
 

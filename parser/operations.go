@@ -3,7 +3,7 @@ package parser
 //used to group operations into a tree
 /*
 fn a() {
-	log("hello")
+	print("hello")
 }
 
 becomes:
@@ -62,7 +62,7 @@ func parseOperations(items []gItem) (*operation, error) {
 
 	var operations = []map[string]func(exp []gItem, index int) (*operation, error){
 		{
-			";": defaultOperationHandle,
+			"terminator": defaultOperationHandle,
 		},
 		{
 			"=": defaultOperationHandle,
@@ -71,6 +71,9 @@ func parseOperations(items []gItem) (*operation, error) {
 			"STATEMENT-OP":  defaultOperationHandle,
 			"BODY-OP":       defaultOperationHandle,
 			"FUNCTION-CALL": defaultOperationHandle,
+		},
+		{
+			":": defaultOperationHandle,
 		},
 		{
 			"+": defaultOperationHandle,
@@ -93,7 +96,7 @@ func parseOperations(items []gItem) (*operation, error) {
 		for i := 0; i < len(items); i++ {
 
 			for k, vv := range v {
-				if items[i].Token.Name == k {
+				if items[i].Token.Type == k {
 					//current operation in loop is the operation needed
 					return vv(items, i)
 				}

@@ -16,7 +16,7 @@ func Tokenizer(data string) (tokens []Token) {
 
 			//find all matches (we have lookbehinds so we can't just chop off the string's first half and search after that)
 
-			var vreg = regexp2.MustCompile(v, 0)
+			var vreg = regexp2.MustCompile(v.regexp, 0)
 			m1, _ := vreg.FindStringMatch(data)
 			var matches = []*regexp2.Match{m1}
 
@@ -40,6 +40,7 @@ func Tokenizer(data string) (tokens []Token) {
 
 				tokens = append(tokens, Token{
 					Name: matched,
+					Type: v.tokentype,
 					Row:  row,
 					Col:  col,
 				})

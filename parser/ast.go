@@ -1,9 +1,6 @@
 package parser
 
-import (
-	"github.com/dlclark/regexp2"
-	"github.com/tusklang/tusk/tokenizer"
-)
+import "fmt"
 
 type astNode struct {
 	Name  string
@@ -15,9 +12,9 @@ var asterr error
 
 func convertOperation(op *operation) []*astNode {
 
-	switch op.Item.Token.Name {
+	switch op.Item.Token.Type {
 
-	case ";":
+	case "terminator":
 
 		l, r := convertOperation(op.Left), convertOperation(op.Right)
 
@@ -41,7 +38,7 @@ func convertOperation(op *operation) []*astNode {
 	case "while":
 		return []*astNode{
 			{
-				Name: op.Item.Token.Name,
+				Name: op.Item.Token.Type,
 			},
 		}
 	//////////
@@ -58,7 +55,7 @@ func convertOperation(op *operation) []*astNode {
 
 		return []*astNode{
 			{
-				Name: op.Item.Token.Name,
+				Name: op.Item.Token.Type,
 				Left: ast,
 			},
 		}
@@ -69,6 +66,8 @@ func convertOperation(op *operation) []*astNode {
 
 		//get which statement it is
 		stat := convertOperation(op.Left)
+
+		fmt.Println(op.Left)
 
 		if len(stat) != 1 {
 			//error
@@ -107,6 +106,8 @@ func convertOperation(op *operation) []*astNode {
 	///////////////////
 
 	//operators
+	case ":":
+		fallthrough
 	case "=":
 		fallthrough
 	case "+":
@@ -121,7 +122,7 @@ func convertOperation(op *operation) []*astNode {
 
 		return []*astNode{
 			{
-				Name:  op.Item.Token.Name,
+				Name:  op.Item.Token.Type,
 				Left:  convertOperation(op.Left),
 				Right: convertOperation(op.Right),
 			},
@@ -129,22 +130,13 @@ func convertOperation(op *operation) []*astNode {
 
 	///////////
 
-	default:
+	case "float":
+		fallthrough
+	case "int":
+		fallthrough
+	case "varname":
 
-		var (
-			reFloat = regexp2.MustCompile(tokenizer.FloatPat, 0) //float regex
-			reInt   = regexp2.MustCompile(tokenizer.IntPat, 0)   //int regex
-		)
-
-		var tname string
-
-		if b, _ := reFloat.MatchString(op.Item.Token.Name); b {
-			tname = "float"
-		} else if b, _ := reInt.MatchString(op.Item.Token.Name); b {
-			tname = "integer"
-		} else if tokenizer.IsVariable(op.Item.Token) { //test if its a variable
-			tname = "variable"
-		}
+		var tname string = op.Item.Token.Type
 
 		return []*astNode{ //return the final representation of the value
 			{
@@ -159,6 +151,7 @@ func convertOperation(op *operation) []*astNode {
 
 	}
 
+	return nil
 }
 
 func genAST(groups []gItem) []*astNode {

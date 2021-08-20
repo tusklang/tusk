@@ -2,6 +2,7 @@ package tokenizer
 
 type Token struct {
 	Name string
-	Row int
-	Col int
+	Type string
+	Row  int
+	Col  int
 }
