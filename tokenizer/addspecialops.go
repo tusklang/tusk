@@ -13,7 +13,7 @@ func addSpecialOps(tokens []Token) []Token {
 		//check if its a statements keyword
 		//if so, but the statement operator
 		for _, vv := range statements {
-			if tokens[i].Name == vv {
+			if tokens[i].Type == vv {
 				fin = append(fin, Token{
 					Type: "STATEMENT-OP",
 					Row:  tokens[i].Row,
@@ -23,11 +23,33 @@ func addSpecialOps(tokens []Token) []Token {
 			}
 		}
 
+		var insertedFNOP bool
+
+		//between the fn name and the fn name
+		if tokens[i].Type == "fn" && tokens[i+1].Type == "varname" {
+			fin = append(fin, tokens[i+1], Token{
+				Type: "FN-OP",
+				Row:  tokens[i].Row,
+				Col:  tokens[i].Col,
+			})
+			insertedFNOP = true
+		}
+
 		//body operation is inserted before curly brace blocks
 		//but only if the curly brace block is for a special block
 		//e.g. if () body-op {}, fn () body-op {}, for () body-op {}
 		for _, vv := range bodykeys {
 			if tokens[i].Name == vv {
+
+				//if we inserted a FN-OP before, we need to skip the function name
+				if insertedFNOP {
+					i++
+				}
+
+				if tokens[i+1].Type != "(" {
+					//if the next token is not an opening parenthesis, then it isn't a body op
+					break
+				}
 
 				pCnt := 0
 

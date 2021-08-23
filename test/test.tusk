@@ -1,9 +1,3 @@
-var main = fn() {
-    print(1);
-    return 0;
-};
-
-var abc = fn(a: string) {
-    var b : int = 6;
-    print(b);
+fn main() Helg {
+    var test : int;
 };

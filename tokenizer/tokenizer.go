@@ -59,7 +59,18 @@ func Tokenizer(data string) (tokens []Token) {
 		}
 	}
 
-	tokens = addSpecialOps(tokens)
+	var wsRem []Token
+
+	for _, v := range tokens {
+
+		if v.Type == "whitespace" || v.Type == "newline" {
+			continue
+		}
+
+		wsRem = append(wsRem, v)
+	}
+
+	tokens = addSpecialOps(wsRem)
 
 	return
 }

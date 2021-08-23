@@ -11,7 +11,10 @@ endif
 default: all
 
 .PHONY: all
-all: pkgs
+all: pkgs build
+
+.PHONY: build
+build:
 	go build -o $(BINARY) entry.go
 
 .PHONY: clean
@@ -21,10 +24,11 @@ clean:
 .PHONY: pkgs
 pkgs:
 	go get github.com/dlclark/regexp2
-
+	go get -u github.com/llir/llvm
+	
 .PHONY: prod
 prod: all
 
 .PHONY: test
-test: all
+test: build
 	./$(BINARY) -wd=./test/

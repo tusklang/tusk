@@ -2,10 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
-
-	"github.com/tusklang/tusk/parser"
 )
 
 func main() {
@@ -17,7 +14,4 @@ func main() {
 
 	os.Chdir(*wd)
 
-	fmt.Println(*wd)
-
-	parser.Parse("./")
 }
