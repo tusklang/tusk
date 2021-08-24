@@ -20,8 +20,8 @@ var tokenlist = []TokenItem{
 	{("var(?=\\z|\\s+)"), "var"},                 //var
 	{("if(?=(\\z|\\(|\\{|\\s+))"), "if"},         //if
 	{("else(?=(\\z|\\(|\\{|\\s+))"), "else"},     //else
-	{("for(?=(\\z|\\(|\\{|\\s+))"), "for"},       //for
 	{("while(?=(\\z|\\(|\\{|\\s+))"), "while"},   //while
+	{("pub(?![a-zA-Z$_0-9]*)"), "pub"},           //pub
 	/**********************************/
 
 	/************ braces ************/
@@ -42,25 +42,25 @@ var tokenlist = []TokenItem{
 	/***********************************/
 
 	/************ types ************/
-	{"int64", "dtype"}, //int64 type
-	{"int32", "dtype"}, //int32 type
-	{"int16", "dtype"}, //int16 type
-	{"int8", "dtype"},  //int8 type
-	{"int", "dtype"},   //int type
+	{"int64(?![a-zA-Z$_0-9])", "dtype"}, //int64 type
+	{"int32(?![a-zA-Z$_0-9])", "dtype"}, //int32 type
+	{"int16(?![a-zA-Z$_0-9])", "dtype"}, //int16 type
+	{"int8(?![a-zA-Z$_0-9])", "dtype"},  //int8 type
+	{"int(?![a-zA-Z$_0-9])", "dtype"},   //int type
 
-	{"uint64", "dtype"}, //uint64 type
-	{"uint32", "dtype"}, //uint32 type
-	{"uint16", "dtype"}, //uint16 type
-	{"uint8", "dtype"},  //uint8 type
-	{"uint", "dtype"},   //uint type
+	{"uint64(?![a-zA-Z$_0-9])", "dtype"}, //uint64 type
+	{"uint32(?![a-zA-Z$_0-9])", "dtype"}, //uint32 type
+	{"uint16(?![a-zA-Z$_0-9])", "dtype"}, //uint16 type
+	{"uint8(?![a-zA-Z$_0-9])", "dtype"},  //uint8 type
+	{"uint(?![a-zA-Z$_0-9])", "dtype"},   //uint type
 
-	{"float64", "dtype"}, //float64 type
-	{"float32", "dtype"}, //float32 type
-	{"float", "dtype"},   //float type
+	{"float64(?![a-zA-Z$_0-9])", "dtype"}, //float64 type
+	{"float32(?![a-zA-Z$_0-9])", "dtype"}, //float32 type
+	{"float(?![a-zA-Z$_0-9])", "dtype"},   //float type
 
-	{"bool", "dtype"},   //boolean type
-	{"char", "dtype"},   //char type
-	{"string", "dtype"}, //string type
+	{"bool(?![a-zA-Z$_0-9])", "dtype"},   //boolean type
+	{"char(?![a-zA-Z$_0-9])", "dtype"},   //char type
+	{"string(?![a-zA-Z$_0-9])", "dtype"}, //string type
 	/*******************************/
 
 	/************ misc ************/

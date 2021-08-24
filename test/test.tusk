@@ -1,3 +1,5 @@
-fn main() Helg {
-    var test : int;
-};
+pub fn int helg() {
+    if (1) {
+        log(2)
+    }
+}

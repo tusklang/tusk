@@ -59,6 +59,7 @@ func Tokenizer(data string) (tokens []Token) {
 		}
 	}
 
+	//remove the whitespace tokens
 	var wsRem []Token
 
 	for _, v := range tokens {
@@ -70,7 +71,7 @@ func Tokenizer(data string) (tokens []Token) {
 		wsRem = append(wsRem, v)
 	}
 
-	tokens = addSpecialOps(wsRem)
+	tokens = wsRem
 
 	return
 }
