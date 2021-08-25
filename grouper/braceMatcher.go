@@ -1,9 +1,11 @@
 package grouper
 
-import "github.com/tusklang/tusk/tokenizer"
+import (
+	"github.com/tusklang/tusk/tokenizer"
+)
 
 //util function to match braces and return everything in between
-func braceMatcher(lex []tokenizer.Token, i *int, matchOpen string, matchClose string, removeTopBraces bool) []tokenizer.Token {
+func braceMatcher(lex []tokenizer.Token, i *int, matchOpen string, matchClose string, removeTopBraces bool, stopAt string) []tokenizer.Token {
 
 	var ret []tokenizer.Token
 
@@ -25,13 +27,23 @@ func braceMatcher(lex []tokenizer.Token, i *int, matchOpen string, matchClose st
 		}
 
 		if cnt == 0 {
-			break
+
+			if stopAt == "" || lex[*i].Type == stopAt {
+				break
+			}
+
 		}
 	}
 
 	if removeTopBraces && len(ret) >= 2 {
 		//remove the first and last braces if this option is given
 		ret = ret[1 : len(ret)-1]
+	}
+
+	if stopAt != "" {
+		//remove the last value that we stopped at
+		*i--
+		ret = ret[:len(ret)-1]
 	}
 
 	return ret

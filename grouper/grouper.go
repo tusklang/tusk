@@ -67,16 +67,28 @@ becomes
 }
 */
 
-func Grouper(tokens []tokenizer.Token) []Group {
+//helper function to compare the max group size to return and the current index
+func cmpMaxGroup(i, maxGroup, originalStartPos int) bool {
+	if maxGroup < 0 {
+		return true //continue if -1 is given, -1 means no max
+	}
+
+	return i-originalStartPos < maxGroup //otherwise just return if i is less than the max group size
+}
+
+//function for extra customizability with grouping
+func groupSpecific(tokens []tokenizer.Token, maxGroup int, startAt *int) []Group {
 	var fin []Group
 
-	for i := 0; i < len(tokens); i++ {
+	originalStartPos := *startAt
+
+	for ; *startAt < len(tokens) && cmpMaxGroup(*startAt, maxGroup, originalStartPos); *startAt++ {
 
 		var gr Group //the group to append
 
-		switch tokens[i].Type {
+		switch tokens[*startAt].Type {
 		case "fn":
-			gr = &FunctionHeader{}
+			gr = &Function{}
 		case "{":
 			fallthrough
 		case "(":
@@ -85,14 +97,23 @@ func Grouper(tokens []tokenizer.Token) []Group {
 			gr = &IfStatement{}
 		case "while":
 			gr = &WhileStatement{}
+		case "pub":
+			gr = &Public{}
+		case "var":
+			gr = &VarDecl{}
 		default:
 			gr = &Default{}
 		}
 
-		_ = gr.Parse(tokens, &i)
+		_ = gr.Parse(tokens, startAt)
 
 		fin = append(fin, gr)
 	}
 
 	return fin
+}
+
+func Grouper(tokens []tokenizer.Token) []Group {
+	tmp := 0
+	return groupSpecific(tokens, -1, &tmp)
 }

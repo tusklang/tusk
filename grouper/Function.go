@@ -6,13 +6,14 @@ import (
 	"github.com/tusklang/tusk/tokenizer"
 )
 
-type FunctionHeader struct {
+type Function struct {
 	Name    string  //function name
 	Params  []Group //parameter list
 	RetType []Group //return type
+	Body    []Group //function body
 }
 
-func (fh *FunctionHeader) Parse(lex []tokenizer.Token, i *int) error {
+func (fh *Function) Parse(lex []tokenizer.Token, i *int) error {
 
 	if lex[*i].Type != "fn" {
 		return errors.New("was not given a function")
@@ -27,7 +28,7 @@ func (fh *FunctionHeader) Parse(lex []tokenizer.Token, i *int) error {
 	//so we will skip the return type
 
 	if lex[*i].Type != "varname" {
-		fh.RetType = Grouper(braceMatcher(lex, i, "(", ")", false))
+		fh.RetType = Grouper(braceMatcher(lex, i, "(", ")", false, ""))
 	}
 
 	*i++
@@ -44,7 +45,11 @@ func (fh *FunctionHeader) Parse(lex []tokenizer.Token, i *int) error {
 		return errors.New("functions require a parameter list")
 	}
 
-	fh.Params = Grouper(braceMatcher(lex, i, "(", ")", false))
+	fh.Params = Grouper(braceMatcher(lex, i, "(", ")", false, ""))
+
+	*i++
+
+	fh.Body = Grouper(braceMatcher(lex, i, "{", "}", false, "terminator"))
 
 	return nil
 }

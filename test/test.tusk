@@ -1,5 +1,6 @@
-pub fn int helg() {
-    if (1) {
-        log(2)
-    }
-}
+fn int main() {
+
+};
+fn int a() {
+
+};

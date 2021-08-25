@@ -3,6 +3,8 @@ package grouper
 import "github.com/tusklang/tusk/tokenizer"
 
 type Default struct {
+	Group
+
 	Token tokenizer.Token
 }
 
