@@ -26,7 +26,7 @@ func main() {
 
 	lex := tokenizer.Tokenizer(string(a))
 	groups := grouper.Grouper(lex)
-	ops, _ := operations.OperationsParser(groups)
+	ops, _ := operations.GenerateOperations(groups)
 
 	j, _ := json.MarshalIndent(ops, "", "  ")
 	fmt.Println(string(j))

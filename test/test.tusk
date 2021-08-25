@@ -1,6 +1,2 @@
-fn int main() {
-
-};
-fn int a() {
-
-};
+var a = 1;
+var b = 4;

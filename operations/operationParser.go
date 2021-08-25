@@ -21,11 +21,11 @@ pub fn main
 			-> 4
 */
 
-func OperationsParser(items []grouper.Group) (*Operation, error) {
+func operationsParser(items []grouper.Group) ([]*Operation, error) {
 
-	var opList = []map[string]func(exp []grouper.Group, index int) (*Operation, error){
+	var opList = []map[string]func(exp []grouper.Group, index int) ([]*Operation, error){
 		{
-			"terminator": defaultOperationHandle,
+			";": termOpHandle,
 		},
 		{
 			"=": defaultOperationHandle,
@@ -56,8 +56,8 @@ func OperationsParser(items []grouper.Group) (*Operation, error) {
 			for k, vv := range v {
 
 				switch g := items[i].(type) {
-				case *grouper.Default:
-					if g.Token.Type == k {
+				case *grouper.Operation:
+					if g.Token.Name == k {
 						return vv(items, i)
 					}
 				}
@@ -68,11 +68,21 @@ func OperationsParser(items []grouper.Group) (*Operation, error) {
 
 	if len(items) != 1 {
 		//only occurs when operator doesn't have two sides (!, ++, --, etc)
-		return &Operation{}, nil
+		return nil, nil
 	}
 
 	//it must be a single, since there is no operation
-	return &Operation{
+	return []*Operation{{
 		Group: items[0],
-	}, nil
+	}}, nil
+}
+
+func GenerateOperations(items []grouper.Group) ([]*Operation, error) {
+	p, e := operationsParser(items)
+
+	if e != nil {
+		return nil, e
+	}
+
+	return p, nil
 }

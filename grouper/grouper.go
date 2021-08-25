@@ -101,8 +101,21 @@ func groupSpecific(tokens []tokenizer.Token, maxGroup int, startAt *int) []Group
 			gr = &Public{}
 		case "var":
 			gr = &VarDecl{}
+		case "terminator":
+			fallthrough
+		case "operation":
+			gr = &Operation{}
+		case "float":
+			fallthrough
+		case "int":
+			fallthrough
+		case "varname":
+			gr = &DataValue{}
+		case "dtype":
+			gr = &DataType{}
 		default:
-			gr = &Default{}
+			//error
+			//the token given isn't recognized by tusk
 		}
 
 		_ = gr.Parse(tokens, startAt)
