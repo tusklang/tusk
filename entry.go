@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/grouper"
+	"github.com/tusklang/tusk/operations"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -22,12 +22,11 @@ func main() {
 	os.Chdir(*wd)
 
 	//tmp
-
 	a, _ := ioutil.ReadFile("./test.tusk")
 
 	lex := tokenizer.Tokenizer(string(a))
 	groups := grouper.Grouper(lex)
-	ops, _ := ast.OperationsParser(groups)
+	ops, _ := operations.OperationsParser(groups)
 
 	j, _ := json.MarshalIndent(ops, "", "  ")
 	fmt.Println(string(j))
