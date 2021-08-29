@@ -17,7 +17,7 @@ pub fn main
 			-> 4
 */
 
-func OperationsParser(items []Group) ([]*ASTNode, error) {
+func groupsToAST(items []Group) ([]*ASTNode, error) {
 
 	var opList = []map[string]func(exp []Group, index int) ([]*ASTNode, error){
 		{

@@ -1,5 +1,7 @@
 package ast
 
+//handle the terminator in `groupsToAST`
+
 func termOpHandle(exp []Group, index int) ([]*ASTNode, error) {
 
 	//first use the default handler to get a left and right side

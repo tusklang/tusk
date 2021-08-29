@@ -1,5 +1,7 @@
 package ast
 
+//handler for most operations in `groupsToAST`
+
 func defaultOperationHandle(exp []Group, index int) ([]*ASTNode, error) {
 
 	var (
@@ -8,8 +10,8 @@ func defaultOperationHandle(exp []Group, index int) ([]*ASTNode, error) {
 		second = exp[index+1:]
 
 		//get the first and second half as operations
-		firstop, e1  = OperationsParser(first)
-		secondop, e2 = OperationsParser(second)
+		firstop, e1  = groupsToAST(first)
+		secondop, e2 = groupsToAST(second)
 	)
 
 	//there was an error with the sub-operation parsing

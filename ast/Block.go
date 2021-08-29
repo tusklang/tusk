@@ -24,8 +24,8 @@ func (b *Block) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	b.BlockType = lex[*i].Type
 
-	gcontent := Grouper(braceMatcher(lex, i, lex[*i].Type, bmatches[lex[*i].Type], true, ""))
-	b.Sub, e = OperationsParser(gcontent)
+	gcontent := grouper(braceMatcher(lex, i, lex[*i].Type, bmatches[lex[*i].Type], true, ""))
+	b.Sub, e = groupsToAST(gcontent)
 
 	if e != nil {
 		return e

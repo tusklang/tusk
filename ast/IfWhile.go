@@ -20,8 +20,8 @@ func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) error {
 
 	*i++
 
-	cg := Grouper(braceMatcher(lex, i, "(", ")", false, ""))
-	ca, e := OperationsParser(cg)
+	cg := grouper(braceMatcher(lex, i, "(", ")", false, ""))
+	ca, e := groupsToAST(cg)
 	if e != nil {
 		return e
 	}
@@ -29,8 +29,8 @@ func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) error {
 
 	*i++
 
-	bg := Grouper(braceMatcher(lex, i, "{", "}", false, "terminator"))
-	ba, e := OperationsParser(bg)
+	bg := grouper(braceMatcher(lex, i, "{", "}", false, "terminator"))
+	ba, e := groupsToAST(bg)
 	if e != nil {
 		return e
 	}

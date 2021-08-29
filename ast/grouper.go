@@ -126,7 +126,8 @@ func groupSpecific(tokens []tokenizer.Token, maxGroup int, startAt *int) []Group
 	return fin
 }
 
-func Grouper(tokens []tokenizer.Token) []Group {
+//function used as shorthand for `groupSpecific` when some params aren't required
+func grouper(tokens []tokenizer.Token) []Group {
 	tmp := 0
 	return groupSpecific(tokens, -1, &tmp)
 }
