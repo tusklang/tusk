@@ -1,4 +1,4 @@
-package grouper
+package ast
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 
 type Block struct {
 	BlockType string
-	Sub       []Group
+	Sub       []*ASTNode
 }
 
 var bmatches = map[string]string{
@@ -16,7 +16,7 @@ var bmatches = map[string]string{
 	"(": ")",
 }
 
-func (b *Block) Parse(lex []tokenizer.Token, i *int) error {
+func (b *Block) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	if lex[*i].Type != "(" && lex[*i].Type != "{" {
 		return errors.New("given lex is not a group")
@@ -25,7 +25,11 @@ func (b *Block) Parse(lex []tokenizer.Token, i *int) error {
 	b.BlockType = lex[*i].Type
 
 	gcontent := Grouper(braceMatcher(lex, i, lex[*i].Type, bmatches[lex[*i].Type], true, ""))
-	b.Sub = gcontent
+	b.Sub, e = OperationsParser(gcontent)
+
+	if e != nil {
+		return e
+	}
 
 	return nil
 }

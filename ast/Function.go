@@ -1,4 +1,4 @@
-package grouper
+package ast
 
 import (
 	"errors"
@@ -7,13 +7,13 @@ import (
 )
 
 type Function struct {
-	Name    string  //function name
-	Params  []Group //parameter list
-	RetType []Group //return type
-	Body    []Group //function body
+	Name    string     //function name
+	Params  []*ASTNode //parameter list
+	RetType []*ASTNode //return type
+	Body    []*ASTNode //function body
 }
 
-func (fh *Function) Parse(lex []tokenizer.Token, i *int) error {
+func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	if lex[*i].Type != "fn" {
 		return errors.New("was not given a function")
@@ -28,7 +28,10 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) error {
 	//so we will skip the return type
 
 	if lex[*i].Type != "varname" {
-		fh.RetType = Grouper(braceMatcher(lex, i, "(", ")", false, ""))
+		fh.RetType, e = OperationsParser(Grouper(braceMatcher(lex, i, "(", ")", false, "")))
+		if e != nil {
+			return e
+		}
 	}
 
 	*i++
@@ -45,11 +48,19 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) error {
 		return errors.New("functions require a parameter list")
 	}
 
-	fh.Params = Grouper(braceMatcher(lex, i, "(", ")", false, ""))
+	fh.Params, e = OperationsParser(Grouper(braceMatcher(lex, i, "(", ")", false, "")))
+
+	if e != nil {
+		return e
+	}
 
 	*i++
 
-	fh.Body = Grouper(braceMatcher(lex, i, "{", "}", false, "terminator"))
+	fh.Body, e = OperationsParser(Grouper(braceMatcher(lex, i, "{", "}", false, "terminator")))
+
+	if e != nil {
+		return e
+	}
 
 	return nil
 }

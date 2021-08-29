@@ -1,8 +1,6 @@
-package operations
+package ast
 
-import "github.com/tusklang/tusk/grouper"
-
-func defaultOperationHandle(exp []grouper.Group, index int) ([]*Operation, error) {
+func defaultOperationHandle(exp []Group, index int) ([]*ASTNode, error) {
 
 	var (
 		//get the first and second half of the expression
@@ -10,8 +8,8 @@ func defaultOperationHandle(exp []grouper.Group, index int) ([]*Operation, error
 		second = exp[index+1:]
 
 		//get the first and second half as operations
-		firstop, e1  = operationsParser(first)
-		secondop, e2 = operationsParser(second)
+		firstop, e1  = OperationsParser(first)
+		secondop, e2 = OperationsParser(second)
 	)
 
 	//there was an error with the sub-operation parsing
@@ -22,7 +20,7 @@ func defaultOperationHandle(exp []grouper.Group, index int) ([]*Operation, error
 		return nil, e2
 	}
 
-	return []*Operation{{
+	return []*ASTNode{{
 		Left:  firstop,
 		Right: secondop,
 		Group: exp[index],

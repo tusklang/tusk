@@ -23,7 +23,7 @@ clean:
 
 .PHONY: pkgs
 pkgs:
-	go get github.com/dlclark/regexp2
+	go get -u github.com/dlclark/regexp2
 	go get -u github.com/llir/llvm
 	
 .PHONY: prod
@@ -31,4 +31,4 @@ prod: all
 
 .PHONY: test
 test: build
-	./$(BINARY) -wd=./test/
+	./$(BINARY)

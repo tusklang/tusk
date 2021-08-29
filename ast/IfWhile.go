@@ -1,4 +1,4 @@
-package grouper
+package ast
 
 import (
 	"errors"
@@ -7,8 +7,8 @@ import (
 )
 
 type IfWhile interface {
-	SetCond([]Group)
-	SetBody([]Group)
+	SetCond([]*ASTNode)
+	SetBody([]*ASTNode)
 	Type() string
 }
 
@@ -20,29 +20,39 @@ func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) error {
 
 	*i++
 
-	statement.SetCond(Grouper(braceMatcher(lex, i, "(", ")", false, "")))
+	cg := Grouper(braceMatcher(lex, i, "(", ")", false, ""))
+	ca, e := OperationsParser(cg)
+	if e != nil {
+		return e
+	}
+	statement.SetCond(ca)
 
 	*i++
 
-	statement.SetBody(Grouper(braceMatcher(lex, i, "{", "}", false, "terminator")))
+	bg := Grouper(braceMatcher(lex, i, "{", "}", false, "terminator"))
+	ba, e := OperationsParser(bg)
+	if e != nil {
+		return e
+	}
+	statement.SetBody(ba)
 
 	return nil
 }
 
 type IfStatement struct {
-	Condition []Group
-	Body      []Group
+	Condition []*ASTNode
+	Body      []*ASTNode
 }
 
 func (is *IfStatement) Parse(lex []tokenizer.Token, i *int) error {
 	return ifwhileParse(is, lex, i)
 }
 
-func (is *IfStatement) SetCond(g []Group) {
+func (is *IfStatement) SetCond(g []*ASTNode) {
 	is.Condition = g
 }
 
-func (is *IfStatement) SetBody(g []Group) {
+func (is *IfStatement) SetBody(g []*ASTNode) {
 	is.Body = g
 }
 
@@ -51,19 +61,19 @@ func (is *IfStatement) Type() string {
 }
 
 type WhileStatement struct {
-	Condition []Group
-	Body      []Group
+	Condition []*ASTNode
+	Body      []*ASTNode
 }
 
 func (ws *WhileStatement) Parse(lex []tokenizer.Token, i *int) error {
 	return ifwhileParse(ws, lex, i)
 }
 
-func (ws *WhileStatement) SetCond(g []Group) {
+func (ws *WhileStatement) SetCond(g []*ASTNode) {
 	ws.Condition = g
 }
 
-func (ws *WhileStatement) SetBody(g []Group) {
+func (ws *WhileStatement) SetBody(g []*ASTNode) {
 	ws.Body = g
 }
 

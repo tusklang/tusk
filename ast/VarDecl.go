@@ -1,4 +1,4 @@
-package grouper
+package ast
 
 import (
 	"errors"

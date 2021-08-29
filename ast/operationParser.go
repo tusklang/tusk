@@ -1,8 +1,4 @@
-package operations
-
-import (
-	"github.com/tusklang/tusk/grouper"
-)
+package ast
 
 //used to group operations into a tree
 /*
@@ -21,9 +17,9 @@ pub fn main
 			-> 4
 */
 
-func operationsParser(items []grouper.Group) ([]*Operation, error) {
+func OperationsParser(items []Group) ([]*ASTNode, error) {
 
-	var opList = []map[string]func(exp []grouper.Group, index int) ([]*Operation, error){
+	var opList = []map[string]func(exp []Group, index int) ([]*ASTNode, error){
 		{
 			";": termOpHandle,
 		},
@@ -56,7 +52,7 @@ func operationsParser(items []grouper.Group) ([]*Operation, error) {
 			for k, vv := range v {
 
 				switch g := items[i].(type) {
-				case *grouper.Operation:
+				case *Operation:
 					if g.Token.Name == k {
 						return vv(items, i)
 					}
@@ -72,17 +68,7 @@ func operationsParser(items []grouper.Group) ([]*Operation, error) {
 	}
 
 	//it must be a single, since there is no operation
-	return []*Operation{{
+	return []*ASTNode{{
 		Group: items[0],
 	}}, nil
-}
-
-func GenerateOperations(items []grouper.Group) ([]*Operation, error) {
-	p, e := operationsParser(items)
-
-	if e != nil {
-		return nil, e
-	}
-
-	return p, nil
 }
