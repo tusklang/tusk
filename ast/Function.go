@@ -32,9 +32,8 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 		if e != nil {
 			return e
 		}
+		*i++
 	}
-
-	*i++
 
 	if lex[*i].Type != "varname" {
 		return errors.New("function name was not provided, use the name '_' for an anonymous function")

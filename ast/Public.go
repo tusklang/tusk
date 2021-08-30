@@ -5,13 +5,14 @@ import (
 )
 
 type Public struct {
-	Declaration Group
+	Declaration *ASTNode
 }
 
-func (p *Public) Parse(lex []tokenizer.Token, i *int) error {
+func (p *Public) Parse(lex []tokenizer.Token, i *int) (e error) {
 	*i++
 	g := groupSpecific(lex, 1, i)
-	p.Declaration = g[0]
+	d, e := groupsToAST(g)
+	p.Declaration = d[0]
 	*i-- //decrement because the outer grouper function already increments once
-	return nil
+	return
 }

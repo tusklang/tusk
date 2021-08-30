@@ -7,7 +7,9 @@ import (
 	"log"
 
 	"github.com/tusklang/tusk/ast"
+	"github.com/tusklang/tusk/initialize"
 	"github.com/tusklang/tusk/tokenizer"
+	"github.com/tusklang/tusk/validator"
 )
 
 func main() {
@@ -17,12 +19,19 @@ func main() {
 	a, _ := ioutil.ReadFile("./test.tusk")
 
 	lex := tokenizer.Tokenizer(string(a))
-	groups, e := ast.GenerateAST(lex)
+	ast, e := ast.GenerateAST(lex)
 
 	if e != nil {
 		log.Fatal(e)
 	}
 
-	j, _ := json.MarshalIndent(groups, "", "  ")
+	if ev := validator.Validate(ast); ev != nil {
+		//types and variables are invalid somewhere
+		fmt.Println(ev)
+	}
+
+	f := initialize.Initialize(ast)
+
+	j, _ := json.MarshalIndent(*f, "", "  ")
 	fmt.Println(string(j))
 }
