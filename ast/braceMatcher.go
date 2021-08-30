@@ -5,34 +5,40 @@ import (
 )
 
 //util function to match braces and return everything in between
-func braceMatcher(lex []tokenizer.Token, i *int, matchOpen string, matchClose string, removeTopBraces bool, stopAt string) []tokenizer.Token {
+func braceMatcher(lex []tokenizer.Token, i *int, matchOpen []string, matchClose []string, removeTopBraces bool, stopAt string) []tokenizer.Token {
 
 	var ret []tokenizer.Token
 
 	//count of openers
 	//this is increased if we locate an opener
 	//this is decreased if we locate a closer
-	cnt := 0
+	var cnt = make([]int, len(matchOpen))
 
 	//loop through the given lex
 	for ; *i < len(lex); *i++ {
 
 		ret = append(ret, lex[*i])
 
-		if lex[*i].Type == matchOpen {
-			cnt++
-		}
-		if lex[*i].Type == matchClose {
-			cnt--
-		}
-
-		if cnt == 0 {
-
-			if stopAt == "" || lex[*i].Type == stopAt {
-				break
+		for k, v := range matchOpen {
+			if lex[*i].Type == v {
+				cnt[k]++
 			}
-
+			if lex[*i].Type == matchClose[k] {
+				cnt[k]--
+			}
 		}
+
+		for _, v := range cnt {
+			if v != 0 {
+				goto skip
+			}
+		}
+
+		if stopAt == "" || lex[*i].Type == stopAt {
+			break
+		}
+
+	skip:
 	}
 
 	if removeTopBraces && len(ret) >= 2 {

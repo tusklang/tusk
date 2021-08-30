@@ -31,7 +31,8 @@ func main() {
 	}
 
 	f := initialize.Initialize(ast)
+	_ = f
 
-	j, _ := json.MarshalIndent(*f, "", "  ")
+	j, _ := json.MarshalIndent(f, "", "  ")
 	fmt.Println(string(j))
 }

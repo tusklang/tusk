@@ -10,9 +10,11 @@ type Public struct {
 
 func (p *Public) Parse(lex []tokenizer.Token, i *int) (e error) {
 	*i++
-	g := groupSpecific(lex, 1, i)
+
+	//match everything up to the next semicolon (that isn't enclosed in a brace)
+	bm := braceMatcher(lex, i, []string{"{", "("}, []string{"}", ")"}, false, "terminator")
+	g := grouper(bm)
 	d, e := groupsToAST(g)
 	p.Declaration = d[0]
-	*i-- //decrement because the outer grouper function already increments once
 	return
 }

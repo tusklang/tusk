@@ -22,9 +22,18 @@ func defaultOperationHandle(exp []Group, index int) ([]*ASTNode, error) {
 		return nil, e2
 	}
 
-	return []*ASTNode{{
+	ret := ASTNode{
 		Left:  firstop,
 		Right: secondop,
 		Group: exp[index],
-	}}, nil
+	}
+
+	for _, v := range firstop {
+		v.parent = &ret
+	}
+	for _, v := range secondop {
+		v.parent = &ret
+	}
+
+	return []*ASTNode{&ret}, nil
 }

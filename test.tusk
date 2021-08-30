@@ -1,3 +1,1 @@
-fn main() {
-    1 + 1;
-};
+pub var b = 1;

@@ -8,7 +8,7 @@ func Initialize(ast []*ast.ASTNode) *File {
 
 	var f File
 
-	fetchGlobals(ast, &f, &f.Private, 0)
+	f.fetchGlobals(ast, &f.Private, 0)
 
 	return &f
 }

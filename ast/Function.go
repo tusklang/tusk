@@ -28,7 +28,7 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	//so we will skip the return type
 
 	if lex[*i].Type != "varname" {
-		fh.RetType, e = groupsToAST(grouper(braceMatcher(lex, i, "(", ")", false, "")))
+		fh.RetType, e = groupsToAST(grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, "")))
 		if e != nil {
 			return e
 		}
@@ -47,7 +47,7 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 		return errors.New("functions require a parameter list")
 	}
 
-	fh.Params, e = groupsToAST(grouper(braceMatcher(lex, i, "(", ")", false, "")))
+	fh.Params, e = groupsToAST(grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, "")))
 
 	if e != nil {
 		return e
@@ -55,7 +55,7 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	*i++
 
-	fh.Body, e = groupsToAST(grouper(braceMatcher(lex, i, "{", "}", false, "terminator")))
+	fh.Body, e = groupsToAST(grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator")))
 
 	if e != nil {
 		return e
