@@ -6,16 +6,11 @@ import (
 	"github.com/tusklang/tusk/tokenizer"
 )
 
-type Parameter struct {
-	Name string
-	Type *ASTNode
-}
-
 type Function struct {
-	Name    string      //function name
-	Params  []Parameter //parameter list
-	RetType *ASTNode    //return type
-	Body    []*ASTNode  //function body
+	Name    string     //function name
+	Params  []VarDecl  //parameter list
+	RetType *ASTNode   //return type
+	Body    []*ASTNode //function body
 }
 
 func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
@@ -51,7 +46,7 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	p, e := groupsToAST(grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, "")))
 	sub := p[0].Group.(*Block).Sub
-	plist := make([]Parameter, len(sub))
+	plist := make([]VarDecl, len(sub))
 
 	for k, v := range sub {
 
@@ -61,19 +56,12 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 				return errors.New("invalid syntax: named parameters must have a type")
 			}
 
-			plist[k] = Parameter{
+			plist[k] = VarDecl{
 				Name: v.Left[0].Group.(*DataValue).Value.Name,
 				Type: v.Right[0],
 			}
-
-		case *DataType:
-			plist[k] = Parameter{
-				Type: v,
-			}
-
-		//a classname
-		case *DataValue:
-			plist[k] = Parameter{
+		default:
+			plist[k] = VarDecl{
 				Type: v,
 			}
 
