@@ -7,8 +7,9 @@ import (
 )
 
 type VarDecl struct {
-	Name string
-	Type *ASTNode
+	Name  string
+	Type  *ASTNode
+	Value []*ASTNode
 }
 
 func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
@@ -21,11 +22,23 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 
 	vd.Name = lex[*i].Name
 
+	*i++
+
 	//has a specified type
-	if lex[*i+1].Name == ":" {
-		*i += 2
+	if lex[*i].Name == ":" {
+		*i++
 		t, e := groupsToAST(groupSpecific(lex, 1, i))
 		vd.Type = t[0]
+		if e != nil {
+			return e
+		}
+	}
+
+	//has a value assigned to it
+	if lex[*i].Name == "=" {
+		*i++
+		v, e := groupsToAST(grouper(braceMatcher(lex, i, []string{"{", "("}, []string{"}", ")"}, false, "terminator")))
+		vd.Value = v
 		if e != nil {
 			return e
 		}

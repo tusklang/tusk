@@ -62,13 +62,13 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 		}
 	}
 
-	if len(items) != 1 {
-		//only occurs when operator doesn't have two sides (!, ++, --, etc)
-		return nil, nil
+	var ret = make([]*ASTNode, len(items))
+
+	for k, v := range items {
+		ret[k] = &ASTNode{}
+		ret[k].Group = v
 	}
 
 	//it must be a single, since there is no operation
-	return []*ASTNode{{
-		Group: items[0],
-	}}, nil
+	return ret, nil
 }

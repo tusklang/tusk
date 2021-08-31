@@ -1,1 +1,1 @@
-fn test(a: int);
+pub var a: int;

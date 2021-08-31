@@ -107,10 +107,12 @@ func groupSpecific(tokens []tokenizer.Token, maxGroup int, startAt *int) []Group
 			gr = &Operation{}
 		case "float":
 			fallthrough
-		case "int":
+		case "bool":
 			fallthrough
-		case "varname":
+		case "int":
 			gr = &DataValue{}
+		case "varname":
+			gr = &VarRef{}
 		case "dtype":
 			gr = &DataType{}
 		default:

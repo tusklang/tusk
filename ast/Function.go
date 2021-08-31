@@ -57,7 +57,7 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 			}
 
 			plist[k] = VarDecl{
-				Name: v.Left[0].Group.(*DataValue).Value.Name,
+				Name: v.Left[0].Group.(*VarRef).Name,
 				Type: v.Right[0],
 			}
 		default:
