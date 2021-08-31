@@ -1,8 +1,10 @@
 package initialize
 
+import "github.com/tusklang/tusk/ast"
+
 type File struct {
 	Name      string
-	Public    []Declaration
-	Protected []Declaration
-	Private   []Declaration
+	Public    []*ast.ASTNode
+	Protected []*ast.ASTNode
+	Private   []*ast.ASTNode
 }

@@ -86,8 +86,6 @@ func groupSpecific(tokens []tokenizer.Token, maxGroup int, startAt *int) []Group
 
 		var gr Group //the group to append
 
-		// fmt.Println(tokens[*startAt].Type)
-
 		switch tokens[*startAt].Type {
 		case "fn":
 			gr = &Function{}

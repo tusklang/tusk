@@ -1,3 +1,0 @@
-pub fn test() {
-    return 1 + 1;
-};

@@ -5,6 +5,7 @@ import (
 )
 
 //util function to match braces and return everything in between
+//this implementation is kinda jank soo uh, refactor soon:tm:
 func braceMatcher(lex []tokenizer.Token, i *int, matchOpen []string, matchClose []string, removeTopBraces bool, stopAt string) []tokenizer.Token {
 
 	var ret []tokenizer.Token
@@ -34,7 +35,14 @@ func braceMatcher(lex []tokenizer.Token, i *int, matchOpen []string, matchClose 
 			}
 		}
 
-		if stopAt == "" || lex[*i].Type == stopAt {
+		if stopAt == "" {
+			break
+		}
+
+		//include the `stopAt` token in the final result
+		if lex[*i].Type == stopAt {
+			ret = append(ret, lex[*i])
+			*i++
 			break
 		}
 

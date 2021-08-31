@@ -78,7 +78,6 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 			}
 
 		}
-		_ = v
 	}
 
 	fh.Params = plist
