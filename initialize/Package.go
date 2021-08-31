@@ -12,7 +12,7 @@ type Package struct {
 		Main.tusk
 		tusk.config.json
 
-		Main.tusk would reference the ArrayCoutner methods with `util.arrays`
+		Main.tusk would reference the ArrayCoutner methods with `util.arrays.ArrayCounter`
 		The arrays package would have the name []string{"util", "arrays"}
 	*/
 	Name  []string
