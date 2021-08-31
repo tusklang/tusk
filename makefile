@@ -31,4 +31,4 @@ prod: all
 
 .PHONY: test
 test: build
-	./$(BINARY)
+	cd test && ../$(BINARY)

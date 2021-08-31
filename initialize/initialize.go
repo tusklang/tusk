@@ -1,14 +1,36 @@
 package initialize
 
-import "github.com/tusklang/tusk/ast"
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+)
 
-//this package is used to initialize nested functions, OOP, and other high level concepts that the llvm IR can't comprehend
+//this package is used to initialize the program
+/*
+	- comprehending project structure
+	- taking high level tusk (curried/nested functions, classes, polymorphism, etc..) and simplifying them for the llvm ir
+	- dependency managment
+*/
 
-func Initialize(ast []*ast.ASTNode) *File {
+func Initialize(configFileName string) *Program {
 
-	var f File
+	var prog Program
 
-	f.fetchGlobals(ast, &f.Private, 0)
+	//config is the tusk config file
 
-	return &f
+	configFile, e := os.Open(configFileName)
+
+	if e != nil {
+		//error
+		_ = e
+	}
+
+	var config ConfigData
+	json.NewDecoder(configFile).Decode(&config)
+
+	j, _ := json.MarshalIndent(config, "", "  ")
+	fmt.Println(string(j))
+
+	return &prog
 }

@@ -6,11 +6,16 @@ import (
 	"github.com/tusklang/tusk/tokenizer"
 )
 
+type Parameter struct {
+	Name string
+	Type *ASTNode
+}
+
 type Function struct {
-	Name    string     //function name
-	Params  []*ASTNode //parameter list
-	RetType []*ASTNode //return type
-	Body    []*ASTNode //function body
+	Name    string      //function name
+	Params  []Parameter //parameter list
+	RetType *ASTNode    //return type
+	Body    []*ASTNode  //function body
 }
 
 func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
@@ -28,26 +33,55 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	//so we will skip the return type
 
 	if lex[*i].Type != "varname" {
-		fh.RetType, e = groupsToAST(grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, "")))
+		rt, e := groupsToAST(groupSpecific(lex, 1, i))
+		fh.RetType = rt[0]
 		if e != nil {
 			return e
 		}
+	}
+
+	if lex[*i].Type == "varname" {
+		fh.Name = lex[*i].Name
 		*i++
 	}
-
-	if lex[*i].Type != "varname" {
-		return errors.New("function name was not provided, use the name '_' for an anonymous function")
-	}
-
-	fh.Name = lex[*i].Name
-
-	*i++
 
 	if lex[*i].Type != "(" { //it has to be a parenthesis for the paramlist
 		return errors.New("functions require a parameter list")
 	}
 
-	fh.Params, e = groupsToAST(grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, "")))
+	p, e := groupsToAST(grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, "")))
+	sub := p[0].Group.(*Block).Sub
+	plist := make([]Parameter, len(sub))
+
+	for k, v := range sub {
+
+		switch g := v.Group.(type) {
+		case *Operation:
+			if g.OpType != ":" {
+				return errors.New("invalid syntax: named parameters must have a type")
+			}
+
+			plist[k] = Parameter{
+				Name: v.Left[0].Group.(*DataValue).Value.Name,
+				Type: v.Right[0],
+			}
+
+		case *DataType:
+			plist[k] = Parameter{
+				Type: v,
+			}
+
+		//a classname
+		case *DataValue:
+			plist[k] = Parameter{
+				Type: v,
+			}
+
+		}
+		_ = v
+	}
+
+	fh.Params = plist
 
 	if e != nil {
 		return e

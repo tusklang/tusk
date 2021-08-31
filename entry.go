@@ -1,38 +1,38 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"log"
+	"flag"
 
-	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/initialize"
-	"github.com/tusklang/tusk/tokenizer"
-	"github.com/tusklang/tusk/validator"
 )
 
 func main() {
 
-	//all of this is temporary
+	config := flag.String("config", "tusk.config.json", "supply configuration file for tusk")
 
-	a, _ := ioutil.ReadFile("./test.tusk")
+	flag.Parse()
 
-	lex := tokenizer.Tokenizer(string(a))
-	ast, e := ast.GenerateAST(lex)
+	initialize.Initialize(*config)
 
-	if e != nil {
-		log.Fatal(e)
-	}
+	// //all of this is temporary
 
-	if ev := validator.Validate(ast); ev != nil {
-		//types and variables are invalid somewhere
-		fmt.Println(ev)
-	}
+	// a, _ := ioutil.ReadFile("./test.tusk")
 
-	f := initialize.Initialize(ast)
-	_ = f
+	// lex := tokenizer.Tokenizer(string(a))
+	// ast, e := ast.GenerateAST(lex)
 
-	j, _ := json.MarshalIndent(f, "", "  ")
-	fmt.Println(string(j))
+	// if e != nil {
+	// 	log.Fatal(e)
+	// }
+
+	// if ev := validator.Validate(ast); ev != nil {
+	// 	//types and variables are invalid somewhere
+	// 	fmt.Println(ev)
+	// }
+
+	// f := initialize.Initialize()
+	// _ = f
+
+	// j, _ := json.MarshalIndent(ast, "", "  ")
+	// fmt.Println(string(j))
 }
