@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"io/ioutil"
+	"path/filepath"
 	"strings"
 
 	"github.com/tusklang/tusk/ast"
@@ -18,21 +19,21 @@ func parseFile(name string) (*File, error) {
 	}
 
 	lex := tokenizer.Tokenizer(string(f))
-	ast, e := ast.GenerateAST(lex)
+	generatedAST, e := ast.GenerateAST(lex)
 
 	if e != nil {
 		return nil, e
 	}
 
-	if e = validator.Validate(ast); e != nil {
+	if e = validator.Validate(generatedAST); e != nil {
 		return nil, e
 	}
 
 	retf := File{
-		Name: strings.TrimSuffix(name, ".tusk"),
+		Name: strings.TrimSuffix(filepath.Base(name), ".tusk"), //get the classname of the file
 	}
 
-	fetchGlobals(ast, &retf, &retf.Private)
+	fetchGlobals(generatedAST, &retf, &retf.Private, &retf.Private.Instance)
 
 	return &retf, nil
 }

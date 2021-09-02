@@ -13,7 +13,7 @@ type Function struct {
 	Body    []*ASTNode //function body
 }
 
-func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
+func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	if lex[*i].Type != "fn" {
 		return errors.New("was not given a function")
@@ -29,14 +29,14 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	if lex[*i].Type != "varname" {
 		rt, e := groupsToAST(groupSpecific(lex, 1, i))
-		fh.RetType = rt[0]
+		f.RetType = rt[0]
 		if e != nil {
 			return e
 		}
 	}
 
 	if lex[*i].Type == "varname" {
-		fh.Name = lex[*i].Name
+		f.Name = lex[*i].Name
 		*i++
 	}
 
@@ -68,7 +68,7 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 		}
 	}
 
-	fh.Params = plist
+	f.Params = plist
 
 	if e != nil {
 		return e
@@ -76,7 +76,7 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	*i++
 
-	fh.Body, e = groupsToAST(grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator")))
+	f.Body, e = groupsToAST(grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator")))
 
 	if e != nil {
 		return e
@@ -84,3 +84,5 @@ func (fh *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	return nil
 }
+
+func (f *Function) Compile(compiler *Compiler, node *ASTNode) {}

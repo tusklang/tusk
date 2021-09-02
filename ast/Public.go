@@ -9,12 +9,12 @@ type Public struct {
 }
 
 func (p *Public) Parse(lex []tokenizer.Token, i *int) (e error) {
-	*i++
-
-	//match everything up to the next semicolon (that isn't enclosed in a brace)
-	bm := braceMatcher(lex, i, []string{"{", "("}, []string{"}", ")"}, false, "terminator")
-	g := grouper(bm)
-	d, e := groupsToAST(g)
-	p.Declaration = d[0]
-	return
+	return parseAccessSpec(p, lex, i)
 }
+
+func (p *Public) SetDecl(node *ASTNode) {
+	p.Declaration = node
+}
+
+//cannot be compiled
+func (p *Public) Compile(compiler *Compiler, node *ASTNode) {}

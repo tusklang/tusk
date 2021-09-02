@@ -1,1 +1,1 @@
-pub var a: int;
+pub stat fn main() {};

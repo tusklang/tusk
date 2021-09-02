@@ -14,3 +14,5 @@ func (o *Operation) Parse(lex []tokenizer.Token, i *int) error {
 
 	return nil
 }
+
+func (o *Operation) Compile(compiler *Compiler, node *ASTNode) {}

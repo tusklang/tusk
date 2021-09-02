@@ -10,3 +10,5 @@ func (dv *DataValue) Parse(lex []tokenizer.Token, i *int) error {
 	dv.Value = lex[*i]
 	return nil
 }
+
+func (dv *DataValue) Compile(compiler *Compiler, node *ASTNode) {}

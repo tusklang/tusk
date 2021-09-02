@@ -10,6 +10,7 @@ import (
 /*
 	- comprehending project structure
 	- dependency managment
+	- compiling the project into llvm IR
 */
 
 func Initialize(configFileName string) *Program {
@@ -27,6 +28,8 @@ func Initialize(configFileName string) *Program {
 
 	var config ConfigData
 	json.NewDecoder(configFile).Decode(&config)
+
+	prog.Config = config
 
 	var startpkg Package
 

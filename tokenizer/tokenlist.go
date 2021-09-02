@@ -22,6 +22,8 @@ var tokenlist = []TokenItem{
 	{("else(?=(\\z|\\(|\\{|\\s+))"), "else"},     //else
 	{("while(?=(\\z|\\(|\\{|\\s+))"), "while"},   //while
 	{("pub(?![a-zA-Z$_0-9])"), "pub"},            //pub
+	{("prt(?![a-zA-Z$_0-9])"), "prt"},            //prt
+	{("stat(?![a-zA-Z$_0-9])"), "stat"},          //stat
 	/**********************************/
 
 	/************ braces ************/
