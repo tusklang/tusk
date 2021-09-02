@@ -49,4 +49,4 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (vd *VarDecl) Compile(compiler *Compiler, node *ASTNode) {}
+func (vd *VarDecl) Compile(compiler *Compiler, node *ASTNode, lvl int) {}

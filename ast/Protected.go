@@ -15,4 +15,4 @@ func (p *Protected) SetDecl(node *ASTNode) {
 }
 
 //cannot be compiled
-func (p *Protected) Compile(compiler *Compiler, node *ASTNode) {}
+func (p *Protected) Compile(compiler *Compiler, node *ASTNode, lvl int) {}

@@ -23,4 +23,4 @@ func (is *IfStatement) Type() string {
 	return "if"
 }
 
-func (is *IfStatement) Compile(compiler *Compiler, node *ASTNode) {}
+func (is *IfStatement) Compile(compiler *Compiler, node *ASTNode, lvl int) {}

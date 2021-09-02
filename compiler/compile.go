@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"fmt"
 	"runtime"
 
 	"github.com/llir/llvm/ir"
@@ -19,7 +20,11 @@ func Compile(prog *initialize.Program, outfile string) {
 
 	for _, v := range prog.Packages {
 		for _, vv := range v.Files {
-			_ = vv
+			for _, vvv := range vv.Public.Static {
+				vvv.Group.Compile(compiler, vvv, 0)
+			}
 		}
 	}
+
+	fmt.Println(compiler.Module.String())
 }

@@ -6,5 +6,5 @@ import (
 
 type Group interface {
 	Parse([]tokenizer.Token, *int) error
-	Compile(*Compiler, *ASTNode)
+	Compile(*Compiler, *ASTNode, int)
 }

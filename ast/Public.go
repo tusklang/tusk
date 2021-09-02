@@ -17,4 +17,4 @@ func (p *Public) SetDecl(node *ASTNode) {
 }
 
 //cannot be compiled
-func (p *Public) Compile(compiler *Compiler, node *ASTNode) {}
+func (p *Public) Compile(compiler *Compiler, node *ASTNode, lvl int) {}

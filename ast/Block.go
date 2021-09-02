@@ -34,4 +34,4 @@ func (b *Block) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (b *Block) Compile(compiler *Compiler, node *ASTNode) {}
+func (b *Block) Compile(compiler *Compiler, node *ASTNode, lvl int) {}

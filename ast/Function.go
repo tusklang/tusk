@@ -3,6 +3,7 @@ package ast
 import (
 	"errors"
 
+	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -85,4 +86,6 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (f *Function) Compile(compiler *Compiler, node *ASTNode) {}
+func (f *Function) Compile(compiler *Compiler, node *ASTNode, lvl int) {
+	compiler.Module.NewFunc(f.Name, types.I32) //temp
+}

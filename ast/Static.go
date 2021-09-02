@@ -17,4 +17,4 @@ func (s *Static) SetDecl(node *ASTNode) {
 }
 
 //cannot be compiled
-func (s *Static) Compile(compiler *Compiler, node *ASTNode) {}
+func (s *Static) Compile(compiler *Compiler, node *ASTNode, lvl int) {}

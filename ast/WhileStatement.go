@@ -23,4 +23,4 @@ func (ws *WhileStatement) Type() string {
 	return "while"
 }
 
-func (ws *WhileStatement) Compile(compiler *Compiler, node *ASTNode) {}
+func (ws *WhileStatement) Compile(compiler *Compiler, node *ASTNode, lvl int) {}

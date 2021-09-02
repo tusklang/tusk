@@ -11,4 +11,4 @@ func (dv *DataValue) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (dv *DataValue) Compile(compiler *Compiler, node *ASTNode) {}
+func (dv *DataValue) Compile(compiler *Compiler, node *ASTNode, lvl int) {}
