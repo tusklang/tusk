@@ -3,6 +3,7 @@ package ast
 import (
 	"errors"
 
+	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -28,10 +29,10 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 	if lex[*i].Name == ":" {
 		*i++
 		t, e := groupsToAST(groupSpecific(lex, 1, i))
-		vd.Type = t[0]
 		if e != nil {
 			return e
 		}
+		vd.Type = t[0]
 	}
 
 	//has a value assigned to it
@@ -49,4 +50,15 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (vd *VarDecl) Compile(compiler *Compiler, node *ASTNode, lvl int) {}
+func (vd *VarDecl) Compile(class *types.StructType, node *ASTNode) {
+
+}
+
+//used specifically for global variable declarations
+func (vd *VarDecl) CompileGlobal(class *types.StructType) {
+
+	vtype, e := fetchType(vd.Type.Group)
+	_ = e
+
+	class.Fields = append(class.Fields, vtype)
+}

@@ -1,6 +1,9 @@
 package ast
 
-import "github.com/tusklang/tusk/tokenizer"
+import (
+	"github.com/llir/llvm/ir/types"
+	"github.com/tusklang/tusk/tokenizer"
+)
 
 type Operation struct {
 	OpType string
@@ -15,4 +18,4 @@ func (o *Operation) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (o *Operation) Compile(compiler *Compiler, node *ASTNode, lvl int) {}
+func (o *Operation) Compile(class *types.StructType, node *ASTNode) {}

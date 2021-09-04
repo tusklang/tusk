@@ -1,6 +1,9 @@
 package ast
 
-import "github.com/tusklang/tusk/tokenizer"
+import (
+	"github.com/llir/llvm/ir/types"
+	"github.com/tusklang/tusk/tokenizer"
+)
 
 type Protected struct {
 	Declaration *ASTNode
@@ -15,4 +18,4 @@ func (p *Protected) SetDecl(node *ASTNode) {
 }
 
 //cannot be compiled
-func (p *Protected) Compile(compiler *Compiler, node *ASTNode, lvl int) {}
+func (p *Protected) Compile(class *types.StructType, node *ASTNode) {}

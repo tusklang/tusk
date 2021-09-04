@@ -5,26 +5,33 @@ import (
 	"runtime"
 
 	"github.com/llir/llvm/ir"
-	"github.com/tusklang/tusk/ast"
+	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/initialize"
 )
 
 func Compile(prog *initialize.Program, outfile string) {
-	var compiler = &ast.Compiler{
-		Module: ir.NewModule(),
-		OS:     runtime.GOOS,
-		ARCH:   runtime.GOARCH,
-	}
 
-	_ = compiler
+	var compiler Compiler
+	m := ir.NewModule() //create a new llvm module
 
-	for _, v := range prog.Packages {
-		for _, vv := range v.Files {
-			for _, vvv := range vv.Public.Static {
-				vvv.Group.Compile(compiler, vvv, 0)
+	//set the module stuff in the compiler
+	compiler.module = m
+	compiler.OS = runtime.GOOS
+	compiler.ARCH = runtime.GOARCH
+
+	for _, v := range prog.Packages { //go through every package
+		for _, vv := range v.Files { //go through every file in the package (class)
+			stype := types.NewStruct() //create a new structure (representing a class)
+			definiton := m.NewTypeDef(vv.Name, stype)
+			_ = definiton
+
+			//loop through all the global variables in the class
+			for _, vvv := range vv.Globals {
+				vvv.Value.CompileGlobal(stype)
 			}
+
 		}
 	}
 
-	fmt.Println(compiler.Module.String())
+	fmt.Println(m.String())
 }

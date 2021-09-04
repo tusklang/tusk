@@ -1,16 +1,17 @@
 package ast
 
 import (
+	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
 type DataType struct {
-	DType tokenizer.Token
+	Type tokenizer.Token
 }
 
 func (dt *DataType) Parse(lex []tokenizer.Token, i *int) error {
-	dt.DType = lex[*i]
+	dt.Type = lex[*i]
 	return nil
 }
 
-func (dt *DataType) Compile(compiler *Compiler, node *ASTNode, lvl int) {}
+func (dt *DataType) Compile(class *types.StructType, node *ASTNode) {}

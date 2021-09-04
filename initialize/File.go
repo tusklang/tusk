@@ -2,13 +2,20 @@ package initialize
 
 import "github.com/tusklang/tusk/ast"
 
-type AccessLevel struct {
-	Static, Instance []*ast.ASTNode
+type GlobalDecl struct {
+
+	/*
+		0: public
+		1: protected
+		2: private
+	*/
+	Access int
+
+	IsStatic bool //if the global is a static or instance
+	Value    *ast.VarDecl
 }
 
 type File struct {
-	Name      string
-	Public    AccessLevel
-	Protected AccessLevel
-	Private   AccessLevel
+	Name    string
+	Globals []GlobalDecl
 }

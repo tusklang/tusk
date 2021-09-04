@@ -1,6 +1,9 @@
 package ast
 
-import "github.com/tusklang/tusk/tokenizer"
+import (
+	"github.com/llir/llvm/ir/types"
+	"github.com/tusklang/tusk/tokenizer"
+)
 
 type IfStatement struct {
 	Condition []*ASTNode
@@ -23,4 +26,4 @@ func (is *IfStatement) Type() string {
 	return "if"
 }
 
-func (is *IfStatement) Compile(compiler *Compiler, node *ASTNode, lvl int) {}
+func (is *IfStatement) Compile(class *types.StructType, node *ASTNode) {}

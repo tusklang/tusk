@@ -1,6 +1,9 @@
 package ast
 
-import "github.com/tusklang/tusk/tokenizer"
+import (
+	"github.com/llir/llvm/ir/types"
+	"github.com/tusklang/tusk/tokenizer"
+)
 
 type WhileStatement struct {
 	Condition []*ASTNode
@@ -23,4 +26,4 @@ func (ws *WhileStatement) Type() string {
 	return "while"
 }
 
-func (ws *WhileStatement) Compile(compiler *Compiler, node *ASTNode, lvl int) {}
+func (ws *WhileStatement) Compile(class *types.StructType, node *ASTNode) {}

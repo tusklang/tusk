@@ -8,8 +8,7 @@ import (
 )
 
 type Function struct {
-	Name    string     //function name
-	Params  []VarDecl  //parameter list
+	Params  []*VarDecl //parameter list
 	RetType *ASTNode   //return type
 	Body    []*ASTNode //function body
 }
@@ -23,22 +22,17 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	*i++
 
 	//read the return type
-	//fn int main() {}
+	//fn int() {}
 	//will also work, because if no braces are present, the next token is returned, and the brace matcher exits
 	//if the next value is a variable name, then we know it's a void return type
 	//so we will skip the return type
 
-	if lex[*i].Type != "varname" {
+	if lex[*i].Type != "(" {
 		rt, e := groupsToAST(groupSpecific(lex, 1, i))
 		f.RetType = rt[0]
 		if e != nil {
 			return e
 		}
-	}
-
-	if lex[*i].Type == "varname" {
-		f.Name = lex[*i].Name
-		*i++
 	}
 
 	if lex[*i].Type != "(" { //it has to be a parenthesis for the paramlist
@@ -47,7 +41,7 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	p, e := groupsToAST(grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, "")))
 	sub := p[0].Group.(*Block).Sub
-	plist := make([]VarDecl, len(sub))
+	plist := make([]*VarDecl, len(sub))
 
 	for k, v := range sub {
 
@@ -57,12 +51,12 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 				return errors.New("invalid syntax: named parameters must have a type")
 			}
 
-			plist[k] = VarDecl{
+			plist[k] = &VarDecl{
 				Name: v.Left[0].Group.(*VarRef).Name,
 				Type: v.Right[0],
 			}
 		default:
-			plist[k] = VarDecl{
+			plist[k] = &VarDecl{
 				Type: v,
 			}
 
@@ -77,6 +71,11 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	*i++
 
+	if lex[*i].Type != "{" {
+		*i-- //move back because there is no brace
+		return nil
+	}
+
 	f.Body, e = groupsToAST(grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator")))
 
 	if e != nil {
@@ -86,6 +85,5 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (f *Function) Compile(compiler *Compiler, node *ASTNode, lvl int) {
-	compiler.Module.NewFunc(f.Name, types.I32) //temp
+func (f *Function) Compile(class *types.StructType, node *ASTNode) {
 }

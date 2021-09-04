@@ -33,7 +33,7 @@ func parseFile(name string) (*File, error) {
 		Name: strings.TrimSuffix(filepath.Base(name), ".tusk"), //get the classname of the file
 	}
 
-	fetchGlobals(generatedAST, &retf, &retf.Private, &retf.Private.Instance)
+	fetchGlobals(generatedAST, &retf, 2, false)
 
 	return &retf, nil
 }

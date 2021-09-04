@@ -11,7 +11,7 @@ endif
 default: all
 
 .PHONY: all
-all: pkgs build
+all: build
 
 .PHONY: build
 build:
@@ -21,11 +21,6 @@ build:
 clean:
 	-$(CLEAN_CMD) $(BINARY)
 
-.PHONY: pkgs
-pkgs:
-	go get -u github.com/dlclark/regexp2
-	go get -u github.com/llir/llvm
-	
 .PHONY: prod
 prod: all
 

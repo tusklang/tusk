@@ -3,6 +3,7 @@ package ast
 import (
 	"errors"
 
+	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -34,4 +35,4 @@ func (b *Block) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (b *Block) Compile(compiler *Compiler, node *ASTNode, lvl int) {}
+func (b *Block) Compile(class *types.StructType, node *ASTNode) {}

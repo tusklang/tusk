@@ -6,7 +6,7 @@ require (
 	github.com/dlclark/regexp2 v1.4.0
 	github.com/llir/llvm v0.3.4
 	golang.org/x/mod v0.5.0 // indirect
-	golang.org/x/sys v0.0.0-20210831042530-f4d43177bf5e // indirect
+	golang.org/x/sys v0.0.0-20210902050250-f475640dd07b // indirect
 	golang.org/x/tools v0.1.5 // indirect
 )
 

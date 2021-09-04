@@ -1,6 +1,9 @@
 package ast
 
-import "github.com/tusklang/tusk/tokenizer"
+import (
+	"github.com/llir/llvm/ir/types"
+	"github.com/tusklang/tusk/tokenizer"
+)
 
 type VarRef struct {
 	Name string
@@ -11,4 +14,4 @@ func (vr *VarRef) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (vr *VarRef) Compile(compiler *Compiler, node *ASTNode, lvl int) {}
+func (vr *VarRef) Compile(class *types.StructType, node *ASTNode) {}

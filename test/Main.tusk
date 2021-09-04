@@ -1,1 +1,1 @@
-pub stat fn main() {};
+pub var a: fn(i32; i32);

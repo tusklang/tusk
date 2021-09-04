@@ -1,10 +1,11 @@
 package ast
 
 import (
+	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
 type Group interface {
 	Parse([]tokenizer.Token, *int) error
-	Compile(*Compiler, *ASTNode, int)
+	Compile(*types.StructType, *ASTNode)
 }

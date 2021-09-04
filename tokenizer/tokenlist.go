@@ -44,24 +44,20 @@ var tokenlist = []TokenItem{
 	/***********************************/
 
 	/************ types ************/
-	{"int64(?![a-zA-Z$_0-9])", "dtype"}, //int64 type
-	{"int32(?![a-zA-Z$_0-9])", "dtype"}, //int32 type
-	{"int16(?![a-zA-Z$_0-9])", "dtype"}, //int16 type
-	{"int8(?![a-zA-Z$_0-9])", "dtype"},  //int8 type
-	{"int(?![a-zA-Z$_0-9])", "dtype"},   //int type
+	{"i64(?![a-zA-Z$_0-9])", "dtype"}, //int64 type
+	{"i32(?![a-zA-Z$_0-9])", "dtype"}, //int32 type
+	{"i16(?![a-zA-Z$_0-9])", "dtype"}, //int16 type
+	{"i8(?![a-zA-Z$_0-9])", "dtype"},  //int8 type
 
-	{"uint64(?![a-zA-Z$_0-9])", "dtype"}, //uint64 type
-	{"uint32(?![a-zA-Z$_0-9])", "dtype"}, //uint32 type
-	{"uint16(?![a-zA-Z$_0-9])", "dtype"}, //uint16 type
-	{"uint8(?![a-zA-Z$_0-9])", "dtype"},  //uint8 type
-	{"uint(?![a-zA-Z$_0-9])", "dtype"},   //uint type
+	{"u64(?![a-zA-Z$_0-9])", "dtype"}, //uint64 type
+	{"u32(?![a-zA-Z$_0-9])", "dtype"}, //uint32 type
+	{"u16(?![a-zA-Z$_0-9])", "dtype"}, //uint16 type
+	{"u8(?![a-zA-Z$_0-9])", "dtype"},  //uint8 type
 
-	{"float64(?![a-zA-Z$_0-9])", "dtype"}, //float64 type
-	{"float32(?![a-zA-Z$_0-9])", "dtype"}, //float32 type
-	{"float(?![a-zA-Z$_0-9])", "dtype"},   //float type
+	{"f64(?![a-zA-Z$_0-9])", "dtype"}, //float64 type
+	{"f32(?![a-zA-Z$_0-9])", "dtype"}, //float32 type
 
 	{"bool(?![a-zA-Z$_0-9])", "dtype"},   //boolean type
-	{"char(?![a-zA-Z$_0-9])", "dtype"},   //char type
 	{"string(?![a-zA-Z$_0-9])", "dtype"}, //string type
 	/*******************************/
 

@@ -2,20 +2,22 @@ package initialize
 
 import "github.com/tusklang/tusk/ast"
 
-func fetchGlobals(tree []*ast.ASTNode, file *File, accessLevel *AccessLevel, output *[]*ast.ASTNode) {
+func fetchGlobals(tree []*ast.ASTNode, file *File, access int, isStatic bool) {
 
 	for _, v := range tree {
 		switch g := v.Group.(type) {
-		case *ast.Function:
-			*output = append(*output, v)
 		case *ast.VarDecl:
-			*output = append(*output, v)
+			file.Globals = append(file.Globals, GlobalDecl{
+				Access:   access,
+				IsStatic: isStatic,
+				Value:    g,
+			})
 		case *ast.Public:
-			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, &file.Public, &file.Public.Instance)
+			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 0, isStatic)
 		case *ast.Protected:
-			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, &file.Protected, &file.Protected.Instance)
+			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 1, isStatic)
 		case *ast.Static:
-			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, accessLevel, &accessLevel.Static)
+			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, access, true)
 		}
 	}
 }
