@@ -18,4 +18,4 @@ func (s *Static) SetDecl(node *ASTNode) {
 }
 
 //cannot be compiled
-func (s *Static) Compile(class *types.StructType, node *ASTNode) {}
+func (s *Static) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {}

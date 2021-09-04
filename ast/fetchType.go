@@ -6,29 +6,20 @@ import (
 
 //convert a group to a llvm type
 
-func fetchBasicType(name string) (types.Type, error) {
+func (compiler *Compiler) fetchValidType(name string) (v types.Type, e error) {
 
-	switch name {
-	case "i64":
-		return types.I64, nil
-	case "i32":
-		return types.I32, nil
-	case "i16":
-		return types.I16, nil
-	case "i8":
-		return types.I8, nil
+	var exists bool
+	if v, exists = compiler.ValidTypes[name]; !exists {
+		return nil, nil //error
 	}
 
-	//default case:
-
-	//error
-	return nil, nil //implement later
+	return
 }
 
-func fetchType(g Group) (t types.Type, e error) {
+func (compiler *Compiler) FetchType(g Group) (t types.Type, e error) {
 	switch gt := g.(type) {
 	case *DataType:
-		return fetchBasicType(gt.Type.Name)
+		return compiler.fetchValidType(gt.Type.Name)
 	case *Function:
 
 		if gt.Body != nil {
@@ -38,7 +29,7 @@ func fetchType(g Group) (t types.Type, e error) {
 		var rt types.Type = &types.VoidType{}
 
 		if gt.RetType != nil {
-			rt, e = fetchType(gt.RetType.Group)
+			rt, e = compiler.FetchType(gt.RetType.Group)
 
 			if e != nil {
 				return nil, e
@@ -48,7 +39,7 @@ func fetchType(g Group) (t types.Type, e error) {
 		var params = make([]types.Type, len(gt.Params))
 
 		for k, v := range gt.Params {
-			params[k], e = fetchType(v.Type.Group)
+			params[k], e = compiler.FetchType(v.Type.Group)
 
 			if e != nil {
 				return nil, e
@@ -56,6 +47,8 @@ func fetchType(g Group) (t types.Type, e error) {
 		}
 
 		return types.NewPointer(types.NewFunc(rt, params...)), nil
+	case *VarRef:
+		return compiler.fetchValidType(gt.Name)
 	}
 
 	//default case:

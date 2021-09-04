@@ -18,4 +18,4 @@ func (p *Public) SetDecl(node *ASTNode) {
 }
 
 //cannot be compiled
-func (p *Public) Compile(class *types.StructType, node *ASTNode) {}
+func (p *Public) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {}

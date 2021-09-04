@@ -18,4 +18,4 @@ func (p *Protected) SetDecl(node *ASTNode) {
 }
 
 //cannot be compiled
-func (p *Protected) Compile(class *types.StructType, node *ASTNode) {}
+func (p *Protected) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {}

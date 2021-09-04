@@ -18,4 +18,4 @@ func (o *Operation) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (o *Operation) Compile(class *types.StructType, node *ASTNode) {}
+func (o *Operation) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {}

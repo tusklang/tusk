@@ -85,5 +85,5 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (f *Function) Compile(class *types.StructType, node *ASTNode) {
+func (f *Function) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {
 }

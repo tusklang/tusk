@@ -26,4 +26,5 @@ func (ws *WhileStatement) Type() string {
 	return "while"
 }
 
-func (ws *WhileStatement) Compile(class *types.StructType, node *ASTNode) {}
+func (ws *WhileStatement) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {
+}

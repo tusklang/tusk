@@ -1,1 +1,1 @@
-pub var a: fn(i32; i32);
+pub var a: test.Test

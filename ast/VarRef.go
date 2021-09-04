@@ -14,4 +14,4 @@ func (vr *VarRef) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (vr *VarRef) Compile(class *types.StructType, node *ASTNode) {}
+func (vr *VarRef) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {}

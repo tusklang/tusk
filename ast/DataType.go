@@ -14,4 +14,4 @@ func (dt *DataType) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (dt *DataType) Compile(class *types.StructType, node *ASTNode) {}
+func (dt *DataType) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {}

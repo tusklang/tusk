@@ -50,14 +50,14 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (vd *VarDecl) Compile(class *types.StructType, node *ASTNode) {
+func (vd *VarDecl) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {
 
 }
 
 //used specifically for global variable declarations
-func (vd *VarDecl) CompileGlobal(class *types.StructType) {
+func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *types.StructType) {
 
-	vtype, e := fetchType(vd.Type.Group)
+	vtype, e := compiler.FetchType(vd.Type.Group)
 	_ = e
 
 	class.Fields = append(class.Fields, vtype)

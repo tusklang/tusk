@@ -26,4 +26,5 @@ func (is *IfStatement) Type() string {
 	return "if"
 }
 
-func (is *IfStatement) Compile(class *types.StructType, node *ASTNode) {}
+func (is *IfStatement) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {
+}
