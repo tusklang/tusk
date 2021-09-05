@@ -1,1 +1,3 @@
-pub var a: test.Test
+pub var t: Test;
+
+pub stat var main: fn() = fn() {};

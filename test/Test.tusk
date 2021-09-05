@@ -1,0 +1,3 @@
+pub stat var main: fn() = fn() {
+
+};

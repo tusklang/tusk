@@ -16,7 +16,7 @@ func (compiler *Compiler) fetchValidType(name string) (v types.Type, e error) {
 	return
 }
 
-func (compiler *Compiler) FetchType(g Group) (t types.Type, e error) {
+func (compiler *Compiler) FetchType(class *types.StructType, g Group) (t types.Type, e error) {
 	switch gt := g.(type) {
 	case *DataType:
 		return compiler.fetchValidType(gt.Type.Name)
@@ -29,7 +29,7 @@ func (compiler *Compiler) FetchType(g Group) (t types.Type, e error) {
 		var rt types.Type = &types.VoidType{}
 
 		if gt.RetType != nil {
-			rt, e = compiler.FetchType(gt.RetType.Group)
+			rt, e = compiler.FetchType(class, gt.RetType.Group)
 
 			if e != nil {
 				return nil, e
@@ -39,7 +39,7 @@ func (compiler *Compiler) FetchType(g Group) (t types.Type, e error) {
 		var params = make([]types.Type, len(gt.Params))
 
 		for k, v := range gt.Params {
-			params[k], e = compiler.FetchType(v.Type.Group)
+			params[k], e = compiler.FetchType(class, v.Type.Group)
 
 			if e != nil {
 				return nil, e

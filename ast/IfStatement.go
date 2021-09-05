@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -26,5 +27,6 @@ func (is *IfStatement) Type() string {
 	return "if"
 }
 
-func (is *IfStatement) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {
+func (is *IfStatement) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) constant.Constant {
+	return nil
 }

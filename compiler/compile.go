@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	"fmt"
+	"os"
 	"runtime"
 	"strings"
 
@@ -35,10 +35,13 @@ func Compile(prog *initialize.Program, outfile string) {
 	compiler.OS = runtime.GOOS
 	compiler.ARCH = runtime.GOARCH
 
+	compiler.StaticGlobals = make(map[string]*ir.Global)
+
 	inputDefaultTypes(&compiler)
 
-	for _, v := range prog.Packages { //go through every package
-		for _, vv := range v.Files { //go through every file in the package (class)
+	//add all the classes (files) to the type list
+	for _, v := range prog.Packages {
+		for k, vv := range v.Files {
 			stype := types.NewStruct() //create a new structure (representing a class)
 
 			//construct the classname
@@ -52,14 +55,39 @@ func Compile(prog *initialize.Program, outfile string) {
 			definiton := m.NewTypeDef(classname, stype)
 
 			compiler.ValidTypes[classname] = definiton
+			v.Files[k].StructType = stype
+		}
+	}
+
+	for _, v := range prog.Packages { //go through every package
+		for _, vv := range v.Files { //go through every file in the package (class)
 
 			//loop through all the global variables in the class
 			for _, vvv := range vv.Globals {
-				vvv.Value.CompileGlobal(&compiler, stype)
+				vvv.Value.CompileGlobal(&compiler, vv.StructType, vvv.IsStatic)
 			}
 
 		}
 	}
 
-	fmt.Println(m.String())
+	//declare the llvm entry function
+	mfunc := m.NewFunc("main", types.Void)
+	mblock := mfunc.NewBlock("")
+
+	var (
+		mfnc   *ir.Global
+		exists bool
+	)
+
+	if mfnc, exists = compiler.StaticGlobals[prog.Config.Entry+"_main"]; !exists {
+		//no main function
+		//error
+	}
+
+	loaded := mblock.NewLoad(mfnc.ContentType, mfnc)
+	mblock.NewCall(loaded) //TODO make a function pointer call thing
+	mblock.NewRet(nil)
+
+	f, _ := os.Create(outfile)
+	f.Write([]byte(m.String()))
 }

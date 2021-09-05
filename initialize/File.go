@@ -1,6 +1,9 @@
 package initialize
 
-import "github.com/tusklang/tusk/ast"
+import (
+	"github.com/llir/llvm/ir/types"
+	"github.com/tusklang/tusk/ast"
+)
 
 type GlobalDecl struct {
 
@@ -16,6 +19,7 @@ type GlobalDecl struct {
 }
 
 type File struct {
-	Name    string
-	Globals []GlobalDecl
+	Name       string
+	Globals    []GlobalDecl
+	StructType *types.StructType
 }

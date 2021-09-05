@@ -2,7 +2,9 @@ package ast
 
 import (
 	"errors"
+	"strconv"
 
+	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -10,7 +12,7 @@ import (
 type Function struct {
 	Params  []*VarDecl //parameter list
 	RetType *ASTNode   //return type
-	Body    []*ASTNode //function body
+	Body    *Block     //function body
 }
 
 func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
@@ -76,7 +78,7 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 		return nil
 	}
 
-	f.Body, e = groupsToAST(grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator")))
+	f.Body = grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator"))[0].(*Block)
 
 	if e != nil {
 		return e
@@ -85,5 +87,23 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (f *Function) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {
+func (f *Function) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) constant.Constant {
+
+	var rt types.Type = types.Void //defaults to void
+
+	if f.RetType != nil {
+		var e error
+		rt, e = compiler.FetchType(class, f.RetType.Group)
+		_ = e
+	}
+
+	rf := compiler.Module.NewFunc("f"+strconv.Itoa(compiler.TmpVar()), rt)
+
+	if f.Body != nil {
+		fblock := rf.NewBlock("")
+		fblock.NewRet(nil)
+		_ = fblock
+	}
+
+	return rf
 }

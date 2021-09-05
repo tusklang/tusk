@@ -3,6 +3,7 @@ package ast
 import (
 	"errors"
 
+	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -35,4 +36,6 @@ func (b *Block) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (b *Block) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {}
+func (b *Block) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) constant.Constant {
+	return nil
+}

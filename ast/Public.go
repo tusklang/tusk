@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -18,4 +19,6 @@ func (p *Public) SetDecl(node *ASTNode) {
 }
 
 //cannot be compiled
-func (p *Public) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) {}
+func (p *Public) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) constant.Constant {
+	return nil
+}
