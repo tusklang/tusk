@@ -1,8 +1,9 @@
 package ast
 
 import (
-	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
+	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -19,6 +20,6 @@ func (p *Protected) SetDecl(node *ASTNode) {
 }
 
 //cannot be compiled
-func (p *Protected) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) constant.Constant {
+func (p *Protected) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) value.Value {
 	return nil
 }

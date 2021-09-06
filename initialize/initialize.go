@@ -36,7 +36,7 @@ func Initialize(configFileName string) *Program {
 	parsePackage(".", &startpkg, &prog)
 
 	j, _ := json.MarshalIndent(prog, "", "  ")
-	fmt.Println(string(j), "\n")
+	fmt.Println(string(j))
 
 	return &prog
 }

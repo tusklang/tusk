@@ -2,10 +2,10 @@ package ast
 
 import (
 	"errors"
-	"strconv"
 
-	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
+	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -87,7 +87,7 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (f *Function) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) constant.Constant {
+func (f *Function) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) value.Value {
 
 	var rt types.Type = types.Void //defaults to void
 
@@ -97,12 +97,25 @@ func (f *Function) Compile(compiler *Compiler, class *types.StructType, node *AS
 		_ = e
 	}
 
-	rf := compiler.Module.NewFunc("f"+strconv.Itoa(compiler.TmpVar()), rt)
+	var params = make([]*ir.Param, len(f.Params))
+
+	for k, v := range f.Params {
+		params[k] = ir.NewParam(
+			v.Name,
+			v.Type.Group.Compile(compiler, class, v.Type, block).Type(),
+		)
+	}
+
+	rf := compiler.Module.NewFunc(compiler.TmpVar(), rt, params...)
 
 	if f.Body != nil {
 		fblock := rf.NewBlock("")
-		fblock.NewRet(nil)
-		_ = fblock
+		f.Body.Compile(compiler, class, nil, fblock)
+
+		//if there is no return type (void) append a `return void`
+		if f.RetType == nil {
+			fblock.NewRet(nil)
+		}
 	}
 
 	return rf

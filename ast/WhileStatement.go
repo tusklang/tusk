@@ -1,8 +1,9 @@
 package ast
 
 import (
-	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
+	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -27,6 +28,6 @@ func (ws *WhileStatement) Type() string {
 	return "while"
 }
 
-func (ws *WhileStatement) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) constant.Constant {
+func (ws *WhileStatement) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) value.Value {
 	return nil
 }

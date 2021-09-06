@@ -7,7 +7,6 @@ import (
 
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/tokenizer"
-	"github.com/tusklang/tusk/validator"
 )
 
 func parseFile(name string) (*File, error) {
@@ -22,10 +21,6 @@ func parseFile(name string) (*File, error) {
 	generatedAST, e := ast.GenerateAST(lex)
 
 	if e != nil {
-		return nil, e
-	}
-
-	if e = validator.Validate(generatedAST); e != nil {
 		return nil, e
 	}
 

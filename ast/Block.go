@@ -3,8 +3,9 @@ package ast
 import (
 	"errors"
 
-	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
+	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -36,6 +37,11 @@ func (b *Block) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (b *Block) Compile(compiler *Compiler, class *types.StructType, node *ASTNode) constant.Constant {
+func (b *Block) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) value.Value {
+
+	for _, v := range b.Sub {
+		v.Group.Compile(compiler, class, v, block)
+	}
+
 	return nil
 }

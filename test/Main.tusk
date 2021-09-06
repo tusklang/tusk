@@ -1,3 +1,4 @@
-pub var t: Test;
-
-pub stat var main: fn() = fn() {};
+pub stat var main = fn() {
+    32 + 43;
+};
+pub stat var a = 43;

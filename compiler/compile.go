@@ -9,21 +9,8 @@ import (
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/initialize"
+	"github.com/tusklang/tusk/operations"
 )
-
-//all of the basic types
-func inputDefaultTypes(compiler *ast.Compiler) {
-
-	compiler.ValidTypes = make(map[string]types.Type)
-
-	compiler.ValidTypes["i64"] = types.I64
-	compiler.ValidTypes["i32"] = types.I32
-	compiler.ValidTypes["i16"] = types.I16
-	compiler.ValidTypes["i8"] = types.I8
-
-	compiler.ValidTypes["f64"] = types.Double
-	compiler.ValidTypes["f32"] = types.Float
-}
 
 func Compile(prog *initialize.Program, outfile string) {
 
@@ -38,6 +25,12 @@ func Compile(prog *initialize.Program, outfile string) {
 	compiler.StaticGlobals = make(map[string]*ir.Global)
 
 	inputDefaultTypes(&compiler)
+
+	//initialize the operations
+	operations.InitOperations(&compiler, prog)
+
+	var initfunc = m.NewFunc("_init", types.Void) //initialize func ran before main
+	compiler.InitBlock = initfunc.NewBlock("")
 
 	//add all the classes (files) to the type list
 	for _, v := range prog.Packages {
@@ -84,8 +77,11 @@ func Compile(prog *initialize.Program, outfile string) {
 		//error
 	}
 
+	compiler.InitBlock.NewRet(nil) //append a `return void` to the init function
+
+	mblock.NewCall(initfunc) //call the initialize function
 	loaded := mblock.NewLoad(mfnc.ContentType, mfnc)
-	mblock.NewCall(loaded) //TODO make a function pointer call thing
+	mblock.NewCall(loaded)
 	mblock.NewRet(nil)
 
 	f, _ := os.Create(outfile)
