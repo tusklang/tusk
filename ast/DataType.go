@@ -21,6 +21,8 @@ func (dt *DataType) Compile(compiler *Compiler, class *types.StructType, node *A
 	switch dt.Type.Name {
 
 	//return a value with the type of the data
+	case "i64":
+		return constant.NewInt(types.I64, 0)
 	case "i32":
 		return constant.NewInt(types.I32, 0)
 	default:

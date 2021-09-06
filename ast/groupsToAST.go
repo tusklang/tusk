@@ -27,6 +27,9 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 			"=": defaultOperationHandle,
 		},
 		{
+			"->": defaultOperationHandle,
+		},
+		{
 			":": defaultOperationHandle,
 		},
 		{

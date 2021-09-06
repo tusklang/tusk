@@ -12,4 +12,5 @@ import (
 func InitOperations(compiler *ast.Compiler, prog *initialize.Program) {
 	compiler.Operations = make(map[string]func(value.Value, value.Value, *ir.Block) value.Value)
 	initIntOps(compiler)
+	initDefaultCasts(compiler)
 }

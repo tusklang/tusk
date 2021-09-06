@@ -34,14 +34,14 @@ var tokenlist = []TokenItem{
 	/********************************/
 
 	/************ operators ************/
-	{("(?<=[\\d.]\\s*)\\+(?=\\s*[\\d.])"), "operation"}, // +
-	{("(?<=[\\d.]\\s*)\\-(?=\\s*[\\d.])"), "operation"}, // -
-	{("\\*"), "operation"},                              // *
-	{("\\/"), "operation"},                              // /
-	{("\\*\\*"), "operation"},                           // **
-	{("\\="), "operation"},                              // =
-	{("\\:"), "operation"},                              // :
-	{("\\."), "operation"},                              // .
+	{("\\-\\>"), "operation"}, // ->
+	{("\\+"), "operation"},    // +
+	{("\\-"), "operation"},    // -
+	{("\\*"), "operation"},    // *
+	{("\\/"), "operation"},    // /
+	{("\\="), "operation"},    // =
+	{("\\:"), "operation"},    // :
+	{("\\."), "operation"},    // .
 	/***********************************/
 
 	/************ types ************/
@@ -63,6 +63,7 @@ var tokenlist = []TokenItem{
 	/*******************************/
 
 	/************ misc ************/
+	{"null(?![a-zA-Z$_0-9])", "null"},         //null value
 	{"([+-]*[0-9]*\\.[0-9]*)", "float"},       //floating literal
 	{"([+-]*\\d+)", "int"},                    //integer literal
 	{"([a-zA-Z$_][a-zA-Z$_0-9]*)", "varname"}, //variable
