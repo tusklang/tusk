@@ -2,7 +2,6 @@ package initialize
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 )
 
@@ -34,9 +33,6 @@ func Initialize(configFileName string) *Program {
 	var startpkg Package
 
 	parsePackage(".", &startpkg, &prog)
-
-	j, _ := json.MarshalIndent(prog, "", "  ")
-	fmt.Println(string(j))
 
 	return &prog
 }

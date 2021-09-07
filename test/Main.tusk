@@ -1,2 +1,4 @@
-pub stat var main = fn() {};
-pub stat var a = i64 -> 32;
+pub stat var main = fn() {
+    var a = 43;
+    a + 1;
+};

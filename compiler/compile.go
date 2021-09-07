@@ -1,6 +1,8 @@
 package compiler
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"runtime"
 	"strings"
@@ -10,7 +12,10 @@ import (
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/initialize"
 	"github.com/tusklang/tusk/operations"
+	"github.com/tusklang/tusk/varprocessor"
 )
+
+var processor = varprocessor.NewProcessor()
 
 func Compile(prog *initialize.Program, outfile string) {
 
@@ -51,6 +56,17 @@ func Compile(prog *initialize.Program, outfile string) {
 			v.Files[k].StructType = stype
 		}
 	}
+
+	//process all the variables
+
+	for _, v := range prog.Packages {
+		for _, vv := range v.Files {
+			processor.ProcessVars(vv)
+		}
+	}
+
+	j, _ := json.MarshalIndent(prog, "", "  ")
+	fmt.Println(string(j))
 
 	for _, v := range prog.Packages { //go through every package
 		for _, vv := range v.Files { //go through every file in the package (class)
