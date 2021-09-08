@@ -3,7 +3,7 @@ package ast
 import (
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
-	"github.com/llir/llvm/ir/value"
+	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -20,17 +20,12 @@ func (o *Operation) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (o *Operation) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) value.Value {
+func (o *Operation) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) data.Value {
 
 	var (
-		l = node.Left[0]
-		r = node.Right[0]
+		lc = node.Left[0].Group.Compile(compiler, class, node.Left[0], block)
+		rc = node.Right[0].Group.Compile(compiler, class, node.Right[0], block)
 	)
 
-	lc := l.Group.Compile(compiler, class, l, block)
-	rc := r.Group.Compile(compiler, class, r, block)
-
-	opString := typeToString(lc.Type()) + " " + o.OpType + " " + typeToString(rc.Type())
-
-	return compiler.Operations[opString](lc, rc, block)
+	return compiler.OperationStore.RunOperation(lc, rc, o.OpType, block)
 }

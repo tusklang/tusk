@@ -5,7 +5,7 @@ import (
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
-	"github.com/llir/llvm/ir/value"
+	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -87,8 +87,7 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (f *Function) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) value.Value {
-
+func (f *Function) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) data.Value {
 	var rt types.Type = types.Void //defaults to void
 
 	if f.RetType != nil {
@@ -118,5 +117,5 @@ func (f *Function) Compile(compiler *Compiler, class *types.StructType, node *AS
 		}
 	}
 
-	return rf
+	return data.NewFunc(rf)
 }

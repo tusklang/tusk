@@ -4,9 +4,8 @@ import (
 	"errors"
 
 	"github.com/llir/llvm/ir"
-	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
-	"github.com/llir/llvm/ir/value"
+	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -28,6 +27,16 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 
 	*i++
 
+	//has a specified type
+	if lex[*i].Name == ":" {
+		*i++
+		t, e := groupsToAST(groupSpecific(lex, 1, i))
+		if e != nil {
+			return e
+		}
+		vd.Type = t[0]
+	}
+
 	//has a value assigned to it
 	if lex[*i].Name == "=" {
 		*i++
@@ -43,18 +52,21 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (vd *VarDecl) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) value.Value {
-	return nil
-}
+func (vd *VarDecl) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) data.Value {
 
-//get the default value for x type
-func getDefault(typ types.Type) constant.Constant {
-	switch typ.(type) {
-	case *types.IntType: //integers default to 0
-		return constant.NewInt(types.I32, 0)
-	default: //everything else defaults to null
-		return &constant.Null{}
+	//all temporary for now
+	varval := vd.Value.Group.Compile(compiler, class, vd.Value, block)
+	decl := block.NewAlloca(varval.Type())
+
+	if vd.Value != nil {
+		block.NewStore(varval.LLVal(block), decl)
 	}
+
+	dv := data.NewVariable(decl, varval.Type())
+
+	compiler.AddVar(vd.Name, dv)
+
+	return dv
 }
 
 //used specifically for global variable declarations
@@ -68,15 +80,15 @@ func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *types.StructType, st
 		name := class.Name() + "_" + vd.Name
 		gbl := compiler.Module.NewGlobal(name, vtype)
 
-		gbl.Init = getDefault(vtype)
+		gbl.Init = data.GetDefault(vtype)
 
-		compiler.InitBlock.NewStore((val), gbl)
+		compiler.InitBlock.NewStore(val.LLVal(compiler.InitBlock), gbl)
 
 		compiler.StaticGlobals[name] = gbl
-		return nil
+		compiler.AddVar(name, data.NewVariable(gbl, vtype))
+	} else {
+		class.Fields = append(class.Fields, vtype) //append the field to the class if it's not a static field
 	}
-
-	class.Fields = append(class.Fields, vtype)
 
 	return nil
 }

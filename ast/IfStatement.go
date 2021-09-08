@@ -3,7 +3,7 @@ package ast
 import (
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
-	"github.com/llir/llvm/ir/value"
+	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -28,6 +28,6 @@ func (is *IfStatement) Type() string {
 	return "if"
 }
 
-func (is *IfStatement) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) value.Value {
+func (is *IfStatement) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) data.Value {
 	return nil
 }

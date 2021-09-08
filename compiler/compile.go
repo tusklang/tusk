@@ -10,8 +10,8 @@ import (
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/ast"
+	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/initialize"
-	"github.com/tusklang/tusk/operations"
 	"github.com/tusklang/tusk/varprocessor"
 )
 
@@ -28,12 +28,12 @@ func Compile(prog *initialize.Program, outfile string) {
 	compiler.ARCH = runtime.GOARCH
 
 	compiler.StaticGlobals = make(map[string]*ir.Global)
+	compiler.VarMap = make(map[string]*data.Variable)
 
+	initDefaultOps(&compiler)
 	inputDefaultTypes(&compiler)
 
 	//initialize the operations
-	operations.InitOperations(&compiler, prog)
-
 	var initfunc = m.NewFunc("_init", types.Void) //initialize func ran before main
 	compiler.InitBlock = initfunc.NewBlock("")
 
@@ -92,6 +92,8 @@ func Compile(prog *initialize.Program, outfile string) {
 		//no main function
 		//error
 	}
+
+	_ = mfnc
 
 	compiler.InitBlock.NewRet(nil) //append a `return void` to the init function
 
