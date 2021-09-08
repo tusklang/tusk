@@ -1,4 +1,5 @@
 %Main = type {}
+%Test = type { i32 }
 
 @Main_main = global void ()* null
 
@@ -10,8 +11,7 @@ define void @_tusk_init() {
 
 define void @tv_1() {
 0:
-	%1 = alloca i32
-	store i32 4, i32* %1
+	%1 = alloca %Main
 	ret void
 }
 

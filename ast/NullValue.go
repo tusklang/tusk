@@ -14,5 +14,5 @@ func (nv *NullValue) Parse(lex []tokenizer.Token, i *int) error {
 }
 
 func (dv *NullValue) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) data.Value {
-	return nil
+	return data.NewNull()
 }

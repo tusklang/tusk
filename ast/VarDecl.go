@@ -69,7 +69,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *types.StructType, node *AS
 
 	decl := block.NewAlloca(vtype)
 
-	if vd.Value != nil {
+	if varval.LLVal(block) != nil {
 		block.NewStore(varval.LLVal(block), decl)
 	}
 
@@ -101,7 +101,9 @@ func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *types.StructType, st
 
 		gbl.Init = data.GetDefault(vtype)
 
-		compiler.InitBlock.NewStore(val.LLVal(compiler.InitBlock), gbl)
+		if val.LLVal(compiler.InitBlock) != nil {
+			compiler.InitBlock.NewStore(val.LLVal(compiler.InitBlock), gbl)
+		}
 
 		compiler.StaticGlobals[name] = gbl
 		compiler.AddVar(name, data.NewVariable(data.NewInstruction(gbl), data.NewType(vtype), false))

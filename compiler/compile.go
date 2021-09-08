@@ -63,6 +63,7 @@ func Compile(prog *initialize.Program, outfile string) {
 
 			m.NewTypeDef(classname, stype)
 			v.Files[k].StructType = stype
+			typevars[classname] = data.NewType(stype)
 		}
 	}
 
