@@ -90,11 +90,11 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 func (f *Function) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) data.Value {
 	var rt types.Type = types.Void //defaults to void
 
-	if f.RetType != nil {
-		var e error
-		rt, e = compiler.FetchType(class, f.RetType.Group)
-		_ = e
-	}
+	// if f.RetType != nil {
+	// 	var e error
+	// 	rt, e = compiler.FetchType(class, f.RetType.Group)
+	// 	_ = e
+	// }
 
 	var params = make([]*ir.Param, len(f.Params))
 
@@ -115,7 +115,10 @@ func (f *Function) Compile(compiler *Compiler, class *types.StructType, node *AS
 		if f.RetType == nil {
 			fblock.NewRet(nil)
 		}
+
+		return data.NewFunc(rf)
 	}
 
-	return data.NewFunc(rf)
+	//if no body was provided, the function was being used as a type
+	return data.NewType(rf.Type())
 }

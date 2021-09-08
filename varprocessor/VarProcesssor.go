@@ -34,7 +34,8 @@ global variables are the only exception- because they exist throughout the whole
 */
 
 type VarProcessor struct {
-	curvar int
+	curvar  int
+	predecl map[string]decl
 }
 
 func NewProcessor() VarProcessor {
@@ -44,4 +45,16 @@ func NewProcessor() VarProcessor {
 func (p *VarProcessor) nextvar() string {
 	p.curvar++
 	return "vd_" + strconv.Itoa(p.curvar)
+}
+
+func (p *VarProcessor) AddPreDecl(n string) {
+
+	if p.predecl == nil {
+		p.predecl = make(map[string]decl)
+	}
+
+	p.predecl[n] = decl{
+		nname:  n,
+		static: false,
+	}
 }

@@ -36,10 +36,15 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
 		switch g := v.Group.(type) {
 		case *ast.VarDecl:
 
-			if _, exists := mergemap(declared, curscope)[g.Name]; exists {
+			m := mergemap(declared, curscope)
+
+			if _, exists := m[g.Name]; exists {
 				//error
 				//variable with that name has already been declared
 			}
+
+			p.process([]*ast.ASTNode{g.Type}, m)
+			p.process([]*ast.ASTNode{g.Value}, m)
 
 			nname := p.nextvar()
 			curscope[g.Name] = decl{
@@ -89,7 +94,7 @@ func (p *VarProcessor) ProcessVars(file *initialize.File) {
 	}
 
 	for _, v := range file.Globals {
-		p.process([]*ast.ASTNode{v.Value.Value}, globals) //process the declaration's assigned value
+		p.process([]*ast.ASTNode{v.Value.Value}, mergemap(p.predecl, globals)) //process the declaration's assigned value
 	}
 
 }

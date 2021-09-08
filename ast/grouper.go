@@ -119,8 +119,6 @@ func groupSpecific(tokens []tokenizer.Token, maxGroup int, startAt *int) []Group
 			gr = &NullValue{}
 		case "varname":
 			gr = &VarRef{}
-		case "dtype":
-			gr = &DataType{}
 		default:
 			//error
 			//the token given isn't recognized by tusk

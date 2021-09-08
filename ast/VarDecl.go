@@ -54,15 +54,26 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 
 func (vd *VarDecl) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) data.Value {
 
-	//all temporary for now
 	varval := vd.Value.Group.Compile(compiler, class, vd.Value, block)
-	decl := block.NewAlloca(varval.Type())
+	pvtype := vd.Type.Group.Compile(compiler, class, vd.Type, block)
+
+	var vtype types.Type
+
+	//i'll try and make this less bad later
+	switch pvtype.(type) {
+	case *data.Type:
+		vtype = pvtype.Type()
+	default:
+		//also error
+	}
+
+	decl := block.NewAlloca(vtype)
 
 	if vd.Value != nil {
 		block.NewStore(varval.LLVal(block), decl)
 	}
 
-	dv := data.NewVariable(decl, varval.Type())
+	dv := data.NewVariable(data.NewInstruction(decl), data.NewType(vtype), false)
 
 	compiler.AddVar(vd.Name, dv)
 
@@ -73,8 +84,16 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *types.StructType, node *AS
 func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *types.StructType, static bool) error {
 
 	val := vd.Value.Group.Compile(compiler, class, vd.Value, compiler.InitBlock)
+	pvtype := vd.Type.Group.Compile(compiler, class, vd.Type, compiler.InitBlock)
 
-	vtype := val.Type()
+	var vtype types.Type
+
+	switch pvtype.(type) {
+	case *data.Type:
+		vtype = pvtype.Type()
+	default:
+		//also error
+	}
 
 	if static {
 		name := class.Name() + "_" + vd.Name
@@ -85,7 +104,7 @@ func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *types.StructType, st
 		compiler.InitBlock.NewStore(val.LLVal(compiler.InitBlock), gbl)
 
 		compiler.StaticGlobals[name] = gbl
-		compiler.AddVar(name, data.NewVariable(gbl, vtype))
+		compiler.AddVar(name, data.NewVariable(data.NewInstruction(gbl), data.NewType(vtype), false))
 	} else {
 		class.Fields = append(class.Fields, vtype) //append the field to the class if it's not a static field
 	}

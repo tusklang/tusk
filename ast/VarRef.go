@@ -17,5 +17,14 @@ func (vr *VarRef) Parse(lex []tokenizer.Token, i *int) error {
 }
 
 func (vr *VarRef) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) data.Value {
-	return compiler.FetchVar(vr.Name)
+	fetched := compiler.FetchVar(vr.Name)
+
+	//it's an un-referenceable variable
+	//(mostly used for types as variables)
+	//so we just return the value of it, instead of the pointer
+	if fetched.UnReferenceable {
+		return fetched.FetchVal()
+	}
+
+	return fetched
 }

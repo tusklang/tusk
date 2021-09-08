@@ -44,24 +44,6 @@ var tokenlist = []TokenItem{
 	{("\\."), "operation"},    // .
 	/***********************************/
 
-	/************ types ************/
-	{"i64(?![a-zA-Z$_0-9])", "dtype"}, //int64 type
-	{"i32(?![a-zA-Z$_0-9])", "dtype"}, //int32 type
-	{"i16(?![a-zA-Z$_0-9])", "dtype"}, //int16 type
-	{"i8(?![a-zA-Z$_0-9])", "dtype"},  //int8 type
-
-	{"u64(?![a-zA-Z$_0-9])", "dtype"}, //uint64 type
-	{"u32(?![a-zA-Z$_0-9])", "dtype"}, //uint32 type
-	{"u16(?![a-zA-Z$_0-9])", "dtype"}, //uint16 type
-	{"u8(?![a-zA-Z$_0-9])", "dtype"},  //uint8 type
-
-	{"f64(?![a-zA-Z$_0-9])", "dtype"}, //float64 type
-	{"f32(?![a-zA-Z$_0-9])", "dtype"}, //float32 type
-
-	{"bool(?![a-zA-Z$_0-9])", "dtype"},   //boolean type
-	{"string(?![a-zA-Z$_0-9])", "dtype"}, //string type
-	/*******************************/
-
 	/************ misc ************/
 	{"null(?![a-zA-Z$_0-9])", "null"},         //null value
 	{"([+-]*[0-9]*\\.[0-9]*)", "float"},       //floating literal

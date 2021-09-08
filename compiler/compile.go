@@ -17,6 +17,18 @@ import (
 
 var processor = varprocessor.NewProcessor()
 
+//list of all the default types
+//types are variables in tusk's parser so we need to add the default ones in like so
+var typevars = map[string]*data.Type{
+	"i128": data.NewType(types.I128),
+	"i64":  data.NewType(types.I64),
+	"i32":  data.NewType(types.I32),
+	"i16":  data.NewType(types.I16),
+	"i8":   data.NewType(types.I8),
+	"f64":  data.NewType(types.Double),
+	"f32":  data.NewType(types.Float),
+}
+
 func Compile(prog *initialize.Program, outfile string) {
 
 	var compiler ast.Compiler
@@ -31,10 +43,9 @@ func Compile(prog *initialize.Program, outfile string) {
 	compiler.VarMap = make(map[string]*data.Variable)
 
 	initDefaultOps(&compiler)
-	inputDefaultTypes(&compiler)
 
 	//initialize the operations
-	var initfunc = m.NewFunc("_init", types.Void) //initialize func ran before main
+	var initfunc = m.NewFunc("_tusk_init", types.Void) //initialize func ran before main
 	compiler.InitBlock = initfunc.NewBlock("")
 
 	//add all the classes (files) to the type list
@@ -50,11 +61,15 @@ func Compile(prog *initialize.Program, outfile string) {
 				classname = strings.Join(v.Name, ".") + "." + vv.Name
 			}
 
-			definiton := m.NewTypeDef(classname, stype)
-
-			compiler.ValidTypes[classname] = definiton
+			m.NewTypeDef(classname, stype)
 			v.Files[k].StructType = stype
 		}
+	}
+
+	//add all the types as variables to the compiler
+	for k, v := range typevars {
+		processor.AddPreDecl(k)
+		compiler.AddVar(k, data.NewVariable(v, v, true))
 	}
 
 	//process all the variables
