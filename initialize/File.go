@@ -1,6 +1,7 @@
 package initialize
 
 import (
+	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/ast"
 )
@@ -14,8 +15,9 @@ type GlobalDecl struct {
 	*/
 	Access int
 
-	IsStatic bool //if the global is a static or instance
-	Value    *ast.VarDecl
+	IsStatic    bool //if the global is a static or instance
+	Value       *ast.VarDecl
+	Declaration *ir.Global
 }
 
 type File struct {

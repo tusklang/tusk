@@ -54,7 +54,7 @@ func Compile(prog *initialize.Program, outfile string) {
 
 	for _, v := range prog.Packages {
 		//create the new package
-		tp := data.NewPackage(v.Name)
+		tp := data.NewPackage(v.Name, v.FullName())
 		cpacks[v] = tp //add it to the list of packages
 	}
 
@@ -118,14 +118,13 @@ func Compile(prog *initialize.Program, outfile string) {
 
 	for ic, c := range cclasses {
 		for _, v := range ic.Globals {
-			v.Value.CompileGlobal(&compiler, c, v.IsStatic)
+			v.Value.DeclareGlobal(c.ParentPackage.FullName+"."+c.Name+"_"+v.Value.Name, &compiler, c, v.IsStatic)
 		}
 	}
 
-	for _, v := range cclasses {
-		for k, vv := range v.Static {
-			def := compiler.Module.NewGlobal(v.Name+"_"+k, vv.Type())
-			compiler.InitBlock.NewStore(vv.LLVal(compiler.InitBlock), def)
+	for ic, c := range cclasses {
+		for _, v := range ic.Globals {
+			v.Value.CompileGlobal(&compiler, c, compiler.InitBlock)
 		}
 	}
 

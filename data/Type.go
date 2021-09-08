@@ -2,6 +2,7 @@ package data
 
 import (
 	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
@@ -13,6 +14,15 @@ type Type struct {
 func NewType(typ types.Type) *Type {
 	return &Type{
 		typ: typ,
+	}
+}
+
+func (t *Type) Default() constant.Constant {
+	switch t.typ {
+	case types.I32:
+		return constant.NewInt(types.I32, 0)
+	default:
+		return &constant.Null{}
 	}
 }
 

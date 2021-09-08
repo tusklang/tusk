@@ -1,3 +1,6 @@
+pub stat var test: i32 = test2;
+pub stat var test2: i32 = test;
+
 pub stat var main: fn() = fn() {
-    var a: test.subtest.Test3 = null;
+    var b: i32 = test + 1;
 };

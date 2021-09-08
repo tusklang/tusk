@@ -19,7 +19,16 @@ func (vr *VarRef) Compile(compiler *Compiler, class *data.Class, node *ASTNode, 
 	fetched := compiler.FetchVar(vr.Name)
 
 	if fetched == nil {
-		return data.NewUndeclaredVar(vr.Name)
+
+		//check the class' static variables if there is no variable declared with x name
+
+		fetched = class.Static[vr.Name]
+
+		if fetched == nil {
+			//if there still isn't a variable with that name, it's an "undeclared variable"
+			return data.NewUndeclaredVar(vr.Name)
+		}
+
 	}
 
 	//it's an un-referenceable variable
