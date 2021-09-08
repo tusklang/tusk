@@ -9,12 +9,18 @@ import (
 type Class struct {
 	Name     string
 	SType    *types.StructType
-	Instance []*Variable
-	Static   []*Variable
+	Instance map[string]*Variable
+	Static   map[string]*Variable
+
+	ParentPackage *Package
 }
 
-func NewClass(st *types.StructType) *Class {
-	return nil
+func NewClass(name string, st *types.StructType, parent *Package) *Class {
+	return &Class{
+		Name:          name,
+		SType:         st,
+		ParentPackage: parent,
+	}
 }
 
 func (c *Class) LLVal(block *ir.Block) value.Value {

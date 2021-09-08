@@ -30,7 +30,7 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	//so we will skip the return type
 
 	if lex[*i].Type != "(" {
-		rt, e := groupsToAST(groupSpecific(lex, 1, i))
+		rt, e := groupsToAST(groupSpecific(lex, i, []string{"("}))
 		f.RetType = rt[0]
 		if e != nil {
 			return e
@@ -87,7 +87,7 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (f *Function) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) data.Value {
+func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
 	var rt types.Type = types.Void //defaults to void
 
 	// if f.RetType != nil {

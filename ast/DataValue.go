@@ -40,6 +40,6 @@ func (dv *DataValue) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (dv *DataValue) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) data.Value {
+func (dv *DataValue) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
 	return dv.Value
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	"strings"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
@@ -17,9 +16,10 @@ import (
 
 var processor = varprocessor.NewProcessor()
 
-//list of all the default types
+//list of all the variables that are added by default
+//has types to begin with, but it can store anything
 //types are variables in tusk's parser so we need to add the default ones in like so
-var typevars = map[string]*data.Type{
+var prevars = map[string]data.Value{
 	"i128": data.NewType(types.I128),
 	"i64":  data.NewType(types.I64),
 	"i32":  data.NewType(types.I32),
@@ -39,7 +39,6 @@ func Compile(prog *initialize.Program, outfile string) {
 	compiler.OS = runtime.GOOS
 	compiler.ARCH = runtime.GOARCH
 
-	compiler.StaticGlobals = make(map[string]*ir.Global)
 	compiler.VarMap = make(map[string]*data.Variable)
 
 	initDefaultOps(&compiler)
@@ -48,29 +47,54 @@ func Compile(prog *initialize.Program, outfile string) {
 	var initfunc = m.NewFunc("_tusk_init", types.Void) //initialize func ran before main
 	compiler.InitBlock = initfunc.NewBlock("")
 
+	var (
+		cpacks   = make(map[*initialize.Package]*data.Package)
+		cclasses = make(map[*initialize.File]*data.Class)
+	)
+
 	//add all the classes (files) to the type list
 	for _, v := range prog.Packages {
+
+		//create the new package
+		tp := data.NewPackage(v.Name, cpacks[v.Parent()])
+		cpacks[v] = tp //add it to the list of packages
+
+		if v.Parent() != nil {
+
+			if v.Parent().Parent() == nil {
+				//if it has no parent, it's a package on the uppermost level
+				//so it is it's variable/type/thing
+
+				//we check the parent's parent because the *real* uppermost level is the unnamed one
+				prevars[v.Name] = tp
+			}
+
+		}
+
 		for k, vv := range v.Files {
 			stype := types.NewStruct() //create a new structure (representing a class)
 
-			//construct the classname
-			//made up of the package name and the class' name
-			var classname = vv.Name //if there isn't a package name, then it's just the class' name
+			tc := data.NewClass(vv.Name, stype, tp) //create the class in tusk
 
-			if v.Name != nil {
-				classname = strings.Join(v.Name, ".") + "." + vv.Name
-			}
+			//init the instance and static maps
+			tc.Instance = make(map[string]*data.Variable)
+			tc.Static = make(map[string]*data.Variable)
 
-			m.NewTypeDef(classname, stype)
 			v.Files[k].StructType = stype
-			typevars[classname] = data.NewType(stype)
+
+			cclasses[vv] = tc
+			tp.AddClass(vv.Name, tc)
+
+			//define the type in llvm
+			compiler.Module.NewTypeDef("tuskclass."+v.FullName()+vv.Name, stype)
 		}
+
 	}
 
-	//add all the types as variables to the compiler
-	for k, v := range typevars {
+	//add all the prevars as variables to the compiler
+	for k, v := range prevars {
 		processor.AddPreDecl(k)
-		compiler.AddVar(k, data.NewVariable(v, v, true))
+		compiler.AddVar(k, data.NewVariable(v, data.NewType(v.Type()), true))
 	}
 
 	//process all the variables
@@ -84,14 +108,16 @@ func Compile(prog *initialize.Program, outfile string) {
 	j, _ := json.MarshalIndent(prog, "", "  ")
 	fmt.Println(string(j))
 
-	for _, v := range prog.Packages { //go through every package
-		for _, vv := range v.Files { //go through every file in the package (class)
+	for ic, c := range cclasses {
+		for _, v := range ic.Globals {
+			v.Value.CompileGlobal(&compiler, c, v.IsStatic)
+		}
+	}
 
-			//loop through all the global variables in the class
-			for _, vvv := range vv.Globals {
-				vvv.Value.CompileGlobal(&compiler, vv.StructType, vvv.IsStatic)
-			}
-
+	for _, v := range cclasses {
+		for k, vv := range v.Static {
+			def := compiler.Module.NewGlobal(v.Name+"_"+k, vv.Type())
+			compiler.InitBlock.NewStore(vv.LLVal(compiler.InitBlock), def)
 		}
 	}
 
@@ -99,23 +125,11 @@ func Compile(prog *initialize.Program, outfile string) {
 	mfunc := m.NewFunc("main", types.Void)
 	mblock := mfunc.NewBlock("")
 
-	var (
-		mfnc   *ir.Global
-		exists bool
-	)
-
-	if mfnc, exists = compiler.StaticGlobals[prog.Config.Entry+"_main"]; !exists {
-		//no main function
-		//error
-	}
-
-	_ = mfnc
-
 	compiler.InitBlock.NewRet(nil) //append a `return void` to the init function
 
 	mblock.NewCall(initfunc) //call the initialize function
-	loaded := mblock.NewLoad(mfnc.ContentType, mfnc)
-	mblock.NewCall(loaded)
+	// loaded := mblock.NewLoad(mfnc.ContentType, mfnc)
+	// mblock.NewCall(loaded)
 	mblock.NewRet(nil)
 
 	f, _ := os.Create(outfile)

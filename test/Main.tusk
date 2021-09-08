@@ -1,3 +1,3 @@
 pub stat var main: fn() = fn() {
-    var a: Main = null;
+    var a: test.Test2 = null;
 };

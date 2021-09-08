@@ -43,6 +43,9 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 		{
 			"**": defaultOperationHandle,
 		},
+		{
+			".": defaultOperationHandle,
+		},
 		//lower on this list means greater precedence
 	}
 

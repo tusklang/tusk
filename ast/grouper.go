@@ -67,22 +67,20 @@ becomes
 }
 */
 
-//helper function to compare the max group size to return and the current index
-func cmpMaxGroup(i, maxGroup, originalStartPos int) bool {
-	if maxGroup < 0 {
-		return true //continue if -1 is given, -1 means no max
+func testStopAt(token tokenizer.Token, sa []string) bool {
+	for _, v := range sa {
+		if token.Name == v {
+			return false
+		}
 	}
-
-	return i-originalStartPos < maxGroup //otherwise just return if i is less than the max group size
+	return true
 }
 
 //function for extra customizability with grouping
-func groupSpecific(tokens []tokenizer.Token, maxGroup int, startAt *int) []Group {
+func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string) []Group {
 	var fin []Group
 
-	originalStartPos := *startAt
-
-	for ; *startAt < len(tokens) && cmpMaxGroup(*startAt, maxGroup, originalStartPos); *startAt++ {
+	for ; *startAt < len(tokens) && testStopAt(tokens[*startAt], stopAt); *startAt++ {
 
 		var gr Group //the group to append
 
@@ -135,5 +133,5 @@ func groupSpecific(tokens []tokenizer.Token, maxGroup int, startAt *int) []Group
 //function used as shorthand for `groupSpecific` when some params aren't required
 func grouper(tokens []tokenizer.Token) []Group {
 	tmp := 0
-	return groupSpecific(tokens, -1, &tmp)
+	return groupSpecific(tokens, &tmp, nil)
 }

@@ -76,7 +76,11 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
 		case *ast.Operation:
 			m := mergemap(declared, curscope)
 			p.process(v.Left, m)
-			p.process(v.Right, m)
+
+			//if it's the dot operator, only check the left side
+			if g.OpType != "." {
+				p.process(v.Right, m)
+			}
 		}
 	}
 }

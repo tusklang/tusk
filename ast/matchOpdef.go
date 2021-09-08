@@ -1,4 +1,4 @@
-package operations
+package ast
 
 //the operation definition has a few special keywords to match a group of types
 //this function is able to match the typename given as a string to the opdef's typename, which could be a keyword

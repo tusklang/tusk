@@ -5,17 +5,15 @@ import (
 
 	"github.com/llir/llvm/ir"
 	"github.com/tusklang/tusk/data"
-	"github.com/tusklang/tusk/operations"
 )
 
 type Compiler struct {
-	Module         *ir.Module                 //llvm module
-	tmpVarCnt      uint64                     //integer ID to use for temp vars (each use results in increment)
-	OS, ARCH       string                     //operating system and architecture
-	StaticGlobals  map[string]*ir.Global      //all global static variables
-	InitBlock      *ir.Block                  //function that runs before main (used to initialize globals and stuff)
-	OperationStore *operations.OperationStore //list of all operations
-	VarMap         map[string]*data.Variable  //map of all the variables declared
+	Module         *ir.Module                //llvm module
+	tmpVarCnt      uint64                    //integer ID to use for temp vars (each use results in increment)
+	OS, ARCH       string                    //operating system and architecture
+	InitBlock      *ir.Block                 //function that runs before main (used to initialize globals and stuff)
+	OperationStore *OperationStore           //list of all operations
+	VarMap         map[string]*data.Variable //map of all the variables declared
 }
 
 func (c *Compiler) TmpVar() string {

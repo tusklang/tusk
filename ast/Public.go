@@ -2,7 +2,6 @@ package ast
 
 import (
 	"github.com/llir/llvm/ir"
-	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -20,6 +19,6 @@ func (p *Public) SetDecl(node *ASTNode) {
 }
 
 //cannot be compiled
-func (p *Public) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) data.Value {
+func (p *Public) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
 	return nil
 }

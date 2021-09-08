@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"path"
 	"path/filepath"
-	"strings"
 )
 
 func parsePackage(dir string, pkg *Package, prog *Program) error {
@@ -26,7 +25,9 @@ func parsePackage(dir string, pkg *Package, prog *Program) error {
 			var spkg Package
 
 			//because the name is an array (see `Package.go`) we want to get the package names of all the parents
-			spkg.Name = append(spkg.Name, strings.Split(jpth, "/")...)
+			spkg.Name = v.Name()
+
+			spkg.parent = pkg //set the parent package
 
 			e = parsePackage(jpth, &spkg, prog)
 

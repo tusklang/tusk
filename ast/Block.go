@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/llir/llvm/ir"
-	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -37,7 +36,7 @@ func (b *Block) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (b *Block) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) data.Value {
+func (b *Block) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
 
 	for _, v := range b.Sub {
 		v.Group.Compile(compiler, class, v, block)

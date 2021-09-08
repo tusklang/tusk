@@ -1,20 +1,19 @@
 package initialize
 
 type Package struct {
+	Name   string
+	Files  []*File
+	parent *Package
+}
 
-	/*
-		`Name` is an array, rather than a string, because of sub-directories
-		example:
+func (p Package) Parent() *Package {
+	return p.parent
+}
 
-		util/
-			arrays/
-				ArrayCounter.tusk
-		Main.tusk
-		tusk.config.json
-
-		Main.tusk would reference the ArrayCoutner methods with `util.arrays.ArrayCounter`
-		The arrays package would have the name []string{"util", "arrays"}
-	*/
-	Name  []string
-	Files []*File
+func (p Package) FullName() string {
+	//returns the full name, with all the parents
+	if p.parent == nil {
+		return p.Name
+	}
+	return p.parent.FullName() + p.Name + "."
 }

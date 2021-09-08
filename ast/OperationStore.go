@@ -1,4 +1,4 @@
-package operations
+package ast
 
 import (
 	"github.com/llir/llvm/ir"
@@ -8,7 +8,7 @@ import (
 type operationdef struct {
 	left, right string
 	operation   string
-	handler     func(left, right data.Value, block *ir.Block) data.Value
+	handler     func(left, right data.Value, compiler *Compiler, block *ir.Block) data.Value
 }
 
 type OperationStore struct {
@@ -19,7 +19,7 @@ func NewOperationStore() *OperationStore {
 	return &OperationStore{}
 }
 
-func (os *OperationStore) NewOperation(operation string, ltype, rtype string, handler func(left, right data.Value, block *ir.Block) data.Value) {
+func (os *OperationStore) NewOperation(operation string, ltype, rtype string, handler func(left, right data.Value, compiler *Compiler, block *ir.Block) data.Value) {
 	os.operations = append(os.operations, operationdef{
 		left:      ltype,
 		right:     rtype,
@@ -28,7 +28,7 @@ func (os *OperationStore) NewOperation(operation string, ltype, rtype string, ha
 	})
 }
 
-func (os *OperationStore) RunOperation(lval, rval data.Value, operation string, block *ir.Block) data.Value {
+func (os *OperationStore) RunOperation(lval, rval data.Value, operation string, compiler *Compiler, block *ir.Block) data.Value {
 	var (
 		ltyp = lval.TypeString()
 		rtyp = rval.TypeString()
@@ -37,7 +37,7 @@ func (os *OperationStore) RunOperation(lval, rval data.Value, operation string, 
 	for _, v := range os.operations {
 		if operation == v.operation && matchOpdef(ltyp, v.left) && matchOpdef(rtyp, v.right) {
 			//if the types match with the operation
-			return v.handler(lval, rval, block)
+			return v.handler(lval, rval, compiler, block)
 		}
 	}
 

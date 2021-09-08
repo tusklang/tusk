@@ -30,7 +30,7 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 	//has a specified type
 	if lex[*i].Name == ":" {
 		*i++
-		t, e := groupsToAST(groupSpecific(lex, 1, i))
+		t, e := groupsToAST(groupSpecific(lex, i, []string{"=", ";"}))
 		if e != nil {
 			return e
 		}
@@ -52,7 +52,7 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (vd *VarDecl) Compile(compiler *Compiler, class *types.StructType, node *ASTNode, block *ir.Block) data.Value {
+func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
 
 	varval := vd.Value.Group.Compile(compiler, class, vd.Value, block)
 	pvtype := vd.Type.Group.Compile(compiler, class, vd.Type, block)
@@ -61,10 +61,12 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *types.StructType, node *AS
 
 	//i'll try and make this less bad later
 	switch pvtype.(type) {
+	case *data.Class:
+		vtype = pvtype.Type()
 	case *data.Type:
 		vtype = pvtype.Type()
 	default:
-		//also error
+		//error
 	}
 
 	decl := block.NewAlloca(vtype)
@@ -81,34 +83,26 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *types.StructType, node *AS
 }
 
 //used specifically for global variable declarations
-func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *types.StructType, static bool) error {
+func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *data.Class, static bool) error {
 
 	val := vd.Value.Group.Compile(compiler, class, vd.Value, compiler.InitBlock)
 	pvtype := vd.Type.Group.Compile(compiler, class, vd.Type, compiler.InitBlock)
 
-	var vtype types.Type
+	var vtype *data.Type
 
-	switch pvtype.(type) {
+	switch vt := pvtype.(type) {
+	case *data.Class:
+		vtype = data.NewType(vt.Type())
 	case *data.Type:
-		vtype = pvtype.Type()
+		vtype = vt
 	default:
-		//also error
+		//error
 	}
 
 	if static {
-		name := class.Name() + "_" + vd.Name
-		gbl := compiler.Module.NewGlobal(name, vtype)
-
-		gbl.Init = data.GetDefault(vtype)
-
-		if val.LLVal(compiler.InitBlock) != nil {
-			compiler.InitBlock.NewStore(val.LLVal(compiler.InitBlock), gbl)
-		}
-
-		compiler.StaticGlobals[name] = gbl
-		compiler.AddVar(name, data.NewVariable(data.NewInstruction(gbl), data.NewType(vtype), false))
+		class.Static[vd.Name] = data.NewVariable(val, vtype, false)
 	} else {
-		class.Fields = append(class.Fields, vtype) //append the field to the class if it's not a static field
+		class.Instance[vd.Name] = data.NewVariable(val, vtype, false)
 	}
 
 	return nil

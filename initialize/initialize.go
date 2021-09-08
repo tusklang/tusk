@@ -9,7 +9,6 @@ import (
 /*
 	- comprehending project structure
 	- dependency managment
-	- compiling the project into llvm IR
 */
 
 func Initialize(configFileName string) *Program {
