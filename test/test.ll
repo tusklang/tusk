@@ -1,3 +1,4 @@
+%tuskclass.test.subtest.Test3 = type {}
 %tuskclass.test.Test2 = type {}
 %tuskclass.Main = type {}
 %tuskclass.Test = type {}
@@ -13,7 +14,7 @@ define void @_tusk_init() {
 
 define void @tv_1() {
 0:
-	%1 = alloca %tuskclass.test.Test2
+	%1 = alloca %tuskclass.test.subtest.Test3
 	ret void
 }
 

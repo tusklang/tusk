@@ -29,6 +29,7 @@ func (os *OperationStore) NewOperation(operation string, ltype, rtype string, ha
 }
 
 func (os *OperationStore) RunOperation(lval, rval data.Value, operation string, compiler *Compiler, block *ir.Block) data.Value {
+
 	var (
 		ltyp = lval.TypeString()
 		rtyp = rval.TypeString()

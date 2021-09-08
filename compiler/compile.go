@@ -52,12 +52,17 @@ func Compile(prog *initialize.Program, outfile string) {
 		cclasses = make(map[*initialize.File]*data.Class)
 	)
 
+	for _, v := range prog.Packages {
+		//create the new package
+		tp := data.NewPackage(v.Name)
+		cpacks[v] = tp //add it to the list of packages
+	}
+
 	//add all the classes (files) to the type list
 	for _, v := range prog.Packages {
 
-		//create the new package
-		tp := data.NewPackage(v.Name, cpacks[v.Parent()])
-		cpacks[v] = tp //add it to the list of packages
+		packtyp := cpacks[v]
+		parentPacktyp := cpacks[v.Parent()]
 
 		if v.Parent() != nil {
 
@@ -66,15 +71,18 @@ func Compile(prog *initialize.Program, outfile string) {
 				//so it is it's variable/type/thing
 
 				//we check the parent's parent because the *real* uppermost level is the unnamed one
-				prevars[v.Name] = tp
+				prevars[v.Name] = packtyp
 			}
+
+			//also if it has a parent, we will append the child to the parent's children map
+			parentPacktyp.ChildPacks[v.Name] = packtyp
 
 		}
 
 		for k, vv := range v.Files {
 			stype := types.NewStruct() //create a new structure (representing a class)
 
-			tc := data.NewClass(vv.Name, stype, tp) //create the class in tusk
+			tc := data.NewClass(vv.Name, stype, packtyp) //create the class in tusk
 
 			//init the instance and static maps
 			tc.Instance = make(map[string]*data.Variable)
@@ -83,7 +91,7 @@ func Compile(prog *initialize.Program, outfile string) {
 			v.Files[k].StructType = stype
 
 			cclasses[vv] = tc
-			tp.AddClass(vv.Name, tc)
+			packtyp.AddClass(vv.Name, tc)
 
 			//define the type in llvm
 			compiler.Module.NewTypeDef("tuskclass."+v.FullName()+vv.Name, stype)

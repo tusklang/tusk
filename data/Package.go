@@ -7,16 +7,16 @@ import (
 )
 
 type Package struct {
-	PackageName   string
-	Classes       map[string]*Class
-	ParentPackage *Package
+	PackageName string
+	Classes     map[string]*Class
+	ChildPacks  map[string]*Package
 }
 
-func NewPackage(name string, parent *Package) *Package {
+func NewPackage(name string) *Package {
 	return &Package{
-		PackageName:   name,
-		Classes:       make(map[string]*Class),
-		ParentPackage: parent,
+		PackageName: name,
+		Classes:     make(map[string]*Class),
+		ChildPacks:  make(map[string]*Package),
 	}
 }
 

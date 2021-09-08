@@ -19,7 +19,17 @@ func initDefaultOps(compiler *ast.Compiler) {
 		pack := left.(*data.Package)
 		sub := right.(*data.UndeclaredVar).Name
 
-		return pack.Classes[sub]
+		//it can either be a class or a subpackage
+		var (
+			class   = pack.Classes[sub]
+			subpack = pack.ChildPacks[sub]
+		)
+
+		if class == nil {
+			return subpack
+		}
+
+		return class
 	})
 
 }

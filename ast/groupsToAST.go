@@ -53,7 +53,8 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 	for _, v := range opList {
 
 		//go through all the items
-		for i := 0; i < len(items); i++ {
+		//reverse order for left to right associativity
+		for i := len(items) - 1; i >= 0; i-- {
 
 			for k, vv := range v {
 
