@@ -93,6 +93,10 @@ func Compile(prog *initialize.Program, outfile string) {
 			cclasses[vv] = tc
 			packtyp.AddClass(vv.Name, tc)
 
+			if v.Parent() == nil {
+				prevars[vv.Name] = tc
+			}
+
 			//define the type in llvm
 			compiler.Module.NewTypeDef("tuskclass."+v.FullName()+vv.Name, stype)
 		}

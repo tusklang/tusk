@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"fmt"
+
 	"github.com/llir/llvm/ir"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
@@ -25,6 +27,8 @@ func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode
 		lc = node.Left[0].Group.Compile(compiler, class, node.Left[0], block)
 		rc = node.Right[0].Group.Compile(compiler, class, node.Right[0], block)
 	)
+
+	fmt.Println(lc.TypeString(), rc.TypeString(), o.OpType)
 
 	rop := compiler.OperationStore.RunOperation(lc, rc, o.OpType, compiler, block)
 	return rop

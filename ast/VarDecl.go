@@ -79,8 +79,8 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 
 	decl := block.NewAlloca(vtype.Type())
 
-	if varval.LLVal(block) != nil {
-		block.NewStore(varval.LLVal(block), decl)
+	if llv := varval.LLVal(block); llv != nil {
+		block.NewStore(llv, decl)
 	}
 
 	dv := data.NewVariable(data.NewInstruction(decl), vtype, false)

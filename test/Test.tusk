@@ -1,0 +1,1 @@
+pub stat var a: i32 = 43;

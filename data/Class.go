@@ -32,5 +32,5 @@ func (c *Class) Type() types.Type {
 }
 
 func (c *Class) TypeString() string {
-	return c.Type().LLString()
+	return "class"
 }

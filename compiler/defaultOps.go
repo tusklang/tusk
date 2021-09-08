@@ -32,4 +32,12 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return class
 	})
 
+	compiler.OperationStore.NewOperation(".", "class", "udvar", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+
+		class := left.(*data.Class)
+		sub := right.(*data.UndeclaredVar).Name
+
+		return class.Static[sub]
+	})
+
 }
