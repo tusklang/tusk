@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/data"
 )
@@ -38,6 +39,22 @@ func initDefaultOps(compiler *ast.Compiler) {
 		sub := right.(*data.UndeclaredVar).Name
 
 		return class.Static[sub]
+	})
+
+	compiler.OperationStore.NewOperation("()", "func", "fncallb", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+
+		f := left.LLVal(block)
+		fcb := right.(*data.FnCallBlock)
+
+		var args []value.Value
+
+		for _, v := range fcb.Args {
+			args = append(args, v.LLVal(block))
+		}
+
+		return data.NewInstruction(
+			block.NewCall(f, args...),
+		)
 	})
 
 }

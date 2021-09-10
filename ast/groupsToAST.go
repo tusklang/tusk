@@ -63,6 +63,30 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 					if g.Token.Name == k {
 						return vv(items, i)
 					}
+				case *Block:
+					//for function calls
+
+					//if the blocktype is a (
+					if g.BlockType == "(" {
+
+						if i-1 >= 0 {
+
+							//if the item prior is a function or a variable
+							/*
+								a();
+								or
+								fn() {}();
+							*/
+							switch items[i-1].(type) {
+							case *VarRef:
+								return funcCallHandle(items, i)
+							case *Function:
+								return funcCallHandle(items, i)
+							}
+
+						}
+
+					}
 				}
 			}
 

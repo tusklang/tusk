@@ -33,5 +33,5 @@ func (v *Variable) Type() types.Type {
 }
 
 func (v *Variable) TypeString() string {
-	return v.Type().LLString()
+	return v.val.TypeString()
 }

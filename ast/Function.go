@@ -78,7 +78,7 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 		return nil
 	}
 
-	f.Body = grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator"))[0].(*Block)
+	f.Body = grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, ""))[0].(*Block)
 
 	if e != nil {
 		return e

@@ -30,13 +30,8 @@ func (os *OperationStore) NewOperation(operation string, ltype, rtype string, ha
 
 func (os *OperationStore) RunOperation(lval, rval data.Value, operation string, compiler *Compiler, block *ir.Block) data.Value {
 
-	var (
-		ltyp = lval.TypeString()
-		rtyp = rval.TypeString()
-	)
-
 	for _, v := range os.operations {
-		if operation == v.operation && matchOpdef(ltyp, v.left) && matchOpdef(rtyp, v.right) {
+		if operation == v.operation && matchOpdef(lval, v.left) && matchOpdef(rval, v.right) {
 			//if the types match with the operation
 			return v.handler(lval, rval, compiler, block)
 		}
