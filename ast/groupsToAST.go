@@ -44,6 +44,9 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 			"**": defaultOperationHandle,
 		},
 		{
+			"()": nil, //function call
+		},
+		{
 			".": defaultOperationHandle,
 		},
 		//lower on this list means greater precedence
@@ -67,7 +70,7 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 					//for function calls
 
 					//if the blocktype is a (
-					if g.BlockType == "(" {
+					if k == "()" && g.BlockType == "(" {
 
 						if i-1 >= 0 {
 

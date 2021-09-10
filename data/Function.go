@@ -25,5 +25,5 @@ func (f *Function) Type() types.Type {
 }
 
 func (f *Function) TypeString() string {
-	return "func"
+	return f.Type().LLString()
 }

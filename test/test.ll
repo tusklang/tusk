@@ -12,13 +12,8 @@ declare void @tv_1()
 
 define void @tv_2() {
 0:
-	call void @tv_3()
-	ret void
-}
-
-define void @tv_3() {
-0:
-	%1 = add i32 1, 1
+	%1 = load void ()*, void ()** @.Main_main
+	call void %1()
 	ret void
 }
 
