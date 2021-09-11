@@ -24,6 +24,10 @@ func (f *Function) Type() types.Type {
 	return f.llfunc.Type()
 }
 
+func FuncTypeDefault(t types.Type) string {
+	return "func"
+}
+
 func (f *Function) TypeString() string {
-	return f.Type().LLString()
+	return FuncTypeDefault(nil)
 }

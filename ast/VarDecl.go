@@ -62,6 +62,7 @@ func (vd *VarDecl) getDeclType(compiler *Compiler, class *data.Class, block *ir.
 	switch vt := pvtype.(type) {
 	case *data.Class:
 		vtype = data.NewType(vt.Type())
+		vtype.SetTypeName(vt.TypeString())
 	case *data.Type:
 		vtype = vt
 	default:
@@ -83,7 +84,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		block.NewStore(llv, decl)
 	}
 
-	dv := data.NewVariable(data.NewInstruction(decl), vtype, false)
+	dv := data.NewVariable(vtype, vtype, false)
 
 	compiler.AddVar(vd.Name, dv)
 

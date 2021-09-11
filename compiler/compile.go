@@ -131,6 +131,10 @@ func Compile(prog *initialize.Program, outfile string) {
 
 		}
 
+		for _, v := range c.Instance {
+			c.SType.Fields = append(c.SType.Fields, v.Type())
+		}
+
 		c.Construct.NewRet(nil) //return void at the end of the instance constructor
 	}
 

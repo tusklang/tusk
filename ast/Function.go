@@ -120,5 +120,7 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	}
 
 	//if no body was provided, the function was being used as a type
-	return data.NewType(rf.Type())
+	ft := data.NewType(rf.Type())
+	ft.SetTypeName("func")
+	return ft
 }

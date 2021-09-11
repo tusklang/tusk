@@ -8,7 +8,8 @@ import (
 )
 
 type Type struct {
-	typ types.Type
+	typ  types.Type
+	name *string
 }
 
 func NewType(typ types.Type) *Type {
@@ -26,6 +27,10 @@ func (t *Type) Default() constant.Constant {
 	}
 }
 
+func (t *Type) SetTypeName(n string) {
+	t.name = &n
+}
+
 func (t *Type) LLVal(block *ir.Block) value.Value {
 	return nil
 }
@@ -34,6 +39,15 @@ func (t *Type) Type() types.Type {
 	return t.typ
 }
 
-func (t *Type) TypeString() string {
+func (t *Type) typMatch() string {
+
+	if t.name != nil {
+		return *t.name
+	}
+
 	return t.Type().LLString()
+}
+
+func (t *Type) TypeString() string {
+	return t.typMatch()
 }

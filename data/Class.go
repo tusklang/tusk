@@ -32,6 +32,10 @@ func (c *Class) Type() types.Type {
 	return c.SType
 }
 
+func ClassTypeDefault(t types.Type) string {
+	return "class " + t.Name()
+}
+
 func (c *Class) TypeString() string {
-	return "class"
+	return ClassTypeDefault(c.SType)
 }
