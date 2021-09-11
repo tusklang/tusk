@@ -7,10 +7,11 @@ import (
 )
 
 type Class struct {
-	Name     string
-	SType    *types.StructType
-	Instance map[string]*Variable
-	Static   map[string]*Variable
+	Name      string
+	SType     *types.StructType
+	Instance  map[string]*Variable
+	Static    map[string]*Variable
+	Construct *ir.Block
 
 	ParentPackage *Package
 }

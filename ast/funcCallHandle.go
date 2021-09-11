@@ -5,7 +5,7 @@ func funcCallHandle(items []Group, i int) ([]*ASTNode, error) {
 	var argsG = items[i].(*Block)
 	argsG.BlockType = "fncallb" //set the block type to a function call block
 
-	fc, e1 := groupsToAST([]Group{items[i-1]})
+	fc, e1 := groupsToAST(items[:i])
 	args, e2 := groupsToAST([]Group{argsG})
 
 	if e2 != nil {

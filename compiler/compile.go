@@ -39,6 +39,10 @@ func Compile(prog *initialize.Program, outfile string) {
 	compiler.OS = runtime.GOOS
 	compiler.ARCH = runtime.GOARCH
 
+	var stringclass *data.Class
+	stringclass, compiler.NewString = initString(m)
+	prevars["string"] = stringclass
+
 	compiler.VarMap = make(map[string]*data.Variable)
 
 	initDefaultOps(&compiler)
@@ -79,26 +83,14 @@ func Compile(prog *initialize.Program, outfile string) {
 
 		}
 
-		for k, vv := range v.Files {
-			stype := types.NewStruct() //create a new structure (representing a class)
+		for _, vv := range v.Files {
 
-			tc := data.NewClass(vv.Name, stype, packtyp) //create the class in tusk
-
-			//init the instance and static maps
-			tc.Instance = make(map[string]*data.Variable)
-			tc.Static = make(map[string]*data.Variable)
-
-			v.Files[k].StructType = stype
-
+			tc := compileClass(&compiler, vv, v, packtyp)
 			cclasses[vv] = tc
-			packtyp.AddClass(vv.Name, tc)
 
 			if v.Parent() == nil {
 				prevars[vv.Name] = tc
 			}
-
-			//define the type in llvm
-			compiler.Module.NewTypeDef("tuskclass."+v.FullName()+vv.Name, stype)
 		}
 
 	}
@@ -128,8 +120,18 @@ func Compile(prog *initialize.Program, outfile string) {
 
 	for ic, c := range cclasses {
 		for _, v := range ic.Globals {
-			v.Value.CompileGlobal(&compiler, c, compiler.InitBlock)
+
+			if v.IsStatic {
+				//it's a static variable
+				v.Value.CompileGlobal(&compiler, c, compiler.InitBlock)
+			} else {
+				//it's an instance variable
+				v.Value.CompileGlobal(&compiler, c, c.Construct)
+			}
+
 		}
+
+		c.Construct.NewRet(nil) //return void at the end of the instance constructor
 	}
 
 	//declare the llvm entry function

@@ -113,6 +113,8 @@ func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string) []Gr
 			fallthrough
 		case "int":
 			gr = &DataValue{}
+		case "string":
+			gr = &String{}
 		case "null":
 			gr = &NullValue{}
 		case "varname":

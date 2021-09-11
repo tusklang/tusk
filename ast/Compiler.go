@@ -14,6 +14,7 @@ type Compiler struct {
 	InitBlock      *ir.Block                 //function that runs before main (used to initialize globals and stuff)
 	OperationStore *OperationStore           //list of all operations
 	VarMap         map[string]*data.Variable //map of all the variables declared
+	NewString      *ir.Func                  //create a new string class in tusk
 }
 
 func (c *Compiler) TmpVar() string {

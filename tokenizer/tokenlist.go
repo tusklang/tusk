@@ -45,9 +45,10 @@ var tokenlist = []TokenItem{
 	/***********************************/
 
 	/************ misc ************/
-	{"null(?![a-zA-Z$_0-9])", "null"},         //null value
-	{"([+-]*[0-9]*\\.[0-9]*)", "float"},       //floating literal
-	{"([+-]*\\d+)", "int"},                    //integer literal
-	{"([a-zA-Z$_][a-zA-Z$_0-9]*)", "varname"}, //variable
+	{"null(?![a-zA-Z$_0-9])", "null"},                          //null value
+	{"([\"])((\\\\{2})*|(.*?[^\\\\](\\\\{2})*))\\1", "string"}, //string value https://stackoverflow.com/a/17231632/10696946
+	{"([+-]*[0-9]*\\.[0-9]*)", "float"},                        //floating literal
+	{"([+-]*\\d+)", "int"},                                     //integer literal
+	{"([a-zA-Z$_][a-zA-Z$_0-9]*)", "varname"},                  //variable
 	/******************************/
 }
