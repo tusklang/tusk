@@ -90,11 +90,9 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
 	var rt types.Type = types.Void //defaults to void
 
-	// if f.RetType != nil {
-	// 	var e error
-	// 	rt, e = compiler.FetchType(class, f.RetType.Group)
-	// 	_ = e
-	// }
+	if f.RetType != nil {
+		rt = f.RetType.Group.Compile(compiler, class, f.RetType, block).Type()
+	}
 
 	var params = make([]*ir.Param, len(f.Params))
 

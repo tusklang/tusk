@@ -10,7 +10,7 @@ func parseAccessSpec(spec AccessSpecifier, lex []tokenizer.Token, i *int) error 
 	*i++
 
 	//match everything up to the next semicolon (that isn't enclosed in a brace)
-	bm := braceMatcher(lex, i, []string{"{", "("}, []string{"}", ")"}, false, "terminator")
+	bm := braceMatcher(lex, i, allopeners, allclosers, false, "terminator")
 	g := grouper(bm)
 	d, e := groupsToAST(g)
 

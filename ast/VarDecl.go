@@ -41,7 +41,7 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 	//has a value assigned to it
 	if lex[*i].Name == "=" {
 		*i++
-		v, e := groupsToAST(grouper(braceMatcher(lex, i, []string{"{", "("}, []string{"}", ")"}, false, "terminator")))
+		v, e := groupsToAST(grouper(braceMatcher(lex, i, allopeners, allclosers, false, "terminator")))
 		vd.Value = v[0]
 		if e != nil {
 			return e

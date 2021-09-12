@@ -87,6 +87,8 @@ func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string) []Gr
 		switch tokens[*startAt].Type {
 		case "fn":
 			gr = &Function{}
+		case "return":
+			gr = &Return{}
 		case "{":
 			fallthrough
 		case "(":

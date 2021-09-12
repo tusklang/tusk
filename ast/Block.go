@@ -18,6 +18,9 @@ var bmatches = map[string]string{
 	"(": ")",
 }
 
+var allopeners = []string{"{", "("}
+var allclosers = []string{"}", ")"}
+
 func (b *Block) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	if lex[*i].Type != "(" && lex[*i].Type != "{" {
