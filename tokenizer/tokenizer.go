@@ -24,7 +24,6 @@ func Tokenizer(data string) (tokens []Token) {
 				m, _ := vreg.FindNextMatch(matches[len(matches)-1])
 				matches = append(matches, m)
 			}
-
 			var match *regexp2.Match
 
 			for _, m := range matches {

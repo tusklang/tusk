@@ -1,9 +1,3 @@
-pub stat var a: fn string() = fn string() {
-    return "hello";
+pub stat var main = fn() {
+	
 };
-
-pub stat var b: fn i32() = fn i32() {
-    return 33;
-};
-
-pub stat var main: fn() = fn() {};

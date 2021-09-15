@@ -119,6 +119,9 @@ func Compile(prog *initialize.Program, outfile string) {
 	}
 
 	for ic, c := range cclasses {
+
+		var newAlloc = c.Construct.NewAlloca(c.SType)
+
 		for _, v := range ic.Globals {
 
 			if v.IsStatic {
@@ -135,7 +138,8 @@ func Compile(prog *initialize.Program, outfile string) {
 			c.SType.Fields = append(c.SType.Fields, v.Type())
 		}
 
-		c.Construct.NewRet(nil) //return void at the end of the instance constructor
+		loadedA := c.Construct.NewLoad(c.SType, newAlloc)
+		c.Construct.NewRet(loadedA) //return void at the end of the instance constructor
 	}
 
 	//declare the llvm entry function

@@ -1,7 +1,6 @@
 package compiler
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/data"
@@ -22,12 +21,9 @@ func compileClass(compiler *ast.Compiler, f *initialize.File, ipack *initialize.
 	//define the type in llvm
 	d := compiler.Module.NewTypeDef("tuskclass."+ipack.FullName()+f.Name, stype)
 
-	_ = d
-
 	//define the function to create a new instance of this class
-	// initf := compiler.Module.NewFunc("tuskclass.new."+ipack.FullName()+f.Name, d)
-	// tc.Construct = initf.NewBlock("")
-	tc.Construct = ir.NewBlock("")
+	initf := compiler.Module.NewFunc("tuskclass.new."+ipack.FullName()+f.Name, d)
+	tc.Construct = initf.NewBlock("")
 
 	pack.AddClass(f.Name, tc)
 

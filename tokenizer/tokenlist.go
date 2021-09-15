@@ -10,8 +10,8 @@ var tokenlist = []TokenItem{
 	{("\\;"), "terminator"}, //semicolon
 
 	/************ whitespace ************/
-	{("\\n"), "newline"},     //newline
-	{("\\s+"), "whitespace"}, //whitespace
+	{("\\n"), "newline"},       //newline
+	{("\\s{1}"), "whitespace"}, //whitespace
 	/************************************/
 
 	/************ keywords ************/
