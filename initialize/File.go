@@ -21,7 +21,8 @@ type GlobalDecl struct {
 }
 
 type File struct {
-	Name       string
-	Globals    []GlobalDecl
-	StructType *types.StructType
+	Name        string
+	Globals     []GlobalDecl
+	StructType  *types.StructType
+	Constructor *ast.Construct
 }

@@ -138,6 +138,11 @@ func Compile(prog *initialize.Program, outfile string) {
 			c.SType.Fields = append(c.SType.Fields, v.Type())
 		}
 
+		if ic.Constructor != nil {
+			//add the constructor into the mix of this jazz
+			ic.Constructor.CompileConstructor(&compiler, c, c.Construct, newAlloc)
+		}
+
 		loadedA := c.Construct.NewLoad(c.SType, newAlloc)
 		c.Construct.NewRet(loadedA) //return void at the end of the instance constructor
 	}

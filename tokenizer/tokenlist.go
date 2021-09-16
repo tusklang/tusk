@@ -15,16 +15,17 @@ var tokenlist = []TokenItem{
 	/************************************/
 
 	/************ keywords ************/
-	{("fn(?=(\\z|\\(|\\{|\\s+))"), "fn"},       //fn
-	{("return(?![a-zA-Z$_0-9])"), "return"},    //return
-	{("var(?=\\z|\\s+)"), "var"},               //var
-	{("if(?=(\\z|\\(|\\{|\\s+))"), "if"},       //if
-	{("else(?=(\\z|\\(|\\{|\\s+))"), "else"},   //else
-	{("while(?=(\\z|\\(|\\{|\\s+))"), "while"}, //while
-	{("pub(?![a-zA-Z$_0-9])"), "pub"},          //pub
-	{("prt(?![a-zA-Z$_0-9])"), "prt"},          //prt
-	{("stat(?![a-zA-Z$_0-9])"), "stat"},        //stat
-	{("new(?![a-zA-Z$_0-9])"), "new"},          //new
+	{("fn(?=(\\z|\\(|\\{|\\s+))"), "fn"},               //fn
+	{("return(?![a-zA-Z$_0-9])"), "return"},            //return
+	{("var(?=\\z|\\s+)"), "var"},                       //var
+	{("if(?=(\\z|\\(|\\{|\\s+))"), "if"},               //if
+	{("else(?=(\\z|\\(|\\{|\\s+))"), "else"},           //else
+	{("while(?=(\\z|\\(|\\{|\\s+))"), "while"},         //while
+	{("pub(?![a-zA-Z$_0-9])"), "pub"},                  //pub
+	{("prt(?![a-zA-Z$_0-9])"), "prt"},                  //prt
+	{("stat(?![a-zA-Z$_0-9])"), "stat"},                //stat
+	{("new(?![a-zA-Z$_0-9])"), "new"},                  //new
+	{("construct(?=(\\z|\\(|\\{|\\s+))"), "construct"}, //construct
 	/**********************************/
 
 	/************ braces ************/

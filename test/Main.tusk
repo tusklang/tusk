@@ -1,3 +1,7 @@
-pub stat var main = fn() {
-	
+construct() {
+    1 + 1;  
+};
+
+pub stat var main: fn() = fn() {
+    var a: Main = Main();
 };

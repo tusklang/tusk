@@ -1,10 +1,17 @@
 package initialize
 
-import "github.com/tusklang/tusk/ast"
+import (
+	"fmt"
+
+	"github.com/tusklang/tusk/ast"
+)
 
 func fetchGlobals(tree []*ast.ASTNode, file *File, access int, isStatic bool) {
 
 	for _, v := range tree {
+
+		fmt.Println(v.Group)
+
 		switch g := v.Group.(type) {
 		case *ast.VarDecl:
 			file.Globals = append(file.Globals, GlobalDecl{
@@ -18,6 +25,8 @@ func fetchGlobals(tree []*ast.ASTNode, file *File, access int, isStatic bool) {
 			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 1, isStatic)
 		case *ast.Static:
 			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, access, true)
+		case *ast.Construct:
+			file.Constructor = g
 		}
 	}
 }

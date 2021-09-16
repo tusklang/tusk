@@ -16,12 +16,7 @@ type Function struct {
 }
 
 func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
-
-	if lex[*i].Type != "fn" {
-		return errors.New("was not given a function")
-	}
-
-	*i++
+	*i++ //skip the "fn" token
 
 	//read the return type
 	//fn int() {}
@@ -119,6 +114,6 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 
 	//if no body was provided, the function was being used as a type
 	ft := data.NewType(rf.Type())
-	ft.SetTypeName("func")
+	ft.SetTypeName("func") //set the specific typename of the type
 	return ft
 }

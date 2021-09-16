@@ -57,4 +57,20 @@ func initDefaultOps(compiler *ast.Compiler) {
 		)
 	})
 
+	compiler.OperationStore.NewOperation("()", "class", "fncallb", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+
+		class := left.(*data.Class)
+		fcb := right.(*data.FnCallBlock)
+
+		var args []value.Value
+
+		for _, v := range fcb.Args {
+			args = append(args, v.LLVal(block))
+		}
+
+		return data.NewInstruction(
+			block.NewCall(class.Construct.Parent, args...),
+		)
+	})
+
 }
