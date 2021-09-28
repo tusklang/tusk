@@ -7,31 +7,33 @@ import (
 )
 
 type Variable struct {
-	inst            Value
-	typ             *Type
-	UnReferenceable bool
+	inst value.Value
+	typ  Type
 }
 
-func NewVariable(inst Value, typ *Type, unReferenceable bool) *Variable {
+func NewVariable(inst value.Value, typ Type) *Variable {
 	return &Variable{
-		inst:            inst,
-		typ:             typ,
-		UnReferenceable: unReferenceable,
+		inst: inst,
+		typ:  typ,
 	}
 }
 
-func (v *Variable) FetchAssig() Value {
+func (v *Variable) FetchAssig() value.Value {
 	return v.inst
 }
 
 func (v *Variable) LLVal(block *ir.Block) value.Value {
-	return block.NewLoad(v.typ.Type(), v.inst.LLVal(block))
+	return block.NewLoad(v.typ.Type(), v.inst)
+}
+
+func (v *Variable) TType() Type {
+	return v.typ
 }
 
 func (v *Variable) Type() types.Type {
-	return v.typ.Type()
+	return v.TType().Type()
 }
 
 func (v *Variable) TypeString() string {
-	return v.typ.TypeString()
+	return v.TType().TypeString()
 }

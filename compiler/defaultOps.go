@@ -2,6 +2,8 @@ package compiler
 
 import (
 	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/data"
@@ -12,7 +14,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 	compiler.OperationStore = ast.NewOperationStore()
 
 	compiler.OperationStore.NewOperation("+", "i32", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
-		return data.NewInstruction((block.NewAdd(left.LLVal(block), right.LLVal(block))))
+		return data.NewVariable(block.NewAdd(left.LLVal(block), right.LLVal(block)), data.NewPrimitive(types.I32))
 	})
 
 	compiler.OperationStore.NewOperation(".", "package", "udvar", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
@@ -41,6 +43,24 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return class.Static[sub]
 	})
 
+	compiler.OperationStore.NewOperation(".", "instance", "udvar", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+
+		inst := left.(*data.Variable).FetchAssig() //it's always a variable
+		sub := right.(*data.UndeclaredVar).Name
+
+		classt := left.TType().(*data.Instance).Class
+
+		return data.NewVariable(
+			block.NewGetElementPtr(
+				classt.SType,
+				inst,
+				constant.NewInt(types.I32, 0),
+				constant.NewInt(types.I32, classt.Instance[sub].Index),
+			),
+			classt.Instance[sub].Type,
+		)
+	})
+
 	compiler.OperationStore.NewOperation("()", "func", "fncallb", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
 
 		f := left.LLVal(block)
@@ -52,8 +72,11 @@ func initDefaultOps(compiler *ast.Compiler) {
 			args = append(args, v.LLVal(block))
 		}
 
-		return data.NewInstruction(
-			block.NewCall(f, args...),
+		call := block.NewCall(f, args...)
+
+		return data.NewVariable(
+			call,
+			left.TType().(*data.Function).RetType(),
 		)
 	})
 
@@ -68,8 +91,9 @@ func initDefaultOps(compiler *ast.Compiler) {
 			args = append(args, v.LLVal(block))
 		}
 
-		return data.NewInstruction(
+		return data.NewVariable(
 			block.NewCall(class.Construct.Parent, args...),
+			data.NewInstance(class),
 		)
 	})
 

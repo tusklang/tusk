@@ -1,5 +1,5 @@
 %tusk.string = type { i8*, i32 }
-%tuskclass.Main = type {}
+%tuskclass.Main = type { i32, i32 }
 
 @.Main_main = global void ()* null
 
@@ -20,27 +20,25 @@ define void @_tusk_init() {
 	ret void
 }
 
-define %tuskclass.Main @tuskclass.new.Main() {
+define %tuskclass.Main* @tuskclass.new.Main() {
 0:
 	%1 = alloca %tuskclass.Main
-	call void @tv_3()
-	%2 = load %tuskclass.Main, %tuskclass.Main* %1
-	ret %tuskclass.Main %2
+	%2 = getelementptr %tuskclass.Main, %tuskclass.Main* %1, i32 0, i32 0
+	%3 = getelementptr %tuskclass.Main, %tuskclass.Main* %1, i32 0, i32 1
+	store i32 4, i32* %2
+	store i32 44, i32* %3
+	ret %tuskclass.Main* %1
 }
 
 declare void @tv_1()
 
 define void @tv_2() {
 0:
-	%1 = call %tuskclass.Main @tuskclass.new.Main()
-	%2 = alloca %tuskclass.Main
-	store %tuskclass.Main %1, %tuskclass.Main* %2
-	ret void
-}
-
-define void @tv_3() {
-0:
-	%1 = add i32 1, 1
+	%1 = call %tuskclass.Main* @tuskclass.new.Main()
+	%2 = getelementptr %tuskclass.Main, %tuskclass.Main* %1, i32 0, i32 1
+	%3 = alloca i32
+	%4 = load i32, i32* %2
+	store i32 %4, i32* %3
 	ret void
 }
 

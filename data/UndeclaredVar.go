@@ -27,6 +27,10 @@ func (uv *UndeclaredVar) LLVal(block *ir.Block) value.Value {
 	return nil
 }
 
+func (uv *UndeclaredVar) TType() Type {
+	return nil
+}
+
 func (uv *UndeclaredVar) Type() types.Type {
 	return nil
 }

@@ -22,6 +22,10 @@ func (f *Float) LLVal(block *ir.Block) value.Value {
 	return f.value
 }
 
+func (f *Float) TType() Type {
+	return NewPrimitive(f.Type())
+}
+
 func (f *Float) Type() types.Type {
 	return f.value.Type()
 }

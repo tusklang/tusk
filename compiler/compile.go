@@ -1,8 +1,6 @@
 package compiler
 
 import (
-	"encoding/json"
-	"fmt"
 	"os"
 	"runtime"
 
@@ -20,13 +18,13 @@ var processor = varprocessor.NewProcessor()
 //has types to begin with, but it can store anything
 //types are variables in tusk's parser so we need to add the default ones in like so
 var prevars = map[string]data.Value{
-	"i128": data.NewType(types.I128),
-	"i64":  data.NewType(types.I64),
-	"i32":  data.NewType(types.I32),
-	"i16":  data.NewType(types.I16),
-	"i8":   data.NewType(types.I8),
-	"f64":  data.NewType(types.Double),
-	"f32":  data.NewType(types.Float),
+	"i128": data.NewPrimitive(types.I128),
+	"i64":  data.NewPrimitive(types.I64),
+	"i32":  data.NewPrimitive(types.I32),
+	"i16":  data.NewPrimitive(types.I16),
+	"i8":   data.NewPrimitive(types.I8),
+	"f64":  data.NewPrimitive(types.Double),
+	"f32":  data.NewPrimitive(types.Float),
 }
 
 func Compile(prog *initialize.Program, outfile string) {
@@ -43,7 +41,7 @@ func Compile(prog *initialize.Program, outfile string) {
 	stringclass, compiler.NewString = initString(m)
 	prevars["string"] = stringclass
 
-	compiler.VarMap = make(map[string]*data.Variable)
+	compiler.VarMap = make(map[string]data.Value)
 
 	initDefaultOps(&compiler)
 
@@ -98,7 +96,7 @@ func Compile(prog *initialize.Program, outfile string) {
 	//add all the prevars as variables to the compiler
 	for k, v := range prevars {
 		processor.AddPreDecl(k)
-		compiler.AddVar(k, data.NewVariable(v, data.NewType(v.Type()), true))
+		compiler.AddVar(k, v)
 	}
 
 	//process all the variables
@@ -109,18 +107,18 @@ func Compile(prog *initialize.Program, outfile string) {
 		}
 	}
 
-	j, _ := json.MarshalIndent(prog, "", "  ")
-	fmt.Println(string(j))
-
 	for ic, c := range cclasses {
+
+		var newAlloc = c.Construct.NewAlloca(c.SType)
+
+		c.ConstructAlloc = newAlloc
+
 		for _, v := range ic.Globals {
 			v.Value.DeclareGlobal(c.ParentPackage.FullName+"."+c.Name+"_"+v.Value.Name, &compiler, c, v.IsStatic)
 		}
 	}
 
 	for ic, c := range cclasses {
-
-		var newAlloc = c.Construct.NewAlloca(c.SType)
 
 		for _, v := range ic.Globals {
 
@@ -134,17 +132,12 @@ func Compile(prog *initialize.Program, outfile string) {
 
 		}
 
-		for _, v := range c.Instance {
-			c.SType.Fields = append(c.SType.Fields, v.Type())
-		}
-
 		if ic.Constructor != nil {
 			//add the constructor into the mix of this jazz
-			ic.Constructor.CompileConstructor(&compiler, c, c.Construct, newAlloc)
+			ic.Constructor.CompileConstructor(&compiler, c, c.Construct, c.ConstructAlloc)
 		}
 
-		loadedA := c.Construct.NewLoad(c.SType, newAlloc)
-		c.Construct.NewRet(loadedA) //return void at the end of the instance constructor
+		c.Construct.NewRet(c.ConstructAlloc) //return the allocated object at the end of the 'new' function
 	}
 
 	//declare the llvm entry function

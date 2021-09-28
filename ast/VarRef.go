@@ -31,12 +31,5 @@ func (vr *VarRef) Compile(compiler *Compiler, class *data.Class, node *ASTNode, 
 
 	}
 
-	//it's an un-referenceable variable
-	//(mostly used for types as variables)
-	//so we just return the value of it, instead of the pointer
-	if fetched.UnReferenceable {
-		return fetched.FetchAssig()
-	}
-
 	return fetched
 }

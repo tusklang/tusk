@@ -38,6 +38,10 @@ func (s *String) LLVal(block *ir.Block) value.Value {
 	return block.NewCall(s.newTuskString, gep, constant.NewInt(types.I32, int64(len(s.CharArray))))
 }
 
+func (s *String) TType() Type {
+	return NewPrimitive(types.I8Ptr)
+}
+
 func (s *String) Type() types.Type {
 	return types.I8Ptr
 }

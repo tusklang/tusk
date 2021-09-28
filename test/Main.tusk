@@ -1,7 +1,6 @@
-construct() {
-    1 + 1;  
-};
+pub var a: i32 = 4;
+pub var b: i32 = 44;
 
 pub stat var main: fn() = fn() {
-    var a: Main = Main();
+    var c: i32 = Main().b;
 };

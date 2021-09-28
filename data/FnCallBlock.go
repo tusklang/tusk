@@ -18,6 +18,10 @@ func (fcb *FnCallBlock) LLVal(block *ir.Block) value.Value {
 	return nil
 }
 
+func (fcb *FnCallBlock) TType() Type {
+	return nil
+}
+
 func (fcb *FnCallBlock) Type() types.Type {
 	return nil
 }

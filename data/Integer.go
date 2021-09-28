@@ -22,6 +22,10 @@ func (i *Integer) LLVal(block *ir.Block) value.Value {
 	return i.value
 }
 
+func (i *Integer) TType() Type {
+	return NewPrimitive(i.Type())
+}
+
 func (i *Integer) Type() types.Type {
 	return i.value.Type()
 }

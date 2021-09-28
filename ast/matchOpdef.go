@@ -14,5 +14,9 @@ func matchOpdef(val data.Value, opdef string) bool {
 		return true
 	}
 
+	if opdef == "instance" && strings.HasPrefix(val.TypeString(), "instance ") {
+		return true
+	}
+
 	return val.TypeString() == opdef //for now this is the only one we need, but there will be more later ;)
 }

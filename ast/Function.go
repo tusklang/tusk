@@ -83,10 +83,10 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 }
 
 func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
-	var rt types.Type = types.Void //defaults to void
+	var rt data.Type = data.NewPrimitive(types.Void) //defaults to void
 
 	if f.RetType != nil {
-		rt = f.RetType.Group.Compile(compiler, class, f.RetType, block).Type()
+		rt = f.RetType.Group.Compile(compiler, class, f.RetType, block).TType()
 	}
 
 	var params = make([]*ir.Param, len(f.Params))
@@ -98,7 +98,7 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		)
 	}
 
-	rf := compiler.Module.NewFunc(compiler.TmpVar(), rt, params...)
+	rf := compiler.Module.NewFunc(compiler.TmpVar(), rt.Type(), params...)
 
 	if f.Body != nil {
 		fblock := rf.NewBlock("")
@@ -108,12 +108,8 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		if f.RetType == nil {
 			fblock.NewRet(nil)
 		}
-
-		return data.NewFunc(rf)
 	}
 
 	//if no body was provided, the function was being used as a type
-	ft := data.NewType(rf.Type())
-	ft.SetTypeName("func") //set the specific typename of the type
-	return ft
+	return data.NewFunc(rf, rt)
 }
