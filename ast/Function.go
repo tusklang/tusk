@@ -98,7 +98,7 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		)
 	}
 
-	rf := compiler.Module.NewFunc(compiler.TmpVar(), rt.Type(), params...)
+	rf := compiler.Module.NewFunc("", rt.Type(), params...)
 
 	if f.Body != nil {
 		fblock := rf.NewBlock("")

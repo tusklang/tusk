@@ -1,6 +1,10 @@
 pub var a: i32 = 4;
-pub var b: i32 = 44;
+
+pub var test: fn() = fn() {
+    
+};
 
 pub stat var main: fn() = fn() {
-    var c: i32 = Main().b;
+    var c: Main = Main();
+    c = Main();
 };

@@ -37,6 +37,6 @@ func (p *Package) Type() types.Type {
 	return nil
 }
 
-func (p *Package) TypeString() string {
-	return "package"
+func (p *Package) TypeData() *TypeData {
+	return NewTypeData("package")
 }

@@ -23,17 +23,17 @@ func (v *Variable) FetchAssig() value.Value {
 }
 
 func (v *Variable) LLVal(block *ir.Block) value.Value {
-	return block.NewLoad(v.typ.Type(), v.inst)
+	return block.NewLoad(v.Type(), v.inst)
 }
 
 func (v *Variable) TType() Type {
-	return v.typ
+	return v.typ.TType()
 }
 
 func (v *Variable) Type() types.Type {
 	return v.TType().Type()
 }
 
-func (v *Variable) TypeString() string {
-	return v.TType().TypeString()
+func (v *Variable) TypeData() *TypeData {
+	return v.typ.TypeData()
 }

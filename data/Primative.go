@@ -40,6 +40,6 @@ func (p *Primitive) Type() types.Type {
 	return p.typ
 }
 
-func (p *Primitive) TypeString() string {
-	return p.Type().LLString()
+func (p *Primitive) TypeData() *TypeData {
+	return NewTypeData(p.Type().LLString())
 }

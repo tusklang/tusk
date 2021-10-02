@@ -24,6 +24,6 @@ func (n *Null) Type() types.Type {
 	return nil
 }
 
-func (n *Null) TypeString() string {
-	return "null"
+func (n *Null) TypeData() *TypeData {
+	return NewTypeData("null")
 }

@@ -35,6 +35,6 @@ func (uv *UndeclaredVar) Type() types.Type {
 	return nil
 }
 
-func (uv *UndeclaredVar) TypeString() string {
-	return "udvar"
+func (uv *UndeclaredVar) TypeData() *TypeData {
+	return NewTypeData("udvar")
 }

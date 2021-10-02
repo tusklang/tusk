@@ -61,6 +61,10 @@ func (c *Class) Type() types.Type {
 	return c.SType
 }
 
-func (c *Class) TypeString() string {
-	return "class " + c.Name
+func (c *Class) TypeData() *TypeData {
+
+	td := NewTypeData(c.Name)
+	td.AddFlag("class")
+
+	return td
 }

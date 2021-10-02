@@ -10,5 +10,5 @@ type Value interface {
 	LLVal(block *ir.Block) value.Value
 	TType() Type
 	Type() types.Type
-	TypeString() string
+	TypeData() *TypeData
 }

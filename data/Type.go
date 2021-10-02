@@ -6,7 +6,8 @@ import (
 )
 
 type Type interface {
+	TType() Type
 	Type() types.Type
-	TypeString() string
+	TypeData() *TypeData
 	Default() constant.Constant
 }

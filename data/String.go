@@ -46,6 +46,6 @@ func (s *String) Type() types.Type {
 	return types.I8Ptr
 }
 
-func (s *String) TypeString() string {
-	return "string"
+func (s *String) TypeData() *TypeData {
+	return NewTypeData("string")
 }

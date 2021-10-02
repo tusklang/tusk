@@ -25,7 +25,7 @@ func (s *String) Parse(lex []tokenizer.Token, i *int) error {
 }
 
 func (s *String) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
-	sd := compiler.Module.NewGlobalDef(compiler.TmpVar(), constant.NewCharArray(s.dstring.CharArray))
+	sd := compiler.Module.NewGlobalDef("", constant.NewCharArray(s.dstring.CharArray))
 	s.dstring.Init(sd, compiler.NewString)
 	return s.dstring
 }

@@ -29,8 +29,12 @@ func (i *Instance) Type() types.Type {
 	return i.Class.Type()
 }
 
-func (i *Instance) TypeString() string {
-	return "instance " + i.Class.Name
+func (i *Instance) TypeData() *TypeData {
+
+	td := NewTypeData(i.Class.Name)
+	td.AddFlag("instance")
+
+	return td
 }
 
 func (i *Instance) Default() constant.Constant {

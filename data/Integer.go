@@ -30,6 +30,6 @@ func (i *Integer) Type() types.Type {
 	return i.value.Type()
 }
 
-func (i *Integer) TypeString() string {
-	return i.Type().LLString()
+func (i *Integer) TypeData() *TypeData {
+	return NewTypeData(i.Type().LLString())
 }

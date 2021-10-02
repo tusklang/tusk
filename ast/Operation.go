@@ -39,7 +39,7 @@ func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode
 		}
 	}
 
-	fmt.Println(lc.TypeString(), rc.TypeString(), o.OpType)
+	fmt.Println(lc.TypeData().Name(), rc.TypeData().Name(), o.OpType)
 
 	rop := compiler.OperationStore.RunOperation(lc, rc, o.OpType, compiler, block)
 	return rop

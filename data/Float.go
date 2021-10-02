@@ -30,6 +30,6 @@ func (f *Float) Type() types.Type {
 	return f.value.Type()
 }
 
-func (f *Float) TypeString() string {
-	return f.Type().LLString()
+func (f *Float) TypeData() *TypeData {
+	return NewTypeData(f.value.Type().LLString())
 }

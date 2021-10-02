@@ -26,6 +26,6 @@ func (fcb *FnCallBlock) Type() types.Type {
 	return nil
 }
 
-func (fcb *FnCallBlock) TypeString() string {
-	return "fncallb"
+func (fcb *FnCallBlock) TypeData() *TypeData {
+	return NewTypeData("fncallb")
 }

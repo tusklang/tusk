@@ -39,6 +39,6 @@ func (f *Function) Type() types.Type {
 	return f.llfunc.Type()
 }
 
-func (f *Function) TypeString() string {
-	return "func"
+func (f *Function) TypeData() *TypeData {
+	return NewTypeData("func")
 }

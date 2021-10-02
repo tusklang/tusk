@@ -13,6 +13,16 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 	compiler.OperationStore = ast.NewOperationStore()
 
+	compiler.OperationStore.NewOperation("=", "ptr", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+
+		varv := left.(*data.Variable).FetchAssig() //we know it's a variable, so we can assert it and fetch the assignment instruction
+		toassign := right.LLVal(block)
+
+		block.NewStore(toassign, varv)
+
+		return left
+	})
+
 	compiler.OperationStore.NewOperation("+", "i32", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
 		return data.NewVariable(block.NewAdd(left.LLVal(block), right.LLVal(block)), data.NewPrimitive(types.I32))
 	})
@@ -57,7 +67,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 				constant.NewInt(types.I32, 0),
 				constant.NewInt(types.I32, classt.Instance[sub].Index),
 			),
-			classt.Instance[sub].Type,
+			data.NewPointer(classt.Instance[sub].Type),
 		)
 	})
 

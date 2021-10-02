@@ -88,7 +88,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		block.NewStore(llv, decl)
 	}
 
-	dv := data.NewVariable(decl, vtype)
+	dv := data.NewVariable(decl, data.NewPointer(vtype))
 
 	compiler.AddVar(vd.Name, dv)
 
@@ -108,7 +108,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 
 		vd.declaration = decl
 
-		nv := data.NewVariable(vd.declaration, vtype)
+		nv := data.NewVariable(vd.declaration, data.NewPointer(vtype))
 
 		class.Static[vd.Name] = nv
 	} else {
@@ -117,13 +117,12 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 
 		class.SType.Fields = append(class.SType.Fields, vtype.Type())
 
-		//create a new GEP to the initialize struct
+		//create a new GEP instruction to the initialize struct
 		gep := class.Construct.NewGetElementPtr(class.SType, class.ConstructAlloc, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, int64(len(class.SType.Fields)-1)))
 		vd.declaration = gep
 
 		class.AppendInstance(vd.Name, vtype)
 	}
-
 	return nil
 }
 
