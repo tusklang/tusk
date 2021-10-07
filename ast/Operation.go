@@ -3,7 +3,6 @@ package ast
 import (
 	"fmt"
 
-	"github.com/llir/llvm/ir"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -21,11 +20,11 @@ func (o *Operation) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
+func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 
 	var (
-		lc = node.Left[0].Group.Compile(compiler, class, node.Left[0], block)
-		rc = node.Right[0].Group.Compile(compiler, class, node.Right[0], block)
+		lc = node.Left[0].Group.Compile(compiler, class, node.Left[0], function)
+		rc = node.Right[0].Group.Compile(compiler, class, node.Right[0], function)
 	)
 
 	if o.OpType == "." {
@@ -41,6 +40,6 @@ func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode
 
 	fmt.Println(lc.TypeData().Name(), rc.TypeData().Name(), o.OpType)
 
-	rop := compiler.OperationStore.RunOperation(lc, rc, o.OpType, compiler, block)
+	rop := compiler.OperationStore.RunOperation(lc, rc, o.OpType, compiler, function.ActiveBlock)
 	return rop
 }

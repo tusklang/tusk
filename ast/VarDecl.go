@@ -3,7 +3,6 @@ package ast
 import (
 	"errors"
 
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -56,9 +55,9 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (vd *VarDecl) getDeclType(compiler *Compiler, class *data.Class, block *ir.Block) data.Type {
+func (vd *VarDecl) getDeclType(compiler *Compiler, class *data.Class, function *data.Function) data.Type {
 
-	pvtype := vd.Type.Group.Compile(compiler, class, vd.Type, block)
+	pvtype := vd.Type.Group.Compile(compiler, class, vd.Type, function)
 
 	var vtype data.Type
 
@@ -76,16 +75,16 @@ func (vd *VarDecl) getDeclType(compiler *Compiler, class *data.Class, block *ir.
 	return vtype
 }
 
-func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
+func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 
-	varval := vd.Value.Group.Compile(compiler, class, vd.Value, block)
+	varval := vd.Value.Group.Compile(compiler, class, vd.Value, function)
 
-	vtype := vd.getDeclType(compiler, class, block)
+	vtype := vd.getDeclType(compiler, class, function)
 
-	decl := block.NewAlloca(vtype.Type())
+	decl := function.ActiveBlock.NewAlloca(vtype.Type())
 
-	if llv := varval.LLVal(block); llv != nil {
-		block.NewStore(llv, decl)
+	if llv := varval.LLVal(function.ActiveBlock); llv != nil {
+		function.ActiveBlock.NewStore(llv, decl)
 	}
 
 	dv := data.NewVariable(decl, data.NewPointer(vtype))
@@ -97,7 +96,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 
 func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Class, static bool) error {
 
-	vtype := vd.getDeclType(compiler, class, compiler.InitBlock)
+	vtype := vd.getDeclType(compiler, class, compiler.InitFunc)
 
 	if static {
 
@@ -118,7 +117,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 		class.SType.Fields = append(class.SType.Fields, vtype.Type())
 
 		//create a new GEP instruction to the initialize struct
-		gep := class.Construct.NewGetElementPtr(class.SType, class.ConstructAlloc, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, int64(len(class.SType.Fields)-1)))
+		gep := class.Construct.ActiveBlock.NewGetElementPtr(class.SType, class.ConstructAlloc, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, int64(len(class.SType.Fields)-1)))
 		vd.declaration = gep
 
 		class.AppendInstance(vd.Name, vtype)
@@ -127,7 +126,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 }
 
 //used specifically for global variable declarations
-func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *data.Class, block *ir.Block) {
-	val := vd.Value.Group.Compile(compiler, class, vd.Value, compiler.InitBlock)
-	block.NewStore(val.LLVal(block), vd.declaration)
+func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *data.Class, function *data.Function) {
+	val := vd.Value.Group.Compile(compiler, class, vd.Value, compiler.InitFunc)
+	function.ActiveBlock.NewStore(val.LLVal(function.ActiveBlock), vd.declaration)
 }

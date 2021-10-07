@@ -16,7 +16,7 @@ type Class struct {
 	SType          *types.StructType
 	Instance       map[string]*InstanceVar
 	Static         map[string]*Variable
-	Construct      *ir.Block
+	Construct      *Function
 	ConstructAlloc value.Value
 
 	ParentPackage *Package

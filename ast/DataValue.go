@@ -3,7 +3,6 @@ package ast
 import (
 	"strconv"
 
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/data"
@@ -40,6 +39,6 @@ func (dv *DataValue) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (dv *DataValue) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
+func (dv *DataValue) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 	return dv.Value
 }

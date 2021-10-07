@@ -1,10 +1,12 @@
-pub var a: i32 = 4;
-
-pub var test: fn() = fn() {
-    
-};
-
 pub stat var main: fn() = fn() {
-    var c: Main = Main();
-    c = Main();
+    if (1) {
+        if (1) {
+            if (1) {
+
+            };
+        };
+    };
+
+    var hel: i32 = 33;
+    var abcd: i32 = 44;
 };

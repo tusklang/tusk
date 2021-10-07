@@ -32,26 +32,26 @@ func (c *Construct) Parse(lex []tokenizer.Token, i *int) error {
 }
 
 //cannot be compiled like this
-func (c *Construct) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
+func (c *Construct) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 	return nil
 }
 
-func (c *Construct) CompileConstructor(compiler *Compiler, class *data.Class, block *ir.Block, initval value.Value) error {
+func (c *Construct) CompileConstructor(compiler *Compiler, class *data.Class, function *data.Function, initval value.Value) error {
 
 	var params = make([]*ir.Param, len(c.FnObj.Params))
 
 	for k, v := range c.FnObj.Params {
 		params[k] = ir.NewParam(
 			v.Name,
-			v.Type.Group.Compile(compiler, class, v.Type, block).Type(),
+			v.Type.Group.Compile(compiler, class, v.Type, function).Type(),
 		)
 	}
 
 	//alter the params of the original init func
-	block.Parent.Params = params
+	function.LLFunc.Params = params
 
 	//compile the constructor into a function
-	constructor := c.FnObj.Compile(compiler, class, nil, block)
+	constructor := c.FnObj.Compile(compiler, class, nil, function)
 
 	//convert the params into args to call the new llvm ir func ^
 	var args = make([]value.Value, len(c.FnObj.Params))
@@ -60,7 +60,7 @@ func (c *Construct) CompileConstructor(compiler *Compiler, class *data.Class, bl
 		args[k] = v
 	}
 
-	block.NewCall(constructor.LLVal(block), args...)
+	function.ActiveBlock.NewCall(constructor.LLVal(function.ActiveBlock), args...)
 
 	return nil
 }

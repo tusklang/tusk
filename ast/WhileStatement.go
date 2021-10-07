@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -27,6 +26,6 @@ func (ws *WhileStatement) Type() string {
 	return "while"
 }
 
-func (ws *WhileStatement) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
+func (ws *WhileStatement) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 	return nil
 }

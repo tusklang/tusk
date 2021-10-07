@@ -82,11 +82,11 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
+func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 	var rt data.Type = data.NewPrimitive(types.Void) //defaults to void
 
 	if f.RetType != nil {
-		rt = f.RetType.Group.Compile(compiler, class, f.RetType, block).TType()
+		rt = f.RetType.Group.Compile(compiler, class, f.RetType, function).TType()
 	}
 
 	var params = make([]*ir.Param, len(f.Params))
@@ -94,22 +94,25 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	for k, v := range f.Params {
 		params[k] = ir.NewParam(
 			v.Name,
-			v.Type.Group.Compile(compiler, class, v.Type, block).Type(),
+			v.Type.Group.Compile(compiler, class, v.Type, function).Type(),
 		)
 	}
 
 	rf := compiler.Module.NewFunc("", rt.Type(), params...)
 
+	ffunc := data.NewFunc(rf, rt)
+
 	if f.Body != nil {
 		fblock := rf.NewBlock("")
-		f.Body.Compile(compiler, class, nil, fblock)
 
-		//if there is no return type (void) append a `return void`
-		if f.RetType == nil {
-			fblock.NewRet(nil)
+		if f.RetType == nil { //if the function returns void, append a `return void` to the term stack
+			ffunc.PushTermStack(ir.NewRet(nil))
 		}
+
+		ffunc.ActiveBlock = fblock
+		f.Body.Compile(compiler, class, nil, ffunc)
 	}
 
 	//if no body was provided, the function was being used as a type
-	return data.NewFunc(rf, rt)
+	return ffunc
 }

@@ -47,7 +47,8 @@ func Compile(prog *initialize.Program, outfile string) {
 
 	//initialize the operations
 	var initfunc = m.NewFunc("_tusk_init", types.Void) //initialize func ran before main
-	compiler.InitBlock = initfunc.NewBlock("")
+	compiler.InitFunc = data.NewFunc(initfunc, data.NewPrimitive(types.Void))
+	compiler.InitFunc.ActiveBlock = initfunc.NewBlock("")
 
 	var (
 		cpacks   = make(map[*initialize.Package]*data.Package)
@@ -109,7 +110,7 @@ func Compile(prog *initialize.Program, outfile string) {
 
 	for ic, c := range cclasses {
 
-		var newAlloc = c.Construct.NewAlloca(c.SType)
+		var newAlloc = c.Construct.ActiveBlock.NewAlloca(c.SType)
 
 		c.ConstructAlloc = newAlloc
 
@@ -124,7 +125,7 @@ func Compile(prog *initialize.Program, outfile string) {
 
 			if v.IsStatic {
 				//it's a static variable
-				v.Value.CompileGlobal(&compiler, c, compiler.InitBlock)
+				v.Value.CompileGlobal(&compiler, c, compiler.InitFunc)
 			} else {
 				//it's an instance variable
 				v.Value.CompileGlobal(&compiler, c, c.Construct)
@@ -137,14 +138,14 @@ func Compile(prog *initialize.Program, outfile string) {
 			ic.Constructor.CompileConstructor(&compiler, c, c.Construct, c.ConstructAlloc)
 		}
 
-		c.Construct.NewRet(c.ConstructAlloc) //return the allocated object at the end of the 'new' function
+		c.Construct.ActiveBlock.NewRet(c.ConstructAlloc) //return the allocated object at the end of the 'new' function
 	}
 
 	//declare the llvm entry function
 	mfunc := m.NewFunc("main", types.Void)
 	mblock := mfunc.NewBlock("")
 
-	compiler.InitBlock.NewRet(nil) //append a `return void` to the init function
+	compiler.InitFunc.ActiveBlock.NewRet(nil) //append a `return void` to the init function
 
 	mblock.NewCall(initfunc) //call the initialize function
 	// loaded := mblock.NewLoad(mfnc.ContentType, mfnc)

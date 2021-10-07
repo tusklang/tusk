@@ -102,7 +102,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 		}
 
 		return data.NewVariable(
-			block.NewCall(class.Construct.Parent, args...),
+			block.NewCall(class.Construct.LLFunc, args...),
 			data.NewInstance(class),
 		)
 	})

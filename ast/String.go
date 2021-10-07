@@ -3,7 +3,6 @@ package ast
 import (
 	"strings"
 
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
@@ -24,7 +23,7 @@ func (s *String) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (s *String) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
+func (s *String) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 	sd := compiler.Module.NewGlobalDef("", constant.NewCharArray(s.dstring.CharArray))
 	s.dstring.Init(sd, compiler.NewString)
 	return s.dstring

@@ -23,7 +23,8 @@ func compileClass(compiler *ast.Compiler, f *initialize.File, ipack *initialize.
 
 	//define the function to create a new instance of this class
 	initf := compiler.Module.NewFunc("tuskclass.new."+ipack.FullName()+f.Name, types.NewPointer(d))
-	tc.Construct = initf.NewBlock("")
+	tc.Construct = data.NewFunc(initf, data.NewPointer(tc))
+	tc.Construct.ActiveBlock = initf.NewBlock("")
 
 	pack.AddClass(f.Name, tc)
 

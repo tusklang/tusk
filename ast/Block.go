@@ -3,7 +3,6 @@ package ast
 import (
 	"errors"
 
-	"github.com/llir/llvm/ir"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -40,17 +39,17 @@ func (b *Block) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (b *Block) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
+func (b *Block) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 
 	if b.BlockType == "(" {
-		return b.Sub[0].Group.Compile(compiler, class, b.Sub[0], block)
+		return b.Sub[0].Group.Compile(compiler, class, b.Sub[0], function)
 	} else if b.BlockType == "fncallb" {
 		//if it's a function call block
 
 		var args = data.NewFnCallBlock()
 
 		for _, v := range b.Sub {
-			d := v.Group.Compile(compiler, class, b.Sub[0], block)
+			d := v.Group.Compile(compiler, class, b.Sub[0], function)
 			args.Args = append(args.Args, d)
 		}
 
@@ -58,7 +57,7 @@ func (b *Block) Compile(compiler *Compiler, class *data.Class, node *ASTNode, bl
 	}
 
 	for _, v := range b.Sub {
-		v.Group.Compile(compiler, class, v, block)
+		v.Group.Compile(compiler, class, v, function)
 	}
 
 	return nil

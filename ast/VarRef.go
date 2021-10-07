@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -15,7 +14,7 @@ func (vr *VarRef) Parse(lex []tokenizer.Token, i *int) error {
 	return nil
 }
 
-func (vr *VarRef) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
+func (vr *VarRef) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 	fetched := compiler.FetchVar(vr.Name)
 
 	if fetched == nil {

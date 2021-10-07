@@ -36,5 +36,20 @@ func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) error {
 	}
 	statement.SetBody(ba)
 
+	switch statement.(type) {
+	case *IfStatement:
+		//if it's an if statement, we need to check if there is an `else` clause
+		if *i+1 < len(lex) && lex[*i+1].Name == "else" {
+			//else clause detected
+			*i += 2 //skip the semicolon & "else"
+			elsebody := grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator"))
+			statement.(*IfStatement).ElseBody, e = groupsToAST(elsebody)
+
+			if e != nil {
+				return e
+			}
+		}
+	}
+
 	return nil
 }
