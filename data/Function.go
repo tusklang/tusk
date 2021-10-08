@@ -86,6 +86,11 @@ func (f *Function) TypeData() *TypeData {
 
 func (f *Function) PopTermStack() ir.Terminator {
 	r := f.LastTermStack()
+
+	if r == nil {
+		return r
+	}
+
 	f.todoTerms = f.todoTerms[:len(f.todoTerms)-1]
 	return r
 }
@@ -95,5 +100,10 @@ func (f *Function) PushTermStack(v ir.Terminator) {
 }
 
 func (f *Function) LastTermStack() ir.Terminator {
+
+	if len(f.todoTerms) == 0 {
+		return nil
+	}
+
 	return f.todoTerms[len(f.todoTerms)-1]
 }

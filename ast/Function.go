@@ -111,6 +111,11 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 
 		ffunc.ActiveBlock = fblock
 		f.Body.Compile(compiler, class, nil, ffunc)
+
+		//pop the entire term stack
+		for v := ffunc.PopTermStack(); v != nil; v = ffunc.PopTermStack() {
+			ffunc.ActiveBlock.Term = v
+		}
 	}
 
 	//if no body was provided, the function was being used as a type

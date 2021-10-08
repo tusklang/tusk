@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"fmt"
-
 	"github.com/llir/llvm/ir"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
@@ -49,8 +47,6 @@ func (is *IfStatement) Compile(compiler *Compiler, class *data.Class, node *ASTN
 	function.PushTermStack(
 		gotoRestActs,
 	)
-
-	fmt.Println(is.Body)
 
 	function.ActiveBlock = trueblock //temporarily change the active block to the true block, so the compiler appends instructions to it
 	is.Body[0].Group.Compile(compiler, class, is.Body[0], function)
