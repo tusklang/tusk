@@ -84,10 +84,17 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 		call := block.NewCall(f, args...)
 
-		return data.NewVariable(
+		callv := data.NewVariable(
 			call,
 			left.TType().(*data.Function).RetType(),
 		)
+
+		//set the load instruction to just fetch the assignment
+		callv.SetLoadInst(func(v *data.Variable, block *ir.Block) value.Value {
+			return v.FetchAssig()
+		})
+
+		return callv
 	})
 
 	compiler.OperationStore.NewOperation("()", "class", "fncallb", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
@@ -105,6 +112,36 @@ func initDefaultOps(compiler *ast.Compiler) {
 			block.NewCall(class.Construct.LLFunc, args...),
 			data.NewInstance(class),
 		)
+	})
+
+	compiler.OperationStore.NewOperation("*", "-", "ptr&var", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+		vd := data.NewVariable(
+			right.LLVal(block),
+			right.TType().(*data.Pointer).PType(),
+		)
+		vd.SetLoadInst(func(v *data.Variable, block *ir.Block) value.Value {
+			return block.NewLoad(v.Type(), v.FetchAssig())
+		})
+		return vd
+	})
+
+	compiler.OperationStore.NewOperation("*", "-", "type", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+
+		ptrt := data.NewPointer(right.TType())
+		ptrt.SetToType() //make it a type, not a value
+
+		return ptrt
+	})
+
+	compiler.OperationStore.NewOperation("&", "-", "var", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+		vd := data.NewVariable(
+			right.(*data.Variable).FetchAssig(),
+			data.NewPointer(right.(*data.Variable).TType()),
+		)
+		vd.SetLoadInst(func(v *data.Variable, b *ir.Block) value.Value {
+			return v.FetchAssig()
+		})
+		return vd
 	})
 
 }

@@ -30,34 +30,18 @@ declare void @0()
 
 define void @1() {
 0:
-	br label %1
-
-1:
-	br i32 1, label %2, label %3
-
-2:
-	br i32 1, label %4, label %5
-
-3:
+	%1 = alloca i32
+	store i32 33, i32* %1
+	%2 = alloca i32*
+	store i32* %1, i32** %2
+	%3 = alloca i32**
+	store i32** %2, i32*** %3
+	%4 = load i32**, i32*** %3
+	%5 = load i32*, i32** %4
+	%6 = alloca i32
+	%7 = load i32, i32* %5
+	store i32 %7, i32* %6
 	ret void
-
-4:
-	br label %7
-
-5:
-	br label %6
-
-6:
-	br label %1
-
-7:
-	br i32 1, label %8, label %9
-
-8:
-	br label %7
-
-9:
-	br label %6
 }
 
 define void @main() {

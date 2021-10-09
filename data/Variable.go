@@ -9,12 +9,17 @@ import (
 type Variable struct {
 	inst value.Value
 	typ  Type
+
+	loadinst func(*Variable, *ir.Block) value.Value
 }
 
 func NewVariable(inst value.Value, typ Type) *Variable {
 	return &Variable{
 		inst: inst,
 		typ:  typ,
+		loadinst: func(v *Variable, block *ir.Block) value.Value {
+			return block.NewLoad(v.Type(), v.FetchAssig())
+		},
 	}
 }
 
@@ -22,8 +27,12 @@ func (v *Variable) FetchAssig() value.Value {
 	return v.inst
 }
 
+func (v *Variable) SetLoadInst(f func(*Variable, *ir.Block) value.Value) {
+	v.loadinst = f
+}
+
 func (v *Variable) LLVal(block *ir.Block) value.Value {
-	return block.NewLoad(v.Type(), v.inst)
+	return v.loadinst(v, block)
 }
 
 func (v *Variable) TType() Type {
@@ -35,5 +44,9 @@ func (v *Variable) Type() types.Type {
 }
 
 func (v *Variable) TypeData() *TypeData {
-	return v.typ.TypeData()
+
+	td := *v.typ.TypeData()
+	td.AddFlag("var")
+
+	return &td
 }

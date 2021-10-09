@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"strings"
+
 	"github.com/tusklang/tusk/data"
 )
 
@@ -8,11 +10,30 @@ import (
 //this function is able to match the typename to the opdef's typename, which could be a keyword
 func matchOpdef(val data.Value, opdef string) bool {
 
+	splopdef := strings.SplitN(opdef, "&", 2) //split by the & sign (& sign seperates and clauses)
+
+	if len(splopdef) == 2 {
+		return matchOpdef(val, splopdef[0]) && matchOpdef(val, splopdef[1])
+	}
+
+	if opdef[0] == '!' {
+		//inverse the output
+		return !matchOpdef(val, opdef[1:])
+	}
+
+	if val == nil {
+
+		//if the operand request is an empty operand
+		//we return true
+		//otherwise it's false
+		return opdef == "-"
+	}
+
 	if opdef == "*" {
 		return true
 	}
 
-	if (opdef == "class" || opdef == "instance" || opdef == "ptr") && val.TypeData().HasFlag(opdef) {
+	if (opdef == "class" || opdef == "instance" || opdef == "ptr" || opdef == "type" || opdef == "var") && val.TypeData().HasFlag(opdef) {
 		return true
 	}
 

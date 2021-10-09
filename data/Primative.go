@@ -41,5 +41,7 @@ func (p *Primitive) Type() types.Type {
 }
 
 func (p *Primitive) TypeData() *TypeData {
-	return NewTypeData(p.Type().LLString())
+	td := NewTypeData(p.Type().LLString())
+	td.AddFlag("type")
+	return td
 }

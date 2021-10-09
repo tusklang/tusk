@@ -47,6 +47,18 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 			".":  defaultOperationHandle,
 			"()": nil, //function call
 		},
+		{
+			"~": defaultOperationHandle,
+		},
+		{
+			"&": defaultOperationHandle,
+		},
+		{
+			"|": defaultOperationHandle,
+		},
+		{
+			"^": defaultOperationHandle,
+		},
 		//lower on this list means greater precedence
 	}
 
@@ -55,7 +67,7 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 
 		//go through all the items
 		//reverse order for left to right associativity
-		for i := len(items) - 1; i >= 0; i-- {
+		for i := 0; i < len(items); i++ {
 
 			for k, vv := range v {
 

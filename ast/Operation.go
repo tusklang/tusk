@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"fmt"
-
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -23,9 +21,19 @@ func (o *Operation) Parse(lex []tokenizer.Token, i *int) error {
 func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 
 	var (
-		lc = node.Left[0].Group.Compile(compiler, class, node.Left[0], function)
-		rc = node.Right[0].Group.Compile(compiler, class, node.Right[0], function)
+		lc data.Value
+		rc data.Value
 	)
+
+	//parse the left and right operands
+	//only if they exist
+	//some operators are only one side (e.g. !, ~, etc...)
+	if len(node.Left) != 0 {
+		lc = node.Left[0].Group.Compile(compiler, class, node.Left[0], function)
+	}
+	if len(node.Right) != 0 {
+		rc = node.Right[0].Group.Compile(compiler, class, node.Right[0], function)
+	}
 
 	if o.OpType == "." {
 
@@ -37,8 +45,6 @@ func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode
 			rc = data.NewUndeclaredVar(node.Right[0].Group.(*VarRef).Name)
 		}
 	}
-
-	fmt.Println(lc.TypeData().Name(), rc.TypeData().Name(), o.OpType)
 
 	rop := compiler.OperationStore.RunOperation(lc, rc, o.OpType, compiler, function.ActiveBlock)
 	return rop
