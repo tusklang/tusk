@@ -30,11 +30,17 @@ declare void @0()
 
 define void @1() {
 0:
-	%1 = icmp eq i32 1, 1
-	%2 = alloca i1
-	store i1 %1, i1* %2
-	%3 = alloca i1*
-	store i1* %2, i1** %3
+	%1 = alloca i32
+	store i32 22, i32* %1
+	%2 = alloca i32*
+	store i32* %1, i32** %2
+	%3 = alloca i32**
+	store i32** %2, i32*** %3
+	%4 = load i32**, i32*** %3
+	%5 = load i32*, i32** %4
+	%6 = alloca i32
+	%7 = load i32, i32* %5
+	store i32 %7, i32* %6
 	ret void
 }
 

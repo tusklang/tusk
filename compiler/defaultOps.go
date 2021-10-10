@@ -14,7 +14,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 	compiler.OperationStore = ast.NewOperationStore()
 
-	compiler.OperationStore.NewOperation("=", "ptr", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+	compiler.OperationStore.NewOperation("=", "var", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
 
 		varv := left.(*data.Variable).FetchAssig() //we know it's a variable, so we can assert it and fetch the assignment instruction
 		toassign := right.LLVal(block)
@@ -25,7 +25,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 	})
 
 	compiler.OperationStore.NewOperation("+", "i32", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
-		return data.NewVariable(block.NewAdd(left.LLVal(block), right.LLVal(block)), data.NewPrimitive(types.I32))
+		return data.NewInstVariable(block.NewAdd(left.LLVal(block), right.LLVal(block)), data.NewPrimitive(types.I32))
 	})
 
 	compiler.OperationStore.NewOperation(".", "package", "udvar", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
@@ -85,17 +85,10 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 		call := block.NewCall(f, args...)
 
-		callv := data.NewVariable(
+		return data.NewInstVariable(
 			call,
 			left.TType().(*data.Function).RetType(),
 		)
-
-		//set the load instruction to just fetch the assignment
-		callv.SetLoadInst(func(v *data.Variable, block *ir.Block) value.Value {
-			return v.FetchAssig()
-		})
-
-		return callv
 	})
 
 	compiler.OperationStore.NewOperation("()", "class", "fncallb", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
@@ -116,14 +109,10 @@ func initDefaultOps(compiler *ast.Compiler) {
 	})
 
 	compiler.OperationStore.NewOperation("*", "-", "ptr&var", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
-		vd := data.NewVariable(
+		return data.NewVariable(
 			right.LLVal(block),
 			right.TType().(*data.Pointer).PType(),
 		)
-		vd.SetLoadInst(func(v *data.Variable, block *ir.Block) value.Value {
-			return block.NewLoad(v.Type(), v.FetchAssig())
-		})
-		return vd
 	})
 
 	compiler.OperationStore.NewOperation("*", "-", "type", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {

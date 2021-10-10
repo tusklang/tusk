@@ -1,4 +1,6 @@
 pub stat var main: fn() = fn() {
-    var a: bool = 1 == 1;
-    var b: *bool = &a;
+    var a: i32 = 22;
+    var b: *i32 = &a;
+    var c: **i32 = &b;
+    var d: i32 = **c;
 };
