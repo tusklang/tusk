@@ -2,6 +2,7 @@ package ast
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
@@ -16,6 +17,7 @@ type VarDecl struct {
 	Value *ASTNode
 
 	declaration value.Value
+	decltyp     data.Type
 }
 
 func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
@@ -85,6 +87,12 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 
 	decl := function.ActiveBlock.NewAlloca(vtype.Type())
 
+	if !vtype.Equals(varval.TType()) {
+		//compiler error
+		//variable value type doesn't match inputted type
+		fmt.Println("SSSSSSSSS")
+	}
+
 	if llv := varval.LLVal(function.ActiveBlock); llv != nil {
 		function.ActiveBlock.NewStore(llv, decl)
 	}
@@ -99,6 +107,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Class, static bool) error {
 
 	vtype := vd.getDeclType(compiler, class, compiler.InitFunc)
+	vd.decltyp = vtype
 
 	if static {
 
@@ -109,7 +118,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 
 		vd.declaration = decl
 
-		nv := data.NewVariable(vd.declaration, data.NewPointer(vtype))
+		nv := data.NewVariable(vd.declaration, vtype)
 
 		class.Static[vd.Name] = nv
 	} else {
@@ -130,5 +139,11 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 //used specifically for global variable declarations
 func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *data.Class, function *data.Function) {
 	val := vd.Value.Group.Compile(compiler, class, vd.Value, compiler.InitFunc)
+
+	if !vd.decltyp.Equals(val.TType()) {
+		//compiler error
+		//variable value type doesn't match inputted type
+	}
+
 	function.ActiveBlock.NewStore(val.LLVal(function.ActiveBlock), vd.declaration)
 }

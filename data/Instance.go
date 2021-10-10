@@ -37,6 +37,10 @@ func (i *Instance) TypeData() *TypeData {
 	return td
 }
 
+func (i *Instance) Equals(t Type) bool {
+	return i.Class.Equals(t)
+}
+
 func (i *Instance) Default() constant.Constant {
 	return constant.NewNull(types.NewPointer(i.Class.SType))
 }

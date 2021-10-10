@@ -68,3 +68,7 @@ func (c *Class) TypeData() *TypeData {
 
 	return td
 }
+
+func (c *Class) Equals(t Type) bool {
+	return c.SType.Equal(t.Type())
+}

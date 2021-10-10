@@ -49,6 +49,10 @@ func (p *Pointer) TypeData() *TypeData {
 	return &td
 }
 
+func (p *Pointer) Equals(t Type) bool {
+	return p.Type().Equal(t.Type())
+}
+
 func (p *Pointer) Default() constant.Constant {
 	return constant.NewNull(p.Type().(*types.PointerType))
 }

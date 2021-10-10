@@ -33,6 +33,25 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 			":": defaultOperationHandle,
 		},
 		{
+			"&": defaultOperationHandle,
+		},
+		{
+			"|": defaultOperationHandle,
+		},
+		{
+			"^": defaultOperationHandle,
+		},
+		{
+			"==": defaultOperationHandle,
+			"!=": defaultOperationHandle,
+		},
+		{
+			"<=": defaultOperationHandle,
+			"<":  defaultOperationHandle,
+			">":  defaultOperationHandle,
+			">=": defaultOperationHandle,
+		},
+		{
 			"+": defaultOperationHandle,
 			"-": defaultOperationHandle,
 		},
@@ -49,15 +68,6 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 		},
 		{
 			"~": defaultOperationHandle,
-		},
-		{
-			"&": defaultOperationHandle,
-		},
-		{
-			"|": defaultOperationHandle,
-		},
-		{
-			"^": defaultOperationHandle,
 		},
 		//lower on this list means greater precedence
 	}

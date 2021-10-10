@@ -83,6 +83,21 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
 			if g.OpType != "." {
 				p.process(v.Right, m)
 			}
+		case *ast.IfStatement:
+
+			merged := mergemap(declared, curscope)
+
+			p.process(g.Condition, merged)
+			p.process(g.Body, merged)
+			p.process(g.ElseBody, merged)
+
+		case *ast.WhileStatement:
+
+			merged := mergemap(declared, curscope)
+
+			p.process(g.Condition, merged)
+			p.process(g.Body, merged)
+
 		}
 	}
 }

@@ -9,12 +9,20 @@ import (
 
 type Primitive struct {
 	typ types.Type
+	nam string
 }
 
 func NewPrimitive(typ types.Type) *Primitive {
 	return &Primitive{
 		typ: typ,
+		nam: typ.LLString(),
 	}
+}
+
+func NewNamedPrimitive(typ types.Type, nam string) *Primitive {
+	p := NewPrimitive(typ)
+	p.nam = nam
+	return p
 }
 
 func (p *Primitive) Default() constant.Constant {
@@ -41,7 +49,11 @@ func (p *Primitive) Type() types.Type {
 }
 
 func (p *Primitive) TypeData() *TypeData {
-	td := NewTypeData(p.Type().LLString())
+	td := NewTypeData(p.nam)
 	td.AddFlag("type")
 	return td
+}
+
+func (p *Primitive) Equals(t Type) bool {
+	return p.TypeData().Name() == t.TypeData().Name()
 }

@@ -84,6 +84,10 @@ func (f *Function) TypeData() *TypeData {
 	return NewTypeData("func")
 }
 
+func (f *Function) Equals(t Type) bool {
+	return f.LLFunc.Type().Equal(t.Type())
+}
+
 func (f *Function) PopTermStack() ir.Terminator {
 	r := f.LastTermStack()
 

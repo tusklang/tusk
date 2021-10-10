@@ -3,6 +3,7 @@ package compiler
 import (
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/ast"
@@ -133,14 +134,53 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return ptrt
 	})
 
+	compiler.OperationStore.NewOperation("==", "*", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+		return data.NewInstVariable(
+			block.NewICmp(enum.IPredEQ, left.LLVal(block), right.LLVal(block)),
+			data.NewPrimitive(types.I1),
+		)
+	})
+
+	compiler.OperationStore.NewOperation("!=", "*", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+		return data.NewInstVariable(
+			block.NewICmp(enum.IPredNE, left.LLVal(block), right.LLVal(block)),
+			data.NewPrimitive(types.I1),
+		)
+	})
+
+	compiler.OperationStore.NewOperation(">", "*", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+		return data.NewInstVariable(
+			block.NewZExt(block.NewICmp(enum.IPredUGT, left.LLVal(block), right.LLVal(block)), types.I32),
+			data.NewPrimitive(types.I1),
+		)
+	})
+
+	compiler.OperationStore.NewOperation(">=", "*", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+		return data.NewInstVariable(
+			block.NewICmp(enum.IPredUGE, left.LLVal(block), right.LLVal(block)),
+			data.NewPrimitive(types.I1),
+		)
+	})
+
+	compiler.OperationStore.NewOperation("<", "*", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+		return data.NewInstVariable(
+			block.NewICmp(enum.IPredULT, left.LLVal(block), right.LLVal(block)),
+			data.NewPrimitive(types.I1),
+		)
+	})
+
+	compiler.OperationStore.NewOperation("<=", "*", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+		return data.NewInstVariable(
+			block.NewICmp(enum.IPredULE, left.LLVal(block), right.LLVal(block)),
+			data.NewPrimitive(types.I1),
+		)
+	})
+
 	compiler.OperationStore.NewOperation("&", "-", "var", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
-		vd := data.NewVariable(
+		vd := data.NewInstVariable(
 			right.(*data.Variable).FetchAssig(),
 			data.NewPointer(right.(*data.Variable).TType()),
 		)
-		vd.SetLoadInst(func(v *data.Variable, b *ir.Block) value.Value {
-			return v.FetchAssig()
-		})
 		return vd
 	})
 

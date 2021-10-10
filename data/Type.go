@@ -10,4 +10,5 @@ type Type interface {
 	Type() types.Type
 	TypeData() *TypeData
 	Default() constant.Constant
+	Equals(Type) bool
 }

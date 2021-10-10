@@ -25,6 +25,7 @@ var prevars = map[string]data.Value{
 	"i8":   data.NewPrimitive(types.I8),
 	"f64":  data.NewPrimitive(types.Double),
 	"f32":  data.NewPrimitive(types.Float),
+	"bool": data.NewPrimitive(types.I1),
 }
 
 func Compile(prog *initialize.Program, outfile string) {

@@ -23,6 +23,14 @@ func NewVariable(inst value.Value, typ Type) *Variable {
 	}
 }
 
+func NewInstVariable(inst value.Value, typ Type) *Variable {
+	vd := NewVariable(inst, typ)
+	vd.SetLoadInst(func(v *Variable, b *ir.Block) value.Value {
+		return v.FetchAssig()
+	})
+	return vd
+}
+
 func (v *Variable) FetchAssig() value.Value {
 	return v.inst
 }
