@@ -12,5 +12,5 @@ func main() {
 	flag.Parse()
 
 	prog := initialize.Initialize(*config)
-	compiler.Compile(prog, "test.ll", builtin)
+	compiler.Compile(prog, "test.ll")
 }

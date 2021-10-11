@@ -8,9 +8,8 @@ import (
 )
 
 type String struct {
-	CharArray   []byte
-	gd          *ir.Global
-	stringClass *Class
+	CharArray []byte
+	gd        *ir.Global
 }
 
 func NewString(s []byte) *String {
@@ -19,9 +18,8 @@ func NewString(s []byte) *String {
 	}
 }
 
-func (s *String) Init(gd *ir.Global, ns *Class) {
+func (s *String) Init(gd *ir.Global) {
 	s.gd = gd
-	s.stringClass = ns
 }
 
 func (s *String) LLVal(block *ir.Block) value.Value {
@@ -35,11 +33,11 @@ func (s *String) LLVal(block *ir.Block) value.Value {
 		constant.NewInt(types.I32, 0),
 	)
 	gep.InBounds = true
-	return block.NewCall(s.stringClass.Construct.LLFunc, gep, constant.NewInt(types.I32, int64(len(s.CharArray))))
+	return gep
 }
 
 func (s *String) TType() Type {
-	return s.stringClass
+	return NewPointer(NewPrimitive(types.I8))
 }
 
 func (s *String) Type() types.Type {
@@ -47,5 +45,5 @@ func (s *String) Type() types.Type {
 }
 
 func (s *String) TypeData() *TypeData {
-	return NewTypeData("string")
+	return s.TType().TypeData()
 }

@@ -15,7 +15,7 @@ all: build
 
 .PHONY: build
 build:
-	go build -o $(BINARY) entry.go builtin.go
+	go build -o $(BINARY) entry.go
 
 .PHONY: clean
 clean:
