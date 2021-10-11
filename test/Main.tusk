@@ -1,6 +1,3 @@
 pub stat var main: fn() = fn() {
-    var a: i32 = 22;
-    var b: *i32 = &a;
-    var c: **i32 = &b;
-    var d: i32 = **c;
+    var s: string = "helgo";
 };

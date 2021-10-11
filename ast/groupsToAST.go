@@ -77,7 +77,7 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 
 		//go through all the items
 		//reverse order for left to right associativity
-		for i := 0; i < len(items); i++ {
+		for i := len(items) - 1; i >= 0; i-- {
 
 			for k, vv := range v {
 

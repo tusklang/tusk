@@ -11,7 +11,6 @@ type Compiler struct {
 	InitFunc       *data.Function        //function that runs before main (used to initialize globals and stuff)
 	OperationStore *OperationStore       //list of all operations
 	VarMap         map[string]data.Value //map of all the variables declared
-	NewString      *ir.Func              //create a new string class in tusk
 }
 
 func (c *Compiler) AddVar(name string, v data.Value) {

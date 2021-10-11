@@ -29,12 +29,18 @@ func NewClass(name string, st *types.StructType, parent *Package) *Class {
 		Name:          name,
 		SType:         st,
 		ParentPackage: parent,
+		Instance:      make(map[string]*InstanceVar),
+		Static:        make(map[string]*Variable),
 	}
 }
 
 func (c *Class) AppendInstance(name string, typ Type) {
+	c.AddInstanceItem(name, typ, c.nextInstanceIdx())
+}
+
+func (c *Class) AddInstanceItem(name string, typ Type, idx int64) {
 	c.Instance[name] = &InstanceVar{
-		Index: c.nextInstanceIdx(),
+		Index: idx,
 		Type:  typ,
 	}
 }
@@ -58,17 +64,18 @@ func (c *Class) TType() Type {
 }
 
 func (c *Class) Type() types.Type {
-	return c.SType
+	return types.NewPointer(c.SType)
 }
 
 func (c *Class) TypeData() *TypeData {
 
 	td := NewTypeData(c.Name)
 	td.AddFlag("class")
+	td.AddFlag("type")
 
 	return td
 }
 
 func (c *Class) Equals(t Type) bool {
-	return c.SType.Equal(t.Type())
+	return c.Type().Equal(t.Type())
 }

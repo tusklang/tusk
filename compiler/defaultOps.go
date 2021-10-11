@@ -1,6 +1,8 @@
 package compiler
 
 import (
+	"fmt"
+
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/enum"
@@ -61,14 +63,14 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 		classt := left.TType().(*data.Instance).Class
 
-		return data.NewVariable(
-			block.NewGetElementPtr(
+		return data.NewInstVariable(
+			block.NewLoad(classt.Instance[sub].Type.Type(), block.NewGetElementPtr(
 				classt.SType,
-				inst,
+				block.NewLoad(types.NewPointer(classt.SType), inst),
 				constant.NewInt(types.I32, 0),
 				constant.NewInt(types.I32, classt.Instance[sub].Index),
-			),
-			data.NewPointer(classt.Instance[sub].Type),
+			)),
+			classt.Instance[sub].Type,
 		)
 	})
 
@@ -76,6 +78,8 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 		f := left.LLVal(block)
 		fcb := right.(*data.FnCallBlock)
+
+		fmt.Println(f)
 
 		var args []value.Value
 
@@ -102,7 +106,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 			args = append(args, v.LLVal(block))
 		}
 
-		return data.NewVariable(
+		return data.NewInstVariable(
 			block.NewCall(class.Construct.LLFunc, args...),
 			data.NewInstance(class),
 		)

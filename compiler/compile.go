@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"embed"
 	"os"
 	"runtime"
 
@@ -28,7 +29,7 @@ var prevars = map[string]data.Value{
 	"bool": data.NewPrimitive(types.I1),
 }
 
-func Compile(prog *initialize.Program, outfile string) {
+func Compile(prog *initialize.Program, outfile string, builtin embed.FS) {
 
 	var compiler ast.Compiler
 	m := ir.NewModule() //create a new llvm module
@@ -38,9 +39,7 @@ func Compile(prog *initialize.Program, outfile string) {
 	compiler.OS = runtime.GOOS
 	compiler.ARCH = runtime.GOARCH
 
-	var stringclass *data.Class
-	stringclass, compiler.NewString = initString(m)
-	prevars["string"] = stringclass
+	ParseBuiltin(&compiler, builtin)
 
 	compiler.VarMap = make(map[string]data.Value)
 
