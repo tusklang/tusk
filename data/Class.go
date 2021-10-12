@@ -7,15 +7,24 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-type InstanceVar struct {
+type ClassField struct {
 	Index int64
 	Type  Type
+
+	/*
+		access types
+		0 - private
+		1 - public
+		2 - protected
+	*/
+	Access int
+	Value  Value
 }
 type Class struct {
 	Name           string
 	SType          *types.StructType
-	Instance       map[string]*InstanceVar
-	Static         map[string]*Variable
+	Instance       map[string]*ClassField
+	Static         map[string]*ClassField
 	Construct      *Function
 	ConstructAlloc value.Value
 
@@ -29,8 +38,8 @@ func NewClass(name string, st *types.StructType, parent *Package) *Class {
 		Name:          name,
 		SType:         st,
 		ParentPackage: parent,
-		Instance:      make(map[string]*InstanceVar),
-		Static:        make(map[string]*Variable),
+		Instance:      make(map[string]*ClassField),
+		Static:        make(map[string]*ClassField),
 	}
 }
 
@@ -39,9 +48,16 @@ func (c *Class) AppendInstance(name string, typ Type) {
 }
 
 func (c *Class) AddInstanceItem(name string, typ Type, idx int64) {
-	c.Instance[name] = &InstanceVar{
+	c.Instance[name] = &ClassField{
 		Index: idx,
 		Type:  typ,
+	}
+}
+
+func (c *Class) AppendStatic(name string, vardec *Variable) {
+	c.Static[name] = &ClassField{
+		Type:  vardec.TType(),
+		Value: vardec,
 	}
 }
 

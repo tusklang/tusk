@@ -43,8 +43,12 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
 				//variable with that name has already been declared
 			}
 
-			p.process([]*ast.ASTNode{g.Type}, m)
-			p.process([]*ast.ASTNode{g.Value}, m)
+			if g.Type != nil {
+				p.process([]*ast.ASTNode{g.Type}, m)
+			}
+			if g.Value != nil {
+				p.process([]*ast.ASTNode{g.Value}, m)
+			}
 
 			nname := p.nextvar()
 			curscope[g.Name] = decl{
@@ -115,6 +119,11 @@ func (p *VarProcessor) ProcessVars(file *initialize.File) {
 	}
 
 	for _, v := range file.Globals {
+
+		if v.Value.Value == nil {
+			continue
+		}
+
 		p.process([]*ast.ASTNode{v.Value.Value}, mergemap(p.predecl, globals)) //process the declaration's assigned value
 	}
 

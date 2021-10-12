@@ -120,7 +120,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 
 		nv := data.NewVariable(vd.declaration, vtype)
 
-		class.Static[vd.Name] = nv
+		class.AppendStatic(vd.Name, nv)
 	} else {
 
 		//instance variable
@@ -138,6 +138,12 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 
 //used specifically for global variable declarations
 func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *data.Class, function *data.Function) {
+
+	//if the value of the global is nil, we don't need to assign any value its defaulted to
+	if vd.Value == nil {
+		return
+	}
+
 	val := vd.Value.Group.Compile(compiler, class, vd.Value, compiler.InitFunc)
 
 	if !vd.decltyp.Equals(val.TType()) {

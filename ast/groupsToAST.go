@@ -22,12 +22,10 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 	var opList = []map[string]func(exp []Group, index int) ([]*ASTNode, error){
 		{
 			";": termOpHandle,
+			",": termOpHandle,
 		},
 		{
 			"=": defaultOperationHandle,
-		},
-		{
-			"->": defaultOperationHandle,
 		},
 		{
 			":": defaultOperationHandle,

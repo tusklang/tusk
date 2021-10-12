@@ -13,8 +13,8 @@ func compileClass(compiler *ast.Compiler, f *initialize.File, ipack *initialize.
 	tc := data.NewClass(f.Name, stype, pack) //create the class in tusk
 
 	//init the instance and static maps
-	tc.Instance = make(map[string]*data.InstanceVar)
-	tc.Static = make(map[string]*data.Variable)
+	tc.Instance = make(map[string]*data.ClassField)
+	tc.Static = make(map[string]*data.ClassField)
 
 	f.StructType = stype
 

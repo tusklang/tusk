@@ -46,6 +46,6 @@ func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode
 		}
 	}
 
-	rop := compiler.OperationStore.RunOperation(lc, rc, o.OpType, compiler, function.ActiveBlock)
+	rop := compiler.OperationStore.RunOperation(lc, rc, o.OpType, compiler, function.ActiveBlock, class)
 	return rop
 }

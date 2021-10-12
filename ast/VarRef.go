@@ -21,7 +21,11 @@ func (vr *VarRef) Compile(compiler *Compiler, class *data.Class, node *ASTNode, 
 
 		//check the class' static variables if there is no variable declared with x name
 
-		fetched = class.Static[vr.Name]
+		_fetched := class.Static[vr.Name]
+
+		if _fetched != nil {
+			fetched = _fetched.Value
+		}
 
 		if fetched == nil {
 			//if there still isn't a variable with that name, it's an "undeclared variable"

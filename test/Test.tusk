@@ -1,0 +1,5 @@
+prv var abc: i32;
+
+pub stat var tmp: fn() = fn() {
+    Main.abcd = 332;
+};

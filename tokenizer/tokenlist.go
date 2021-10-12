@@ -8,6 +8,7 @@ type TokenItem struct {
 var tokenlist = []TokenItem{
 
 	{("\\;"), "terminator"}, //semicolon
+	{("\\,"), "terminator"}, //comma
 
 	/************ whitespace ************/
 	{("\\n"), "newline"},       //newline

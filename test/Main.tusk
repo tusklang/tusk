@@ -1,3 +1,6 @@
-pub stat var main: fn() = fn() {
-    var s: *i8 = "helgo";
+prv stat var abcd: i32;
+
+pub stat var main: fn(i32, i32) = fn(a: i32, b: i32) {
+    var t: Test = Test();
+    t.abc = 22222;
 };
