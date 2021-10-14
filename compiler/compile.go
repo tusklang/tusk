@@ -101,8 +101,7 @@ func Compile(prog *initialize.Program, outfile string) {
 
 	for _, v := range prog.Packages {
 		for _, vv := range v.Files {
-			// processor.ProcessVars(vv)
-			_ = vv
+			processor.ProcessVars(vv)
 		}
 	}
 

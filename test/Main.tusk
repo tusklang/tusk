@@ -1,6 +1,10 @@
-prv stat var abcd: i32;
+prv var a: i32 = 44;
+
+pub var abcd: fn(Main) = fn(self: Main) {
+    self.a = 22;
+};
 
 pub stat var main: fn(i32, i32) = fn(a: i32, b: i32) {
-    var t: Test = Test();
-    t.abc = 22222;
+    var t: Main = Main();
+    t.abcd(t);
 };

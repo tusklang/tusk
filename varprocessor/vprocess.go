@@ -76,8 +76,18 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
 		case *ast.Block:
 			p.process(g.Sub, mergemap(declared, curscope))
 		case *ast.Function:
+
+			m := mergemap(declared, curscope)
+
+			for _, v := range g.Params {
+				m[v.Name] = decl{
+					nname: p.nextvar(),
+				}
+				v.Name = m[v.Name].nname
+			}
+
 			if g.Body != nil {
-				p.process(g.Body.Sub, mergemap(declared, curscope))
+				p.process(g.Body.Sub, m)
 			}
 		case *ast.Operation:
 			m := mergemap(declared, curscope)

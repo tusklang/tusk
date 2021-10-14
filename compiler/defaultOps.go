@@ -91,8 +91,6 @@ func initDefaultOps(compiler *ast.Compiler) {
 		f := left.LLVal(block)
 		fcb := right.(*data.FnCallBlock)
 
-		fmt.Println(f)
-
 		var args []value.Value
 
 		for _, v := range fcb.Args {

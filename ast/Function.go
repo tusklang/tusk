@@ -92,10 +92,12 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	var params = make([]*ir.Param, len(f.Params))
 
 	for k, v := range f.Params {
+		typ := v.Type.Group.Compile(compiler, class, v.Type, function)
 		params[k] = ir.NewParam(
 			v.Name,
-			v.Type.Group.Compile(compiler, class, v.Type, function).Type(),
+			typ.Type(),
 		)
+		compiler.AddVar(v.Name, data.NewVariable(params[k], typ.TType()))
 	}
 
 	rf := compiler.Module.NewFunc("", rt.Type(), params...)

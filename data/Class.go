@@ -76,7 +76,7 @@ func (c *Class) Default() constant.Constant {
 }
 
 func (c *Class) TType() Type {
-	return c
+	return NewInstance(c)
 }
 
 func (c *Class) Type() types.Type {
