@@ -23,11 +23,12 @@ var tokenlist = []TokenItem{
 	{("else(?=(\\z|\\(|\\{|\\s+))"), "else"},           //else
 	{("while(?=(\\z|\\(|\\{|\\s+))"), "while"},         //while
 	{("pub(?![a-zA-Z$_0-9])"), "pub"},                  //pub
+	{("prv(?![a-zA-Z$_0-9])"), "prv"},                  //prv
 	{("prt(?![a-zA-Z$_0-9])"), "prt"},                  //prt
 	{("stat(?![a-zA-Z$_0-9])"), "stat"},                //stat
+	{("link(?![a-zA-Z$_0-9])"), "link"},                //link
 	{("new(?![a-zA-Z$_0-9])"), "new"},                  //new
 	{("construct(?=(\\z|\\(|\\{|\\s+))"), "construct"}, //construct
-	{("link(?![a-zA-Z$_0-9])"), "link"},                //link
 	/**********************************/
 
 	/************ braces ************/

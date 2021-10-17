@@ -115,10 +115,11 @@ func Compile(prog *initialize.Program, outfile string) {
 
 			if v.CRel == 2 {
 				//it's a linked function
+				v.Link.Compile(&compiler, c, nil, nil)
 				continue
 			}
 
-			v.Value.DeclareGlobal(c.ParentPackage.FullName+"."+c.Name+"_"+v.Value.Name, &compiler, c, v.CRel == 1)
+			v.Value.DeclareGlobal(c.ParentPackage.FullName+"."+c.Name+"_"+v.Value.Name, &compiler, c, v.CRel == 1, v.Access)
 		}
 	}
 
@@ -133,9 +134,6 @@ func Compile(prog *initialize.Program, outfile string) {
 			case 1:
 				//static
 				v.Value.CompileGlobal(&compiler, c, compiler.InitFunc)
-			case 2:
-				//link
-				v.Link.Compile(&compiler, c, nil, nil)
 			}
 
 		}

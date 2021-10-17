@@ -13,9 +13,9 @@ type ClassField struct {
 
 	/*
 		access types
-		0 - private
-		1 - public
-		2 - protected
+		0 - public
+		1 - protected
+		2 - private
 	*/
 	Access int
 	Value  Value
@@ -43,14 +43,15 @@ func NewClass(name string, st *types.StructType, parent *Package) *Class {
 	}
 }
 
-func (c *Class) AppendInstance(name string, typ Type) {
-	c.AddInstanceItem(name, typ, c.nextInstanceIdx())
+func (c *Class) AppendInstance(name string, typ Type, access int) {
+	c.AddInstanceItem(name, typ, c.nextInstanceIdx(), access)
 }
 
-func (c *Class) AddInstanceItem(name string, typ Type, idx int64) {
+func (c *Class) AddInstanceItem(name string, typ Type, idx int64, access int) {
 	c.Instance[name] = &ClassField{
-		Index: idx,
-		Type:  typ,
+		Index:  idx,
+		Type:   typ,
+		Access: access,
 	}
 }
 

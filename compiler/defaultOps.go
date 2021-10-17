@@ -53,7 +53,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 		cclass := left.(*data.Class)
 		sub := right.(*data.UndeclaredVar).Name
 
-		if cclass.Static[sub].Access == 0 && !cclass.Equals(class) {
+		if cclass.Static[sub].Access == 2 && !cclass.Equals(class) {
 			//error
 			//trying to access a private field
 			fmt.Println("trying to access private static field " + class.Name)
@@ -69,7 +69,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 		classt := left.TType().(*data.Instance).Class
 
-		if classt.Instance[sub].Access == 0 && !classt.Equals(class) {
+		if classt.Instance[sub].Access == 2 && !classt.Equals(class) {
 			//error
 			//trying to access a private field
 			fmt.Println("trying to access private instance field " + class.Name)

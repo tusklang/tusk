@@ -102,7 +102,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	return dv
 }
 
-func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Class, static bool) error {
+func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Class, static bool, access int) error {
 
 	vtype := vd.getDeclType(compiler, class, compiler.InitFunc)
 	vd.decltyp = vtype
@@ -118,7 +118,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 
 		nv := data.NewVariable(vd.declaration, vtype)
 
-		class.AppendStatic(vd.Name, nv, nv.TType(), 2)
+		class.AppendStatic(vd.Name, nv, nv.TType(), access)
 	} else {
 
 		//instance variable
@@ -129,7 +129,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 		gep := class.Construct.ActiveBlock.NewGetElementPtr(class.SType, class.ConstructAlloc, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, int64(len(class.SType.Fields)-1)))
 		vd.declaration = gep
 
-		class.AppendInstance(vd.Name, vtype)
+		class.AppendInstance(vd.Name, vtype, access)
 	}
 	return nil
 }

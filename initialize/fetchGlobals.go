@@ -19,9 +19,13 @@ func fetchGlobals(tree []*ast.ASTNode, file *File, access int, crel int /*class 
 			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 0, crel)
 		case *ast.Protected:
 			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 1, crel)
+		case *ast.Private:
+			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 2, crel)
 		case *ast.Static:
 			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, access, 1)
 		case *ast.Link:
+
+			g.Access = access
 
 			file.Globals = append(file.Globals, GlobalDecl{
 				Access: access,

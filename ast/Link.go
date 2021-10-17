@@ -8,6 +8,7 @@ import (
 type Link struct {
 	stname /*stored tname after varname mangling*/, TName, AName string
 	DType                                                        *ASTNode
+	Access                                                       int
 }
 
 func (l *Link) Parse(lex []tokenizer.Token, i *int) error {
@@ -55,6 +56,7 @@ func (l *Link) Parse(lex []tokenizer.Token, i *int) error {
 	l.stname = tname
 	l.AName = aname
 	l.DType = dtype[0]
+	l.Access = 2 //access is private by default
 
 	return nil
 }
@@ -78,7 +80,7 @@ func (l *Link) Compile(compiler *Compiler, class *data.Class, node *ASTNode, fun
 	tfd.SetLName(l.stname)
 	compiler.AddVar(l.TName, tfd)
 
-	class.AppendStatic(l.stname, tfd, tfd.TType(), 1)
+	class.AppendStatic(l.stname, tfd, tfd.TType(), l.Access)
 
 	return nil
 }

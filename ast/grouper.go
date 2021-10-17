@@ -100,14 +100,16 @@ func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string, maxl
 			gr = &WhileStatement{}
 		case "pub":
 			gr = &Public{}
-		case "prot":
+		case "prt":
 			gr = &Protected{}
+		case "prv":
+			gr = &Private{}
 		case "stat":
 			gr = &Static{}
-		case "var":
-			gr = &VarDecl{}
 		case "link":
 			gr = &Link{}
+		case "var":
+			gr = &VarDecl{}
 		case "terminator":
 			fallthrough
 		case "operation":
