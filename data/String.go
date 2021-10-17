@@ -14,7 +14,7 @@ type String struct {
 
 func NewString(s []byte) *String {
 	return &String{
-		CharArray: append(s, 0),
+		CharArray: s,
 	}
 }
 

@@ -1,5 +1,5 @@
-link var printf: fn(*i8) -> printf;
+link var write: fn(i32, *i8, i32) -> write;
 
 pub stat var main: fn() = fn() {
-    printf("helgo");
+    write(1, "helgo\n\n\n", 8);
 };
