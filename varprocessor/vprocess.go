@@ -121,16 +121,25 @@ func (p *VarProcessor) ProcessVars(file *initialize.File) {
 	var globals = make(map[string]decl)
 
 	for _, v := range file.Globals {
+
+		if v.CRel == 2 {
+			//link variable
+			globals[v.Link.TName] = decl{
+				nname: v.Link.TName,
+			}
+			continue
+		}
+
 		//add all the globals
 		globals[v.Value.Name] = decl{
 			nname:  v.Value.Name,
-			static: v.IsStatic,
+			static: v.CRel == 1,
 		}
 	}
 
 	for _, v := range file.Globals {
 
-		if v.Value.Value == nil {
+		if v.Value == nil || v.Value.Value == nil {
 			continue
 		}
 

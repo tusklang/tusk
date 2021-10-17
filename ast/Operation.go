@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/llir/llvm/ir"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -46,6 +47,12 @@ func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode
 		}
 	}
 
-	rop := compiler.OperationStore.RunOperation(lc, rc, o.OpType, compiler, function.ActiveBlock, class)
+	var active *ir.Block //function active block
+
+	if function != nil {
+		active = function.ActiveBlock
+	}
+
+	rop := compiler.OperationStore.RunOperation(lc, rc, o.OpType, compiler, active, class)
 	return rop
 }

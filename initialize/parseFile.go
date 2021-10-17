@@ -28,7 +28,7 @@ func parseFile(name string) (*File, error) {
 		Name: strings.TrimSuffix(filepath.Base(name), ".tusk"), //get the classname of the file
 	}
 
-	fetchGlobals(generatedAST, &retf, 2, false)
+	fetchGlobals(generatedAST, &retf, 2, 0)
 
 	return &retf, nil
 }

@@ -2,7 +2,6 @@ package ast
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
@@ -35,7 +34,7 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 	//has a specified type
 	if lex[*i].Name == ":" {
 		*i++
-		t, e := groupsToAST(groupSpecific(lex, i, []string{"=", ";"}))
+		t, e := groupsToAST(groupSpecific(lex, i, []string{"=", ";"}, -1))
 		if e != nil {
 			return e
 		}
@@ -90,7 +89,6 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	if !vtype.Equals(varval.TType()) {
 		//compiler error
 		//variable value type doesn't match inputted type
-		fmt.Println("SSSSSSSSS")
 	}
 
 	if llv := varval.LLVal(function.ActiveBlock); llv != nil {

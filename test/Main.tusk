@@ -1,10 +1,5 @@
-prv var a: i32 = 44;
+link var printf: fn(*i8) -> printf;
 
-pub var abcd: fn(Main) = fn(self: Main) {
-    self.a = 22;
-};
-
-pub stat var main: fn(i32, i32) = fn(a: i32, b: i32) {
-    var t: Main = Main();
-    t.abcd(t);
+pub stat var main: fn() = fn() {
+    printf("helgo");
 };

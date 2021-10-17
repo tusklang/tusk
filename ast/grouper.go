@@ -77,10 +77,11 @@ func testStopAt(token tokenizer.Token, sa []string) bool {
 }
 
 //function for extra customizability with grouping
-func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string) []Group {
+func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string, maxlen int) []Group {
 	var fin []Group
+	ostart := *startAt
 
-	for ; *startAt < len(tokens) && testStopAt(tokens[*startAt], stopAt); *startAt++ {
+	for ; *startAt < len(tokens) && testStopAt(tokens[*startAt], stopAt) && (maxlen < 0 || *startAt < ostart+maxlen); *startAt++ {
 
 		var gr Group //the group to append
 
@@ -99,12 +100,14 @@ func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string) []Gr
 			gr = &WhileStatement{}
 		case "pub":
 			gr = &Public{}
-		case "prt":
+		case "prot":
 			gr = &Protected{}
 		case "stat":
 			gr = &Static{}
 		case "var":
 			gr = &VarDecl{}
+		case "link":
+			gr = &Link{}
 		case "terminator":
 			fallthrough
 		case "operation":
@@ -139,5 +142,5 @@ func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string) []Gr
 //function used as shorthand for `groupSpecific` when some params aren't required
 func grouper(tokens []tokenizer.Token) []Group {
 	tmp := 0
-	return groupSpecific(tokens, &tmp, nil)
+	return groupSpecific(tokens, &tmp, nil, -1)
 }

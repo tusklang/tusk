@@ -15,8 +15,14 @@ type GlobalDecl struct {
 	*/
 	Access int
 
-	IsStatic    bool //if the global is a static or instance
+	/*
+		0: instance
+		1: static
+		2: link
+	*/
+	CRel        int
 	Value       *ast.VarDecl
+	Link        *ast.Link
 	Declaration *ir.Global
 }
 

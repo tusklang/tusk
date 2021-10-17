@@ -27,6 +27,7 @@ var tokenlist = []TokenItem{
 	{("stat(?![a-zA-Z$_0-9])"), "stat"},                //stat
 	{("new(?![a-zA-Z$_0-9])"), "new"},                  //new
 	{("construct(?=(\\z|\\(|\\{|\\s+))"), "construct"}, //construct
+	{("link(?![a-zA-Z$_0-9])"), "link"},                //link
 	/**********************************/
 
 	/************ braces ************/
@@ -37,6 +38,7 @@ var tokenlist = []TokenItem{
 	/********************************/
 
 	/************ operators ************/
+	{("\\-\\>"), "operation"}, // ->
 	{("\\+"), "operation"},    // +
 	{("\\-"), "operation"},    // -
 	{("\\*"), "operation"},    // *

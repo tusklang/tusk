@@ -112,7 +112,13 @@ func Compile(prog *initialize.Program, outfile string) {
 		c.ConstructAlloc = newAlloc
 
 		for _, v := range ic.Globals {
-			v.Value.DeclareGlobal(c.ParentPackage.FullName+"."+c.Name+"_"+v.Value.Name, &compiler, c, v.IsStatic)
+
+			if v.CRel == 2 {
+				//it's a linked function
+				continue
+			}
+
+			v.Value.DeclareGlobal(c.ParentPackage.FullName+"."+c.Name+"_"+v.Value.Name, &compiler, c, v.CRel == 1)
 		}
 	}
 
@@ -120,12 +126,16 @@ func Compile(prog *initialize.Program, outfile string) {
 
 		for _, v := range ic.Globals {
 
-			if v.IsStatic {
-				//it's a static variable
-				v.Value.CompileGlobal(&compiler, c, compiler.InitFunc)
-			} else {
-				//it's an instance variable
+			switch v.CRel {
+			case 0:
+				//instance
 				v.Value.CompileGlobal(&compiler, c, c.Construct)
+			case 1:
+				//static
+				v.Value.CompileGlobal(&compiler, c, compiler.InitFunc)
+			case 2:
+				//link
+				v.Link.Compile(&compiler, c, nil, nil)
 			}
 
 		}
@@ -145,8 +155,16 @@ func Compile(prog *initialize.Program, outfile string) {
 	compiler.InitFunc.ActiveBlock.NewRet(nil) //append a `return void` to the init function
 
 	mblock.NewCall(initfunc) //call the initialize function
-	// loaded := mblock.NewLoad(mfnc.ContentType, mfnc)
-	// mblock.NewCall(loaded)
+
+	//load and run the main function
+
+	for _, v := range cclasses {
+		if v.Name == prog.Config.Entry {
+			//entry class
+			mblock.NewCall(v.Static["main"].Value.LLVal(mblock))
+		}
+	}
+
 	mblock.NewRet(nil)
 
 	f, _ := os.Create(outfile)

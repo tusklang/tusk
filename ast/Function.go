@@ -6,6 +6,7 @@ import (
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/data"
+
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -25,7 +26,7 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	//so we will skip the return type
 
 	if lex[*i].Type != "(" {
-		rt, e := groupsToAST(groupSpecific(lex, i, []string{"("}))
+		rt, e := groupsToAST(groupSpecific(lex, i, []string{"("}, -1))
 		f.RetType = rt[0]
 		if e != nil {
 			return e
@@ -44,15 +45,23 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 		switch g := v.Group.(type) {
 		case *Operation:
-			if g.OpType != ":" {
+
+			switch g.OpType {
+			case ":":
+				plist[k] = &VarDecl{
+					Name: v.Left[0].Group.(*VarRef).Name,
+					Type: v.Right[0],
+				}
+			case "*":
+				plist[k] = &VarDecl{
+					Type: v,
+				}
+			default:
 				return errors.New("invalid syntax: named parameters must have a type")
 			}
 
-			plist[k] = &VarDecl{
-				Name: v.Left[0].Group.(*VarRef).Name,
-				Type: v.Right[0],
-			}
 		default:
+
 			plist[k] = &VarDecl{
 				Type: v,
 			}
