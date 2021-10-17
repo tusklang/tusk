@@ -54,10 +54,11 @@ func (c *Class) AddInstanceItem(name string, typ Type, idx int64) {
 	}
 }
 
-func (c *Class) AppendStatic(name string, vardec *Variable) {
+func (c *Class) AppendStatic(name string, val Value, typ Type, access int) {
 	c.Static[name] = &ClassField{
-		Type:  vardec.TType(),
-		Value: vardec,
+		Type:   typ,
+		Value:  val,
+		Access: access,
 	}
 }
 

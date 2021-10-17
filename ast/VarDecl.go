@@ -118,7 +118,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 
 		nv := data.NewVariable(vd.declaration, vtype)
 
-		class.AppendStatic(vd.Name, nv)
+		class.AppendStatic(vd.Name, nv, nv.TType(), 2)
 	} else {
 
 		//instance variable

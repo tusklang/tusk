@@ -12,6 +12,8 @@ type Function struct {
 	ActiveBlock *ir.Block
 	ret         Type
 
+	nam string
+
 	//list of terminators to append
 	//for example:
 	/*
@@ -110,4 +112,12 @@ func (f *Function) LastTermStack() ir.Terminator {
 	}
 
 	return f.todoTerms[len(f.todoTerms)-1]
+}
+
+func (f *Function) SetLName(n string) {
+	f.nam = n
+}
+
+func (f *Function) GetLName() string {
+	return f.nam
 }

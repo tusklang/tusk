@@ -6,8 +6,8 @@ import (
 )
 
 type Link struct {
-	TName, AName string
-	DType        *ASTNode
+	stname /*stored tname after varname mangling*/, TName, AName string
+	DType                                                        *ASTNode
 }
 
 func (l *Link) Parse(lex []tokenizer.Token, i *int) error {
@@ -52,6 +52,7 @@ func (l *Link) Parse(lex []tokenizer.Token, i *int) error {
 	aname := lex[*i].Name
 
 	l.TName = tname
+	l.stname = tname
 	l.AName = aname
 	l.DType = dtype[0]
 
@@ -73,7 +74,11 @@ func (l *Link) Compile(compiler *Compiler, class *data.Class, node *ASTNode, fun
 
 	dfunc.SetName(aname)
 
-	compiler.AddVar(l.TName, data.NewFunc(dfunc, dtype.(*data.Function).RetType()))
+	tfd := data.NewFunc(dfunc, dtype.(*data.Function).RetType())
+	tfd.SetLName(l.stname)
+	compiler.AddVar(l.TName, tfd)
+
+	class.AppendStatic(l.stname, tfd, tfd.TType(), 1)
 
 	return nil
 }

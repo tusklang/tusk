@@ -44,6 +44,8 @@ func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode
 		switch rc.(type) {
 		case *data.Variable:
 			rc = data.NewUndeclaredVar(node.Right[0].Group.(*VarRef).Name)
+		case *data.Function:
+			rc = data.NewUndeclaredVar(rc.(*data.Function).GetLName())
 		}
 	}
 
