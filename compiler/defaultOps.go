@@ -18,7 +18,15 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 	compiler.OperationStore.NewOperation("=", "var", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
 
-		varv := left.(*data.Variable).FetchAssig() //we know it's a variable, so we can assert it and fetch the assignment instruction
+		var varv value.Value
+
+		switch varvt := left.(type) {
+		case *data.Variable:
+			varv = varvt.FetchAssig()
+		case *data.InstanceVariable:
+			varv = varvt.FetchAssig()
+		}
+
 		toassign := right.LLVal(block)
 
 		block.NewStore(toassign, varv)
@@ -75,14 +83,20 @@ func initDefaultOps(compiler *ast.Compiler) {
 			fmt.Println("trying to access private instance field " + class.Name)
 		}
 
-		return data.NewVariable(
-			block.NewGetElementPtr(
-				classt.SType,
-				block.NewLoad(types.NewPointer(classt.SType), inst),
-				constant.NewInt(types.I32, 0),
-				constant.NewInt(types.I32, classt.Instance[sub].Index),
+		gep := block.NewGetElementPtr(
+			classt.SType,
+			inst,
+			constant.NewInt(types.I32, 0),
+			constant.NewInt(types.I32, classt.Instance[sub].Index),
+		)
+		gep.InBounds = true
+
+		return data.NewInstanceVariable(
+			data.NewVariable(
+				gep,
+				classt.Instance[sub].Type,
 			),
-			classt.Instance[sub].Type,
+			inst,
 		)
 	})
 
@@ -92,6 +106,13 @@ func initDefaultOps(compiler *ast.Compiler) {
 		fcb := right.(*data.FnCallBlock)
 
 		var args []value.Value
+
+		switch iv := left.(type) {
+		case *data.InstanceVariable:
+			if left.TType().(*data.Function).LLFunc.Params[0].Type().Equal(types.NewPointer(class.SType)) {
+				args = append(args, iv.GetObj())
+			}
+		}
 
 		for _, v := range fcb.Args {
 			args = append(args, v.LLVal(block))

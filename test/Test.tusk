@@ -1,1 +1,0 @@
-pub link var printf: fn(*i8) -> printf;

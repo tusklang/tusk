@@ -5,6 +5,7 @@ import (
 	"runtime"
 
 	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/data"
@@ -105,11 +106,21 @@ func Compile(prog *initialize.Program, outfile string) {
 		}
 	}
 
+	//function used to malloc classes
+	mallocf := m.NewFunc("malloc", types.I8Ptr, ir.NewParam("", types.I64))
+
 	for ic, c := range cclasses {
 
-		var newAlloc = c.Construct.ActiveBlock.NewAlloca(c.SType)
+		var newAlloc = c.Construct.ActiveBlock.NewAlloca(types.NewPointer(c.SType))
+		c.Construct.ActiveBlock.NewStore(
+			c.Construct.ActiveBlock.NewBitCast(
+				c.Construct.ActiveBlock.NewCall(mallocf, constant.NewInt(types.I64, 20)),
+				types.NewPointer(c.SType),
+			),
+			newAlloc,
+		)
 
-		c.ConstructAlloc = newAlloc
+		c.ConstructAlloc = c.Construct.ActiveBlock.NewLoad(types.NewPointer(c.SType), newAlloc)
 
 		for _, v := range ic.Globals {
 

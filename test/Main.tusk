@@ -1,3 +1,0 @@
-pub stat var main: fn() = fn() {
-    Test.printf("helgo\n");
-};

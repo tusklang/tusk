@@ -106,7 +106,7 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 			v.Name,
 			typ.Type(),
 		)
-		compiler.AddVar(v.Name, data.NewVariable(params[k], typ.TType()))
+		compiler.AddVar(v.Name, data.NewInstVariable(params[k], typ.TType()))
 	}
 
 	rf := compiler.Module.NewFunc("", rt.Type(), params...)
