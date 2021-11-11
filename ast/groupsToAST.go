@@ -93,16 +93,18 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 
 						if i-1 >= 0 {
 
-							//if the item prior is a function or a variable
+							//if the item prior is a function, variable, or block
 							/*
 								a();
-								or
 								fn() {}();
+								(fn() {})();
 							*/
 							switch items[i-1].(type) {
 							case *VarRef:
 								return funcCallHandle(items, i)
 							case *Function:
+								return funcCallHandle(items, i)
+							case *Block:
 								return funcCallHandle(items, i)
 							}
 

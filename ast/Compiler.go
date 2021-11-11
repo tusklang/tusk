@@ -6,11 +6,12 @@ import (
 )
 
 type Compiler struct {
-	Module         *ir.Module            //llvm module
-	OS, ARCH       string                //operating system and architecture
-	InitFunc       *data.Function        //function that runs before main (used to initialize globals and stuff)
-	OperationStore *OperationStore       //list of all operations
-	VarMap         map[string]data.Value //map of all the variables declared
+	Module          *ir.Module            //llvm module
+	OS, ARCH        string                //operating system and architecture
+	InitFunc        *data.Function        //function that runs before main (used to initialize globals and stuff)
+	OperationStore  *OperationStore       //list of all operations
+	VarMap          map[string]data.Value //map of all the variables declared
+	LinkedFunctions map[string]*ir.Func   //map of all the linked functions used (e.g. glibc functions)
 }
 
 func (c *Compiler) AddVar(name string, v data.Value) {

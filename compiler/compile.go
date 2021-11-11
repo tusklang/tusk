@@ -40,6 +40,7 @@ func Compile(prog *initialize.Program, outfile string) {
 	compiler.ARCH = runtime.GOARCH
 
 	compiler.VarMap = make(map[string]data.Value)
+	compiler.LinkedFunctions = make(map[string]*ir.Func)
 
 	initDefaultOps(&compiler)
 

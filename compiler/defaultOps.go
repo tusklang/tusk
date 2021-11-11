@@ -118,7 +118,24 @@ func initDefaultOps(compiler *ast.Compiler) {
 			args = append(args, v.LLVal(block))
 		}
 
-		call := block.NewCall(f, args...)
+		var call value.Value = block.NewCall(f, args...)
+
+		if left.TypeData().HasFlag("linked") {
+			call.(*ir.InstCall).Sig().Params = nil
+			call.(*ir.InstCall).Sig().Variadic = true
+
+			//linked functions always have a pointer or integer return type
+			rettype := left.TType().(*data.Function).RetType().Type()
+
+			if types.IsPointer(rettype) {
+				//use a bitcast for a pointer return
+				call = block.NewBitCast(call, rettype)
+			} else if types.IsInt(rettype) {
+				//use an ptrtoint cast for an integer return
+				call = block.NewPtrToInt(call, rettype)
+			}
+
+		}
 
 		return data.NewInstVariable(
 			call,

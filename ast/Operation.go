@@ -46,7 +46,10 @@ func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode
 			rc = data.NewUndeclaredVar(node.Right[0].Group.(*VarRef).Name)
 		case *data.Function:
 			rc = data.NewUndeclaredVar(rc.(*data.Function).GetLName())
+		case *data.Class:
+			rc = data.NewUndeclaredVar(rc.TypeData().Name())
 		}
+
 	}
 
 	var active *ir.Block //function active block

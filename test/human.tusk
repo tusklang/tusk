@@ -1,5 +1,0 @@
-pub var haircolor: i32;
-
-pub var setHair: fn(human, i32) = fn(self: human, s: i32) {
-    self.haircolor = s;
-};

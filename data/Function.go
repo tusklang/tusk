@@ -53,6 +53,9 @@ type Function struct {
 		this stack stores that
 	*/
 	todoTerms []ir.Terminator
+
+	//if the function is linked to a binary, instead of being declared in tusk
+	linkedfunc bool
 }
 
 func NewFunc(f *ir.Func, ret Type) *Function {
@@ -60,6 +63,12 @@ func NewFunc(f *ir.Func, ret Type) *Function {
 		LLFunc: f,
 		ret:    ret,
 	}
+}
+
+func NewLinkedFunc(f *ir.Func, ret Type) *Function {
+	rf := NewFunc(f, ret)
+	rf.linkedfunc = true
+	return rf
 }
 
 func (f *Function) LLVal(block *ir.Block) value.Value {
@@ -83,7 +92,11 @@ func (f *Function) Type() types.Type {
 }
 
 func (f *Function) TypeData() *TypeData {
-	return NewTypeData("func")
+	td := NewTypeData("func")
+	if f.linkedfunc {
+		td.AddFlag("linked")
+	}
+	return td
 }
 
 func (f *Function) Equals(t Type) bool {

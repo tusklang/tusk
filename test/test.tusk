@@ -1,0 +1,6 @@
+pub link var puts: fn(*i8) -> puts;
+
+pub stat var test: fn() = fn() {
+    puts("testing");
+    entry.puts("hello again");
+};
