@@ -18,3 +18,15 @@ link var printf: fn(*i8, *i8) -> printf; //link to printf, where we can print on
 ```
 
 This would compile to an .ll file with two definitions of printf, where each has a different signature.
+
+- Add more default operator definitions
+
+There isn't any way to add most integers, concat. strings, bitshift, and a lot more
+
+- Add custom operator overloading
+
+Coming soon
+
+- Generics
+
+Allow for mode DRY code

@@ -49,7 +49,7 @@ func (b *Block) Compile(compiler *Compiler, class *data.Class, node *ASTNode, fu
 		var args = data.NewFnCallBlock()
 
 		for _, v := range b.Sub {
-			d := v.Group.Compile(compiler, class, b.Sub[0], function)
+			d := v.Group.Compile(compiler, class, v, function)
 			args.Args = append(args.Args, d)
 		}
 

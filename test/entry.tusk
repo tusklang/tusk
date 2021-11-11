@@ -3,7 +3,7 @@ link var printf: fn(*i8, i32) -> printf;
 pub stat var main: fn() = fn() {
     var h: human = human();
     h.setHair(h, 4);
-    printf("%d\n", (h.haircolor));
+    printf("%d\n", h.haircolor);
     h.setHair(h, 3);
-    printf("%d\n", (h.haircolor));
+    printf("%d\n", h.haircolor);
 };
