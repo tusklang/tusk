@@ -49,49 +49,7 @@ func Compile(prog *initialize.Program, outfile string) {
 	compiler.InitFunc = data.NewFunc(initfunc, data.NewPrimitive(types.Void))
 	compiler.InitFunc.ActiveBlock = initfunc.NewBlock("")
 
-	var (
-		cpacks   = make(map[*initialize.Package]*data.Package)
-		cclasses = make(map[*initialize.File]*data.Class)
-	)
-
-	for _, v := range prog.Packages {
-		//create the new package
-		tp := data.NewPackage(v.Name, v.FullName())
-		cpacks[v] = tp //add it to the list of packages
-	}
-
-	//add all the classes (files) to the type list
-	for _, v := range prog.Packages {
-
-		packtyp := cpacks[v]
-		parentPacktyp := cpacks[v.Parent()]
-
-		if v.Parent() != nil {
-
-			if v.Parent().Parent() == nil {
-				//if it has no parent, it's a package on the uppermost level
-				//so it is it's variable/type/thing
-
-				//we check the parent's parent because the *real* uppermost level is the unnamed one
-				prevars[v.Name] = packtyp
-			}
-
-			//also if it has a parent, we will append the child to the parent's children map
-			parentPacktyp.ChildPacks[v.Name] = packtyp
-
-		}
-
-		for _, vv := range v.Files {
-
-			tc := compileClass(&compiler, vv, v, packtyp)
-			cclasses[vv] = tc
-
-			if v.Parent() == nil {
-				prevars[vv.Name] = tc
-			}
-		}
-
-	}
+	cclasses := parseProjStructure(&compiler, prog)
 
 	//add all the prevars as variables to the compiler
 	for k, v := range prevars {
@@ -101,10 +59,67 @@ func Compile(prog *initialize.Program, outfile string) {
 
 	//process all the variables
 
-	for _, v := range prog.Packages {
-		for _, vv := range v.Files {
-			processor.ProcessVars(vv)
+	for ic, c := range cclasses {
+
+		//create a new processor specific to this class
+		//imagine a project like this:
+		/*
+			package1/
+				file1.tusk
+				file2.tusk
+			file3.tusk
+		*/
+		//now say the file1 class references the file2 class
+		//and file3 also references file2
+		//file1 could just use `file2.prop`
+		//but file3 would have to use `package1.file2.prop`
+		//because file3 is not in the same package
+		//to have this, we need to include the files/packages nested within the same package in the variable processor
+		//but we can't do this globally
+		var processorCpy = varprocessor.CloneProcessor(processor)
+
+		classpack := c.ParentPackage
+
+		for k, v := range classpack.ChildPacks {
+
+			allparents := v.ReferenceFromStart()
+
+			var (
+				operationMac = new(ast.ASTNode)
+				curRef       = operationMac
+			)
+
+			for kk, vv := range allparents {
+
+				if kk+1 == len(allparents) {
+					curRef.Group = &ast.VarRef{
+						Name: vv.PackageName,
+					}
+					break
+				}
+
+				curRef.Left = []*ast.ASTNode{{
+					Group: &ast.VarRef{
+						Name: vv.PackageName,
+					},
+				}}
+				curRef.Group = &ast.Operation{
+					OpType: ".",
+				}
+				curRef.Right = make([]*ast.ASTNode, 1)
+				curRef.Right[0] = new(ast.ASTNode)
+				curRef = curRef.Right[0]
+			}
+
+			processorCpy.AddMacro(k, operationMac)
 		}
+		for k, v := range classpack.Classes {
+			_, _ = k, v
+		}
+
+		processorCpy.ProcessVars(ic)
+
+		_, _ = ic, c
 	}
 
 	//function used to malloc classes

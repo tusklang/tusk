@@ -1,0 +1,5 @@
+pub link var printf: fn(*i8) -> printf;
+
+pub stat var test5: fn() = fn() {
+    printf("testing helgo\n");
+};

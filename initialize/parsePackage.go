@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-func parsePackage(dir string, pkg *Package, prog *Program) error {
+func parsePackage(dir string, pkg *Package) error {
 
 	fsinfo, e := ioutil.ReadDir(dir)
 
@@ -29,11 +29,13 @@ func parsePackage(dir string, pkg *Package, prog *Program) error {
 
 			spkg.parent = pkg //set the parent package
 
-			e = parsePackage(jpth, &spkg, prog)
+			e = parsePackage(jpth, &spkg)
 
 			if e != nil {
 				return e
 			}
+
+			pkg.ChildPacks = append(pkg.ChildPacks, &spkg)
 
 			continue
 		}
@@ -53,6 +55,5 @@ func parsePackage(dir string, pkg *Package, prog *Program) error {
 		pkg.Files = append(pkg.Files, pf)
 	}
 
-	prog.Packages = append(prog.Packages, pkg)
 	return nil
 }

@@ -7,7 +7,8 @@ import (
 
 //decl structure used to store variable declarations
 type decl struct {
-	nname  string //new name
+	nname  string       //new name
+	macro  *ast.ASTNode //or if we replace the old name with a macro
 	static bool
 }
 
@@ -31,7 +32,7 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
 
 	var curscope = make(map[string]decl)
 
-	for _, v := range tree {
+	for k, v := range tree {
 
 		switch g := v.Group.(type) {
 		case *ast.VarDecl:
@@ -72,7 +73,12 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
 				d = cs
 			}
 
-			g.Name = d.nname //rename the variable in the ast
+			if d.macro != nil {
+				tree[k] = d.macro
+			} else {
+				g.Name = d.nname //rename the variable in the ast
+			}
+
 		case *ast.Block:
 			p.process(g.Sub, mergemap(declared, curscope))
 		case *ast.Function:

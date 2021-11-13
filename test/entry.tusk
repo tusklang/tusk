@@ -1,6 +1,0 @@
-pub link var puts: fn(*i8) -> puts;
-
-pub stat var main: fn() = fn() {
-    puts("Hello, World!");
-    test.test();
-};

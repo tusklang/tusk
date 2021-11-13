@@ -1,9 +1,10 @@
 package initialize
 
 type Package struct {
-	Name   string
-	Files  []*File
-	parent *Package
+	Name       string
+	Files      []*File
+	ChildPacks []*Package
+	parent     *Package
 }
 
 func (p Package) Parent() *Package {

@@ -10,7 +10,7 @@ import (
 func compileClass(compiler *ast.Compiler, f *initialize.File, ipack *initialize.Package, pack *data.Package) *data.Class {
 	stype := types.NewStruct() //create a new structure (representing a class)
 
-	tc := data.NewClass(f.Name, stype, pack) //create the class in tusk
+	tc := data.NewClass(ipack.FullName()+f.Name, stype, pack) //create the class in tusk
 
 	//init the instance and static maps
 	tc.Instance = make(map[string]*data.ClassField)

@@ -2,6 +2,8 @@ package varprocessor
 
 import (
 	"strconv"
+
+	"github.com/tusklang/tusk/ast"
 )
 
 /*
@@ -39,7 +41,17 @@ type VarProcessor struct {
 }
 
 func NewProcessor() VarProcessor {
-	return VarProcessor{}
+	return VarProcessor{
+		predecl: make(map[string]decl),
+	}
+}
+
+func CloneProcessor(p VarProcessor) VarProcessor {
+	vp := NewProcessor()
+	for k, v := range p.predecl {
+		vp.predecl[k] = v
+	}
+	return vp
 }
 
 func (p *VarProcessor) nextvar() string {
@@ -48,13 +60,15 @@ func (p *VarProcessor) nextvar() string {
 }
 
 func (p *VarProcessor) AddPreDecl(n string) {
-
-	if p.predecl == nil {
-		p.predecl = make(map[string]decl)
-	}
-
 	p.predecl[n] = decl{
 		nname:  n,
+		static: false,
+	}
+}
+
+func (p *VarProcessor) AddMacro(n string, rep *ast.ASTNode) {
+	p.predecl[n] = decl{
+		macro:  rep,
 		static: false,
 	}
 }

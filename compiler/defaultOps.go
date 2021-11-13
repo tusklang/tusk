@@ -53,7 +53,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 			return subpack
 		}
 
-		return class
+		return cclass
 	})
 
 	compiler.OperationStore.NewOperation(".", "class", "udvar", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
