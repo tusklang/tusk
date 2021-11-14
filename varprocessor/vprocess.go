@@ -162,6 +162,15 @@ func (p *VarProcessor) ProcessVars(file *initialize.File) {
 
 			p.process(v.Func.Body.Sub, mergemap(p.predecl, globals)) //process the function body
 		} else if v.Value != nil {
+
+			if v.Value.Value == nil {
+				//global declared with no value
+				//e.g. var a: i32
+				//vs
+				//var a: i32 = 0;
+				continue
+			}
+
 			p.process([]*ast.ASTNode{v.Value.Value}, mergemap(p.predecl, globals)) //process the declaration's assigned value
 		}
 

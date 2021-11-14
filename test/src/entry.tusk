@@ -1,13 +1,7 @@
 pub link fn printf(*i8, i32) -> printf;
 
-var test: i32 = 12;
-
-pub fn abcd() {
-    this.test = 1;
-};
+stat var test: i32;
 
 pub stat fn main() {
-    var e = src.entry();
-    e.abcd();
-    printf("%d\n", e.test);
+    printf("%d\n", test);
 };
