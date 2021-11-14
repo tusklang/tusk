@@ -15,6 +15,7 @@ type VarDecl struct {
 	Type  *ASTNode
 	Value *ASTNode
 
+	//for globals
 	declaration value.Value
 	decltyp     data.Type
 }
@@ -58,6 +59,11 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 
 func (vd *VarDecl) getDeclType(compiler *Compiler, class *data.Class, function *data.Function) data.Type {
 
+	//if there is no type supplied, return nil
+	if vd.Type == nil {
+		return nil
+	}
+
 	pvtype := vd.Type.Group.Compile(compiler, class, vd.Type, function)
 
 	var vtype data.Type
@@ -80,9 +86,26 @@ func (vd *VarDecl) getDeclType(compiler *Compiler, class *data.Class, function *
 
 func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 
-	varval := vd.Value.Group.Compile(compiler, class, vd.Value, function)
+	var vtype data.Type
+	var varval data.Value
 
-	vtype := vd.getDeclType(compiler, class, function)
+	if vd.Value == nil && vd.Type != nil {
+		//var varname: typename
+		vtype = vd.getDeclType(compiler, class, function)
+		varval = data.NewVariable(vtype.Default(), vtype)
+	} else if vd.Value != nil && vd.Type == nil {
+		//var varname = value
+		varval = vd.Value.Group.Compile(compiler, class, vd.Value, function)
+		vtype = varval.TType()
+	} else if vd.Value != nil && vd.Type != nil {
+		//var varname: typename = value;
+		vtype = vd.getDeclType(compiler, class, function)
+		varval = vd.Value.Group.Compile(compiler, class, vd.Value, function)
+	} else {
+		//var varname
+		//error
+		//cannot determine what type this variable is
+	}
 
 	decl := function.ActiveBlock.NewAlloca(vtype.Type())
 
@@ -105,13 +128,20 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Class, static bool, access int) error {
 
 	vtype := vd.getDeclType(compiler, class, compiler.InitFunc)
+
+	if vtype == nil {
+		//error
+		//tusk can't assume types of globals
+		//(atleast not yet)
+	}
+
 	vd.decltyp = vtype
 
 	if static {
 
 		//static variable
 
-		decl := compiler.Module.NewGlobal(name, vtype.Type())
+		var decl = compiler.Module.NewGlobal(name, vtype.Type())
 		decl.Init = vtype.Default()
 
 		vd.declaration = decl
@@ -137,7 +167,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 //used specifically for global variable declarations
 func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *data.Class, function *data.Function) {
 
-	//if the value of the global is nil, we don't need to assign any value its defaulted to
+	//if the value of the global is nil, we don't need to assign any value that it's defaulted to
 	if vd.Value == nil {
 		return
 	}

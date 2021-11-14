@@ -109,7 +109,7 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		compiler.AddVar(v.Name, data.NewInstVariable(params[k], typ.TType()))
 	}
 
-	rf := compiler.Module.NewFunc("", rt.Type(), params...)
+	rf := ir.NewFunc("", rt.Type(), params...)
 
 	ffunc := data.NewFunc(rf, rt)
 
@@ -127,6 +127,9 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		for v := ffunc.PopTermStack(); v != nil; v = ffunc.PopTermStack() {
 			ffunc.ActiveBlock.Term = v
 		}
+
+		//add the function to the actual llvm bytecode (only if it has a body)
+		compiler.Module.Funcs = append(compiler.Module.Funcs, rf)
 	}
 
 	//if no body was provided, the function was being used as a type

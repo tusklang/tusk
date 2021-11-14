@@ -1,0 +1,6 @@
+pub link var printf: fn(*i8, i32) -> printf;
+
+pub stat var main: fn() = fn() {
+    var a = 4;
+    printf("%d\n", a);
+};

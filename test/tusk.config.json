@@ -1,4 +1,4 @@
 {
-    "entry": "test1.entry",
+    "entry": "src.entry",
     "dependencies": []
 }

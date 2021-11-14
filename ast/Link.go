@@ -95,5 +95,11 @@ func (l *Link) Compile(compiler *Compiler, class *data.Class, node *ASTNode, fun
 
 	compiler.LinkedFunctions[l.AName] = dfunc
 
+	//add the linked function to the llvm ir
+	//the function compiler only adds it to the ir if it has a body
+	//and linked functions do not
+	//so we add it manually here
+	compiler.Module.Funcs = append(compiler.Module.Funcs, dfunc)
+
 	return l.addToClass(dfunc, compiler, dtype, class)
 }
