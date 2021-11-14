@@ -136,20 +136,35 @@ func (p *VarProcessor) ProcessVars(file *initialize.File) {
 			continue
 		}
 
+		var nam string
+
+		if v.Value != nil {
+			nam = v.Value.Name
+		} else if v.Func != nil {
+			nam = v.Func.Name
+		}
+
 		//add all the globals
-		globals[v.Value.Name] = decl{
-			nname:  v.Value.Name,
+		globals[nam] = decl{
+			nname:  nam,
 			static: v.CRel == 1,
 		}
 	}
 
 	for _, v := range file.Globals {
 
-		if v.Value == nil || v.Value.Value == nil {
-			continue
+		if v.Func != nil {
+
+			if v.Func.Body.Sub == nil {
+				//function has no body
+				continue
+			}
+
+			p.process(v.Func.Body.Sub, mergemap(p.predecl, globals)) //process the function body
+		} else if v.Value != nil {
+			p.process([]*ast.ASTNode{v.Value.Value}, mergemap(p.predecl, globals)) //process the declaration's assigned value
 		}
 
-		p.process([]*ast.ASTNode{v.Value.Value}, mergemap(p.predecl, globals)) //process the declaration's assigned value
 	}
 
 }

@@ -146,6 +146,11 @@ func Compile(prog *initialize.Program, outfile string) {
 				continue
 			}
 
+			if v.Func != nil {
+				v.Func.CompileGlobal(&compiler, c)
+				continue
+			}
+
 			v.Value.DeclareGlobal(c.ParentPackage.FullName+"."+c.Name+"_"+v.Value.Name, &compiler, c, v.CRel == 1, v.Access)
 		}
 	}
@@ -154,13 +159,19 @@ func Compile(prog *initialize.Program, outfile string) {
 
 		for _, v := range ic.Globals {
 
-			switch v.CRel {
-			case 0:
-				//instance
-				v.Value.CompileGlobal(&compiler, c, c.Construct)
-			case 1:
-				//static
-				v.Value.CompileGlobal(&compiler, c, compiler.InitFunc)
+			if v.Value != nil {
+				var compileToFn *data.Function
+
+				switch v.CRel {
+				case 0:
+					//instance
+					compileToFn = c.Construct
+				case 1:
+					//static
+					compileToFn = compiler.InitFunc
+				}
+
+				v.Value.CompileGlobal(&compiler, c, compileToFn)
 			}
 
 		}

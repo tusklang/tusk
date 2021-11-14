@@ -15,6 +15,12 @@ func fetchGlobals(tree []*ast.ASTNode, file *File, access int, crel int /*class 
 				CRel:   crel,
 				Value:  g,
 			})
+		case *ast.Function:
+			file.Globals = append(file.Globals, GlobalDecl{
+				Access: access,
+				CRel:   crel,
+				Func:   g,
+			})
 		case *ast.Public:
 			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 0, crel)
 		case *ast.Protected:

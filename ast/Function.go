@@ -2,6 +2,7 @@ package ast
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
@@ -11,35 +12,36 @@ import (
 )
 
 type Function struct {
+	Name    string     //function name
 	Params  []*VarDecl //parameter list
-	RetType *ASTNode   //return type
 	Body    *Block     //function body
+	RetType *ASTNode   //return type
 }
 
 func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	*i++ //skip the "fn" token
 
-	//read the return type
-	//fn int() {}
-	//will also work, because if no braces are present, the next token is returned, and the brace matcher exits
-	//if the next value is a variable name, then we know it's a void return type
-	//so we will skip the return type
-
-	if lex[*i].Type != "(" {
-		rt, e := groupsToAST(groupSpecific(lex, i, []string{"("}, -1))
-		f.RetType = rt[0]
-		if e != nil {
-			return e
-		}
+	if lex[*i].Type == "varname" {
+		//read the function name if there is one
+		f.Name = lex[*i].Name
+		*i++
 	}
 
-	if lex[*i].Type != "(" { //it has to be a parenthesis for the paramlist
-		return errors.New("functions require a parameter list")
+	if lex[*i].Type != "(" {
+		//error
+		//functions require a parameter list
 	}
 
 	p, e := groupsToAST(grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, "")))
+
+	if e != nil {
+		return e
+	}
+
 	sub := p[0].Group.(*Block).Sub
 	plist := make([]*VarDecl, len(sub))
+
+	*i++
 
 	for k, v := range sub {
 
@@ -71,23 +73,27 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	f.Params = plist
 
-	if e != nil {
-		return e
+	if lex[*i].Type != "{" && lex[*i].Type != "terminator" && lex[*i].Type != "operation" {
+		//read the return type
+		//if there is no body or terminator next, it has to be a return
+		rtg := groupSpecific(lex, i, []string{"{", "terminator"}, -1)
+		rt, e := groupsToAST(rtg)
+
+		if e != nil {
+			return e
+		}
+
+		f.RetType = rt[0]
+		*i++
+
 	}
 
-	*i++
-
-	if lex[*i].Type != "{" {
-		*i-- //move back because there is no brace
+	if lex[*i].Type == "{" {
+		f.Body = grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, ""))[0].(*Block)
 		return nil
 	}
 
-	f.Body = grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, ""))[0].(*Block)
-
-	if e != nil {
-		return e
-	}
-
+	*i--
 	return nil
 }
 
@@ -107,6 +113,14 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 			typ.Type(),
 		)
 		compiler.AddVar(v.Name, data.NewInstVariable(params[k], typ.TType()))
+	}
+
+	if f.Name != "" {
+		//error
+		//function names are only for global functions
+		//we remove the name of the function from the object when compiling a global function
+		//if it has a name, it is in a local scope, and it was not declared anonymous
+		fmt.Println(f.Name)
 	}
 
 	rf := ir.NewFunc("", rt.Type(), params...)
@@ -134,4 +148,16 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 
 	//if no body was provided, the function was being used as a type
 	return ffunc
+}
+
+func (f *Function) CompileGlobal(compiler *Compiler, class *data.Class) {
+	stoname := f.Name
+
+	//we do this to detect functions declared within the non-global scope that have names
+	//if it passes through the global scope, though, it will have a name
+	//we store the name above, and remove the name when passing to the Compile() method
+	//this way the compiler only throws errors on lambda functions with names
+	f.Name = ""
+	fn := f.Compile(compiler, class, nil, nil)
+	class.AppendStatic(stoname, fn, fn.TType(), 1)
 }

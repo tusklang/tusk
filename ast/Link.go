@@ -16,31 +16,16 @@ type Link struct {
 func (l *Link) Parse(lex []tokenizer.Token, i *int) error {
 
 	//format looks like
-	//	link var tusk_name: fn() -> asm_name
+	//	link fn tusk_name() -> asm_name
 
 	*i++
 
-	if lex[*i].Name != "var" {
+	if lex[*i].Name != "fn" {
 		//error
 	}
 
-	*i++
-
-	if lex[*i].Type != "variable" {
-		//must be the varname
-	}
-
-	tname := lex[*i].Name
-	*i++
-
-	if lex[*i].Name != ":" {
-		//error
-		//must supply type
-	}
-
-	*i++
-
-	dtype, e := groupsToAST(groupSpecific(lex, i, nil, 1))
+	fnd := groupSpecific(lex, i, nil, 1)
+	dtype, e := groupsToAST(fnd)
 
 	if e != nil {
 		return e
@@ -54,11 +39,13 @@ func (l *Link) Parse(lex []tokenizer.Token, i *int) error {
 
 	aname := lex[*i].Name
 
-	l.TName = tname
-	l.stname = tname
+	l.TName = fnd[0].(*Function).Name
+	l.stname = l.TName
 	l.AName = aname
 	l.DType = dtype[0]
 	l.Access = 2 //access is private by default
+
+	fnd[0].(*Function).Name = "" //remove the name, explained in Function.go
 
 	return nil
 }

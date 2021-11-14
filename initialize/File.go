@@ -23,6 +23,7 @@ type GlobalDecl struct {
 	CRel        int
 	Value       *ast.VarDecl
 	Link        *ast.Link
+	Func        *ast.Function
 	Declaration *ir.Global
 }
 

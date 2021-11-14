@@ -97,3 +97,7 @@ func (c *Class) TypeData() *TypeData {
 func (c *Class) Equals(t Type) bool {
 	return c.Type().Equal(t.Type())
 }
+
+func (c *Class) FullName() string {
+	return c.ParentPackage.FullName + "." + c.Name
+}
