@@ -11,4 +11,5 @@ type Value interface {
 	TType() Type
 	Type() types.Type
 	TypeData() *TypeData
+	InstanceV() value.Value
 }

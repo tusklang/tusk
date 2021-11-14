@@ -58,3 +58,7 @@ func (v *Variable) TypeData() *TypeData {
 
 	return &td
 }
+
+func (v *Variable) InstanceV() value.Value {
+	return v.typ.InstanceV()
+}

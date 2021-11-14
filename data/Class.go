@@ -25,6 +25,7 @@ type Class struct {
 	SType          *types.StructType
 	Instance       map[string]*ClassField
 	Static         map[string]*ClassField
+	Methods        map[string]*ClassField
 	Construct      *Function
 	ConstructAlloc value.Value
 
@@ -40,6 +41,7 @@ func NewClass(name string, st *types.StructType, parent *Package) *Class {
 		ParentPackage: parent,
 		Instance:      make(map[string]*ClassField),
 		Static:        make(map[string]*ClassField),
+		Methods:       make(map[string]*ClassField),
 	}
 }
 
@@ -69,6 +71,14 @@ func (c *Class) nextInstanceIdx() int64 {
 	return idx
 }
 
+func (c *Class) NewMethod(name string, fn *Function, access int) {
+	c.Methods[name] = &ClassField{
+		Type:   fn.TType(),
+		Access: access,
+		Value:  fn,
+	}
+}
+
 func (c *Class) LLVal(block *ir.Block) value.Value {
 	return nil
 }
@@ -92,6 +102,10 @@ func (c *Class) TypeData() *TypeData {
 	td.AddFlag("type")
 
 	return td
+}
+
+func (c *Class) InstanceV() value.Value {
+	return nil
 }
 
 func (c *Class) Equals(t Type) bool {

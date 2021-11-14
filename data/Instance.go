@@ -37,6 +37,10 @@ func (i *Instance) TypeData() *TypeData {
 	return td
 }
 
+func (i *Instance) InstanceV() value.Value {
+	return nil
+}
+
 func (i *Instance) Equals(t Type) bool {
 	return i.Class.Equals(t)
 }

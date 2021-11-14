@@ -128,6 +128,8 @@ func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string, maxl
 			gr = &VarRef{}
 		case "construct":
 			gr = &Construct{}
+		case "this":
+			gr = &This{}
 		default:
 			//error
 			//the token given isn't recognized by tusk

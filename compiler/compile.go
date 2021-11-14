@@ -147,7 +147,7 @@ func Compile(prog *initialize.Program, outfile string) {
 			}
 
 			if v.Func != nil {
-				v.Func.CompileGlobal(&compiler, c)
+				v.Func.CompileGlobal(&compiler, c, v.CRel == 1, v.Access)
 				continue
 			}
 

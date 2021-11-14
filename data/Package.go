@@ -56,3 +56,7 @@ func (p *Package) Type() types.Type {
 func (p *Package) TypeData() *TypeData {
 	return NewTypeData("package")
 }
+
+func (p *Package) InstanceV() value.Value {
+	return nil
+}

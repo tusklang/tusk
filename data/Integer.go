@@ -33,3 +33,7 @@ func (i *Integer) Type() types.Type {
 func (i *Integer) TypeData() *TypeData {
 	return NewTypeData(i.Type().LLString())
 }
+
+func (i *Integer) InstanceV() value.Value {
+	return nil
+}

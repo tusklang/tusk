@@ -56,6 +56,16 @@ type Function struct {
 
 	//if the function is linked to a binary, instead of being declared in tusk
 	linkedfunc bool
+
+	//NOTE: only used during global function compiling
+	//never use these fields for `instance.method` operations
+
+	//if the given function is a method
+	IsMethod bool
+
+	//given functions's class, if it is a method
+	MethodClass *Class
+	/////////////////////////////////////////////////////////
 }
 
 func NewFunc(f *ir.Func, ret Type) *Function {
@@ -97,6 +107,10 @@ func (f *Function) TypeData() *TypeData {
 		td.AddFlag("linked")
 	}
 	return td
+}
+
+func (f *Function) InstanceV() value.Value {
+	return nil
 }
 
 func (f *Function) Equals(t Type) bool {

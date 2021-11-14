@@ -49,6 +49,10 @@ func (p *Pointer) TypeData() *TypeData {
 	return &td
 }
 
+func (p *Pointer) InstanceV() value.Value {
+	return nil
+}
+
 func (p *Pointer) Equals(t Type) bool {
 	return p.Type().Equal(t.Type())
 }

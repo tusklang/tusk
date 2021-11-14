@@ -29,3 +29,7 @@ func (fcb *FnCallBlock) Type() types.Type {
 func (fcb *FnCallBlock) TypeData() *TypeData {
 	return NewTypeData("fncallb")
 }
+
+func (fcb *FnCallBlock) InstanceV() value.Value {
+	return nil
+}

@@ -38,3 +38,7 @@ func (uv *UndeclaredVar) Type() types.Type {
 func (uv *UndeclaredVar) TypeData() *TypeData {
 	return NewTypeData("udvar")
 }
+
+func (uv *UndeclaredVar) InstanceV() value.Value {
+	return nil
+}

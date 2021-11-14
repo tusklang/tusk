@@ -45,3 +45,7 @@ func (v *InstanceVariable) FetchAssig() value.Value {
 func (v *InstanceVariable) GetObj() value.Value {
 	return v.object
 }
+
+func (v *InstanceVariable) InstanceV() value.Value {
+	return v.object
+}

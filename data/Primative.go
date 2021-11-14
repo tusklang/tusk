@@ -54,6 +54,10 @@ func (p *Primitive) TypeData() *TypeData {
 	return td
 }
 
+func (p *Primitive) InstanceV() value.Value {
+	return nil
+}
+
 func (p *Primitive) Equals(t Type) bool {
 	return p.TypeData().Name() == t.TypeData().Name()
 }

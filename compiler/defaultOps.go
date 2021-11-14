@@ -77,27 +77,53 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 		classt := left.TType().(*data.Instance).Class
 
-		if classt.Instance[sub].Access == 2 && !classt.Equals(class) {
+		var (
+			ivar     *data.ClassField
+			ok       bool
+			fieldtyp string
+		)
+
+		if ivar, ok = classt.Instance[sub]; !ok {
+			if ivar, ok = classt.Methods[sub]; !ok {
+				//error
+				//field `sub` does not exist in class
+			} else {
+				fieldtyp = "method"
+			}
+		} else {
+			fieldtyp = "var"
+		}
+
+		if ivar.Access == 2 && !classt.Equals(class) {
 			//error
 			//trying to access a private field
 			fmt.Println("trying to access private instance field " + class.Name)
 		}
 
-		gep := block.NewGetElementPtr(
-			classt.SType,
-			inst,
-			constant.NewInt(types.I32, 0),
-			constant.NewInt(types.I32, classt.Instance[sub].Index),
-		)
-		gep.InBounds = true
+		switch fieldtyp {
+		case "method":
+			//method
+			return data.NewMethod(ivar.Value, inst)
+		case "var":
+			//instance variable
+			gep := block.NewGetElementPtr(
+				classt.SType,
+				inst,
+				constant.NewInt(types.I32, 0),
+				constant.NewInt(types.I32, ivar.Index),
+			)
+			gep.InBounds = true
 
-		return data.NewInstanceVariable(
-			data.NewVariable(
-				gep,
-				classt.Instance[sub].Type,
-			),
-			inst,
-		)
+			return data.NewInstanceVariable(
+				data.NewVariable(
+					gep,
+					classt.Instance[sub].Type,
+				),
+				inst,
+			)
+		}
+
+		return nil
 	})
 
 	compiler.OperationStore.NewOperation("()", "func", "fncallb", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
@@ -107,11 +133,8 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 		var args []value.Value
 
-		switch iv := left.(type) {
-		case *data.InstanceVariable:
-			if left.TType().(*data.Function).LLFunc.Params[0].Type().Equal(types.NewPointer(class.SType)) {
-				args = append(args, iv.GetObj())
-			}
+		if left.TypeData().HasFlag("method") {
+			args = append(args, left.InstanceV())
 		}
 
 		for _, v := range fcb.Args {
@@ -137,9 +160,15 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 		}
 
+		tt := left.TType()
+
+		if left.TypeData().HasFlag("method") {
+			tt = left.TType().(*data.Method).Func.TType()
+		}
+
 		return data.NewInstVariable(
 			call,
-			left.TType().(*data.Function).RetType(),
+			tt.(*data.Function).RetType(),
 		)
 	})
 

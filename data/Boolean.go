@@ -38,3 +38,7 @@ func (b *Boolean) Type() types.Type {
 func (b *Boolean) TypeData() *TypeData {
 	return NewTypeData("bool")
 }
+
+func (b *Boolean) InstanceV() value.Value {
+	return nil
+}

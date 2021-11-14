@@ -46,10 +46,10 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
 	if lex[*i].Name == "=" {
 		*i++
 		v, e := groupsToAST(grouper(braceMatcher(lex, i, allopeners, allclosers, false, "terminator")))
-		vd.Value = v[0]
 		if e != nil {
 			return e
 		}
+		vd.Value = v[0]
 	}
 
 	*i-- //the outer loop will incremenet for us

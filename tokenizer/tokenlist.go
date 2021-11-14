@@ -28,6 +28,7 @@ var tokenlist = []TokenItem{
 	{("stat(?![a-zA-Z$_0-9])"), "stat"},                //stat
 	{("link(?![a-zA-Z$_0-9])"), "link"},                //link
 	{("construct(?=(\\z|\\(|\\{|\\s+))"), "construct"}, //construct
+	{("this(?![a-zA-Z$_0-9])"), "this"},                //this
 	/**********************************/
 
 	/************ braces ************/

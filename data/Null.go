@@ -27,3 +27,7 @@ func (n *Null) Type() types.Type {
 func (n *Null) TypeData() *TypeData {
 	return NewTypeData("null")
 }
+
+func (n *Null) InstanceV() value.Value {
+	return nil
+}

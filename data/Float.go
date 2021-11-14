@@ -33,3 +33,7 @@ func (f *Float) Type() types.Type {
 func (f *Float) TypeData() *TypeData {
 	return NewTypeData(f.value.Type().LLString())
 }
+
+func (f *Float) InstanceV() value.Value {
+	return nil
+}

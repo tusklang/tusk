@@ -3,6 +3,7 @@ package data
 import (
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
+	"github.com/llir/llvm/ir/value"
 )
 
 type Type interface {
@@ -11,4 +12,5 @@ type Type interface {
 	TypeData() *TypeData
 	Default() constant.Constant
 	Equals(Type) bool
+	InstanceV() value.Value
 }

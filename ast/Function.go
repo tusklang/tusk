@@ -12,10 +12,11 @@ import (
 )
 
 type Function struct {
-	Name    string     //function name
-	Params  []*VarDecl //parameter list
-	Body    *Block     //function body
-	RetType *ASTNode   //return type
+	Name     string     //function name
+	Params   []*VarDecl //parameter list
+	Body     *Block     //function body
+	RetType  *ASTNode   //return type
+	isMethod bool
 }
 
 func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
@@ -104,15 +105,27 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		rt = f.RetType.Group.Compile(compiler, class, f.RetType, function).TType()
 	}
 
-	var params = make([]*ir.Param, len(f.Params))
+	var params []*ir.Param
 
-	for k, v := range f.Params {
+	if f.isMethod {
+		//make the first argument the `this` or `self` value
+		//methods can use the `this` keyword to access members of the current instance
+		//this first parameter will store that
+		params = append(
+			params,
+			ir.NewParam("", types.NewPointer(class.SType)),
+		)
+
+	}
+
+	for _, v := range f.Params {
 		typ := v.Type.Group.Compile(compiler, class, v.Type, function)
-		params[k] = ir.NewParam(
+		p := ir.NewParam(
 			v.Name,
 			typ.Type(),
 		)
-		compiler.AddVar(v.Name, data.NewInstVariable(params[k], typ.TType()))
+		params = append(params, p)
+		compiler.AddVar(v.Name, data.NewInstVariable(p, typ.TType()))
 	}
 
 	if f.Name != "" {
@@ -126,6 +139,11 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	rf := ir.NewFunc("", rt.Type(), params...)
 
 	ffunc := data.NewFunc(rf, rt)
+	ffunc.IsMethod = f.isMethod
+
+	if ffunc.IsMethod {
+		ffunc.MethodClass = class
+	}
 
 	if f.Body != nil {
 		fblock := rf.NewBlock("")
@@ -150,7 +168,7 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	return ffunc
 }
 
-func (f *Function) CompileGlobal(compiler *Compiler, class *data.Class) {
+func (f *Function) CompileGlobal(compiler *Compiler, class *data.Class, static bool, access int) {
 	stoname := f.Name
 
 	//we do this to detect functions declared within the non-global scope that have names
@@ -158,6 +176,17 @@ func (f *Function) CompileGlobal(compiler *Compiler, class *data.Class) {
 	//we store the name above, and remove the name when passing to the Compile() method
 	//this way the compiler only throws errors on lambda functions with names
 	f.Name = ""
+
+	if !static {
+		f.isMethod = true
+	}
+
 	fn := f.Compile(compiler, class, nil, nil)
-	class.AppendStatic(stoname, fn, fn.TType(), 1)
+
+	if static {
+		class.AppendStatic(stoname, fn, fn.TType(), access)
+	} else {
+		class.NewMethod(stoname, fn.(*data.Function), access)
+	}
+
 }

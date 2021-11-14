@@ -1,7 +1,13 @@
-pub link fn puts(*i8) -> puts;
+pub link fn printf(*i8, i32) -> printf;
+
+var test: i32 = 12;
+
+pub fn abcd() {
+    this.test = 1;
+};
 
 pub stat fn main() {
-    fn() {
-        puts("Hello, World!");
-    }();
+    var e = src.entry();
+    e.abcd();
+    printf("%d\n", e.test);
 };

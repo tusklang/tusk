@@ -47,3 +47,7 @@ func (s *String) Type() types.Type {
 func (s *String) TypeData() *TypeData {
 	return s.TType().TypeData()
 }
+
+func (s *String) InstanceV() value.Value {
+	return nil
+}
