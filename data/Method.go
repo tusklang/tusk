@@ -48,3 +48,7 @@ func (m *Method) Equals(t Type) bool {
 func (m *Method) Default() constant.Constant {
 	return nil
 }
+
+func (m *Method) TypeSize() uint64 {
+	return 8
+}

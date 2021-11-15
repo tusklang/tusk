@@ -127,17 +127,6 @@ func Compile(prog *initialize.Program, outfile string) {
 
 	for ic, c := range cclasses {
 
-		var newAlloc = c.Construct.ActiveBlock.NewAlloca(types.NewPointer(c.SType))
-		c.Construct.ActiveBlock.NewStore(
-			c.Construct.ActiveBlock.NewBitCast(
-				c.Construct.ActiveBlock.NewCall(mallocf, constant.NewInt(types.I64, 20)),
-				types.NewPointer(c.SType),
-			),
-			newAlloc,
-		)
-
-		c.ConstructAlloc = c.Construct.ActiveBlock.NewLoad(types.NewPointer(c.SType), newAlloc)
-
 		for _, v := range ic.Globals {
 
 			if v.CRel == 2 {
@@ -156,6 +145,17 @@ func Compile(prog *initialize.Program, outfile string) {
 	}
 
 	for ic, c := range cclasses {
+
+		var newAlloc = c.Construct.ActiveBlock.NewAlloca(types.NewPointer(c.SType))
+		c.Construct.ActiveBlock.NewStore(
+			c.Construct.ActiveBlock.NewBitCast(
+				c.Construct.ActiveBlock.NewCall(mallocf, constant.NewInt(types.I64, int64(c.TypSiz))),
+				types.NewPointer(c.SType),
+			),
+			newAlloc,
+		)
+
+		c.ConstructAlloc = c.Construct.ActiveBlock.NewLoad(types.NewPointer(c.SType), newAlloc)
 
 		for _, v := range ic.Globals {
 

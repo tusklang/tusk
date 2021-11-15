@@ -3,6 +3,7 @@ package ast
 import (
 	"errors"
 
+	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -108,6 +109,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	}
 
 	decl := function.ActiveBlock.NewAlloca(vtype.Type())
+	decl.Align = ir.Align(vtype.TypeSize())
 
 	if !vtype.Equals(varval.TType()) {
 		//compiler error
@@ -154,10 +156,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 		//instance variable
 
 		class.SType.Fields = append(class.SType.Fields, vtype.Type())
-
-		//create a new GEP instruction to the initialize struct
-		gep := class.Construct.ActiveBlock.NewGetElementPtr(class.SType, class.ConstructAlloc, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, int64(len(class.SType.Fields)-1)))
-		vd.declaration = gep
+		class.TypSiz += vtype.TypeSize()
 
 		class.AppendInstance(vd.Name, vtype, access)
 	}
@@ -177,6 +176,14 @@ func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *data.Class, function
 	if !vd.decltyp.Equals(val.TType()) {
 		//compiler error
 		//variable value type doesn't match inputted type
+	}
+
+	//it's an instance variable
+	//so we make the GEP to the init malloc here
+	if vd.declaration == nil {
+		//create a new GEP instruction to initialize the struct
+		gep := class.Construct.ActiveBlock.NewGetElementPtr(class.SType, class.ConstructAlloc, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, int64(len(class.SType.Fields)-1)))
+		vd.declaration = gep
 	}
 
 	function.ActiveBlock.NewStore(val.LLVal(function.ActiveBlock), vd.declaration)

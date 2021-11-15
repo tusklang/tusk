@@ -48,3 +48,7 @@ func (i *Instance) Equals(t Type) bool {
 func (i *Instance) Default() constant.Constant {
 	return constant.NewNull(types.NewPointer(i.Class.SType))
 }
+
+func (i *Instance) TypeSize() uint64 {
+	return 8
+}

@@ -1,7 +1,6 @@
-pub link fn printf(*i8, i32) -> printf;
-
-stat var test: i32;
+link fn printf(*i8, i32) -> printf;
 
 pub stat fn main() {
-    printf("%d\n", test);
+    var a: i32 = 2147483647;
+    printf("%d\n", a);
 };

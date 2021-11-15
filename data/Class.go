@@ -31,6 +31,8 @@ type Class struct {
 
 	ParentPackage *Package
 
+	TypSiz uint64 //size of the type, in bytes
+
 	curInstCnt int64 //current index we're on in the instance count (temporary while adding items to the instance map)
 }
 
@@ -114,4 +116,8 @@ func (c *Class) Equals(t Type) bool {
 
 func (c *Class) FullName() string {
 	return c.ParentPackage.FullName + "." + c.Name
+}
+
+func (c *Class) TypeSize() uint64 {
+	return c.TypSiz
 }

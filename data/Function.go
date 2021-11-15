@@ -148,3 +148,7 @@ func (f *Function) SetLName(n string) {
 func (f *Function) GetLName() string {
 	return f.nam
 }
+
+func (f *Function) TypeSize() uint64 {
+	return 8
+}

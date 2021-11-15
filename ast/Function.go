@@ -59,6 +59,10 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 				plist[k] = &VarDecl{
 					Type: v,
 				}
+			case ".":
+				plist[k] = &VarDecl{
+					Type: v,
+				}
 			default:
 				return errors.New("invalid syntax: named parameters must have a type")
 			}

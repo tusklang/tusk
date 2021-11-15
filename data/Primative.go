@@ -61,3 +61,24 @@ func (p *Primitive) InstanceV() value.Value {
 func (p *Primitive) Equals(t Type) bool {
 	return p.TypeData().Name() == t.TypeData().Name()
 }
+
+func (p *Primitive) TypeSize() uint64 {
+	switch p.typ {
+	case types.I64:
+		return 8
+	case types.I32:
+		return 4
+	case types.I16:
+		return 2
+	case types.I8:
+		return 1
+	case types.I2:
+		return 1
+	case types.Double:
+		return 8
+	case types.Float:
+		return 4
+	default:
+		return 8
+	}
+}

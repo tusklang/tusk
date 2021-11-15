@@ -27,3 +27,9 @@ prod: all
 .PHONY: test
 test: build
 	cd test && ../$(BINARY)
+	cd test && clang test.ll
+	@echo ""
+	@echo "Running Test"
+	@echo "----------------------"
+	@echo ""
+	cd test && ./a.out

@@ -60,3 +60,7 @@ func (p *Pointer) Equals(t Type) bool {
 func (p *Pointer) Default() constant.Constant {
 	return constant.NewNull(p.Type().(*types.PointerType))
 }
+
+func (p *Pointer) TypeSize() uint64 {
+	return 8
+}
