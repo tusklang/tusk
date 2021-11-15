@@ -89,8 +89,6 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 		}
 
 		f.RetType = rt[0]
-		*i++
-
 	}
 
 	if lex[*i].Type == "{" {

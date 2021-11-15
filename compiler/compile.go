@@ -185,7 +185,7 @@ func Compile(prog *initialize.Program, outfile string) {
 	}
 
 	//declare the llvm entry function
-	mfunc := m.NewFunc("main", types.Void)
+	mfunc := m.NewFunc("main", types.I32)
 	mblock := mfunc.NewBlock("")
 
 	compiler.InitFunc.ActiveBlock.NewRet(nil) //append a `return void` to the init function
@@ -201,7 +201,7 @@ func Compile(prog *initialize.Program, outfile string) {
 		}
 	}
 
-	mblock.NewRet(nil)
+	mblock.NewRet(constant.NewInt(types.I32, 0))
 
 	f, _ := os.Create(outfile)
 	f.Write([]byte(m.String()))
