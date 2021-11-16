@@ -2,7 +2,6 @@ package ast
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
@@ -100,7 +99,7 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	return nil
 }
 
-func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
+func (f *Function) CompileSig(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) *data.Function {
 	var rt data.Type = data.NewPrimitive(types.Void) //defaults to void
 
 	if f.RetType != nil {
@@ -123,7 +122,7 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	for _, v := range f.Params {
 		typ := v.Type.Group.Compile(compiler, class, v.Type, function)
 		p := ir.NewParam(
-			v.Name,
+			"",
 			typ.Type(),
 		)
 		params = append(params, p)
@@ -135,7 +134,6 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		//function names are only for global functions
 		//we remove the name of the function from the object when compiling a global function
 		//if it has a name, it is in a local scope, and it was not declared anonymous
-		fmt.Println(f.Name)
 	}
 
 	rf := ir.NewFunc("", rt.Type(), params...)
@@ -146,6 +144,12 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	if ffunc.IsMethod {
 		ffunc.MethodClass = class
 	}
+
+	return ffunc
+}
+
+func (f *Function) CompileBody(ffunc *data.Function, compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) {
+	rf := ffunc.LLFunc
 
 	if f.Body != nil {
 		fblock := rf.NewBlock("")
@@ -165,12 +169,15 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		//add the function to the actual llvm bytecode (only if it has a body)
 		compiler.Module.Funcs = append(compiler.Module.Funcs, rf)
 	}
+}
 
-	//if no body was provided, the function was being used as a type
+func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
+	ffunc := f.CompileSig(compiler, class, node, function)
+	f.CompileBody(ffunc, compiler, class, node, function)
 	return ffunc
 }
 
-func (f *Function) CompileGlobal(compiler *Compiler, class *data.Class, static bool, access int) {
+func (f *Function) DeclareGlobal(compiler *Compiler, class *data.Class, static bool, access int) {
 	stoname := f.Name
 
 	//we do this to detect functions declared within the non-global scope that have names
@@ -183,12 +190,31 @@ func (f *Function) CompileGlobal(compiler *Compiler, class *data.Class, static b
 		f.isMethod = true
 	}
 
-	fn := f.Compile(compiler, class, nil, nil)
+	var fn = f.CompileSig(compiler, class, nil, nil)
+	fn.SetLName(stoname)
 
 	if static {
 		class.AppendStatic(stoname, fn, fn.TType(), access)
 	} else {
-		class.NewMethod(stoname, fn.(*data.Function), access)
+		class.NewMethod(stoname, fn, access)
 	}
 
+	f.Name = stoname //put the name back
+}
+
+func (f *Function) CompileGlobal(compiler *Compiler, class *data.Class, static bool) {
+
+	if f.Body == nil {
+		return
+	}
+
+	var fn *data.Function
+
+	if static {
+		fn = class.Static[f.Name].Value.(*data.Function)
+	} else {
+		fn = class.Methods[f.Name].Value.(*data.Function)
+	}
+
+	f.CompileBody(fn, compiler, class, nil, nil)
 }

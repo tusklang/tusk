@@ -93,7 +93,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	if vd.Value == nil && vd.Type != nil {
 		//var varname: typename
 		vtype = vd.getDeclType(compiler, class, function)
-		varval = data.NewVariable(vtype.Default(), vtype)
+		varval = data.NewInstVariable(vtype.Default(), vtype)
 	} else if vd.Value != nil && vd.Type == nil {
 		//var varname = value
 		varval = vd.Value.Group.Compile(compiler, class, vd.Value, function)

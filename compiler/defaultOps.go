@@ -34,9 +34,24 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return left
 	})
 
-	compiler.OperationStore.NewOperation("+", "i32", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
-		return data.NewInstVariable(block.NewAdd(left.LLVal(block), right.LLVal(block)), data.NewPrimitive(types.I32))
-	})
+	//add all arithmetic operators for numeric types
+	for k, v := range numtypes {
+		compiler.OperationStore.NewOperation("+", k, k, func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+			return data.NewInstVariable(block.NewAdd(left.LLVal(block), right.LLVal(block)), v)
+		})
+
+		compiler.OperationStore.NewOperation("-", k, k, func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+			return data.NewInstVariable(block.NewSub(left.LLVal(block), right.LLVal(block)), v)
+		})
+
+		compiler.OperationStore.NewOperation("*", k, k, func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+			return data.NewInstVariable(block.NewMul(left.LLVal(block), right.LLVal(block)), v)
+		})
+
+		compiler.OperationStore.NewOperation("/", k, k, func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+			return data.NewInstVariable(block.NewSDiv(left.LLVal(block), right.LLVal(block)), v)
+		})
+	}
 
 	compiler.OperationStore.NewOperation(".", "package", "udvar", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
 

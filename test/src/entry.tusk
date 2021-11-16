@@ -1,7 +1,7 @@
 link fn printf(*i8, i32) -> printf;
 
-pub stat fn main() i32 {
-    var a: i32 = 2147483647;
-    printf("%d\n", a);
-    return 0;
+pub stat fn main() {
+    var a: u32;
+    var b: u32;
+    printf("%d\n", a + b);
 };

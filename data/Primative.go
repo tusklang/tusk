@@ -26,14 +26,15 @@ func NewNamedPrimitive(typ types.Type, nam string) *Primitive {
 }
 
 func (p *Primitive) Default() constant.Constant {
-	switch p.typ {
-	case types.I32:
-		return constant.NewInt(types.I32, 0)
-	case types.Float:
-		return constant.NewFloat(types.Float, 0)
-	default:
-		return &constant.Null{}
+
+	switch g := p.typ.(type) {
+	case *types.IntType:
+		return constant.NewInt(g, 0)
+	case *types.FloatType:
+		return constant.NewFloat(g, 0)
 	}
+
+	return &constant.Null{}
 }
 
 func (p *Primitive) LLVal(block *ir.Block) value.Value {
@@ -72,7 +73,7 @@ func (p *Primitive) TypeSize() uint64 {
 		return 2
 	case types.I8:
 		return 1
-	case types.I2:
+	case types.I1:
 		return 1
 	case types.Double:
 		return 8

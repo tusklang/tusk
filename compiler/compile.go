@@ -15,19 +15,26 @@ import (
 
 var processor = varprocessor.NewProcessor()
 
-//list of all the variables that are added by default
-//has types to begin with, but it can store anything
-//types are variables in tusk's parser so we need to add the default ones in like so
-var prevars = map[string]data.Value{
+var numtypes = map[string]data.Type{
 	"i128": data.NewPrimitive(types.I128),
 	"i64":  data.NewPrimitive(types.I64),
 	"i32":  data.NewPrimitive(types.I32),
 	"i16":  data.NewPrimitive(types.I16),
 	"i8":   data.NewPrimitive(types.I8),
+	"u128": data.NewPrimitive(types.I128),
+	"u64":  data.NewPrimitive(types.I64),
+	"u32":  data.NewPrimitive(types.I32),
+	"u16":  data.NewPrimitive(types.I16),
+	"u8":   data.NewPrimitive(types.I8),
 	"f64":  data.NewPrimitive(types.Double),
 	"f32":  data.NewPrimitive(types.Float),
-	"bool": data.NewPrimitive(types.I1),
+	"bool": data.NewNamedPrimitive(types.I1, "bool"),
 }
+
+//list of all the variables that are added by default
+//has types to begin with, but it can store anything
+//types are variables in tusk's parser so we need to add the default ones in like so
+var prevars = map[string]data.Value{}
 
 func Compile(prog *initialize.Program, outfile string) {
 
@@ -43,6 +50,10 @@ func Compile(prog *initialize.Program, outfile string) {
 	compiler.LinkedFunctions = make(map[string]*ir.Func)
 
 	initDefaultOps(&compiler)
+
+	for k, v := range numtypes {
+		prevars[k] = v.(data.Value)
+	}
 
 	//initialize the operations
 	var initfunc = m.NewFunc("_tusk_init", types.Void) //initialize func ran before main
@@ -136,7 +147,7 @@ func Compile(prog *initialize.Program, outfile string) {
 			}
 
 			if v.Func != nil {
-				v.Func.CompileGlobal(&compiler, c, v.CRel == 1, v.Access)
+				v.Func.DeclareGlobal(&compiler, c, v.CRel == 1, v.Access)
 				continue
 			}
 
@@ -172,6 +183,8 @@ func Compile(prog *initialize.Program, outfile string) {
 				}
 
 				v.Value.CompileGlobal(&compiler, c, compileToFn)
+			} else if v.Func != nil {
+				v.Func.CompileGlobal(&compiler, c, v.CRel == 1)
 			}
 
 		}
