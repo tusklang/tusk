@@ -53,6 +53,7 @@ func (l *Link) Parse(lex []tokenizer.Token, i *int) error {
 func (l *Link) addToClass(lf *ir.Func, compiler *Compiler, dtype data.Value, class *data.Class) data.Value {
 	tfd := data.NewLinkedFunc(lf, dtype.(*data.Function).RetType())
 	tfd.SetLName(l.stname)
+	tfd.ParamTypes = dtype.(*data.Function).ParamTypes
 	compiler.AddVar(l.TName, tfd)
 
 	class.AppendStatic(l.stname, tfd, tfd.TType(), l.Access)

@@ -10,6 +10,7 @@ type Compiler struct {
 	OS, ARCH        string                //operating system and architecture
 	InitFunc        *data.Function        //function that runs before main (used to initialize globals and stuff)
 	OperationStore  *OperationStore       //list of all operations
+	CastStore       *CastStore            //list of all typecasts
 	VarMap          map[string]data.Value //map of all the variables declared
 	LinkedFunctions map[string]*ir.Func   //map of all the linked functions used (e.g. glibc functions)
 }

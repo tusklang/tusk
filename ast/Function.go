@@ -107,6 +107,7 @@ func (f *Function) CompileSig(compiler *Compiler, class *data.Class, node *ASTNo
 	}
 
 	var params []*ir.Param
+	var tparams []data.Type
 
 	if f.isMethod {
 		//make the first argument the `this` or `self` value
@@ -121,6 +122,7 @@ func (f *Function) CompileSig(compiler *Compiler, class *data.Class, node *ASTNo
 
 	for _, v := range f.Params {
 		typ := v.Type.Group.Compile(compiler, class, v.Type, function)
+		tparams = append(tparams, typ.TType())
 		p := ir.NewParam(
 			"",
 			typ.Type(),
@@ -139,6 +141,7 @@ func (f *Function) CompileSig(compiler *Compiler, class *data.Class, node *ASTNo
 	rf := ir.NewFunc("", rt.Type(), params...)
 
 	ffunc := data.NewFunc(rf, rt)
+	ffunc.ParamTypes = tparams
 	ffunc.IsMethod = f.isMethod
 
 	if ffunc.IsMethod {

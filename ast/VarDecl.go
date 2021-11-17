@@ -112,8 +112,13 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	decl.Align = ir.Align(vtype.TypeSize())
 
 	if !vtype.Equals(varval.TType()) {
-		//compiler error
-		//variable value type doesn't match inputted type
+
+		if cast := compiler.CastStore.RunCast(true, vtype.TypeData().Name(), varval, compiler, function.ActiveBlock, class); cast != nil {
+			varval = cast
+		} else {
+			//compiler error
+			//variable value type doesn't match inputted type
+		}
 	}
 
 	if llv := varval.LLVal(function.ActiveBlock); llv != nil {

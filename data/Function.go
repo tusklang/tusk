@@ -10,6 +10,7 @@ import (
 type Function struct {
 	LLFunc      *ir.Func
 	ActiveBlock *ir.Block
+	ParamTypes  []Type
 	ret         Type
 
 	nam string

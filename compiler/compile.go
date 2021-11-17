@@ -50,6 +50,7 @@ func Compile(prog *initialize.Program, outfile string) {
 	compiler.LinkedFunctions = make(map[string]*ir.Func)
 
 	initDefaultOps(&compiler)
+	initDefaultCasts(&compiler)
 
 	for k, v := range numtypes {
 		prevars[k] = v.(data.Value)

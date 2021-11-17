@@ -35,7 +35,12 @@ func initDefaultOps(compiler *ast.Compiler) {
 	})
 
 	//add all arithmetic operators for numeric types
-	for k, v := range numtypes {
+	for k, _v := range numtypes {
+
+		//the v declared in the loop changes per iteration
+		//because we use v in the operations, we need a v value that is persistent for each iteration
+		var v = _v
+
 		compiler.OperationStore.NewOperation("+", k, k, func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
 			return data.NewInstVariable(block.NewAdd(left.LLVal(block), right.LLVal(block)), v)
 		})
@@ -52,6 +57,10 @@ func initDefaultOps(compiler *ast.Compiler) {
 			return data.NewInstVariable(block.NewSDiv(left.LLVal(block), right.LLVal(block)), v)
 		})
 	}
+
+	compiler.OperationStore.NewOperation("->", "type", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+		return compiler.CastStore.RunCast(false, left.TypeData().Name(), right, compiler, block, class)
+	})
 
 	compiler.OperationStore.NewOperation(".", "package", "udvar", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
 
@@ -146,13 +155,30 @@ func initDefaultOps(compiler *ast.Compiler) {
 		f := left.LLVal(block)
 		fcb := right.(*data.FnCallBlock)
 
+		tf := left.TType().(*data.Function)
+
 		var args []value.Value
+		var tad int //this value is a boolean (int) used to store if the function is a method or not
 
 		if left.TypeData().HasFlag("method") {
 			args = append(args, left.InstanceV())
+			tad = 1
 		}
 
-		for _, v := range fcb.Args {
+		if len(fcb.Args) != len(tf.ParamTypes)+tad {
+			//error
+			//args given doesn't match args in sig
+		}
+
+		for k, v := range fcb.Args {
+			if k-tad >= 0 && !tf.ParamTypes[k-tad].Equals(v.TType()) {
+				if cast := compiler.CastStore.RunCast(true, tf.ParamTypes[k+tad].TypeData().Name(), v, compiler, block, class); cast != nil {
+					v = cast
+				} else {
+					//compiler error
+					//variable value type doesn't match inputted type
+				}
+			}
 			args = append(args, v.LLVal(block))
 		}
 
