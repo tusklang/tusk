@@ -160,7 +160,17 @@ func (p *VarProcessor) ProcessVars(file *initialize.File) {
 				continue
 			}
 
-			p.process(v.Func.Body.Sub, mergemap(p.predecl, globals)) //process the function body
+			m := mergemap(p.predecl, globals)
+
+			//process the function params
+			for _, vv := range v.Func.Params {
+				m[vv.Name] = decl{
+					nname: p.nextvar(),
+				}
+				vv.Name = m[vv.Name].nname
+			}
+
+			p.process(v.Func.Body.Sub, m) //process the function body
 		} else if v.Value != nil {
 
 			if v.Value.Value == nil {

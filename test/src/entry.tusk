@@ -1,10 +1,10 @@
-link fn printf(*i8, i64) -> printf;
+link fn printf(*i8, i128) -> printf;
 
 pub stat fn test(a: i64) {
-    printf("%lld\n", a * a * a * a);
+    printf("%lld\n", a);
 };
 
 pub stat fn main() {
-    var a: i32 = 12;
+    var a: i32 = 100;
     test(a);
 };

@@ -26,8 +26,8 @@ var numtypes = map[string]data.Type{
 	"u32":  data.NewPrimitive(types.I32),
 	"u16":  data.NewPrimitive(types.I16),
 	"u8":   data.NewPrimitive(types.I8),
-	"f64":  data.NewPrimitive(types.Double),
-	"f32":  data.NewPrimitive(types.Float),
+	"f64":  data.NewNamedPrimitive(types.Double, "f64"),
+	"f32":  data.NewNamedPrimitive(types.Float, "f32"),
 	"bool": data.NewNamedPrimitive(types.I1, "bool"),
 }
 
