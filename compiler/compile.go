@@ -125,16 +125,17 @@ func Compile(prog *initialize.Program, outfile string) {
 			processorCpy.AddMacro(k, operationMac)
 		}
 		for k, v := range classpack.Classes {
-			_, _ = k, v
+			_, _ = k, v //TODO
 		}
 
 		processorCpy.ProcessVars(ic)
-
-		_, _ = ic, c
 	}
 
-	//function used to malloc classes
-	mallocf := m.NewFunc("malloc", types.I8Ptr, ir.NewParam("", types.I64))
+	//use the malloc function to allocate instances/objects
+	mallocf := m.NewFunc("malloc", types.I64Ptr)
+	mallocf.Sig.Variadic = true
+
+	compiler.LinkedFunctions["malloc"] = mallocf
 
 	for ic, c := range cclasses {
 

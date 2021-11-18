@@ -1,3 +1,5 @@
+link fn malloc(i64) -> malloc;
+
 pub stat fn main() {
     var a: f64 = f64 -> (u16 -> 13.1);
 };
