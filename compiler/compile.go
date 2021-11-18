@@ -21,14 +21,13 @@ var numtypes = map[string]data.Type{
 	"i32":  data.NewPrimitive(types.I32),
 	"i16":  data.NewPrimitive(types.I16),
 	"i8":   data.NewPrimitive(types.I8),
-	"u128": data.NewPrimitive(types.I128),
-	"u64":  data.NewPrimitive(types.I64),
-	"u32":  data.NewPrimitive(types.I32),
-	"u16":  data.NewPrimitive(types.I16),
-	"u8":   data.NewPrimitive(types.I8),
+	"u128": data.NewNamedPrimitive(types.I128, "u128"),
+	"u64":  data.NewNamedPrimitive(types.I64, "u64"),
+	"u32":  data.NewNamedPrimitive(types.I32, "u32"),
+	"u16":  data.NewNamedPrimitive(types.I16, "u16"),
+	"u8":   data.NewNamedPrimitive(types.I8, "u8"),
 	"f64":  data.NewNamedPrimitive(types.Double, "f64"),
 	"f32":  data.NewNamedPrimitive(types.Float, "f32"),
-	"bool": data.NewNamedPrimitive(types.I1, "bool"),
 }
 
 //list of all the variables that are added by default
@@ -154,6 +153,11 @@ func Compile(prog *initialize.Program, outfile string) {
 
 			v.Value.DeclareGlobal(c.ParentPackage.FullName+"."+c.Name+"_"+v.Value.Name, &compiler, c, v.CRel == 1, v.Access)
 		}
+
+		//if there is a constructor, compile the signature
+		if ic.Constructor != nil {
+			ic.Constructor.CompileSig(&compiler, c, c.Construct)
+		}
 	}
 
 	for ic, c := range cclasses {
@@ -192,7 +196,7 @@ func Compile(prog *initialize.Program, outfile string) {
 
 		if ic.Constructor != nil {
 			//add the constructor into the mix of this jazz
-			ic.Constructor.CompileConstructor(&compiler, c, c.Construct, c.ConstructAlloc)
+			ic.Constructor.CompileConstructor(&compiler, c)
 		}
 
 		c.Construct.ActiveBlock.NewRet(c.ConstructAlloc) //return the allocated object at the end of the 'new' function

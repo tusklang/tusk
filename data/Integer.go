@@ -10,6 +10,10 @@ import (
 
 type Integer struct {
 	value *constant.Int
+
+	//untyped
+	untyped bool
+	UTypVal int64
 }
 
 func NewInteger(i *constant.Int) *Integer {
@@ -18,20 +22,37 @@ func NewInteger(i *constant.Int) *Integer {
 	}
 }
 
+func NewUntypedInteger(v int64) *Integer {
+	return &Integer{
+		untyped: true,
+		UTypVal: v,
+	}
+}
+
 func (i *Integer) LLVal(block *ir.Block) value.Value {
 	return i.value
 }
 
 func (i *Integer) TType() Type {
+
+	if i.untyped {
+		return NewUntypeIntType(i)
+	}
+
 	return NewPrimitive(i.Type())
 }
 
 func (i *Integer) Type() types.Type {
+
+	if i.untyped {
+		return nil
+	}
+
 	return i.value.Type()
 }
 
 func (i *Integer) TypeData() *TypeData {
-	return NewTypeData(i.Type().LLString())
+	return i.TType().TypeData()
 }
 
 func (i *Integer) InstanceV() value.Value {

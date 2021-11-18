@@ -218,16 +218,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 		cclass := left.(*data.Class)
 		fcb := right.(*data.FnCallBlock)
 
-		var args []value.Value
-
-		for _, v := range fcb.Args {
-			args = append(args, v.LLVal(block))
-		}
-
-		return data.NewInstVariable(
-			block.NewCall(cclass.Construct.LLFunc, args...),
-			data.NewInstance(cclass),
-		)
+		return compiler.OperationStore.RunOperation(cclass.Construct, fcb, "()", compiler, block, class)
 	})
 
 	compiler.OperationStore.NewOperation("*", "-", "ptr&var", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {

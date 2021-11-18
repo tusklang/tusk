@@ -10,6 +10,10 @@ import (
 
 type Float struct {
 	value *constant.Float
+
+	//untyped
+	untyped bool
+	UTypVal float64
 }
 
 func NewFloat(f *constant.Float) *Float {
@@ -18,20 +22,37 @@ func NewFloat(f *constant.Float) *Float {
 	}
 }
 
+func NewUntypedFloat(v float64) *Float {
+	return &Float{
+		untyped: true,
+		UTypVal: v,
+	}
+}
+
 func (f *Float) LLVal(block *ir.Block) value.Value {
 	return f.value
 }
 
 func (f *Float) TType() Type {
+
+	if f.untyped {
+		return NewUntypeFloatType(f)
+	}
+
 	return NewPrimitive(f.Type())
 }
 
 func (f *Float) Type() types.Type {
+
+	if f.untyped {
+		return nil
+	}
+
 	return f.value.Type()
 }
 
 func (f *Float) TypeData() *TypeData {
-	return NewTypeData(f.value.Type().LLString())
+	return f.TType().TypeData()
 }
 
 func (f *Float) InstanceV() value.Value {

@@ -3,8 +3,6 @@ package ast
 import (
 	"strconv"
 
-	"github.com/llir/llvm/ir/constant"
-	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -26,9 +24,9 @@ func parseFloat(n string) float64 {
 func getValue(tok tokenizer.Token) data.Value {
 	switch tok.Type {
 	case "int":
-		return data.NewInteger(constant.NewInt(types.I32, parseInt(tok.Name)))
+		return data.NewUntypedInteger(parseInt(tok.Name))
 	case "float":
-		return data.NewFloat(constant.NewFloat(types.Float, parseFloat(tok.Name)))
+		return data.NewUntypedFloat(parseFloat(tok.Name))
 	}
 
 	return nil
