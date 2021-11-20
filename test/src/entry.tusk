@@ -1,11 +1,3 @@
-link fn scanf(*i8, *i32);
-link fn printf(*i8, i32) i32;
-
 pub stat fn main() {
-    printf("nth fib #: ", 0);
-    var r: i32;
-    scanf("%d", &r);
-    var fg = src.fibgen(r);
-    var test = printf("%d\n", fg.gen());
-    printf("%d\n", test);
+    var test = test();
 };

@@ -22,6 +22,7 @@ type ClassField struct {
 }
 type Class struct {
 	Name           string
+	CName          string //classname
 	SType          *types.StructType
 	Instance       map[string]*ClassField
 	Static         map[string]*ClassField

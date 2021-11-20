@@ -86,7 +86,7 @@ func Compile(prog *initialize.Program, outfile string) {
 		//but file3 would have to use `package1.file2.prop`
 		//because file3 is not in the same package
 		//to have this, we need to include the files/packages nested within the same package in the variable processor
-		//but we can't do this globally
+		//but we can't do this globally otherwise file3 could also just use `file1` or `file2` to access the classes
 		var processorCpy = varprocessor.CloneProcessor(processor)
 
 		classpack := c.ParentPackage
@@ -125,7 +125,34 @@ func Compile(prog *initialize.Program, outfile string) {
 			processorCpy.AddMacro(k, operationMac)
 		}
 		for k, v := range classpack.Classes {
-			_, _ = k, v //TODO
+
+			parents := v.ParentPackage.ReferenceFromStart()
+
+			var (
+				operationMac = new(ast.ASTNode)
+				curRef       = operationMac
+			)
+
+			for _, vv := range parents {
+				curRef.Left = []*ast.ASTNode{{
+					Group: &ast.VarRef{
+						Name: vv.PackageName,
+					},
+				}}
+				curRef.Group = &ast.Operation{
+					OpType: ".",
+				}
+				curRef.Right = make([]*ast.ASTNode, 1)
+				curRef.Right[0] = new(ast.ASTNode)
+				curRef = curRef.Right[0]
+			}
+
+			curRef.Group = &ast.VarRef{
+				Name: v.CName,
+			}
+
+			processorCpy.AddMacro(k, operationMac)
+
 		}
 
 		processorCpy.ProcessVars(ic)
