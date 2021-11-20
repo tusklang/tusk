@@ -1,6 +1,5 @@
-link fn printf(*i8, i32) -> printf;
+link fn printf(*i8, i32);
 
 pub stat fn main() {
     var fg = src.fibgen(10);
-    printf("%d\n", fg.gen());
 };

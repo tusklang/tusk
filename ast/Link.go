@@ -31,13 +31,15 @@ func (l *Link) Parse(lex []tokenizer.Token, i *int) error {
 		return e
 	}
 
+	var aname string
+
 	if lex[*i].Name != "->" {
-		//error
+		//assume that the linked name is the same as the function name
+		aname = fnd[0].(*Function).Name
+	} else {
+		*i++
+		aname = lex[*i].Name
 	}
-
-	*i++
-
-	aname := lex[*i].Name
 
 	l.TName = fnd[0].(*Function).Name
 	l.stname = l.TName
