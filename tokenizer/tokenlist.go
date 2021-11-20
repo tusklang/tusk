@@ -5,6 +5,8 @@ type TokenItem struct {
 	tokentype string
 }
 
+var keywords = []string{"fn", "return", "var", "if", "else", "while", "pub", "prv", "ptr", "stat", "link", "construct", "this"}
+
 var tokenlist = []TokenItem{
 
 	{("\\;"), "terminator"}, //semicolon
@@ -14,22 +16,6 @@ var tokenlist = []TokenItem{
 	{("\\n"), "newline"},       //newline
 	{("\\s{1}"), "whitespace"}, //whitespace
 	/************************************/
-
-	/************ keywords ************/
-	{("fn(?=(\\z|\\(|\\{|\\s+))"), "fn"},               //fn
-	{("return(?![a-zA-Z$_0-9])"), "return"},            //return
-	{("var(?=\\z|\\s+)"), "var"},                       //var
-	{("if(?=(\\z|\\(|\\{|\\s+))"), "if"},               //if
-	{("else(?=(\\z|\\(|\\{|\\s+))"), "else"},           //else
-	{("while(?=(\\z|\\(|\\{|\\s+))"), "while"},         //while
-	{("pub(?![a-zA-Z$_0-9])"), "pub"},                  //pub
-	{("prv(?![a-zA-Z$_0-9])"), "prv"},                  //prv
-	{("prt(?![a-zA-Z$_0-9])"), "prt"},                  //prt
-	{("stat(?![a-zA-Z$_0-9])"), "stat"},                //stat
-	{("link(?![a-zA-Z$_0-9])"), "link"},                //link
-	{("construct(?=(\\z|\\(|\\{|\\s+))"), "construct"}, //construct
-	{("this(?![a-zA-Z$_0-9])"), "this"},                //this
-	/**********************************/
 
 	/************ braces ************/
 	{("\\("), "("}, //opening parenthesis

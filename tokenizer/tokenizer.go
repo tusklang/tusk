@@ -58,12 +58,29 @@ func Tokenizer(data string) (tokens []Token) {
 		}
 	}
 
-	//remove the whitespace tokens
+	//remove the whitespace tokens and replace varnames with keywords if they are
 	var wsRem []Token
 
 	for _, v := range tokens {
 
 		if v.Type == "whitespace" || v.Type == "newline" {
+			continue
+		}
+
+		if v.Type == "varname" && (func() bool {
+			for _, vv := range keywords {
+				if vv == v.Name {
+					return true
+				}
+			}
+			return false
+		}()) {
+			wsRem = append(wsRem, Token{
+				Name: v.Name,
+				Type: v.Name,
+				Row:  v.Row,
+				Col:  v.Col,
+			})
 			continue
 		}
 

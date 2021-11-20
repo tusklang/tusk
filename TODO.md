@@ -11,3 +11,8 @@ Coming soon
 - Generics
 
 Allow for mode DRY code
+
+- Error Messages
+
+Go just gives nil pointers when theres a compile-time error...
+Not the best system in the world.

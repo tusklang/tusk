@@ -1,5 +1,6 @@
-link fn malloc(i64) -> malloc;
+link fn printf(*i8, i32) -> printf;
 
 pub stat fn main() {
-    var a: f64 = f64 -> (u16 -> 13.1);
+    var fg = src.fibgen(10);
+    printf("%d\n", fg.gen());
 };

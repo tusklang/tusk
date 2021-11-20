@@ -127,7 +127,11 @@ func initDefaultOps(compiler *ast.Compiler) {
 		switch fieldtyp {
 		case "method":
 			//method
-			return data.NewMethod(ivar.Value, inst)
+
+			cloned := data.CloneFunc(ivar.Value.(*data.Function))
+			cloned.Instance = inst
+
+			return cloned
 		case "var":
 			//instance variable
 			gep := block.NewGetElementPtr(
@@ -170,16 +174,16 @@ func initDefaultOps(compiler *ast.Compiler) {
 			//args given doesn't match args in sig
 		}
 
-		for k, v := range fcb.Args {
-			if k-tad >= 0 && !tf.ParamTypes[k-tad].Equals(v.TType()) {
-				if cast := compiler.CastStore.RunCast(true, tf.ParamTypes[k+tad].TypeData().Name(), v, compiler, block, class); cast != nil {
-					v = cast
+		for k, v := range tf.ParamTypes {
+			if !v.Equals(fcb.Args[k].TType()) {
+				if cast := compiler.CastStore.RunCast(true, v.TypeData().Name(), fcb.Args[k], compiler, block, class); cast != nil {
+					fcb.Args[k] = cast
 				} else {
 					//compiler error
 					//variable value type doesn't match inputted type
 				}
 			}
-			args = append(args, v.LLVal(block))
+			args = append(args, fcb.Args[k].LLVal(block))
 		}
 
 		var call value.Value = block.NewCall(f, args...)
@@ -201,15 +205,9 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 		}
 
-		tt := left.TType()
-
-		if left.TypeData().HasFlag("method") {
-			tt = left.TType().(*data.Method).Func.TType()
-		}
-
 		return data.NewInstVariable(
 			call,
-			tt.(*data.Function).RetType(),
+			tf.RetType(),
 		)
 	})
 

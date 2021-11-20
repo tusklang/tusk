@@ -58,15 +58,16 @@ type Function struct {
 	//if the function is linked to a binary, instead of being declared in tusk
 	linkedfunc bool
 
-	//NOTE: only used during global function compiling
-	//never use these fields for `instance.method` operations
+	//stuff for methods
 
 	//if the given function is a method
 	IsMethod bool
 
+	Instance value.Value
+
 	//given functions's class, if it is a method
 	MethodClass *Class
-	/////////////////////////////////////////////////////////
+	///////////////////
 }
 
 func NewFunc(f *ir.Func, ret Type) *Function {
@@ -80,6 +81,19 @@ func NewLinkedFunc(f *ir.Func, ret Type) *Function {
 	rf := NewFunc(f, ret)
 	rf.linkedfunc = true
 	return rf
+}
+
+func CloneFunc(f *Function) *Function {
+	var ret = new(Function)
+	ret.LLFunc = f.LLFunc
+	ret.ActiveBlock = f.ActiveBlock
+	ret.ParamTypes = f.ParamTypes
+	ret.ret = f.ret
+	ret.nam = f.nam
+	ret.linkedfunc = f.linkedfunc
+	ret.IsMethod = f.IsMethod
+	ret.MethodClass = f.MethodClass
+	return ret
 }
 
 func (f *Function) LLVal(block *ir.Block) value.Value {
@@ -107,11 +121,14 @@ func (f *Function) TypeData() *TypeData {
 	if f.linkedfunc {
 		td.AddFlag("linked")
 	}
+	if f.IsMethod {
+		td.AddFlag("method")
+	}
 	return td
 }
 
 func (f *Function) InstanceV() value.Value {
-	return nil
+	return f.Instance
 }
 
 func (f *Function) Equals(t Type) bool {
