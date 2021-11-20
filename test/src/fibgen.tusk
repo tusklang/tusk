@@ -4,7 +4,6 @@ construct fn(v: i32) {
     this.max = v;
 };
 
-
 pub fn gen() i32 {
     return this._gen(this.max);
 };

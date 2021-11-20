@@ -192,8 +192,8 @@ func initDefaultOps(compiler *ast.Compiler) {
 			call.(*ir.InstCall).Sig().Params = nil
 			call.(*ir.InstCall).Sig().Variadic = true
 
-			//linked functions always have a pointer or integer return type
-			rettype := left.TType().(*data.Function).RetType().Type()
+			//linked functions always have a pointer, integer, or void return type
+			rettype := tf.RetType().Type()
 
 			if types.IsPointer(rettype) {
 				//use a bitcast for a pointer return

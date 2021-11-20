@@ -33,7 +33,7 @@ func (l *Link) Parse(lex []tokenizer.Token, i *int) error {
 
 	var aname string
 
-	if lex[*i].Name != "->" {
+	if *i >= len(lex) || lex[*i].Name != "->" {
 		//assume that the linked name is the same as the function name
 		aname = fnd[0].(*Function).Name
 	} else {

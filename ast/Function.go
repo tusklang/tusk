@@ -77,10 +77,10 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 
 	f.Params = plist
 
-	if lex[*i].Type != "{" && lex[*i].Type != "terminator" && lex[*i].Type != "operation" {
+	if lex[*i].Type != "{" && lex[*i].Type != "terminator" {
 		//read the return type
 		//if there is no body or terminator next, it has to be a return
-		rtg := groupSpecific(lex, i, []string{"{", "terminator"}, -1)
+		rtg := groupSpecific(lex, i, []string{"{", ";"}, -1)
 		rt, e := groupsToAST(rtg)
 
 		if e != nil {
@@ -90,7 +90,7 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 		f.RetType = rt[0]
 	}
 
-	if lex[*i].Type == "{" {
+	if *i < len(lex) && lex[*i].Type == "{" {
 		f.Body = grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, ""))[0].(*Block)
 		return nil
 	}
