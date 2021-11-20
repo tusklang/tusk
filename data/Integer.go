@@ -30,6 +30,11 @@ func NewUntypedInteger(v int64) *Integer {
 }
 
 func (i *Integer) LLVal(block *ir.Block) value.Value {
+
+	if i.untyped {
+		return constant.NewInt(types.I32, i.UTypVal)
+	}
+
 	return i.value
 }
 

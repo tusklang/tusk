@@ -30,6 +30,11 @@ func NewUntypedFloat(v float64) *Float {
 }
 
 func (f *Float) LLVal(block *ir.Block) value.Value {
+
+	if f.untyped {
+		return constant.NewFloat(types.Double, f.UTypVal)
+	}
+
 	return f.value
 }
 

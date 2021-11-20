@@ -108,6 +108,14 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		//cannot determine what type this variable is
 	}
 
+	//untyped values don't exist in llvm, so we force them to doubles/i32
+	switch vtype.(type) {
+	case *data.UntypeFloatType:
+		vtype = data.NewPrimitive(types.Double)
+	case *data.UntypeIntType:
+		vtype = data.NewPrimitive(types.I32)
+	}
+
 	decl := function.ActiveBlock.NewAlloca(vtype.Type())
 	decl.Align = ir.Align(vtype.TypeSize())
 

@@ -1,3 +1,9 @@
+link fn printf(*i8, i32);
+
 pub stat fn main() {
-    var test = test();
+    var i = 0;
+    while (i != 1000000) {
+        printf("%d\n", i);
+        i = i + (i32 -> 1);
+    };
 };

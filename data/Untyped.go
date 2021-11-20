@@ -25,7 +25,7 @@ func (i *UntypeIntType) TType() Type {
 }
 
 func (i *UntypeIntType) Type() types.Type {
-	return nil
+	return types.I32
 }
 
 func (i *UntypeIntType) TypeData() *TypeData {
@@ -45,7 +45,7 @@ func (i *UntypeIntType) InstanceV() value.Value {
 }
 
 func (i *UntypeIntType) TypeSize() uint64 {
-	return 0
+	return 4
 }
 
 func NewUntypeFloatType(ft *Float) *UntypeFloatType {
@@ -59,7 +59,7 @@ func (f *UntypeFloatType) TType() Type {
 }
 
 func (f *UntypeFloatType) Type() types.Type {
-	return nil
+	return types.Double
 }
 
 func (f *UntypeFloatType) TypeData() *TypeData {
@@ -79,5 +79,5 @@ func (f *UntypeFloatType) InstanceV() value.Value {
 }
 
 func (f *UntypeFloatType) TypeSize() uint64 {
-	return 0
+	return 8
 }
