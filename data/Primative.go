@@ -63,7 +63,7 @@ func (p *Primitive) Equals(t Type) bool {
 	return p.TypeData().Name() == t.TypeData().Name()
 }
 
-func (p *Primitive) TypeSize() uint64 {
+func (p *Primitive) Alignment() uint64 {
 	switch p.typ {
 	case types.I64:
 		return 8

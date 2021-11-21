@@ -94,6 +94,8 @@ func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string, maxl
 			fallthrough
 		case "(":
 			gr = &Block{}
+		case "[":
+			gr = &Array{}
 		case "if":
 			gr = &IfStatement{}
 		case "while":

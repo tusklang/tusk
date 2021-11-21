@@ -78,6 +78,8 @@ func (vd *VarDecl) getDeclType(compiler *Compiler, class *data.Class, function *
 		vtype = vt
 	case *data.Function:
 		vtype = vt
+	case *data.FixedArray:
+		vtype = vt
 	default:
 		//error
 	}
@@ -117,7 +119,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	}
 
 	decl := function.ActiveBlock.NewAlloca(vtype.Type())
-	decl.Align = ir.Align(vtype.TypeSize())
+	decl.Align = ir.Align(vtype.Alignment())
 
 	if !vtype.Equals(varval.TType()) {
 
@@ -169,7 +171,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 		//instance variable
 
 		class.SType.Fields = append(class.SType.Fields, vtype.Type())
-		class.TypSiz += vtype.TypeSize()
+		class.TypSiz += vtype.Alignment()
 
 		class.AppendInstance(vd.Name, vtype, access)
 	}

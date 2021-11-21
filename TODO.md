@@ -16,3 +16,7 @@ Allow for mode DRY code
 
 Go just gives nil pointers when theres a compile-time error...
 Not the best system in the world.
+
+- Arrays & Hashmaps
+
+No need for explanation

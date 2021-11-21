@@ -44,7 +44,7 @@ func (i *UntypeIntType) InstanceV() value.Value {
 	return nil
 }
 
-func (i *UntypeIntType) TypeSize() uint64 {
+func (i *UntypeIntType) Alignment() uint64 {
 	return 4
 }
 
@@ -78,6 +78,6 @@ func (f *UntypeFloatType) InstanceV() value.Value {
 	return nil
 }
 
-func (f *UntypeFloatType) TypeSize() uint64 {
+func (f *UntypeFloatType) Alignment() uint64 {
 	return 8
 }

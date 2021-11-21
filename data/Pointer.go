@@ -61,6 +61,6 @@ func (p *Pointer) Default() constant.Constant {
 	return constant.NewNull(p.Type().(*types.PointerType))
 }
 
-func (p *Pointer) TypeSize() uint64 {
+func (p *Pointer) Alignment() uint64 {
 	return 8
 }

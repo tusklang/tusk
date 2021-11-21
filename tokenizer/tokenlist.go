@@ -22,6 +22,8 @@ var tokenlist = []TokenItem{
 	{("\\)"), ")"}, //closing parenthesis
 	{("\\{"), "{"}, //opening curly brace
 	{("\\}"), "}"}, //closing curly brace
+	{("\\["), "["}, //opening square brace
+	{("\\]"), "]"}, //closing square brace
 	/********************************/
 
 	/************ operators ************/

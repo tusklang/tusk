@@ -29,6 +29,14 @@ func NewUntypedInteger(v int64) *Integer {
 	}
 }
 
+func (i *Integer) GetInt() int64 {
+	if i.untyped {
+		return i.UTypVal
+	}
+
+	return i.value.X.Int64()
+}
+
 func (i *Integer) LLVal(block *ir.Block) value.Value {
 
 	if i.untyped {

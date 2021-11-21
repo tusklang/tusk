@@ -13,5 +13,5 @@ type Type interface {
 	Default() constant.Constant
 	Equals(Type) bool
 	InstanceV() value.Value
-	TypeSize() uint64
+	Alignment() uint64
 }

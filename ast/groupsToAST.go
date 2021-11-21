@@ -63,6 +63,7 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 		},
 		{
 			".":  defaultOperationHandle,
+			"[]": nil, //array index
 			"()": nil, //function call
 		},
 		{
@@ -85,6 +86,19 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 					if g.Token.Name == k {
 						return vv(items, i)
 					}
+				case *Array:
+
+					if k == "[]" && g.siz != nil && g.arr == nil && g.typ == nil {
+
+						if len(items) == 1 {
+							return []*ASTNode{{
+								Group: items[i],
+							}}, nil
+						}
+
+						return arrIndexHandle(items, i)
+					}
+
 				case *Block:
 					//for function calls
 

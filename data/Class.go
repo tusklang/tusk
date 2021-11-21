@@ -119,6 +119,6 @@ func (c *Class) FullName() string {
 	return c.ParentPackage.FullName + "." + c.Name
 }
 
-func (c *Class) TypeSize() uint64 {
+func (c *Class) Alignment() uint64 {
 	return c.TypSiz
 }

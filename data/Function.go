@@ -167,6 +167,6 @@ func (f *Function) GetLName() string {
 	return f.nam
 }
 
-func (f *Function) TypeSize() uint64 {
+func (f *Function) Alignment() uint64 {
 	return 8
 }
