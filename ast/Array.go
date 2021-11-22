@@ -77,7 +77,30 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int) error {
 }
 
 func (a *Array) CompileSlice(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
-	return nil
+
+	block := function.ActiveBlock
+	decl := block.NewAlloca(types.NewPointer(a.ctyp.Type()))
+	decl.Align = 8
+
+	mallocf := compiler.LinkedFunctions["malloc"]
+	mallocc := block.NewCall(mallocf, block.NewMul(
+		constant.NewInt(types.I32, int64(len(a.arr))),
+		constant.NewInt(types.I32, int64(a.ctyp.Alignment())),
+	))
+
+	block.NewStore(block.NewBitCast(
+		mallocc,
+		types.NewPointer(a.ctyp.Type()),
+	), decl)
+
+	loadeddecl := block.NewLoad(types.NewPointer(a.ctyp.Type()), decl)
+	for k, v := range a.arr {
+		vc := v.Group.Compile(compiler, class, v, function)
+		gep := block.NewGetElementPtr(a.ctyp.Type(), loadeddecl, constant.NewInt(types.I32, int64(k)))
+		block.NewStore(vc.LLVal(block), gep)
+	}
+
+	return data.NewSliceArray(a.ctyp, decl, nil)
 }
 
 func (a *Array) CompileFixedArray(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
@@ -111,6 +134,7 @@ func (a *Array) Compile(compiler *Compiler, class *data.Class, node *ASTNode, fu
 	if a.siz == nil {
 		//it's a slice array
 		a.ctyp = a.typ.Group.Compile(compiler, class, a.typ, function).(data.Type)
+		return a.CompileSlice(compiler, class, node, function)
 	} else {
 		a.csiz = a.siz.Group.Compile(compiler, class, a.siz, function)
 

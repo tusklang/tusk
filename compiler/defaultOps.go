@@ -220,9 +220,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 	})
 
 	compiler.OperationStore.NewOperation("[]", "array", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
-
 		arr := left.TType().(data.ArrayValue)
-
 		return arr.GetIndex(block, right)
 	})
 
