@@ -145,6 +145,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 			return data.NewInstanceVariable(
 				data.NewVariable(
 					gep,
+					nil,
 					classt.Instance[sub].Type,
 				),
 				inst,
@@ -220,13 +221,14 @@ func initDefaultOps(compiler *ast.Compiler) {
 	})
 
 	compiler.OperationStore.NewOperation("[]", "array", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
-		arr := left.TType().(data.ArrayValue)
+		arr := left.TValue().(data.ArrayValue)
 		return arr.GetIndex(block, right)
 	})
 
 	compiler.OperationStore.NewOperation("*", "-", "ptr&var", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
 		return data.NewVariable(
 			right.LLVal(block),
+			right.TValue(),
 			right.TType().(*data.Pointer).PType(),
 		)
 	})

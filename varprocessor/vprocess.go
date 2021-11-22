@@ -118,6 +118,17 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
 			p.process(g.Condition, merged)
 			p.process(g.Body, merged)
 
+		case *ast.Array:
+			merged := mergemap(declared, curscope)
+
+			if g.Siz != nil {
+				p.process([]*ast.ASTNode{g.Siz}, merged)
+			}
+			if g.Typ != nil {
+				p.process([]*ast.ASTNode{g.Typ}, merged)
+			}
+			p.process(g.Arr, merged)
+
 		case *ast.Return:
 			p.process([]*ast.ASTNode{g.Val}, mergemap(declared, curscope))
 		}

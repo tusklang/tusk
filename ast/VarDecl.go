@@ -80,6 +80,10 @@ func (vd *VarDecl) getDeclType(compiler *Compiler, class *data.Class, function *
 		vtype = vt
 	case *data.FixedArray:
 		vtype = vt
+	case *data.SliceArray:
+		vtype = vt
+	case *data.VariedLengthArray:
+		vtype = vt
 	default:
 		//error
 	}
@@ -135,7 +139,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		function.ActiveBlock.NewStore(llv, decl)
 	}
 
-	dv := data.NewVariable(decl, vtype)
+	dv := data.NewVariable(decl, varval, vtype)
 
 	compiler.AddVar(vd.Name, dv)
 
@@ -163,7 +167,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 
 		vd.declaration = decl
 
-		nv := data.NewVariable(vd.declaration, vtype)
+		nv := data.NewVariable(vd.declaration, nil, vtype)
 
 		class.AppendStatic(vd.Name, nv, nv.TType(), access)
 	} else {

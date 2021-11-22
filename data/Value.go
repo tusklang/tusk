@@ -8,6 +8,7 @@ import (
 
 type Value interface {
 	LLVal(block *ir.Block) value.Value
+	TValue() Value
 	TType() Type
 	Type() types.Type
 	TypeData() *TypeData

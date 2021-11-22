@@ -88,7 +88,7 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 					}
 				case *Array:
 
-					if k == "[]" && g.siz != nil && g.arr == nil && g.typ == nil {
+					if k == "[]" && g.Siz != nil && g.Arr == nil && g.Typ == nil {
 
 						if len(items) == 1 {
 							return []*ASTNode{{

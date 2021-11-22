@@ -46,6 +46,10 @@ func (i *Integer) LLVal(block *ir.Block) value.Value {
 	return i.value
 }
 
+func (i *Integer) TValue() Value {
+	return i
+}
+
 func (i *Integer) TType() Type {
 
 	if i.untyped {

@@ -22,6 +22,10 @@ func (v *InstanceVariable) LLVal(block *ir.Block) value.Value {
 	return v.variable.LLVal(block)
 }
 
+func (v *InstanceVariable) TValue() Value {
+	return v
+}
+
 func (v *InstanceVariable) TType() Type {
 	return v.variable.TType()
 }

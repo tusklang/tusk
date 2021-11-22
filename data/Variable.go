@@ -7,24 +7,26 @@ import (
 )
 
 type Variable struct {
-	inst value.Value
-	typ  Type
+	inst  value.Value
+	typ   Type
+	stova Value
 
 	loadinst func(*Variable, *ir.Block) value.Value
 }
 
-func NewVariable(inst value.Value, typ Type) *Variable {
+func NewVariable(inst value.Value, stova Value, typ Type) *Variable {
 	return &Variable{
 		inst: inst,
 		typ:  typ,
 		loadinst: func(v *Variable, block *ir.Block) value.Value {
 			return block.NewLoad(v.Type(), v.FetchAssig())
 		},
+		stova: stova,
 	}
 }
 
 func NewInstVariable(inst value.Value, typ Type) *Variable {
-	vd := NewVariable(inst, typ)
+	vd := NewVariable(inst, nil, typ)
 	vd.SetLoadInst(func(v *Variable, b *ir.Block) value.Value {
 		return v.FetchAssig()
 	})
@@ -41,6 +43,10 @@ func (v *Variable) SetLoadInst(f func(*Variable, *ir.Block) value.Value) {
 
 func (v *Variable) LLVal(block *ir.Block) value.Value {
 	return v.loadinst(v, block)
+}
+
+func (v *Variable) TValue() Value {
+	return v.stova
 }
 
 func (v *Variable) TType() Type {

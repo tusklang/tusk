@@ -40,6 +40,10 @@ func (a *FixedArray) LLVal(block *ir.Block) value.Value {
 	return a.decl
 }
 
+func (a *FixedArray) TValue() Value {
+	return a
+}
+
 func (a *FixedArray) TType() Type {
 	return a
 }

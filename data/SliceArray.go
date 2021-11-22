@@ -38,6 +38,10 @@ func (a *SliceArray) LLVal(block *ir.Block) value.Value {
 	return block.NewLoad(types.NewPointer(a.atype.Type()), a.decl)
 }
 
+func (a *SliceArray) TValue() Value {
+	return a
+}
+
 func (a *SliceArray) TType() Type {
 	return a
 }
@@ -57,7 +61,7 @@ func (a *SliceArray) InstanceV() value.Value {
 }
 
 func (a *SliceArray) Default() constant.Constant {
-	return nil
+	return constant.NewNull(types.NewPointer(a.atype.Type()))
 }
 
 func (a *SliceArray) Equals(Type) bool {

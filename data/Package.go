@@ -45,6 +45,10 @@ func (p *Package) LLVal(block *ir.Block) value.Value {
 	return nil
 }
 
+func (p *Package) TValue() Value {
+	return p
+}
+
 func (p *Package) TType() Type {
 	return nil
 }

@@ -21,6 +21,10 @@ func (i *Instance) LLVal(block *ir.Block) value.Value {
 	return nil
 }
 
+func (i *Instance) TValue() Value {
+	return i
+}
+
 func (i *Instance) TType() Type {
 	return i
 }
