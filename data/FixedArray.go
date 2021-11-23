@@ -27,11 +27,9 @@ func (a *FixedArray) GetIndex(block *ir.Block, idx Value) Value {
 	gept := types.NewArray(a.length, a.atype.Type())
 	gep := block.NewGetElementPtr(gept, a.LLVal(block), constant.NewInt(types.I32, 0), idx.LLVal(block))
 	gep.InBounds = true
-	return NewInstVariable(
-		block.NewLoad(
-			a.atype.Type(),
-			gep,
-		),
+	return NewVariable(
+		gep,
+		nil,
 		a.atype,
 	)
 }
