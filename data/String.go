@@ -36,10 +36,6 @@ func (s *String) LLVal(block *ir.Block) value.Value {
 	return gep
 }
 
-func (s *String) TValue() Value {
-	return s
-}
-
 func (s *String) TType() Type {
 	return NewPointer(NewPrimitive(types.I8))
 }

@@ -145,7 +145,6 @@ func initDefaultOps(compiler *ast.Compiler) {
 			return data.NewInstanceVariable(
 				data.NewVariable(
 					gep,
-					nil,
 					classt.Instance[sub].Type,
 				),
 				inst,
@@ -220,15 +219,43 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return compiler.OperationStore.RunOperation(cclass.Construct, fcb, "()", compiler, block, class)
 	})
 
-	compiler.OperationStore.NewOperation("[]", "array", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
-		arr := left.TValue().(data.ArrayValue)
-		return arr.GetIndex(block, right)
+	//array indexing
+	compiler.OperationStore.NewOperation("[]", "slice&array", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+		gept := left.TType().(*data.SliceArray).ValType().Type()
+		gep := block.NewGetElementPtr(gept, left.LLVal(block), right.LLVal(block))
+		gep.InBounds = true
+		return data.NewVariable(
+			gep,
+			left.TType().(*data.SliceArray).ValType(),
+		)
 	})
+
+	compiler.OperationStore.NewOperation("[]", "fixed&array", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+		farr := left.TType().(*data.FixedArray)
+		gept := types.NewArray(farr.Length(), farr.ValType().Type())
+		gep := block.NewGetElementPtr(gept, left.LLVal(block), constant.NewInt(types.I32, 0), right.LLVal(block))
+		gep.InBounds = true
+		return data.NewVariable(
+			gep,
+			farr.ValType(),
+		)
+	})
+
+	compiler.OperationStore.NewOperation("[]", "varied&array", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+		varr := left.TType().(*data.VariedLengthArray)
+		gept := varr.ValType().Type()
+		gep := block.NewGetElementPtr(gept, left.LLVal(block), right.LLVal(block))
+		gep.InBounds = true
+		return data.NewVariable(
+			gep,
+			varr.ValType(),
+		)
+	})
+	////////////////
 
 	compiler.OperationStore.NewOperation("*", "-", "ptr&var", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
 		return data.NewVariable(
 			right.LLVal(block),
-			right.TValue(),
 			right.TType().(*data.Pointer).PType(),
 		)
 	})

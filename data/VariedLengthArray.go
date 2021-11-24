@@ -23,15 +23,8 @@ func NewVariedLengthArray(atype Type, decl, curlen value.Value, length value.Val
 	}
 }
 
-func (a *VariedLengthArray) GetIndex(block *ir.Block, idx Value) Value {
-	gept := a.atype.Type()
-	gep := block.NewGetElementPtr(gept, a.LLVal(block), idx.LLVal(block))
-	gep.InBounds = true
-	return NewVariable(
-		gep,
-		nil,
-		a.atype,
-	)
+func (a *VariedLengthArray) ValType() Type {
+	return a.atype
 }
 
 func (a *VariedLengthArray) LLVal(block *ir.Block) value.Value {

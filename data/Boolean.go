@@ -27,10 +27,6 @@ func (b *Boolean) LLVal(block *ir.Block) value.Value {
 	return b.val.LLVal(block)
 }
 
-func (b *Boolean) TValue() Value {
-	return b.val
-}
-
 func (b *Boolean) TType() Type {
 	return NewPrimitive(types.I1)
 }

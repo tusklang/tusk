@@ -38,10 +38,6 @@ func (p *Pointer) LLVal(block *ir.Block) value.Value {
 	return nil
 }
 
-func (p *Pointer) TValue() Value {
-	return p
-}
-
 func (p *Pointer) TypeData() *TypeData {
 	td := *p.typ.TypeData()
 	td.AddFlag("ptr")

@@ -41,10 +41,6 @@ func (p *Primitive) LLVal(block *ir.Block) value.Value {
 	return nil
 }
 
-func (p *Primitive) TValue() Value {
-	return p
-}
-
 func (p *Primitive) TType() Type {
 	return p
 }

@@ -16,10 +16,6 @@ func (n *Null) LLVal(block *ir.Block) value.Value {
 	return nil
 }
 
-func (n *Null) TValue() Value {
-	return n
-}
-
 func (n *Null) TType() Type {
 	return nil
 }

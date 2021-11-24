@@ -139,7 +139,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		function.ActiveBlock.NewStore(llv, decl)
 	}
 
-	dv := data.NewVariable(decl, varval, vtype)
+	dv := data.NewVariable(decl, vtype)
 
 	compiler.AddVar(vd.Name, dv)
 
@@ -167,7 +167,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 
 		vd.declaration = decl
 
-		nv := data.NewVariable(vd.declaration, nil, vtype)
+		nv := data.NewVariable(vd.declaration, vtype)
 
 		class.AppendStatic(vd.Name, nv, nv.TType(), access)
 	} else {

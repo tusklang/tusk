@@ -100,10 +100,6 @@ func (f *Function) LLVal(block *ir.Block) value.Value {
 	return f.LLFunc
 }
 
-func (f *Function) TValue() Value {
-	return f
-}
-
 func (f *Function) RetType() Type {
 	return f.ret
 }

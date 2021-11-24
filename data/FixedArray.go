@@ -23,23 +23,16 @@ func NewFixedArray(atype Type, decl, curlen value.Value, length uint64) *FixedAr
 	}
 }
 
-func (a *FixedArray) GetIndex(block *ir.Block, idx Value) Value {
-	gept := types.NewArray(a.length, a.atype.Type())
-	gep := block.NewGetElementPtr(gept, a.LLVal(block), constant.NewInt(types.I32, 0), idx.LLVal(block))
-	gep.InBounds = true
-	return NewVariable(
-		gep,
-		nil,
-		a.atype,
-	)
+func (a *FixedArray) ValType() Type {
+	return a.atype
+}
+
+func (a *FixedArray) Length() uint64 {
+	return a.length
 }
 
 func (a *FixedArray) LLVal(block *ir.Block) value.Value {
 	return a.decl
-}
-
-func (a *FixedArray) TValue() Value {
-	return a
 }
 
 func (a *FixedArray) TType() Type {

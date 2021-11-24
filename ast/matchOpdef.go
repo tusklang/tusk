@@ -39,5 +39,10 @@ func matchOpdef(val data.Value, opdef string) bool {
 		return true
 	}
 
+	//arrays
+	if (opdef == "slice" || opdef == "fixed" || opdef == "varied") && val.TypeData().HasFlag(opdef) {
+		return true
+	}
+
 	return val.TypeData().Name() == opdef //for now this is the only one we need, but there will be more later ;)
 }

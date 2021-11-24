@@ -38,10 +38,6 @@ func (f *Float) LLVal(block *ir.Block) value.Value {
 	return f.value
 }
 
-func (f *Float) TValue() Value {
-	return f
-}
-
 func (f *Float) TType() Type {
 
 	if f.untyped {

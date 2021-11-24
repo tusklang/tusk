@@ -86,10 +86,6 @@ func (c *Class) LLVal(block *ir.Block) value.Value {
 	return nil
 }
 
-func (c *Class) TValue() Value {
-	return c
-}
-
 func (c *Class) Default() constant.Constant {
 	return constant.NewNull(types.NewPointer(c.SType))
 }
