@@ -17,6 +17,10 @@ Allow for mode DRY code
 Go just gives nil pointers when theres a compile-time error...
 Not the best system in the world.
 
-- Arrays & Hashmaps
+- Hashmaps
 
-No need for explanation
+Most modern languages have built in support for these already
+
+- For & For each loops
+
+Pretty helpful

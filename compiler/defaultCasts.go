@@ -156,7 +156,16 @@ func initDefaultCasts(compiler *ast.Compiler) {
 		alc.Align = ir.Align(8)
 
 		function.ActiveBlock.NewStore(
-			function.ActiveBlock.NewBitCast(function.ActiveBlock.NewCall(malloc, length.LLVal(function)), ftyp),
+			function.ActiveBlock.NewBitCast(
+				function.ActiveBlock.NewCall(
+					malloc,
+					function.ActiveBlock.NewMul(
+						length.LLVal(function),
+						constant.NewInt(length.Type().(*types.IntType), int64(toTypet.ValType().Alignment())),
+					),
+				),
+				ftyp,
+			),
 			alc,
 		)
 
@@ -189,7 +198,15 @@ func initDefaultCasts(compiler *ast.Compiler) {
 		alc.Align = ir.Align(8)
 
 		function.ActiveBlock.NewStore(
-			function.ActiveBlock.NewBitCast(function.ActiveBlock.NewCall(malloc, lllength), ftyp),
+			function.ActiveBlock.NewBitCast(
+				function.ActiveBlock.NewCall(
+					malloc,
+					function.ActiveBlock.NewMul(
+						lllength,
+						constant.NewInt(length.Type().(*types.IntType), int64(toTypet.ValType().Alignment())),
+					),
+				), ftyp,
+			),
 			alc,
 		)
 
