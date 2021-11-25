@@ -11,7 +11,7 @@ type WhileStatement struct {
 	Body      []*ASTNode
 }
 
-func (ws *WhileStatement) Parse(lex []tokenizer.Token, i *int) error {
+func (ws *WhileStatement) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	return ifwhileParse(ws, lex, i)
 }
 

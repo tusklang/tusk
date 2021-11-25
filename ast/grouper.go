@@ -137,7 +137,7 @@ func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string, maxl
 			//the token given isn't recognized by tusk
 		}
 
-		_ = gr.Parse(tokens, startAt)
+		_ = gr.Parse(tokens, startAt, stopAt)
 
 		fin = append(fin, gr)
 	}

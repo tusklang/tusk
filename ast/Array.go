@@ -27,7 +27,7 @@ type Array struct {
 	ctyp data.Type
 }
 
-func (a *Array) Parse(lex []tokenizer.Token, i *int) error {
+func (a *Array) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	sizl := braceMatcher(lex, i, []string{"[", "{", "("}, []string{"]", "}", ")"}, true, "")
 	*i++
 	sizg := grouper(sizl)
@@ -61,6 +61,15 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int) error {
 
 	if *i >= len(lex) {
 		return nil
+	}
+
+	//if the stopAt includes an opening brace, we can't read the array contents
+	//(they are likely meant to be something else, like a function body)
+	for _, v := range stopAt {
+		if v == "{" {
+			*i--
+			return nil
+		}
 	}
 
 	//arrays are written like:

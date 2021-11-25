@@ -22,7 +22,7 @@ type VarDecl struct {
 	decltyp     data.Type
 }
 
-func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int) error {
+func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 
 	*i++
 

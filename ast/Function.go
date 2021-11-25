@@ -18,7 +18,7 @@ type Function struct {
 	isMethod bool
 }
 
-func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
+func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e error) {
 	*i++ //skip the "fn" token
 
 	if lex[*i].Type == "varname" {

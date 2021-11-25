@@ -47,7 +47,7 @@ func escString(b []byte) []byte {
 	return fin
 }
 
-func (s *String) Parse(lex []tokenizer.Token, i *int) error {
+func (s *String) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 
 	sv := lex[*i].Name
 

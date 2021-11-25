@@ -12,7 +12,7 @@ type IfStatement struct {
 	ElseBody  []*ASTNode
 }
 
-func (is *IfStatement) Parse(lex []tokenizer.Token, i *int) error {
+func (is *IfStatement) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	return ifwhileParse(is, lex, i)
 }
 

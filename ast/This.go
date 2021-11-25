@@ -7,7 +7,7 @@ import (
 
 type This struct{}
 
-func (t *This) Parse(lex []tokenizer.Token, i *int) error {
+func (t *This) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	return nil
 }
 

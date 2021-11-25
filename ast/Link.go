@@ -13,7 +13,7 @@ type Link struct {
 	Access                                                          int
 }
 
-func (l *Link) Parse(lex []tokenizer.Token, i *int) error {
+func (l *Link) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 
 	//format looks like
 	//	link fn tusk_name() -> asm_name

@@ -18,12 +18,12 @@ type Construct struct {
 	params []*ir.Param
 }
 
-func (c *Construct) Parse(lex []tokenizer.Token, i *int) error {
+func (c *Construct) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 
 	*i++
 
 	var fnobj = &Function{}
-	e := fnobj.Parse(lex, i) //functions and constructors are (surprisingly enough :p) structured the same
+	e := fnobj.Parse(lex, i, stopAt) //functions and constructors are (surprisingly enough :p) structured the same
 
 	fnobj.isMethod = true
 

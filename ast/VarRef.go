@@ -9,7 +9,7 @@ type VarRef struct {
 	Name string
 }
 
-func (vr *VarRef) Parse(lex []tokenizer.Token, i *int) error {
+func (vr *VarRef) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	vr.Name = lex[*i].Name
 	return nil
 }

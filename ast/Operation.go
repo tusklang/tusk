@@ -10,7 +10,7 @@ type Operation struct {
 	Token  *tokenizer.Token
 }
 
-func (o *Operation) Parse(lex []tokenizer.Token, i *int) error {
+func (o *Operation) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 
 	o.Token = &lex[*i]
 	o.OpType = lex[*i].Name

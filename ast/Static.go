@@ -9,7 +9,7 @@ type Static struct {
 	Declaration *ASTNode
 }
 
-func (s *Static) Parse(lex []tokenizer.Token, i *int) (e error) {
+func (s *Static) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e error) {
 	return parseAccessSpec(s, lex, i)
 }
 

@@ -9,7 +9,7 @@ type Return struct {
 	Val *ASTNode
 }
 
-func (r *Return) Parse(lex []tokenizer.Token, i *int) error {
+func (r *Return) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 
 	*i++
 

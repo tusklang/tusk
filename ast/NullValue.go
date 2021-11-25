@@ -7,7 +7,7 @@ import (
 
 type NullValue struct{}
 
-func (nv *NullValue) Parse(lex []tokenizer.Token, i *int) error {
+func (nv *NullValue) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	return nil
 }
 

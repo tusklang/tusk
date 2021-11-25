@@ -32,7 +32,7 @@ func getValue(tok tokenizer.Token) data.Value {
 	return nil
 }
 
-func (dv *DataValue) Parse(lex []tokenizer.Token, i *int) error {
+func (dv *DataValue) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	dv.Value = getValue(lex[*i])
 	return nil
 }

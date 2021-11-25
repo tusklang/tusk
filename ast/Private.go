@@ -9,7 +9,7 @@ type Private struct {
 	Declaration *ASTNode
 }
 
-func (p *Private) Parse(lex []tokenizer.Token, i *int) (e error) {
+func (p *Private) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e error) {
 	return parseAccessSpec(p, lex, i)
 }
 

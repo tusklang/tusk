@@ -20,7 +20,7 @@ var bmatches = map[string]string{
 var allopeners = []string{"{", "("}
 var allclosers = []string{"}", ")"}
 
-func (b *Block) Parse(lex []tokenizer.Token, i *int) (e error) {
+func (b *Block) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e error) {
 
 	if lex[*i].Type != "(" && lex[*i].Type != "{" {
 		return errors.New("given lex is not a group")
