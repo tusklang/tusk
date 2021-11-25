@@ -2,6 +2,7 @@ package ast
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
@@ -132,6 +133,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		} else {
 			//compiler error
 			//variable value type doesn't match inputted type
+			fmt.Println("var typ no match")
 		}
 	}
 

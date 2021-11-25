@@ -232,8 +232,18 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 	compiler.OperationStore.NewOperation("[]", "fixed&array", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
 		farr := left.TType().(*data.FixedArray)
-		gept := types.NewArray(farr.Length(), farr.ValType().Type())
-		gep := block.NewGetElementPtr(gept, left.LLVal(block), constant.NewInt(types.I32, 0), right.LLVal(block))
+		gept := farr.Type()
+
+		//might be a bit of a hack solution, but since a fixed array's llval gives the loaded array rather than the array's pointer
+		//we need to create a pointer for GEP here...
+		//so we need another alloca...
+
+		alc := block.NewAlloca(gept)
+		block.NewStore(left.LLVal(block), alc)
+
+		//llvm optimization should take care of it... right?
+
+		gep := block.NewGetElementPtr(gept, alc, constant.NewInt(types.I32, 0), right.LLVal(block))
 		gep.InBounds = true
 		return data.NewVariable(
 			gep,

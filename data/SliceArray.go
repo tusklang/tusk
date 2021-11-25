@@ -55,7 +55,11 @@ func (a *SliceArray) Default() constant.Constant {
 	return constant.NewNull(types.NewPointer(a.atype.Type()))
 }
 
-func (a *SliceArray) Equals(Type) bool {
+func (a *SliceArray) Equals(t Type) bool {
+	switch c := t.(type) {
+	case *SliceArray:
+		return a.ValType().Equals(c.ValType())
+	}
 	return false
 }
 

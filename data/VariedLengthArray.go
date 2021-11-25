@@ -57,7 +57,11 @@ func (a *VariedLengthArray) Default() constant.Constant {
 	return constant.NewUndef(a.Type())
 }
 
-func (a *VariedLengthArray) Equals(Type) bool {
+func (a *VariedLengthArray) Equals(t Type) bool {
+	switch c := t.(type) {
+	case *VariedLengthArray:
+		return a.ValType().Equals(c.ValType())
+	}
 	return false
 }
 

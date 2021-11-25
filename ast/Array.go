@@ -4,6 +4,7 @@ import (
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
+	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -17,6 +18,9 @@ type Array struct {
 	//the first statement is being used an expression
 	//the second statement is being used an index
 	useAsIndex bool
+
+	//if the array has an initializer list ({1, 2, 3})
+	hasInit bool
 
 	//used during compiling
 	csiz data.Value
@@ -55,6 +59,10 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int) error {
 		a.Typ = typ[0]
 	}
 
+	if *i >= len(lex) {
+		return nil
+	}
+
 	//arrays are written like:
 	//var v: []Type = []Type{}
 	//if there is no { after the type, then it is being used as the var type
@@ -68,6 +76,7 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int) error {
 		}
 
 		a.Arr = arr
+		a.hasInit = true
 	} else {
 		//there was no array content
 		*i--
@@ -78,26 +87,31 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int) error {
 
 func (a *Array) CompileSlice(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 
-	block := function.ActiveBlock
-	decl := block.NewAlloca(types.NewPointer(a.ctyp.Type()))
-	decl.Align = 8
+	var decl value.Value
 
-	mallocf := compiler.LinkedFunctions["malloc"]
-	mallocc := block.NewCall(mallocf, block.NewMul(
-		constant.NewInt(types.I32, int64(len(a.Arr))),
-		constant.NewInt(types.I32, int64(a.ctyp.Alignment())),
-	))
+	if a.hasInit {
+		block := function.ActiveBlock
+		tdecl := block.NewAlloca(types.NewPointer(a.ctyp.Type()))
+		tdecl.Align = 8
+		decl = tdecl
 
-	block.NewStore(block.NewBitCast(
-		mallocc,
-		types.NewPointer(a.ctyp.Type()),
-	), decl)
+		mallocf := compiler.LinkedFunctions["malloc"]
+		mallocc := block.NewCall(mallocf, block.NewMul(
+			constant.NewInt(types.I32, int64(len(a.Arr))),
+			constant.NewInt(types.I32, int64(a.ctyp.Alignment())),
+		))
 
-	loadeddecl := block.NewLoad(types.NewPointer(a.ctyp.Type()), decl)
-	for k, v := range a.Arr {
-		vc := v.Group.Compile(compiler, class, v, function)
-		gep := block.NewGetElementPtr(a.ctyp.Type(), loadeddecl, constant.NewInt(types.I32, int64(k)))
-		block.NewStore(vc.LLVal(block), gep)
+		block.NewStore(block.NewBitCast(
+			mallocc,
+			types.NewPointer(a.ctyp.Type()),
+		), decl)
+
+		loadeddecl := block.NewLoad(types.NewPointer(a.ctyp.Type()), decl)
+		for k, v := range a.Arr {
+			vc := v.Group.Compile(compiler, class, v, function)
+			gep := block.NewGetElementPtr(a.ctyp.Type(), loadeddecl, constant.NewInt(types.I32, int64(k)))
+			block.NewStore(vc.LLVal(block), gep)
+		}
 	}
 
 	return data.NewSliceArray(a.ctyp, decl, nil)
@@ -106,48 +120,64 @@ func (a *Array) CompileSlice(compiler *Compiler, class *data.Class, node *ASTNod
 func (a *Array) CompileFixedArray(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 
 	sizi := a.csiz.(*data.Integer).GetInt()
+	var decl value.Value
+	var curlen value.Value
 
-	block := function.ActiveBlock
-	arrtyp := types.NewArray(uint64(sizi), a.ctyp.Type())
-	decl := block.NewAlloca(arrtyp)
-	decl.Align = ir.Align(16)
+	if a.hasInit {
 
-	//fill the array with the values needed
-	for k, v := range a.Arr {
-		vc := v.Group.Compile(compiler, class, v, function)
-		gep := block.NewGetElementPtr(arrtyp, decl, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, int64(k)))
-		block.NewStore(vc.LLVal(block), gep)
+		block := function.ActiveBlock
+		arrtyp := types.NewArray(uint64(sizi), a.ctyp.Type())
+		tdecl := block.NewAlloca(arrtyp)
+		tdecl.Align = ir.Align(16)
+
+		decl = tdecl
+
+		//fill the array with the values needed
+		for k, v := range a.Arr {
+			vc := v.Group.Compile(compiler, class, v, function)
+			gep := block.NewGetElementPtr(arrtyp, decl, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, int64(k)))
+			block.NewStore(vc.LLVal(block), gep)
+		}
+
+		curlen := block.NewAlloca(types.I32)
+		block.NewStore(constant.NewInt(types.I32, sizi), curlen)
 	}
-
-	curlen := block.NewAlloca(types.I32)
-	block.NewStore(constant.NewInt(types.I32, sizi), curlen)
 
 	return data.NewFixedArray(a.ctyp, decl, curlen, uint64(sizi))
 }
 
 func (a *Array) CompileVariedLengthArray(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 
-	sizi := a.csiz
-
-	block := function.ActiveBlock
-
-	sizill := sizi.LLVal(block)
-
-	alc := block.NewAlloca(a.ctyp.Type())
-	alc.NElems = sizill
-	alc.Align = ir.Align(16)
-
-	curlen := block.NewAlloca(types.I32)
-	curlen.Align = ir.Align(4)
-	block.NewStore(sizill, curlen)
-
-	for k, v := range a.Arr {
-		vc := v.Group.Compile(compiler, class, v, function)
-		gep := block.NewGetElementPtr(a.ctyp.Type(), alc, constant.NewInt(types.I32, int64(k)))
-		block.NewStore(vc.LLVal(block), gep)
+	if function == nil || function.ActiveBlock == nil {
+		//error
+		//cannot use varied length arrays outside of a function
 	}
 
-	return data.NewVariedLengthArray(a.ctyp, alc, curlen, alc.NElems)
+	sizi := a.csiz
+	var curlen value.Value
+	var alc *ir.InstAlloca
+	block := function.ActiveBlock
+	sizill := sizi.LLVal(block)
+
+	if a.hasInit {
+
+		alc = block.NewAlloca(a.ctyp.Type())
+		alc.NElems = sizill
+		alc.Align = ir.Align(16)
+
+		tcurlen := block.NewAlloca(types.I32)
+		tcurlen.Align = ir.Align(4)
+		block.NewStore(sizill, tcurlen)
+		curlen = tcurlen
+
+		for k, v := range a.Arr {
+			vc := v.Group.Compile(compiler, class, v, function)
+			gep := block.NewGetElementPtr(a.ctyp.Type(), alc, constant.NewInt(types.I32, int64(k)))
+			block.NewStore(vc.LLVal(block), gep)
+		}
+	}
+
+	return data.NewVariedLengthArray(a.ctyp, alc, curlen, sizill)
 }
 
 func (a *Array) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
