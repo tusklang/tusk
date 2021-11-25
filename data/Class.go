@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -82,7 +81,7 @@ func (c *Class) NewMethod(name string, fn *Function, access int) {
 	}
 }
 
-func (c *Class) LLVal(block *ir.Block) value.Value {
+func (c *Class) LLVal(function *Function) value.Value {
 	return nil
 }
 

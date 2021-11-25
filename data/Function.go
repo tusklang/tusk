@@ -96,7 +96,7 @@ func CloneFunc(f *Function) *Function {
 	return ret
 }
 
-func (f *Function) LLVal(block *ir.Block) value.Value {
+func (f *Function) LLVal(function *Function) value.Value {
 	return f.LLFunc
 }
 

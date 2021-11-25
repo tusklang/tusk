@@ -97,7 +97,7 @@ func (c *Construct) CompileConstructor(compiler *Compiler, class *data.Class) er
 		args[k] = v
 	}
 
-	function.ActiveBlock.NewCall(constructor.LLVal(function.ActiveBlock), append([]value.Value{class.ConstructAlloc}, args...)...)
+	function.ActiveBlock.NewCall(constructor.LLVal(function), append([]value.Value{class.ConstructAlloc}, args...)...)
 
 	return nil
 }

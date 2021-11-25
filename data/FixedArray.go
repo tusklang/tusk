@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -31,7 +30,7 @@ func (a *FixedArray) Length() uint64 {
 	return a.length
 }
 
-func (a *FixedArray) LLVal(block *ir.Block) value.Value {
+func (a *FixedArray) LLVal(function *Function) value.Value {
 
 	//we load decl and return it
 	//if you are wondering why, a variable uses a value's LLVal() to store
@@ -93,7 +92,7 @@ func (a *FixedArray) LLVal(block *ir.Block) value.Value {
 	//but if we allocate more data, we can override `decl`'s pointer's value
 	//i was kinda confused on that, so thanks @Whimpers#3099 for clearing that up to me :)
 
-	return block.NewLoad(a.Type(), a.decl)
+	return function.ActiveBlock.NewLoad(a.Type(), a.decl)
 }
 
 func (a *FixedArray) TType() Type {
@@ -105,8 +104,10 @@ func (a *FixedArray) Type() types.Type {
 }
 
 func (a *FixedArray) TypeData() *TypeData {
-	td := NewTypeData("array")
-	td.AddFlag("fixed")
+	td := NewTypeData("fixed")
+	td.AddFlag("array")
+	td.AddOtherDat("valtyp", a.ValType().(Value))
+	td.AddOtherDat("length", NewInteger(constant.NewInt(types.I32, int64(a.Length()))))
 	return td
 }
 

@@ -35,12 +35,7 @@ func matchOpdef(val data.Value, opdef string) bool {
 	}
 
 	//special flags
-	if (opdef == "class" || opdef == "instance" || opdef == "ptr" || opdef == "type" || opdef == "var") && val.TypeData().HasFlag(opdef) {
-		return true
-	}
-
-	//arrays
-	if (opdef == "slice" || opdef == "fixed" || opdef == "varied") && val.TypeData().HasFlag(opdef) {
+	if (opdef == "class" || opdef == "instance" || opdef == "ptr" || opdef == "type" || opdef == "var" || opdef == "array") && val.TypeData().HasFlag(opdef) {
 		return true
 	}
 

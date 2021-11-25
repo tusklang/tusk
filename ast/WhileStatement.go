@@ -38,7 +38,7 @@ func (ws *WhileStatement) Compile(compiler *Compiler, class *data.Class, node *A
 	rest := function.LLFunc.NewBlock("") //block to store the rest of the code (after this while statement)
 
 	cond := ws.Condition[0].Group.Compile(compiler, class, ws.Condition[0], function)
-	wscond.NewCondBr(cond.LLVal(wscond), wsbod, rest)
+	wscond.NewCondBr(cond.LLVal(function), wsbod, rest)
 
 	function.ActiveBlock = wsbod
 

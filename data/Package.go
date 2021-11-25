@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
@@ -41,7 +40,7 @@ func (p *Package) ReferenceFromStart() []*Package {
 	return append(p.parent.ReferenceFromStart(), p)
 }
 
-func (p *Package) LLVal(block *ir.Block) value.Value {
+func (p *Package) LLVal(function *Function) value.Value {
 	return nil
 }
 

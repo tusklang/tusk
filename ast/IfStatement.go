@@ -38,7 +38,7 @@ func (is *IfStatement) Compile(compiler *Compiler, class *data.Class, node *ASTN
 		falseblock = function.LLFunc.NewBlock("")
 	)
 
-	function.ActiveBlock.NewCondBr(cond.LLVal(function.ActiveBlock), trueblock, falseblock)
+	function.ActiveBlock.NewCondBr(cond.LLVal(function), trueblock, falseblock)
 
 	//block to store the intructions that come after the if statement
 	var restActs = function.LLFunc.NewBlock("")

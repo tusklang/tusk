@@ -25,9 +25,9 @@ func (r *Return) Compile(compiler *Compiler, class *data.Class, node *ASTNode, f
 	crval := r.Val.Group.Compile(compiler, class, r.Val, function) //compile the return val
 
 	if !crval.TType().Equals(function.RetType()) {
-		crval = compiler.CastStore.RunCast(true, function.RetType().TypeData().Name(), crval, compiler, function.ActiveBlock, class)
+		crval = compiler.CastStore.RunCast(true, function.RetType(), crval, compiler, function, class)
 	}
 
-	function.ActiveBlock.NewRet(crval.LLVal(function.ActiveBlock))
+	function.ActiveBlock.NewRet(crval.LLVal(function))
 	return nil
 }

@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -25,8 +24,8 @@ func (a *SliceArray) ValType() Type {
 	return a.atype
 }
 
-func (a *SliceArray) LLVal(block *ir.Block) value.Value {
-	return block.NewLoad(types.NewPointer(a.atype.Type()), a.decl)
+func (a *SliceArray) LLVal(function *Function) value.Value {
+	return function.ActiveBlock.NewLoad(types.NewPointer(a.atype.Type()), a.decl)
 }
 
 func (a *SliceArray) TValue() Value {
@@ -42,8 +41,9 @@ func (a *SliceArray) Type() types.Type {
 }
 
 func (a *SliceArray) TypeData() *TypeData {
-	td := NewTypeData("array")
-	td.AddFlag("slice")
+	td := NewTypeData("slice")
+	td.AddFlag("array")
+	td.AddOtherDat("valtyp", a.ValType().(Value))
 	return td
 }
 

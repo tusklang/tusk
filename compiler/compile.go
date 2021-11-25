@@ -243,7 +243,7 @@ func Compile(prog *initialize.Program, outfile string) {
 	for _, v := range cclasses {
 		if v.Name == prog.Config.Entry {
 			//entry class
-			mblock.NewCall(v.Static["main"].Value.LLVal(mblock))
+			mblock.NewCall(v.Static["main"].Value.LLVal(nil))
 		}
 	}
 

@@ -16,7 +16,15 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 	compiler.OperationStore = ast.NewOperationStore()
 
-	compiler.OperationStore.NewOperation("=", "var", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("=", "var", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+
+		if !left.TType().Equals(right.TType()) {
+			right = compiler.CastStore.RunCast(true, left.TType(), right, compiler, function, class)
+			if right == nil {
+				//error
+				//dst and src types don't match
+			}
+		}
 
 		var varv value.Value
 
@@ -27,9 +35,9 @@ func initDefaultOps(compiler *ast.Compiler) {
 			varv = varvt.FetchAssig()
 		}
 
-		toassign := right.LLVal(block)
+		toassign := right.LLVal(function)
 
-		block.NewStore(toassign, varv)
+		function.ActiveBlock.NewStore(toassign, varv)
 
 		return left
 	})
@@ -41,28 +49,28 @@ func initDefaultOps(compiler *ast.Compiler) {
 		//because we use v in the operations, we need a v value that is persistent for each iteration
 		var v = _v
 
-		compiler.OperationStore.NewOperation("+", k, k, func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
-			return data.NewInstVariable(block.NewAdd(left.LLVal(block), right.LLVal(block)), v)
+		compiler.OperationStore.NewOperation("+", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+			return data.NewInstVariable(function.ActiveBlock.NewAdd(left.LLVal(function), right.LLVal(function)), v)
 		})
 
-		compiler.OperationStore.NewOperation("-", k, k, func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
-			return data.NewInstVariable(block.NewSub(left.LLVal(block), right.LLVal(block)), v)
+		compiler.OperationStore.NewOperation("-", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+			return data.NewInstVariable(function.ActiveBlock.NewSub(left.LLVal(function), right.LLVal(function)), v)
 		})
 
-		compiler.OperationStore.NewOperation("*", k, k, func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
-			return data.NewInstVariable(block.NewMul(left.LLVal(block), right.LLVal(block)), v)
+		compiler.OperationStore.NewOperation("*", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+			return data.NewInstVariable(function.ActiveBlock.NewMul(left.LLVal(function), right.LLVal(function)), v)
 		})
 
-		compiler.OperationStore.NewOperation("/", k, k, func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
-			return data.NewInstVariable(block.NewSDiv(left.LLVal(block), right.LLVal(block)), v)
+		compiler.OperationStore.NewOperation("/", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+			return data.NewInstVariable(function.ActiveBlock.NewSDiv(left.LLVal(function), right.LLVal(function)), v)
 		})
 	}
 
-	compiler.OperationStore.NewOperation("->", "type", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
-		return compiler.CastStore.RunCast(false, left.TypeData().Name(), right, compiler, block, class)
+	compiler.OperationStore.NewOperation("->", "type", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		return compiler.CastStore.RunCast(false, left.(data.Type), right, compiler, function, class)
 	})
 
-	compiler.OperationStore.NewOperation(".", "package", "udvar", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation(".", "package", "udvar", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
 		pack := left.(*data.Package)
 		sub := right.(*data.UndeclaredVar).Name
@@ -80,7 +88,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return cclass
 	})
 
-	compiler.OperationStore.NewOperation(".", "class", "udvar", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation(".", "class", "udvar", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
 		cclass := left.(*data.Class)
 		sub := right.(*data.UndeclaredVar).Name
@@ -94,9 +102,9 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return cclass.Static[sub].Value
 	})
 
-	compiler.OperationStore.NewOperation(".", "instance", "udvar", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation(".", "instance", "udvar", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
-		inst := left.LLVal(block)
+		inst := left.LLVal(function)
 		sub := right.(*data.UndeclaredVar).Name
 
 		classt := left.TType().(*data.Instance).Class
@@ -134,7 +142,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 			return cloned
 		case "var":
 			//instance variable
-			gep := block.NewGetElementPtr(
+			gep := function.ActiveBlock.NewGetElementPtr(
 				classt.SType,
 				inst,
 				constant.NewInt(types.I32, 0),
@@ -154,9 +162,9 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return nil
 	})
 
-	compiler.OperationStore.NewOperation("()", "func", "fncallb", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("()", "func", "fncallb", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
-		f := left.LLVal(block)
+		f := left.LLVal(function)
 		fcb := right.(*data.FnCallBlock)
 
 		tf := left.TType().(*data.Function)
@@ -176,17 +184,17 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 		for k, v := range tf.ParamTypes {
 			if !v.Equals(fcb.Args[k].TType()) {
-				if cast := compiler.CastStore.RunCast(true, v.TypeData().Name(), fcb.Args[k], compiler, block, class); cast != nil {
+				if cast := compiler.CastStore.RunCast(true, v, fcb.Args[k], compiler, function, class); cast != nil {
 					fcb.Args[k] = cast
 				} else {
 					//compiler error
 					//variable value type doesn't match inputted type
 				}
 			}
-			args = append(args, fcb.Args[k].LLVal(block))
+			args = append(args, fcb.Args[k].LLVal(function))
 		}
 
-		var call value.Value = block.NewCall(f, args...)
+		var call value.Value = function.ActiveBlock.NewCall(f, args...)
 
 		if left.TypeData().HasFlag("linked") {
 			call.(*ir.InstCall).Sig().Params = nil
@@ -197,10 +205,10 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 			if types.IsPointer(rettype) {
 				//use a bitcast for a pointer return
-				call = block.NewBitCast(call, rettype)
+				call = function.ActiveBlock.NewBitCast(call, rettype)
 			} else if types.IsInt(rettype) {
 				//use an ptrtoint cast for an integer return
-				call = block.NewPtrToInt(call, rettype)
+				call = function.ActiveBlock.NewPtrToInt(call, rettype)
 			}
 
 		}
@@ -211,18 +219,18 @@ func initDefaultOps(compiler *ast.Compiler) {
 		)
 	})
 
-	compiler.OperationStore.NewOperation("()", "class", "fncallb", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("()", "class", "fncallb", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
 		cclass := left.(*data.Class)
 		fcb := right.(*data.FnCallBlock)
 
-		return compiler.OperationStore.RunOperation(cclass.Construct, fcb, "()", compiler, block, class)
+		return compiler.OperationStore.RunOperation(cclass.Construct, fcb, "()", compiler, function, class)
 	})
 
 	//array indexing
-	compiler.OperationStore.NewOperation("[]", "slice&array", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("[]", "slice&array", "i32", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		gept := left.TType().(*data.SliceArray).ValType().Type()
-		gep := block.NewGetElementPtr(gept, left.LLVal(block), right.LLVal(block))
+		gep := function.ActiveBlock.NewGetElementPtr(gept, left.LLVal(function), right.LLVal(function))
 		gep.InBounds = true
 		return data.NewVariable(
 			gep,
@@ -230,7 +238,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 		)
 	})
 
-	compiler.OperationStore.NewOperation("[]", "fixed&array", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("[]", "fixed&array", "i32", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		farr := left.TType().(*data.FixedArray)
 		gept := farr.Type()
 
@@ -238,12 +246,12 @@ func initDefaultOps(compiler *ast.Compiler) {
 		//we need to create a pointer for GEP here...
 		//so we need another alloca...
 
-		alc := block.NewAlloca(gept)
-		block.NewStore(left.LLVal(block), alc)
+		alc := function.ActiveBlock.NewAlloca(gept)
+		function.ActiveBlock.NewStore(left.LLVal(function), alc)
 
 		//llvm optimization should take care of it... right?
 
-		gep := block.NewGetElementPtr(gept, alc, constant.NewInt(types.I32, 0), right.LLVal(block))
+		gep := function.ActiveBlock.NewGetElementPtr(gept, alc, constant.NewInt(types.I32, 0), right.LLVal(function))
 		gep.InBounds = true
 		return data.NewVariable(
 			gep,
@@ -251,10 +259,10 @@ func initDefaultOps(compiler *ast.Compiler) {
 		)
 	})
 
-	compiler.OperationStore.NewOperation("[]", "varied&array", "i32", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("[]", "varied&array", "i32", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		varr := left.TType().(*data.VariedLengthArray)
 		gept := varr.ValType().Type()
-		gep := block.NewGetElementPtr(gept, left.LLVal(block), right.LLVal(block))
+		gep := function.ActiveBlock.NewGetElementPtr(gept, left.LLVal(function), right.LLVal(function))
 		gep.InBounds = true
 		return data.NewVariable(
 			gep,
@@ -263,14 +271,14 @@ func initDefaultOps(compiler *ast.Compiler) {
 	})
 	////////////////
 
-	compiler.OperationStore.NewOperation("*", "-", "ptr&var", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("*", "-", "ptr&var", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewVariable(
-			right.LLVal(block),
+			right.LLVal(function),
 			right.TType().(*data.Pointer).PType(),
 		)
 	})
 
-	compiler.OperationStore.NewOperation("*", "-", "type", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("*", "-", "type", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
 		ptrt := data.NewPointer(right.TType())
 		ptrt.SetToType() //make it a type, not a value
@@ -278,49 +286,49 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return ptrt
 	})
 
-	compiler.OperationStore.NewOperation("==", "*", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("==", "*", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(
-			block.NewICmp(enum.IPredEQ, left.LLVal(block), right.LLVal(block)),
+			function.ActiveBlock.NewICmp(enum.IPredEQ, left.LLVal(function), right.LLVal(function)),
 			data.NewPrimitive(types.I1),
 		)
 	})
 
-	compiler.OperationStore.NewOperation("!=", "*", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("!=", "*", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(
-			block.NewICmp(enum.IPredNE, left.LLVal(block), right.LLVal(block)),
+			function.ActiveBlock.NewICmp(enum.IPredNE, left.LLVal(function), right.LLVal(function)),
 			data.NewPrimitive(types.I1),
 		)
 	})
 
-	compiler.OperationStore.NewOperation(">", "*", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation(">", "*", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(
-			block.NewZExt(block.NewICmp(enum.IPredUGT, left.LLVal(block), right.LLVal(block)), types.I32),
+			function.ActiveBlock.NewZExt(function.ActiveBlock.NewICmp(enum.IPredUGT, left.LLVal(function), right.LLVal(function)), types.I32),
 			data.NewPrimitive(types.I1),
 		)
 	})
 
-	compiler.OperationStore.NewOperation(">=", "*", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation(">=", "*", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(
-			block.NewICmp(enum.IPredUGE, left.LLVal(block), right.LLVal(block)),
+			function.ActiveBlock.NewICmp(enum.IPredUGE, left.LLVal(function), right.LLVal(function)),
 			data.NewPrimitive(types.I1),
 		)
 	})
 
-	compiler.OperationStore.NewOperation("<", "*", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("<", "*", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(
-			block.NewICmp(enum.IPredULT, left.LLVal(block), right.LLVal(block)),
+			function.ActiveBlock.NewICmp(enum.IPredULT, left.LLVal(function), right.LLVal(function)),
 			data.NewPrimitive(types.I1),
 		)
 	})
 
-	compiler.OperationStore.NewOperation("<=", "*", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("<=", "*", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(
-			block.NewICmp(enum.IPredULE, left.LLVal(block), right.LLVal(block)),
+			function.ActiveBlock.NewICmp(enum.IPredULE, left.LLVal(function), right.LLVal(function)),
 			data.NewPrimitive(types.I1),
 		)
 	})
 
-	compiler.OperationStore.NewOperation("&", "-", "var", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("&", "-", "var", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		vd := data.NewInstVariable(
 			right.(*data.Variable).FetchAssig(),
 			data.NewPointer(right.(*data.Variable).TType()),

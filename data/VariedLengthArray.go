@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -27,7 +26,7 @@ func (a *VariedLengthArray) ValType() Type {
 	return a.atype
 }
 
-func (a *VariedLengthArray) LLVal(block *ir.Block) value.Value {
+func (a *VariedLengthArray) LLVal(function *Function) value.Value {
 	return a.decl
 }
 
@@ -44,8 +43,10 @@ func (a *VariedLengthArray) Type() types.Type {
 }
 
 func (a *VariedLengthArray) TypeData() *TypeData {
-	td := NewTypeData("array")
-	td.AddFlag("varied")
+	td := NewTypeData("varied")
+	td.AddFlag("array")
+	td.AddOtherDat("valtyp", a.ValType().(Value))
+	td.AddOtherDat("length", NewInstVariable(a.length, NewPrimitive(a.length.Type())))
 	return td
 }
 

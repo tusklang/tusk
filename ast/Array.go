@@ -110,7 +110,7 @@ func (a *Array) CompileSlice(compiler *Compiler, class *data.Class, node *ASTNod
 		for k, v := range a.Arr {
 			vc := v.Group.Compile(compiler, class, v, function)
 			gep := block.NewGetElementPtr(a.ctyp.Type(), loadeddecl, constant.NewInt(types.I32, int64(k)))
-			block.NewStore(vc.LLVal(block), gep)
+			block.NewStore(vc.LLVal(function), gep)
 		}
 	}
 
@@ -136,7 +136,7 @@ func (a *Array) CompileFixedArray(compiler *Compiler, class *data.Class, node *A
 		for k, v := range a.Arr {
 			vc := v.Group.Compile(compiler, class, v, function)
 			gep := block.NewGetElementPtr(arrtyp, decl, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, int64(k)))
-			block.NewStore(vc.LLVal(block), gep)
+			block.NewStore(vc.LLVal(function), gep)
 		}
 
 		curlen := block.NewAlloca(types.I32)
@@ -153,11 +153,11 @@ func (a *Array) CompileVariedLengthArray(compiler *Compiler, class *data.Class, 
 		//cannot use varied length arrays outside of a function
 	}
 
-	sizi := a.csiz
+	sizi := compiler.CastStore.RunCast(true, data.NewPrimitive(types.I64), a.csiz, compiler, function, class) //force the length to an i64
 	var curlen value.Value
 	var alc *ir.InstAlloca
 	block := function.ActiveBlock
-	sizill := sizi.LLVal(block)
+	sizill := sizi.LLVal(function)
 
 	if a.hasInit {
 
@@ -165,7 +165,7 @@ func (a *Array) CompileVariedLengthArray(compiler *Compiler, class *data.Class, 
 		alc.NElems = sizill
 		alc.Align = ir.Align(16)
 
-		tcurlen := block.NewAlloca(types.I32)
+		tcurlen := block.NewAlloca(sizill.Type())
 		tcurlen.Align = ir.Align(4)
 		block.NewStore(sizill, tcurlen)
 		curlen = tcurlen
@@ -173,7 +173,7 @@ func (a *Array) CompileVariedLengthArray(compiler *Compiler, class *data.Class, 
 		for k, v := range a.Arr {
 			vc := v.Group.Compile(compiler, class, v, function)
 			gep := block.NewGetElementPtr(a.ctyp.Type(), alc, constant.NewInt(types.I32, int64(k)))
-			block.NewStore(vc.LLVal(block), gep)
+			block.NewStore(vc.LLVal(function), gep)
 		}
 	}
 

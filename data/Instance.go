@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -17,7 +16,7 @@ func NewInstance(class *Class) *Instance {
 	}
 }
 
-func (i *Instance) LLVal(block *ir.Block) value.Value {
+func (i *Instance) LLVal(function *Function) value.Value {
 	return nil
 }
 

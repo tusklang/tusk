@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/value"
 
@@ -37,7 +36,7 @@ func (i *Integer) GetInt() int64 {
 	return i.value.X.Int64()
 }
 
-func (i *Integer) LLVal(block *ir.Block) value.Value {
+func (i *Integer) LLVal(function *Function) value.Value {
 
 	if i.untyped {
 		return constant.NewInt(types.I32, i.UTypVal)

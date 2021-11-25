@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -37,7 +36,7 @@ func (p *Primitive) Default() constant.Constant {
 	return &constant.Null{}
 }
 
-func (p *Primitive) LLVal(block *ir.Block) value.Value {
+func (p *Primitive) LLVal(function *Function) value.Value {
 	return nil
 }
 

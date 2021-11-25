@@ -128,7 +128,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 
 	if !vtype.Equals(varval.TType()) {
 
-		if cast := compiler.CastStore.RunCast(true, vtype.TypeData().Name(), varval, compiler, function.ActiveBlock, class); cast != nil {
+		if cast := compiler.CastStore.RunCast(true, vtype, varval, compiler, function, class); cast != nil {
 			varval = cast
 		} else {
 			//compiler error
@@ -137,7 +137,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		}
 	}
 
-	if llv := varval.LLVal(function.ActiveBlock); llv != nil {
+	if llv := varval.LLVal(function); llv != nil {
 		function.ActiveBlock.NewStore(llv, decl)
 	}
 
@@ -207,5 +207,5 @@ func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *data.Class, function
 		vd.declaration = gep
 	}
 
-	function.ActiveBlock.NewStore(val.LLVal(function.ActiveBlock), vd.declaration)
+	function.ActiveBlock.NewStore(val.LLVal(function), vd.declaration)
 }

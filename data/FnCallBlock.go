@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
@@ -14,7 +13,7 @@ func NewFnCallBlock() *FnCallBlock {
 	return &FnCallBlock{}
 }
 
-func (fcb *FnCallBlock) LLVal(block *ir.Block) value.Value {
+func (fcb *FnCallBlock) LLVal(function *Function) value.Value {
 	return nil
 }
 

@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
@@ -12,7 +11,7 @@ func NewNull() *Null {
 	return &Null{}
 }
 
-func (n *Null) LLVal(block *ir.Block) value.Value {
+func (n *Null) LLVal(function *Function) value.Value {
 	return nil
 }
 

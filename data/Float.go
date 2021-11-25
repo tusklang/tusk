@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/value"
 
@@ -29,7 +28,7 @@ func NewUntypedFloat(v float64) *Float {
 	}
 }
 
-func (f *Float) LLVal(block *ir.Block) value.Value {
+func (f *Float) LLVal(function *Function) value.Value {
 
 	if f.untyped {
 		return constant.NewFloat(types.Double, f.UTypVal)

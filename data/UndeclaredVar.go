@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
@@ -23,7 +22,7 @@ func NewUndeclaredVar(name string) *UndeclaredVar {
 	}
 }
 
-func (uv *UndeclaredVar) LLVal(block *ir.Block) value.Value {
+func (uv *UndeclaredVar) LLVal(function *Function) value.Value {
 	return nil
 }
 

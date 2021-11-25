@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
@@ -18,8 +17,8 @@ func NewInstanceVariable(v *Variable, o value.Value) *InstanceVariable {
 	}
 }
 
-func (v *InstanceVariable) LLVal(block *ir.Block) value.Value {
-	return v.variable.LLVal(block)
+func (v *InstanceVariable) LLVal(function *Function) value.Value {
+	return v.variable.LLVal(function)
 }
 
 func (v *InstanceVariable) TType() Type {

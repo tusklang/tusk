@@ -22,7 +22,7 @@ func (s *String) Init(gd *ir.Global) {
 	s.gd = gd
 }
 
-func (s *String) LLVal(block *ir.Block) value.Value {
+func (s *String) LLVal(function *Function) value.Value {
 
 	//https://github.com/nektro/slate/blob/master/pgk/parse/llvm/llvm.go#L49
 	//took a lot from there >_>
