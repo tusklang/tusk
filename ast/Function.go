@@ -54,7 +54,7 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e erro
 					Name: v.Left[0].Group.(*VarRef).Name,
 					Type: v.Right[0],
 				}
-			case "*":
+			case "#":
 				plist[k] = &VarDecl{
 					Type: v,
 				}

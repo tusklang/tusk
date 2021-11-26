@@ -261,14 +261,14 @@ func initDefaultOps(compiler *ast.Compiler) {
 	})
 	////////////////
 
-	compiler.OperationStore.NewOperation("*", "-", "ptr&var", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("#", "-", "ptr&var", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewVariable(
 			right.LLVal(function),
 			right.TType().(*data.Pointer).PType(),
 		)
 	})
 
-	compiler.OperationStore.NewOperation("*", "-", "type", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("#", "-", "type", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
 		ptrt := data.NewPointer(right.TType())
 		ptrt.SetToType() //make it a type, not a value
@@ -318,7 +318,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 		)
 	})
 
-	compiler.OperationStore.NewOperation("&", "-", "var", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("@", "-", "var", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		vd := data.NewInstVariable(
 			right.(*data.Variable).FetchAssig(),
 			data.NewPointer(right.(*data.Variable).TType()),

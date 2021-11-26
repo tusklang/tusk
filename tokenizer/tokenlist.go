@@ -28,6 +28,8 @@ var tokenlist = []TokenItem{
 
 	/************ operators ************/
 	{("\\-\\>"), "operation"}, // ->
+	{("\\@"), "operation"},    // @
+	{("\\#"), "operation"},    // #
 	{("\\+"), "operation"},    // +
 	{("\\-"), "operation"},    // -
 	{("\\*"), "operation"},    // *

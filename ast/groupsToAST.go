@@ -21,53 +21,70 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 
 	var opList = []map[string]func(exp []Group, index int) ([]*ASTNode, error){
 		{
-			";": termOpHandle,
-			",": termOpHandle,
+			";":   termOpHandle,
+			",":   termOpHandle,
+			"ltr": nil, //ltr associativity
 		},
 		{
-			"=":  defaultOperationHandle,
-			"->": defaultOperationHandle,
+			"=":   defaultOperationHandle,
+			"ltr": nil,
 		},
 		{
-			":": defaultOperationHandle,
+			":":   defaultOperationHandle,
+			"ltr": nil,
 		},
 		{
-			"&": defaultOperationHandle,
+			"&":   defaultOperationHandle,
+			"ltr": nil,
 		},
 		{
-			"|": defaultOperationHandle,
+			"|":   defaultOperationHandle,
+			"ltr": nil,
 		},
 		{
-			"^": defaultOperationHandle,
+			"^":   defaultOperationHandle,
+			"ltr": nil,
 		},
 		{
-			"==": defaultOperationHandle,
-			"!=": defaultOperationHandle,
+			"==":  defaultOperationHandle,
+			"!=":  defaultOperationHandle,
+			"ltr": nil,
 		},
 		{
-			"<=": defaultOperationHandle,
-			"<":  defaultOperationHandle,
-			">":  defaultOperationHandle,
-			">=": defaultOperationHandle,
+			"<=":  defaultOperationHandle,
+			"<":   defaultOperationHandle,
+			">":   defaultOperationHandle,
+			">=":  defaultOperationHandle,
+			"ltr": nil,
 		},
 		{
-			"+": defaultOperationHandle,
-			"-": defaultOperationHandle,
+			"+":   defaultOperationHandle,
+			"-":   defaultOperationHandle,
+			"ltr": nil,
 		},
 		{
-			"*": defaultOperationHandle,
-			"/": defaultOperationHandle,
+			"*":   defaultOperationHandle,
+			"/":   defaultOperationHandle,
+			"ltr": nil,
 		},
 		{
-			"**": defaultOperationHandle,
+			".":   defaultOperationHandle,
+			"[]":  nil, //array index
+			"()":  nil, //function call
+			"ltr": nil,
 		},
 		{
-			".":  defaultOperationHandle,
-			"[]": nil, //array index
-			"()": nil, //function call
+			"~":   defaultOperationHandle,
+			"rtl": nil,
 		},
 		{
-			"~": defaultOperationHandle,
+			"@":   defaultOperationHandle,
+			"#":   defaultOperationHandle,
+			"rtl": nil,
+		},
+		{
+			"->":  defaultOperationHandle,
+			"ltr": nil,
 		},
 		//lower on this list means greater precedence
 	}
@@ -75,11 +92,41 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 	//go through all the operation groups
 	for _, v := range opList {
 
-		//go through all the items
-		//reverse order for left to right associativity
-		for i := len(items) - 1; i >= 0; i-- {
+		var start int
+		var cond func(int) bool
+		var inc func(*int)
+
+		if _, ltr := v["ltr"]; ltr {
+			//it has ltr assoc
+			start = len(items) - 1
+			cond = func(i int) bool {
+				return i >= 0
+			}
+			inc = func(i *int) {
+				*i--
+			}
+		} else if _, rtl := v["rtl"]; rtl {
+			//it has rtl assoc
+			start = 0
+			cond = func(i int) bool {
+				return i < len(items)
+			}
+			inc = func(i *int) {
+				*i++
+			}
+		} else {
+			//error
+			//internal tusk malfunction
+		}
+
+		for i := start; cond(i); inc(&i) {
 
 			for k, vv := range v {
+
+				if k == "ltr" || k == "rtl" {
+					//associativity props
+					continue
+				}
 
 				switch g := items[i].(type) {
 				case *Operation:
