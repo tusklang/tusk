@@ -118,7 +118,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	//untyped values don't exist in llvm, so we force them to doubles/i32
 	switch vtype.(type) {
 	case *data.UntypeFloatType:
-		vtype = data.NewPrimitive(types.Double)
+		vtype = data.NewNamedPrimitive(types.Double, "f64")
 	case *data.UntypeIntType:
 		vtype = data.NewPrimitive(types.I32)
 	}

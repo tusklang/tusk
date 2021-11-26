@@ -1,10 +1,6 @@
 link fn printf(*i8, i32);
 
-pub stat fn test() [3]i32 {
-    return [3]i32{1, 2, 3};
-};
-
 pub stat fn main() {
-    var test2 = test();
-    printf("%d\n", test2[i32 -> 1]);
+    var test: []i32 = [3]i32{1, 2, 3};
+    printf("%d\n", test[1]);
 };

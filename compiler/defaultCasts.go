@@ -17,10 +17,10 @@ var (
 	floattypes = []string{"f32", "f64"}
 )
 
-func addCastArray(compiler *ast.Compiler, typArr []string, fromType string, fn func(tname string, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value) {
+func addCastArray(auto bool, compiler *ast.Compiler, typArr []string, fromType string, fn func(tname string, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value) {
 	for _, _v := range typArr {
 		v := _v
-		compiler.CastStore.NewCast(true, v, fromType, func(toType data.Type, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		compiler.CastStore.NewCast(auto, v, fromType, func(toType data.Type, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 			return fn(v, fromData, compiler, function, class)
 		})
 	}
@@ -118,19 +118,19 @@ func initDefaultCasts(compiler *ast.Compiler) {
 	})
 
 	//add casts from untyped numeric vals
-	addCastArray(compiler, append(inttypes, uinttypes...), "untypedint", func(tname string, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	addCastArray(true, compiler, append(inttypes, uinttypes...), "untypedint", func(tname string, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(constant.NewInt(numtypes[tname].Type().(*types.IntType), fromData.(*data.Integer).UTypVal), numtypes[tname])
 	})
 
-	addCastArray(compiler, floattypes, "untypedint", func(tname string, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	addCastArray(true, compiler, floattypes, "untypedint", func(tname string, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(constant.NewFloat(numtypes[tname].Type().(*types.FloatType), float64(fromData.(*data.Integer).UTypVal)), numtypes[tname])
 	})
 
-	addCastArray(compiler, append(inttypes, uinttypes...), "untypedfloat", func(tname string, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	addCastArray(false, compiler, append(inttypes, uinttypes...), "untypedfloat", func(tname string, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(constant.NewInt(numtypes[tname].Type().(*types.IntType), int64(fromData.(*data.Float).UTypVal)), numtypes[tname])
 	})
 
-	addCastArray(compiler, floattypes, "untypedfloat", func(tname string, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	addCastArray(true, compiler, floattypes, "untypedfloat", func(tname string, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(constant.NewFloat(numtypes[tname].Type().(*types.FloatType), fromData.(*data.Float).UTypVal), numtypes[tname])
 	})
 

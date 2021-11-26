@@ -16,6 +16,8 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 	compiler.OperationStore = ast.NewOperationStore()
 
+	addNumOps(compiler)
+
 	compiler.OperationStore.NewOperation("=", "var", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
 		if !left.TType().Equals(right.TType()) {
@@ -41,30 +43,6 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 		return left
 	})
-
-	//add all arithmetic operators for numeric types
-	for k, _v := range numtypes {
-
-		//the v declared in the loop changes per iteration
-		//because we use v in the operations, we need a v value that is persistent for each iteration
-		var v = _v
-
-		compiler.OperationStore.NewOperation("+", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
-			return data.NewInstVariable(function.ActiveBlock.NewAdd(left.LLVal(function), right.LLVal(function)), v)
-		})
-
-		compiler.OperationStore.NewOperation("-", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
-			return data.NewInstVariable(function.ActiveBlock.NewSub(left.LLVal(function), right.LLVal(function)), v)
-		})
-
-		compiler.OperationStore.NewOperation("*", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
-			return data.NewInstVariable(function.ActiveBlock.NewMul(left.LLVal(function), right.LLVal(function)), v)
-		})
-
-		compiler.OperationStore.NewOperation("/", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
-			return data.NewInstVariable(function.ActiveBlock.NewSDiv(left.LLVal(function), right.LLVal(function)), v)
-		})
-	}
 
 	compiler.OperationStore.NewOperation("->", "type", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return compiler.CastStore.RunCast(false, left.(data.Type), right, compiler, function, class)
@@ -237,6 +215,10 @@ func initDefaultOps(compiler *ast.Compiler) {
 			left.TType().(*data.SliceArray).ValType(),
 		)
 	})
+	compiler.OperationStore.NewOperation("[]", "slice&array", "untypedint", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		untypeToI32 := data.NewInteger(right.LLVal(function).(*constant.Int))
+		return compiler.OperationStore.RunOperation(left, untypeToI32, "[]", compiler, function, class)
+	})
 
 	compiler.OperationStore.NewOperation("[]", "fixed&array", "i32", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		farr := left.TType().(*data.FixedArray)
@@ -258,6 +240,10 @@ func initDefaultOps(compiler *ast.Compiler) {
 			farr.ValType(),
 		)
 	})
+	compiler.OperationStore.NewOperation("[]", "fixed&array", "untypedint", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		untypeToI32 := data.NewInteger(right.LLVal(function).(*constant.Int))
+		return compiler.OperationStore.RunOperation(left, untypeToI32, "[]", compiler, function, class)
+	})
 
 	compiler.OperationStore.NewOperation("[]", "varied&array", "i32", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		varr := left.TType().(*data.VariedLengthArray)
@@ -268,6 +254,10 @@ func initDefaultOps(compiler *ast.Compiler) {
 			gep,
 			varr.ValType(),
 		)
+	})
+	compiler.OperationStore.NewOperation("[]", "varied&array", "untypedint", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		untypeToI32 := data.NewInteger(right.LLVal(function).(*constant.Int))
+		return compiler.OperationStore.RunOperation(left, untypeToI32, "[]", compiler, function, class)
 	})
 	////////////////
 
