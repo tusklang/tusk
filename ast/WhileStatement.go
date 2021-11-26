@@ -47,6 +47,12 @@ func (ws *WhileStatement) Compile(compiler *Compiler, class *data.Class, node *A
 
 	ws.Body[0].Group.Compile(compiler, class, ws.Body[0], function)
 
+	if function.ActiveBlock != wsbod {
+		//if the activeblock was changed during the body compilation
+		//then the terminator of the block jumps to the wscond
+		function.ActiveBlock.Term = gotoCond
+	}
+
 	function.ActiveBlock = rest
 
 	//if the pushed `goto` to the term stack was not used, pop it still

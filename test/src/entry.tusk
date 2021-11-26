@@ -1,6 +1,14 @@
 link fn printf(*i8, i32);
 
 pub stat fn main() {
-    var test: []i32 = [3]i32{1, 2, 3};
-    printf("%d\n", test[1]);
+    var i = 1;
+    var b: i64 = 500;
+    while (i <= (i32 -> b)) {
+        var test: []i32 = [i]i32{};
+        var test2: []i64 = [i * 2]i64{};
+        test[i] = i * 102;
+        test2[i * 2] = 102;
+        printf("%d\n", (i64 -> test[i]) + test2[i * 2]);
+        i = i + 1;
+    };
 };
