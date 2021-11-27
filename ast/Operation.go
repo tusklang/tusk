@@ -1,21 +1,28 @@
 package ast
 
 import (
+	"fmt"
+
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
 type Operation struct {
 	OpType string
-	Token  *tokenizer.Token
+	tok    tokenizer.Token
 }
 
 func (o *Operation) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 
-	o.Token = &lex[*i]
+	o.tok = lex[*i]
 	o.OpType = lex[*i].Name
 
 	return nil
+}
+
+func (o *Operation) GetMTok() tokenizer.Token {
+	return o.tok
 }
 
 func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
@@ -52,5 +59,30 @@ func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode
 	}
 
 	rop := compiler.OperationStore.RunOperation(lc, rc, o.OpType, compiler, function, class)
+
+	if rop == nil {
+
+		var lct, rct string
+
+		if lc == nil {
+			lct = "none"
+		} else {
+			lct = lc.TType().TypeData().String()
+		}
+
+		if rc == nil {
+			rct = "none"
+		} else {
+			rct = rc.TType().TypeData().String()
+		}
+
+		compiler.AddError(errhandle.NewTuskErrorFTok(
+			"invalid operation",
+			fmt.Sprintf("'%s' operation not found for %s and %s", o.OpType, lct, rct),
+			o.GetMTok(),
+		))
+		return data.NewInvalidType()
+	}
+
 	return rop
 }

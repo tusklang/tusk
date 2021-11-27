@@ -10,6 +10,8 @@ import (
 type Block struct {
 	BlockType string
 	Sub       []*ASTNode
+
+	tok tokenizer.Token
 }
 
 var bmatches = map[string]string{
@@ -26,6 +28,8 @@ func (b *Block) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e error) 
 		return errors.New("given lex is not a group")
 	}
 
+	b.tok = lex[*i]
+
 	b.BlockType = lex[*i].Type
 
 	gcontent := grouper(braceMatcher(lex, i, []string{lex[*i].Type}, []string{bmatches[lex[*i].Type]}, true, ""))
@@ -37,6 +41,10 @@ func (b *Block) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e error) 
 	}
 
 	return nil
+}
+
+func (b *Block) GetMTok() tokenizer.Token {
+	return b.tok
 }
 
 func (b *Block) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {

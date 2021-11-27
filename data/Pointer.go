@@ -39,6 +39,7 @@ func (p *Pointer) LLVal(function *Function) value.Value {
 
 func (p *Pointer) TypeData() *TypeData {
 	td := *p.typ.TypeData()
+	td.nam += "#"
 	td.AddFlag("ptr")
 
 	if p.isType {

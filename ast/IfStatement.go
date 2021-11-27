@@ -10,10 +10,25 @@ type IfStatement struct {
 	Condition []*ASTNode
 	Body      []*ASTNode
 	ElseBody  []*ASTNode
+
+	//tokens used
+	stok, condtok, btok tokenizer.Token
 }
 
 func (is *IfStatement) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	return ifwhileParse(is, lex, i)
+}
+
+func (is *IfStatement) SetSTok(t tokenizer.Token) {
+	is.stok = t
+}
+
+func (is *IfStatement) SetCondTok(t tokenizer.Token) {
+	is.condtok = t
+}
+
+func (is *IfStatement) SetBTok(t tokenizer.Token) {
+	is.btok = t
 }
 
 func (is *IfStatement) SetCond(g []*ASTNode) {
@@ -26,6 +41,10 @@ func (is *IfStatement) SetBody(g []*ASTNode) {
 
 func (is *IfStatement) Type() string {
 	return "if"
+}
+
+func (is *IfStatement) GetMTok() tokenizer.Token {
+	return is.stok
 }
 
 func (is *IfStatement) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {

@@ -1,10 +1,12 @@
 package tokenizer
 
 import (
+	"strings"
+
 	"github.com/dlclark/regexp2"
 )
 
-func Tokenizer(data string) (tokens []Token) {
+func Tokenizer(data, filenam string) (tokens []Token) {
 
 	c := 0 //current index in the file string
 
@@ -38,10 +40,12 @@ func Tokenizer(data string) (tokens []Token) {
 				matched := match.Group.Capture.String()
 
 				tokens = append(tokens, Token{
-					Name: matched,
-					Type: v.tokentype,
-					Row:  row,
-					Col:  col,
+					Name:    matched,
+					Type:    v.tokentype,
+					File:    filenam,
+					Snippet: strings.Split(data, "\n")[row-1],
+					Row:     row,
+					Col:     col,
 				})
 
 				if matched == "\n" {
@@ -75,13 +79,10 @@ func Tokenizer(data string) (tokens []Token) {
 			}
 			return false
 		}()) {
-			wsRem = append(wsRem, Token{
-				Name: v.Name,
-				Type: v.Name,
-				Row:  v.Row,
-				Col:  v.Col,
-			})
-			continue
+			//it's a keyword
+			//set the type to the name, as a keyword's type is it's name
+			//e.g. var's type is var
+			v.Type = v.Name
 		}
 
 		wsRem = append(wsRem, v)

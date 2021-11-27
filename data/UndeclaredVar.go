@@ -27,7 +27,7 @@ func (uv *UndeclaredVar) LLVal(function *Function) value.Value {
 }
 
 func (uv *UndeclaredVar) TType() Type {
-	return nil
+	return NewInvalidType()
 }
 
 func (uv *UndeclaredVar) Type() types.Type {

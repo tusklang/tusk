@@ -10,6 +10,9 @@ type IfWhile interface {
 	SetCond([]*ASTNode)
 	SetBody([]*ASTNode)
 	Type() string
+	SetSTok(tokenizer.Token)
+	SetCondTok(tokenizer.Token)
+	SetBTok(tokenizer.Token)
 }
 
 func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) error {
@@ -18,8 +21,11 @@ func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) error {
 		return errors.New("token given does not match parse expectation")
 	}
 
+	statement.SetSTok(lex[*i])
+
 	*i++
 
+	statement.SetCondTok(lex[*i])
 	cg := grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, ""))
 	ca, e := groupsToAST(cg)
 	if e != nil {
@@ -29,6 +35,7 @@ func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) error {
 
 	*i++
 
+	statement.SetBTok(lex[*i])
 	bg := grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator"))
 	ba, e := groupsToAST(bg)
 	if e != nil {

@@ -7,9 +7,13 @@ import (
 
 type Return struct {
 	Val *ASTNode
+
+	tok tokenizer.Token
 }
 
 func (r *Return) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+
+	r.tok = lex[*i]
 
 	*i++
 
@@ -24,6 +28,10 @@ func (r *Return) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	r.Val = retvalAST[0]
 
 	return e
+}
+
+func (r *Return) GetMTok() tokenizer.Token {
+	return r.tok
 }
 
 func (r *Return) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {

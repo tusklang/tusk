@@ -9,10 +9,25 @@ import (
 type WhileStatement struct {
 	Condition []*ASTNode
 	Body      []*ASTNode
+
+	//tokens used
+	stok, condtok, btok tokenizer.Token
 }
 
 func (ws *WhileStatement) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	return ifwhileParse(ws, lex, i)
+}
+
+func (ws *WhileStatement) SetSTok(t tokenizer.Token) {
+	ws.stok = t
+}
+
+func (ws *WhileStatement) SetCondTok(t tokenizer.Token) {
+	ws.condtok = t
+}
+
+func (ws *WhileStatement) SetBTok(t tokenizer.Token) {
+	ws.btok = t
 }
 
 func (ws *WhileStatement) SetCond(g []*ASTNode) {
@@ -25,6 +40,10 @@ func (ws *WhileStatement) SetBody(g []*ASTNode) {
 
 func (ws *WhileStatement) Type() string {
 	return "while"
+}
+
+func (ws *WhileStatement) GetMTok() tokenizer.Token {
+	return ws.stok
 }
 
 func (ws *WhileStatement) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {

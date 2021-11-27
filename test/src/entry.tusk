@@ -1,9 +1,4 @@
-link fn printf(#i8, i32);
-
 pub stat fn main() {
     var a = 1;
-    var b = @a;
-    var c = @b;
-    var d = ##c;
-    printf("%d\n", d);
+    var b = a[1];
 };

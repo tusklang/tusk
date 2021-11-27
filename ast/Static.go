@@ -7,14 +7,21 @@ import (
 
 type Static struct {
 	Declaration *ASTNode
+
+	tok tokenizer.Token
 }
 
 func (s *Static) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e error) {
+	s.tok = lex[*i]
 	return parseAccessSpec(s, lex, i)
 }
 
 func (s *Static) SetDecl(node *ASTNode) {
 	s.Declaration = node
+}
+
+func (s *Static) GetMTok() tokenizer.Token {
+	return s.tok
 }
 
 //cannot be compiled

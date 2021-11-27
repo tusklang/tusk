@@ -16,9 +16,13 @@ type Construct struct {
 	//during compilation
 	cfnc   *data.Function
 	params []*ir.Param
+
+	tok tokenizer.Token
 }
 
 func (c *Construct) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+
+	c.tok = lex[*i]
 
 	*i++
 
@@ -38,6 +42,10 @@ func (c *Construct) Parse(lex []tokenizer.Token, i *int, stopAt []string) error 
 	c.FnObj = fnobj
 
 	return nil
+}
+
+func (c *Construct) GetMTok() tokenizer.Token {
+	return c.tok
 }
 
 //cannot be compiled like this

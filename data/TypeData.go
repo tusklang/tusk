@@ -33,3 +33,13 @@ func (td TypeData) GetOtherDat(name string) Value {
 func (td *TypeData) AddOtherDat(name string, value Value) {
 	td.otherdat[name] = value
 }
+
+func (td *TypeData) String() string {
+	base := td.Name()
+
+	if td.HasFlag("ptr") {
+		base = "#" + base[:len(base)-1]
+	}
+
+	return base
+}

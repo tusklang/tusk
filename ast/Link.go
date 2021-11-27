@@ -11,12 +11,16 @@ type Link struct {
 	stname /*<- stored tname after varname mangling*/, TName, AName string
 	DType                                                           *ASTNode
 	Access                                                          int
+
+	tok tokenizer.Token
 }
 
 func (l *Link) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 
 	//format looks like
 	//	link fn tusk_name() -> asm_name
+
+	l.tok = lex[*i]
 
 	*i++
 
@@ -50,6 +54,10 @@ func (l *Link) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	fnd[0].(*Function).Name = "" //remove the name, explained in Function.go
 
 	return nil
+}
+
+func (l *Link) GetMTok() tokenizer.Token {
+	return l.tok
 }
 
 func (l *Link) addToClass(lf *ir.Func, compiler *Compiler, dtype data.Value, class *data.Class) data.Value {

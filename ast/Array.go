@@ -22,12 +22,19 @@ type Array struct {
 	//if the array has an initializer list ({1, 2, 3})
 	hasInit bool
 
+	//tokens used
+	btok, typtok, arrtok tokenizer.Token
+	/////////////
+
 	//used during compiling
 	csiz data.Value
 	ctyp data.Type
 }
 
 func (a *Array) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+
+	a.btok = lex[*i]
+
 	sizl := braceMatcher(lex, i, []string{"[", "{", "("}, []string{"]", "}", ")"}, true, "")
 	*i++
 	sizg := grouper(sizl)
@@ -48,7 +55,9 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 		return nil
 	}
 
+	//parse the typename
 	if lex[*i].Type == "(" || lex[*i].Type == "varname" {
+		a.typtok = lex[*i]
 		typg := groupSpecific(lex, i, nil, 1)
 		typ, e := groupsToAST(typg)
 
@@ -76,6 +85,7 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	//var v: []Type = []Type{}
 	//if there is no { after the type, then it is being used as the var type
 	if lex[*i].Type == "{" {
+		a.typtok = lex[*i]
 		arrl := braceMatcher(lex, i, []string{"{"}, []string{"}"}, true, "")
 		arrg := grouper(arrl)
 		arr, e := groupsToAST(arrg)
@@ -92,6 +102,10 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	}
 
 	return nil
+}
+
+func (a *Array) GetMTok() tokenizer.Token {
+	return a.btok
 }
 
 func (a *Array) CompileSlice(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {

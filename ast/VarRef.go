@@ -7,11 +7,17 @@ import (
 
 type VarRef struct {
 	Name string
+	tok  tokenizer.Token
 }
 
 func (vr *VarRef) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	vr.Name = lex[*i].Name
+	vr.tok = lex[*i]
 	return nil
+}
+
+func (vr *VarRef) GetMTok() tokenizer.Token {
+	return vr.tok
 }
 
 func (vr *VarRef) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {

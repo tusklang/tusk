@@ -7,5 +7,6 @@ import (
 
 type Group interface {
 	Parse([]tokenizer.Token, *int, []string) error
+	GetMTok() tokenizer.Token
 	Compile(*Compiler, *data.Class, *ASTNode, *data.Function) data.Value
 }

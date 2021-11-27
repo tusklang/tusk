@@ -9,6 +9,7 @@ import (
 
 type DataValue struct {
 	Value data.Value
+	tok   tokenizer.Token
 }
 
 func parseInt(n string) int64 {
@@ -34,7 +35,12 @@ func getValue(tok tokenizer.Token) data.Value {
 
 func (dv *DataValue) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	dv.Value = getValue(lex[*i])
+	dv.tok = lex[*i]
 	return nil
+}
+
+func (dv *DataValue) GetMTok() tokenizer.Token {
+	return dv.tok
 }
 
 func (dv *DataValue) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {

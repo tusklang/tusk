@@ -16,14 +16,19 @@ type Function struct {
 	Body     *Block     //function body
 	RetType  *ASTNode   //return type
 	isMethod bool
+
+	//tokens used
+	ftok, ntok, ptok, rtok, btok tokenizer.Token
 }
 
 func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e error) {
+	f.ftok = lex[*i]
 	*i++ //skip the "fn" token
 
 	if lex[*i].Type == "varname" {
 		//read the function name if there is one
 		f.Name = lex[*i].Name
+		f.ntok = lex[*i]
 		*i++
 	}
 
@@ -31,6 +36,8 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e erro
 		//error
 		//functions require a parameter list
 	}
+
+	f.ptok = lex[*i]
 
 	p, e := groupsToAST(grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, "")))
 
@@ -79,7 +86,8 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e erro
 
 	if lex[*i].Type != "{" && lex[*i].Type != "terminator" {
 		//read the return type
-		//if there is no body or terminator next, it has to be a return
+		//if there is no body or terminator next, it has to be a return type
+		f.rtok = lex[*i]
 		rtg := groupSpecific(lex, i, []string{"{", ";"}, -1)
 		rt, e := groupsToAST(rtg)
 
@@ -91,12 +99,17 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e erro
 	}
 
 	if *i < len(lex) && lex[*i].Type == "{" {
+		f.btok = lex[*i]
 		f.Body = grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, ""))[0].(*Block)
 		return nil
 	}
 
 	*i--
 	return nil
+}
+
+func (f *Function) GetMTok() tokenizer.Token {
+	return f.ftok
 }
 
 func (f *Function) CompileSig(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) *data.Function {

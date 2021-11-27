@@ -130,7 +130,7 @@ func groupsToAST(items []Group) ([]*ASTNode, error) {
 
 				switch g := items[i].(type) {
 				case *Operation:
-					if g.Token.Name == k {
+					if g.GetMTok().Name == k {
 						return vv(items, i)
 					}
 				case *Array:

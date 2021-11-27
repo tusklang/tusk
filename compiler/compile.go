@@ -9,11 +9,10 @@ import (
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/initialize"
 	"github.com/tusklang/tusk/varprocessor"
 )
-
-var processor = varprocessor.NewProcessor()
 
 var inttypeV = map[string]data.Type{
 	"i128": data.NewPrimitive(types.I128),
@@ -75,6 +74,8 @@ func Compile(prog *initialize.Program, outfile string) {
 
 	initDefaultOps(&compiler)
 	initDefaultCasts(&compiler)
+
+	var processor = varprocessor.NewProcessor(&compiler)
 
 	//initialize the operations
 	var initfunc = m.NewFunc("_tusk_init", types.Void) //initialize func ran before main
@@ -249,6 +250,15 @@ func Compile(prog *initialize.Program, outfile string) {
 		}
 
 		c.Construct.ActiveBlock.NewRet(c.ConstructAlloc) //return the allocated object at the end of the 'new' function
+	}
+
+	if compiler.Errors != nil {
+		//there were some compile-time errors
+		for _, v := range compiler.Errors {
+			v.Print()
+		}
+		errhandle.PKill()
+		return
 	}
 
 	//declare the llvm entry function

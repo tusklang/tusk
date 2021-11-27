@@ -7,14 +7,21 @@ import (
 
 type Private struct {
 	Declaration *ASTNode
+
+	tok tokenizer.Token
 }
 
 func (p *Private) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e error) {
+	p.tok = lex[*i]
 	return parseAccessSpec(p, lex, i)
 }
 
 func (p *Private) SetDecl(node *ASTNode) {
 	p.Declaration = node
+}
+
+func (p *Private) GetMTok() tokenizer.Token {
+	return p.tok
 }
 
 //cannot be compiled

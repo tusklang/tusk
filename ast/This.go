@@ -5,10 +5,17 @@ import (
 	"github.com/tusklang/tusk/tokenizer"
 )
 
-type This struct{}
+type This struct {
+	tok tokenizer.Token
+}
 
 func (t *This) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+	t.tok = lex[*i]
 	return nil
+}
+
+func (t *This) GetMTok() tokenizer.Token {
+	return t.tok
 }
 
 func (t *This) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {

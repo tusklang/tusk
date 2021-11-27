@@ -10,6 +10,8 @@ import (
 
 type String struct {
 	dstring *data.String
+
+	tok tokenizer.Token
 }
 
 func espAppend(b []byte, val byte) []byte {
@@ -49,6 +51,8 @@ func escString(b []byte) []byte {
 
 func (s *String) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 
+	s.tok = lex[*i]
+
 	sv := lex[*i].Name
 
 	sv = strings.TrimSuffix(strings.TrimPrefix(sv, "\""), "\"") //remove the leading and trailing quotes
@@ -58,6 +62,10 @@ func (s *String) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	)
 
 	return nil
+}
+
+func (s *String) GetMTok() tokenizer.Token {
+	return s.tok
 }
 
 func (s *String) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {

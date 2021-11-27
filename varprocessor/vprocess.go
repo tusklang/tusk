@@ -2,6 +2,7 @@ package varprocessor
 
 import (
 	"github.com/tusklang/tusk/ast"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/initialize"
 )
 
@@ -66,6 +67,11 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
 			if !(ex1 || ex2) {
 				//error
 				//there isn't a variable declared with that name
+				p.compiler.AddError(errhandle.NewTuskErrorFTok(
+					"undefined variable",
+					"",
+					g.GetMTok(),
+				))
 			}
 
 			//if the outer scope doesn't include the var ref, it's in the current scope

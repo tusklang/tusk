@@ -17,6 +17,7 @@ func arrIndexHandle(items []Group, i int) ([]*ASTNode, error) {
 			Right: args,
 			Group: &Operation{
 				OpType: "[]",
+				tok:    items[i].GetMTok(),
 			},
 		},
 	}, e1

@@ -9,6 +9,7 @@ import (
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -17,6 +18,13 @@ type VarDecl struct {
 	Type  *ASTNode
 	Value *ASTNode
 
+	//tokens in the decl
+	kwtok,
+	vnametok,
+	typtok,
+	valtok tokenizer.Token
+	////////////////////
+
 	//for globals
 	declaration value.Value
 	decltyp     data.Type
@@ -24,11 +32,15 @@ type VarDecl struct {
 
 func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 
+	vd.kwtok = lex[*i]
+
 	*i++
 
 	if lex[*i].Type != "varname" {
 		return errors.New("expected a variable name")
 	}
+
+	vd.vnametok = lex[*i]
 
 	vd.Name = lex[*i].Name
 
@@ -37,6 +49,7 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	//has a specified type
 	if lex[*i].Name == ":" {
 		*i++
+		vd.typtok = lex[*i]
 		t, e := groupsToAST(groupSpecific(lex, i, []string{"=", ";"}, -1))
 		if e != nil {
 			return e
@@ -47,6 +60,7 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	//has a value assigned to it
 	if lex[*i].Name == "=" {
 		*i++
+		vd.valtok = lex[*i]
 		v, e := groupsToAST(grouper(braceMatcher(lex, i, allopeners, allclosers, false, "terminator")))
 		if e != nil {
 			return e
@@ -57,6 +71,10 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	*i-- //the outer loop will incremenet for us
 
 	return nil
+}
+
+func (vd *VarDecl) GetMTok() tokenizer.Token {
+	return vd.kwtok
 }
 
 func (vd *VarDecl) getDeclType(compiler *Compiler, class *data.Class, function *data.Function) data.Type {
@@ -115,6 +133,16 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		//cannot determine what type this variable is
 	}
 
+	switch varval.(type) {
+	case *data.InvalidType:
+		compiler.AddError(errhandle.NewTuskErrorFTok(
+			"invalid value",
+			"",
+			vd.valtok,
+		))
+		return nil
+	}
+
 	//untyped values don't exist in llvm, so we force them to doubles/i32
 	switch vtype.(type) {
 	case *data.UntypeFloatType:
@@ -133,7 +161,12 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		} else {
 			//compiler error
 			//variable value type doesn't match inputted type
-			fmt.Println("var typ no match")
+			compiler.AddError(errhandle.NewTuskErrorFTok(
+				"mismatched types",
+				fmt.Sprintf("expected type %s", varval.TType().TypeData().String()),
+				vd.typtok,
+			))
+			return nil
 		}
 	}
 

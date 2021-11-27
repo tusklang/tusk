@@ -17,7 +17,7 @@ func parseFile(name string) (*File, error) {
 		return nil, e
 	}
 
-	lex := tokenizer.Tokenizer(string(f))
+	lex := tokenizer.Tokenizer(string(f), name)
 	generatedAST, e := ast.GenerateAST(lex)
 
 	if e != nil {
