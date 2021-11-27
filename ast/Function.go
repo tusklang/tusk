@@ -6,6 +6,7 @@ import (
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 
 	"github.com/tusklang/tusk/tokenizer"
 )
@@ -149,6 +150,12 @@ func (f *Function) CompileSig(compiler *Compiler, class *data.Class, node *ASTNo
 		//function names are only for global functions
 		//we remove the name of the function from the object when compiling a global function
 		//if it has a name, it is in a local scope, and it was not declared anonymous
+		compiler.AddError(errhandle.NewTuskErrorFTok(
+			"named lambda",
+			"lambda functions cannot be named, try assigning the function to a variable",
+			f.ntok,
+		))
+		return nil
 	}
 
 	rf := ir.NewFunc("", rt.Type(), params...)
@@ -165,6 +172,11 @@ func (f *Function) CompileSig(compiler *Compiler, class *data.Class, node *ASTNo
 }
 
 func (f *Function) CompileBody(ffunc *data.Function, compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) {
+
+	if ffunc == nil {
+		return
+	}
+
 	rf := ffunc.LLFunc
 
 	if f.Body != nil {

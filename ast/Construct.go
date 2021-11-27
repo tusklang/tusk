@@ -7,6 +7,7 @@ import (
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -25,6 +26,10 @@ func (c *Construct) Parse(lex []tokenizer.Token, i *int, stopAt []string) error 
 	c.tok = lex[*i]
 
 	*i++
+
+	if lex[*i].Type != "fn" {
+		return errors.New("constructors must be functions")
+	}
 
 	var fnobj = &Function{}
 	e := fnobj.Parse(lex, i, stopAt) //functions and constructors are (surprisingly enough :p) structured the same
@@ -89,6 +94,12 @@ func (c *Construct) CompileConstructor(compiler *Compiler, class *data.Class) er
 	default:
 		//error
 		//expected a function
+		compiler.AddError(errhandle.NewTuskErrorFTok(
+			"constructors must be functions",
+			"",
+			c.tok,
+		))
+		return nil
 	}
 
 	constructor := _constructor.(*data.Function)
@@ -96,6 +107,12 @@ func (c *Construct) CompileConstructor(compiler *Compiler, class *data.Class) er
 	if !constructor.RetType().Equals(data.NewPrimitive(types.Void)) {
 		//error
 		//constructors cannot have return types
+		compiler.AddError(errhandle.NewTuskErrorFTok(
+			"constructors cannot have return types",
+			"",
+			c.tok,
+		))
+		return nil
 	}
 
 	//convert the params into args to call the new llvm ir func ^

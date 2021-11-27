@@ -6,6 +6,7 @@ import (
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -171,9 +172,15 @@ func (a *Array) CompileFixedArray(compiler *Compiler, class *data.Class, node *A
 
 func (a *Array) CompileVariedLengthArray(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 
-	if function == nil || function.ActiveBlock == nil {
+	if function == nil || function.ActiveBlock == nil || function == compiler.InitFunc {
 		//error
 		//cannot use varied length arrays outside of a function
+		compiler.AddError(errhandle.NewTuskErrorFTok(
+			"invalid varied array",
+			"cannot use a varied array outside of a function body",
+			a.btok,
+		))
+		return nil
 	}
 
 	sizi := compiler.CastStore.RunCast(true, data.NewPrimitive(types.I64), a.csiz, compiler, function, class) //force the length to an i64

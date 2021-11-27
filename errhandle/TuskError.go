@@ -78,9 +78,11 @@ func (e *TuskError) Print() {
 	//(yes i know strings.TrimSpace but we also need to count it to subtract it from the col)
 	//(because when we print the arrow, we rely on col)
 	//(and if col isn't subtracted from then we'd be printing farther away)
-	for t, _ := whitespaceR.MatchString(string(snipp[0])); t; t, _ = whitespaceR.MatchString(string(snipp[0])) {
-		snipp = snipp[1:]
-		colp--
+	if len(snipp) != 0 {
+		for t, _ := whitespaceR.MatchString(string(snipp[0])); t; t, _ = whitespaceR.MatchString(string(snipp[0])) {
+			snipp = snipp[1:]
+			colp--
+		}
 	}
 
 	e.printlinepad(true)

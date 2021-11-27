@@ -106,6 +106,11 @@ func (vd *VarDecl) getDeclType(compiler *Compiler, class *data.Class, function *
 		vtype = vt
 	default:
 		//error
+		compiler.AddError(errhandle.NewTuskErrorFTok(
+			"invalid type",
+			"value cannot be used as a type",
+			vd.typtok,
+		))
 	}
 
 	return vtype
@@ -119,6 +124,10 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	if vd.Value == nil && vd.Type != nil {
 		//var varname: typename
 		vtype = vd.getDeclType(compiler, class, function)
+		if vtype == nil {
+			//invalid type
+			return nil
+		}
 		varval = data.NewInstVariable(vtype.Default(), vtype)
 	} else if vd.Value != nil && vd.Type == nil {
 		//var varname = value
@@ -127,11 +136,21 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	} else if vd.Value != nil && vd.Type != nil {
 		//var varname: typename = value;
 		vtype = vd.getDeclType(compiler, class, function)
+		if vtype == nil {
+			//invalid type
+			return nil
+		}
 		varval = vd.Value.Group.Compile(compiler, class, vd.Value, function)
 	} else {
 		//var varname
 		//error
 		//cannot determine what type this variable is
+		compiler.AddError(errhandle.NewTuskErrorFTok(
+			"cannot infer type",
+			"provide a type or a value for this variable",
+			vd.vnametok,
+		))
+		return nil
 	}
 
 	switch varval.(type) {
@@ -240,15 +259,20 @@ func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *data.Class, function
 	val := vd.Value.Group.Compile(compiler, class, vd.Value, compiler.InitFunc)
 
 	if !vd.decltyp.Equals(val.TType()) {
-		//compiler error
-		//variable value type doesn't match inputted type
-		compiler.AddError(errhandle.NewTuskErrorFTok(
-			"mismatched types",
-			fmt.Sprintf("expected type %s", val.TType().TypeData().String()),
-			vd.typtok,
-		))
-		vd.globalerr = true
-		return
+
+		if cast := compiler.CastStore.RunCast(true, vd.decltyp, val, compiler, function, class); cast != nil {
+			val = cast
+		} else {
+			//compiler error
+			//variable value type doesn't match inputted type
+			compiler.AddError(errhandle.NewTuskErrorFTok(
+				"mismatched types",
+				fmt.Sprintf("expected type %s", val.TType().TypeData().String()),
+				vd.typtok,
+			))
+			vd.globalerr = true
+			return
+		}
 	}
 
 	//it's an instance variable

@@ -12,11 +12,6 @@ Coming soon
 
 Allow for mode DRY code
 
-- Error Messages
-
-Go just gives nil pointers when theres a compile-time error...
-Not the best system in the world.
-
 - Hashmaps
 
 Most modern languages have built in support for these already

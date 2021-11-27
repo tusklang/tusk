@@ -43,6 +43,11 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl, in
 			if _, exists := m[g.Name]; exists {
 				//error
 				//variable with that name has already been declared
+				p.compiler.AddError(errhandle.NewTuskErrorFTok(
+					"duplicated varname",
+					"try renaming this variable",
+					g.GetMTok(),
+				))
 			}
 
 			if g.Type != nil {
@@ -72,6 +77,7 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl, in
 					"",
 					g.GetMTok(),
 				))
+				continue
 			}
 
 			//if the outer scope doesn't include the var ref, it's in the current scope

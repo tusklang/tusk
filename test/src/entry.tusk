@@ -1,6 +1,8 @@
 link fn printf(#i8, f64);
 
+fn test() {
+};
+
 pub stat fn main() {
-    var a = 0.1 + 0.2;
-    printf("%f\n", a);
+    test();
 };
