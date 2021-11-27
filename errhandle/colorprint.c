@@ -14,6 +14,6 @@ void errprint(char *msg)
 
 void errprint(char *msg)
 {
-    printf("%s%s%s\n", RED, msg, RESET);
+    fprintf(stderr, "%s%s%s\n", RED, msg, RESET);
 }
 #endif

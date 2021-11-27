@@ -37,6 +37,14 @@ func (td *TypeData) AddOtherDat(name string, value Value) {
 func (td *TypeData) String() string {
 	base := td.Name()
 
+	if base == "untypedint" {
+		return "numeric"
+	}
+
+	if base == "untypedfloat" {
+		return "floating"
+	}
+
 	if td.HasFlag("ptr") {
 		base = "#" + base[:len(base)-1]
 	}

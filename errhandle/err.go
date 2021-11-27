@@ -1,6 +1,8 @@
 package errhandle
 
-import "os"
+import (
+	"os"
+)
 
 //this package implements tusk compile-time errors
 

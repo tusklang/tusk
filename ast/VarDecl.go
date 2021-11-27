@@ -28,6 +28,7 @@ type VarDecl struct {
 	//for globals
 	declaration value.Value
 	decltyp     data.Type
+	globalerr   bool
 }
 
 func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
@@ -189,6 +190,13 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 		//error
 		//tusk can't assume types of globals
 		//(atleast not yet)
+		compiler.AddError(errhandle.NewTuskErrorFTok(
+			"untyped global",
+			"add a type to this global",
+			vd.vnametok,
+		))
+		vd.globalerr = true
+		return nil
 	}
 
 	vd.decltyp = vtype
@@ -220,6 +228,10 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 //used specifically for global variable declarations
 func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *data.Class, function *data.Function) {
 
+	if vd.globalerr {
+		return
+	}
+
 	//if the value of the global is nil, we don't need to assign any value that it's defaulted to
 	if vd.Value == nil {
 		return
@@ -230,6 +242,13 @@ func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *data.Class, function
 	if !vd.decltyp.Equals(val.TType()) {
 		//compiler error
 		//variable value type doesn't match inputted type
+		compiler.AddError(errhandle.NewTuskErrorFTok(
+			"mismatched types",
+			fmt.Sprintf("expected type %s", val.TType().TypeData().String()),
+			vd.typtok,
+		))
+		vd.globalerr = true
+		return
 	}
 
 	//it's an instance variable

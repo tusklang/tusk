@@ -84,9 +84,9 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e erro
 
 	f.Params = plist
 
-	if lex[*i].Type != "{" && lex[*i].Type != "terminator" {
+	if lex[*i].Type != "{" && lex[*i].Type != "terminator" && lex[*i].Name != "=" {
 		//read the return type
-		//if there is no body or terminator next, it has to be a return type
+		//if there is no body, terminator, or assignment next, it has to be a return type
 		f.rtok = lex[*i]
 		rtg := groupSpecific(lex, i, []string{"{", ";"}, -1)
 		rt, e := groupsToAST(rtg)

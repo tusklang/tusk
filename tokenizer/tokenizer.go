@@ -48,15 +48,16 @@ func Tokenizer(data, filenam string) (tokens []Token) {
 					Col:     col,
 				})
 
+				mlen := len(matched)
+
+				c += mlen
+				col += mlen
+
 				if matched == "\n" {
 					row++
 					col = 1
 				}
 
-				mlen := len(matched)
-
-				c += mlen
-				col += mlen
 				continue
 			}
 		}

@@ -14,30 +14,6 @@ import (
 	"github.com/tusklang/tusk/varprocessor"
 )
 
-var inttypeV = map[string]data.Type{
-	"i128": data.NewPrimitive(types.I128),
-	"i64":  data.NewPrimitive(types.I64),
-	"i32":  data.NewPrimitive(types.I32),
-	"i16":  data.NewPrimitive(types.I16),
-	"i8":   data.NewPrimitive(types.I8),
-}
-
-var uinttypeV = map[string]data.Type{
-	"u128": data.NewNamedPrimitive(types.I128, "u128"),
-	"u64":  data.NewNamedPrimitive(types.I64, "u64"),
-	"u32":  data.NewNamedPrimitive(types.I32, "u32"),
-	"u16":  data.NewNamedPrimitive(types.I16, "u16"),
-	"u8":   data.NewNamedPrimitive(types.I8, "u8"),
-}
-
-var floattypeV = map[string]data.Type{
-	"f64": data.NewNamedPrimitive(types.Double, "f64"),
-	"f32": data.NewNamedPrimitive(types.Float, "f32"),
-}
-
-//list of all the numerical types
-var numtypes = map[string]data.Type{}
-
 //list of all the variables that are added by default
 //has types to begin with, but it can store anything
 //types are variables in tusk's parser so we need to add the default ones in like so
@@ -56,19 +32,19 @@ func Compile(prog *initialize.Program, outfile string) {
 	compiler.VarMap = make(map[string]data.Value)
 	compiler.LinkedFunctions = make(map[string]*ir.Func)
 
-	for k, v := range inttypeV {
-		numtypes[k] = v
+	for k, v := range ast.InttypeV {
+		ast.Numtypes[k] = v
 	}
 
-	for k, v := range uinttypeV {
-		numtypes[k] = v
+	for k, v := range ast.UinttypeV {
+		ast.Numtypes[k] = v
 	}
 
-	for k, v := range floattypeV {
-		numtypes[k] = v
+	for k, v := range ast.FloattypeV {
+		ast.Numtypes[k] = v
 	}
 
-	for k, v := range numtypes {
+	for k, v := range ast.Numtypes {
 		prevars[k] = v.(data.Value)
 	}
 

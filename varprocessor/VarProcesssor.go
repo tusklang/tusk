@@ -67,13 +67,13 @@ func (p *VarProcessor) nextvar() string {
 func (p *VarProcessor) AddPreDecl(n string) {
 	p.predecl[n] = decl{
 		nname:  n,
-		static: false,
+		static: true,
 	}
 }
 
 func (p *VarProcessor) AddMacro(n string, rep *ast.ASTNode) {
 	p.predecl[n] = decl{
 		macro:  rep,
-		static: false,
+		static: true,
 	}
 }

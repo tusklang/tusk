@@ -29,7 +29,7 @@ func mergemap(m1, m2 map[string]decl) (fin map[string]decl) {
 	return
 }
 
-func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
+func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl, instatic bool) {
 
 	var curscope = make(map[string]decl)
 
@@ -46,16 +46,16 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
 			}
 
 			if g.Type != nil {
-				p.process([]*ast.ASTNode{g.Type}, m)
+				p.process([]*ast.ASTNode{g.Type}, m, instatic)
 			}
 			if g.Value != nil {
-				p.process([]*ast.ASTNode{g.Value}, m)
+				p.process([]*ast.ASTNode{g.Value}, m, instatic)
 			}
 
 			nname := p.nextvar()
 			curscope[g.Name] = decl{
 				nname:  nname,
-				static: false,
+				static: true,
 			}
 			g.Name = nname
 		case *ast.VarRef:
@@ -79,6 +79,14 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
 				d = cs
 			}
 
+			if !d.static && instatic {
+				p.compiler.AddError(errhandle.NewTuskErrorFTok(
+					"accessing an instance member from a static member",
+					"try making this global's declaration static",
+					g.GetMTok(),
+				))
+			}
+
 			if d.macro != nil {
 				tree[k] = d.macro
 			} else {
@@ -86,7 +94,7 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
 			}
 
 		case *ast.Block:
-			p.process(g.Sub, mergemap(declared, curscope))
+			p.process(g.Sub, mergemap(declared, curscope), instatic)
 		case *ast.Function:
 
 			m := mergemap(declared, curscope)
@@ -99,46 +107,46 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl) {
 			}
 
 			if g.Body != nil {
-				p.process(g.Body.Sub, m)
+				p.process(g.Body.Sub, m, instatic)
 			}
 		case *ast.Operation:
 			m := mergemap(declared, curscope)
-			p.process(v.Left, m)
+			p.process(v.Left, m, instatic)
 
 			//if it's the dot operator, only check the left side
 			if g.OpType != "." {
-				p.process(v.Right, m)
+				p.process(v.Right, m, instatic)
 			}
 		case *ast.IfStatement:
 
 			merged := mergemap(declared, curscope)
 
-			p.process(g.Condition, merged)
-			p.process(g.Body, merged)
-			p.process(g.ElseBody, merged)
+			p.process(g.Condition, merged, instatic)
+			p.process(g.Body, merged, instatic)
+			p.process(g.ElseBody, merged, instatic)
 
 		case *ast.WhileStatement:
 
 			merged := mergemap(declared, curscope)
 
-			p.process(g.Condition, merged)
-			p.process(g.Body, merged)
+			p.process(g.Condition, merged, instatic)
+			p.process(g.Body, merged, instatic)
 
 		case *ast.Array:
 			merged := mergemap(declared, curscope)
 
 			if g.Siz != nil {
-				p.process([]*ast.ASTNode{g.Siz}, merged)
+				p.process([]*ast.ASTNode{g.Siz}, merged, instatic)
 			}
 			if g.Typ != nil {
-				p.process([]*ast.ASTNode{g.Typ}, merged)
+				p.process([]*ast.ASTNode{g.Typ}, merged, instatic)
 			}
-			p.process(g.Arr, merged)
+			p.process(g.Arr, merged, instatic)
 
 		case *ast.Return:
 
 			if g.Val != nil {
-				p.process([]*ast.ASTNode{g.Val}, mergemap(declared, curscope))
+				p.process([]*ast.ASTNode{g.Val}, mergemap(declared, curscope), instatic)
 			}
 
 		}
@@ -154,7 +162,8 @@ func (p *VarProcessor) ProcessVars(file *initialize.File) {
 		if v.CRel == 2 {
 			//link variable
 			globals[v.Link.TName] = decl{
-				nname: v.Link.TName,
+				nname:  v.Link.TName,
+				static: true,
 			}
 			continue
 		}
@@ -170,7 +179,7 @@ func (p *VarProcessor) ProcessVars(file *initialize.File) {
 		//add all the globals
 		globals[nam] = decl{
 			nname:  nam,
-			static: v.CRel == 1,
+			static: v.CRel != 0,
 		}
 	}
 
@@ -193,7 +202,7 @@ func (p *VarProcessor) ProcessVars(file *initialize.File) {
 				vv.Name = m[vv.Name].nname
 			}
 
-			p.process(v.Func.Body.Sub, m) //process the function body
+			p.process(v.Func.Body.Sub, m, v.CRel == 1) //process the function body
 		} else if v.Value != nil {
 
 			if v.Value.Value == nil {
@@ -204,7 +213,7 @@ func (p *VarProcessor) ProcessVars(file *initialize.File) {
 				continue
 			}
 
-			p.process([]*ast.ASTNode{v.Value.Value}, mergemap(p.predecl, globals)) //process the declaration's assigned value
+			p.process([]*ast.ASTNode{v.Value.Value}, mergemap(p.predecl, globals), v.CRel == 1) //process the declaration's assigned value
 		}
 
 	}

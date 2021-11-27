@@ -2,9 +2,34 @@ package ast
 
 import (
 	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/errhandle"
 )
+
+var InttypeV = map[string]data.Type{
+	"i128": data.NewPrimitive(types.I128),
+	"i64":  data.NewPrimitive(types.I64),
+	"i32":  data.NewPrimitive(types.I32),
+	"i16":  data.NewPrimitive(types.I16),
+	"i8":   data.NewPrimitive(types.I8),
+}
+
+var UinttypeV = map[string]data.Type{
+	"u128": data.NewNamedPrimitive(types.I128, "u128"),
+	"u64":  data.NewNamedPrimitive(types.I64, "u64"),
+	"u32":  data.NewNamedPrimitive(types.I32, "u32"),
+	"u16":  data.NewNamedPrimitive(types.I16, "u16"),
+	"u8":   data.NewNamedPrimitive(types.I8, "u8"),
+}
+
+var FloattypeV = map[string]data.Type{
+	"f64": data.NewNamedPrimitive(types.Double, "f64"),
+	"f32": data.NewNamedPrimitive(types.Float, "f32"),
+}
+
+//list of all the numerical types
+var Numtypes = map[string]data.Type{}
 
 type Compiler struct {
 	Module          *ir.Module             //llvm module

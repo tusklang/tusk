@@ -1,4 +1,6 @@
+link fn printf(#i8, f64);
+
 pub stat fn main() {
-    var a = 1;
-    var b = a[1];
+    var a = 0.1 + 0.2;
+    printf("%f\n", a);
 };

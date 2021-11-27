@@ -215,10 +215,6 @@ func initDefaultOps(compiler *ast.Compiler) {
 			left.TType().(*data.SliceArray).ValType(),
 		)
 	})
-	compiler.OperationStore.NewOperation("[]", "slice&array", "untypedint", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
-		untypeToI32 := data.NewInteger(right.LLVal(function).(*constant.Int))
-		return compiler.OperationStore.RunOperation(left, untypeToI32, "[]", compiler, function, class)
-	})
 
 	compiler.OperationStore.NewOperation("[]", "fixed&array", "i32", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		farr := left.TType().(*data.FixedArray)
@@ -240,10 +236,6 @@ func initDefaultOps(compiler *ast.Compiler) {
 			farr.ValType(),
 		)
 	})
-	compiler.OperationStore.NewOperation("[]", "fixed&array", "untypedint", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
-		untypeToI32 := data.NewInteger(right.LLVal(function).(*constant.Int))
-		return compiler.OperationStore.RunOperation(left, untypeToI32, "[]", compiler, function, class)
-	})
 
 	compiler.OperationStore.NewOperation("[]", "varied&array", "i32", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		varr := left.TType().(*data.VariedLengthArray)
@@ -254,10 +246,6 @@ func initDefaultOps(compiler *ast.Compiler) {
 			gep,
 			varr.ValType(),
 		)
-	})
-	compiler.OperationStore.NewOperation("[]", "varied&array", "untypedint", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
-		untypeToI32 := data.NewInteger(right.LLVal(function).(*constant.Int))
-		return compiler.OperationStore.RunOperation(left, untypeToI32, "[]", compiler, function, class)
 	})
 	////////////////
 
