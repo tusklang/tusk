@@ -5,6 +5,7 @@ import (
 
 	"github.com/llir/llvm/ir/constant"
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -49,7 +50,7 @@ func escString(b []byte) []byte {
 	return fin
 }
 
-func (s *String) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+func (s *String) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle.TuskError {
 
 	s.tok = lex[*i]
 

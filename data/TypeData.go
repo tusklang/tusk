@@ -45,6 +45,10 @@ func (td *TypeData) String() string {
 		return "floating"
 	}
 
+	if base == "fncallb" {
+		return "arglist"
+	}
+
 	if td.HasFlag("ptr") {
 		base = "#" + base[:len(base)-1]
 	}

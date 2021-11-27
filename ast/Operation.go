@@ -13,7 +13,7 @@ type Operation struct {
 	tok    tokenizer.Token
 }
 
-func (o *Operation) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+func (o *Operation) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle.TuskError {
 
 	o.tok = lex[*i]
 	o.OpType = lex[*i].Name
@@ -76,7 +76,7 @@ func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode
 			rct = rc.TType().TypeData().String()
 		}
 
-		compiler.AddError(errhandle.NewTuskErrorFTok(
+		compiler.AddError(errhandle.NewCompileErrorFTok(
 			"invalid operation",
 			fmt.Sprintf("'%s' operation not found for %s and %s", o.OpType, lct, rct),
 			o.GetMTok(),

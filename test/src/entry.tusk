@@ -1,8 +1,7 @@
 link fn printf(#i8, f64);
 
-fn test() {
-};
+construct var a = 2;
 
-pub stat fn main() {
+pub stat main() {
     test();
 };

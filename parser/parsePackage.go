@@ -1,17 +1,22 @@
-package initialize
+package parser
 
 import (
 	"io/ioutil"
 	"path"
 	"path/filepath"
+
+	"github.com/tusklang/tusk/errhandle"
 )
 
-func parsePackage(dir string, pkg *Package) error {
+func parsePackage(dir string, pkg *Package) *errhandle.TuskError {
 
-	fsinfo, e := ioutil.ReadDir(dir)
+	fsinfo, readerr := ioutil.ReadDir(dir)
 
-	if e != nil {
-		return e
+	if readerr != nil {
+		//error
+		//todo
+		//means the directory has been deleted during the compiler's execution/lacking permissions
+		return nil
 	}
 
 	for _, v := range fsinfo {
@@ -29,7 +34,7 @@ func parsePackage(dir string, pkg *Package) error {
 
 			spkg.parent = pkg //set the parent package
 
-			e = parsePackage(jpth, &spkg)
+			e := parsePackage(jpth, &spkg)
 
 			if e != nil {
 				return e

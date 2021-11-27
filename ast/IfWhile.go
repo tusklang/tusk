@@ -1,8 +1,7 @@
 package ast
 
 import (
-	"errors"
-
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -15,18 +14,17 @@ type IfWhile interface {
 	SetBTok(tokenizer.Token)
 }
 
-func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) error {
-
-	if lex[*i].Type != statement.Type() {
-		return errors.New("token given does not match parse expectation")
-	}
+func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) *errhandle.TuskError {
 
 	statement.SetSTok(lex[*i])
 
 	*i++
 
 	statement.SetCondTok(lex[*i])
-	cg := grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, ""))
+	cg, e := grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, ""))
+	if e != nil {
+		return e
+	}
 	ca, e := groupsToAST(cg)
 	if e != nil {
 		return e
@@ -36,7 +34,10 @@ func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) error {
 	*i++
 
 	statement.SetBTok(lex[*i])
-	bg := grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator"))
+	bg, e := grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator"))
+	if e != nil {
+		return e
+	}
 	ba, e := groupsToAST(bg)
 	if e != nil {
 		return e
@@ -49,7 +50,10 @@ func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) error {
 		if *i+1 < len(lex) && lex[*i+1].Name == "else" {
 			//else clause detected
 			*i += 2 //skip the semicolon & "else"
-			elsebody := grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator"))
+			elsebody, e := grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator"))
+			if e != nil {
+				return e
+			}
 			statement.(*IfStatement).ElseBody, e = groupsToAST(elsebody)
 
 			if e != nil {

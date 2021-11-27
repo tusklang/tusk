@@ -10,7 +10,7 @@ import (
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/errhandle"
-	"github.com/tusklang/tusk/initialize"
+	"github.com/tusklang/tusk/parser"
 	"github.com/tusklang/tusk/varprocessor"
 )
 
@@ -19,7 +19,7 @@ import (
 //types are variables in tusk's parser so we need to add the default ones in like so
 var prevars = map[string]data.Value{}
 
-func Compile(prog *initialize.Program, outfile string) {
+func Compile(prog *parser.Program, outfile string) {
 
 	var compiler ast.Compiler
 	m := ir.NewModule() //create a new llvm module

@@ -6,7 +6,8 @@ extern "C"
 {
 #endif
 
-    void errprint(char *);
+    void compileErrorPrint(char *);
+    void parseErrorPrint(char *);
 
 #ifdef __cplusplus
 }

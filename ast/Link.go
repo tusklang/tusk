@@ -4,6 +4,7 @@ import (
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -15,7 +16,7 @@ type Link struct {
 	tok tokenizer.Token
 }
 
-func (l *Link) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+func (l *Link) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle.TuskError {
 
 	//format looks like
 	//	link fn tusk_name() -> asm_name
@@ -28,7 +29,12 @@ func (l *Link) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 		//error
 	}
 
-	fnd := groupSpecific(lex, i, nil, 1)
+	fnd, e := groupSpecific(lex, i, nil, 1)
+
+	if e != nil {
+		return e
+	}
+
 	dtype, e := groupsToAST(fnd)
 
 	if e != nil {

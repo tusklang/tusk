@@ -2,6 +2,7 @@ package ast
 
 import (
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -10,7 +11,7 @@ type VarRef struct {
 	tok  tokenizer.Token
 }
 
-func (vr *VarRef) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+func (vr *VarRef) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle.TuskError {
 	vr.Name = lex[*i].Name
 	vr.tok = lex[*i]
 	return nil

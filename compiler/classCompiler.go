@@ -4,10 +4,10 @@ import (
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/data"
-	"github.com/tusklang/tusk/initialize"
+	"github.com/tusklang/tusk/parser"
 )
 
-func compileClass(compiler *ast.Compiler, f *initialize.File, ipack *initialize.Package, pack *data.Package) *data.Class {
+func compileClass(compiler *ast.Compiler, f *parser.File, ipack *parser.Package, pack *data.Package) *data.Class {
 	stype := types.NewStruct() //create a new structure (representing a class)
 
 	tc := data.NewClass(ipack.FullName()+f.Name, stype, pack) //create the class in tusk

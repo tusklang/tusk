@@ -18,10 +18,16 @@ type TuskError struct {
 	snippet string
 	row, col int
 
+	/*
+		0 - compile
+		1 - parse
+	*/
+	typ int
+
 	strrow string //row as a string
 }
 
-func NewTuskError(err, msg, file, snippet string, row, col int) *TuskError {
+func NewCompileError(err, msg, file, snippet string, row, col int) *TuskError {
 	return &TuskError{
 		err:     err,
 		msg:     msg,
@@ -29,11 +35,28 @@ func NewTuskError(err, msg, file, snippet string, row, col int) *TuskError {
 		snippet: snippet,
 		row:     row,
 		col:     col,
+		typ:     0,
 	}
 }
 
-func NewTuskErrorFTok(err, msg string, tok tokenizer.Token) *TuskError {
-	return NewTuskError(err, msg, tok.File, tok.Snippet, tok.Row, tok.Col)
+func NewCompileErrorFTok(err, msg string, tok tokenizer.Token) *TuskError {
+	return NewCompileError(err, msg, tok.File, tok.Snippet, tok.Row, tok.Col)
+}
+
+func NewParseError(err, msg, file, snippet string, row, col int) *TuskError {
+	return &TuskError{
+		err:     err,
+		msg:     msg,
+		file:    file,
+		snippet: snippet,
+		row:     row,
+		col:     col,
+		typ:     1,
+	}
+}
+
+func NewParseErrorFTok(err, msg string, tok tokenizer.Token) *TuskError {
+	return NewParseError(err, msg, tok.File, tok.Snippet, tok.Row, tok.Col)
 }
 
 func (e *TuskError) printlinepad(printlinen bool /*to print the line number or not*/) {
@@ -61,10 +84,22 @@ func (e *TuskError) printlinepad(printlinen bool /*to print the line number or n
 	fmt.Fprint(os.Stderr, " |")
 }
 
+//print the "errortype: msg" part
+func (e *TuskError) printNotice() {
+	noti := C.CString(e.err)
+
+	switch e.typ {
+	case 0:
+		//compile-time error
+		C.compileErrorPrint(noti)
+	case 1:
+		//parse-time error
+		C.parseErrorPrint(noti)
+	}
+}
+
 func (e *TuskError) Print() {
-	C.errprint(C.CString(
-		fmt.Sprintf("error: %s", e.err),
-	))
+	e.printNotice()
 	fmt.Fprintf(os.Stderr, "--> at %s:%d:%d\n", e.file, e.row, e.col)
 	e.printlinepad(false)
 	fmt.Fprintln(os.Stderr)

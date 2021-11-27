@@ -1,6 +1,8 @@
 package ast
 
-func funcCallHandle(items []Group, i int) ([]*ASTNode, error) {
+import "github.com/tusklang/tusk/errhandle"
+
+func funcCallHandle(items []Group, i int) ([]*ASTNode, *errhandle.TuskError) {
 
 	var argsG = items[i].(*Block)
 	argsG.BlockType = "fncallb" //set the block type to a function call block

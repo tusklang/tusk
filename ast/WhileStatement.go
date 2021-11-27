@@ -3,6 +3,7 @@ package ast
 import (
 	"github.com/llir/llvm/ir"
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -14,7 +15,7 @@ type WhileStatement struct {
 	stok, condtok, btok tokenizer.Token
 }
 
-func (ws *WhileStatement) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+func (ws *WhileStatement) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle.TuskError {
 	return ifwhileParse(ws, lex, i)
 }
 

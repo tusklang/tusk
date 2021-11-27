@@ -1,4 +1,4 @@
-package initialize
+package parser
 
 import (
 	"io/ioutil"
@@ -6,15 +6,16 @@ import (
 	"strings"
 
 	"github.com/tusklang/tusk/ast"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
-func parseFile(name string) (*File, error) {
+func parseFile(name string) (*File, *errhandle.TuskError) {
 
-	f, e := ioutil.ReadFile(name)
+	f, readerr := ioutil.ReadFile(name)
 
-	if e != nil {
-		return nil, e
+	if readerr != nil {
+		return nil, nil
 	}
 
 	lex := tokenizer.Tokenizer(string(f), name)
@@ -28,7 +29,7 @@ func parseFile(name string) (*File, error) {
 		Name: strings.TrimSuffix(filepath.Base(name), ".tusk"), //get the classname of the file
 	}
 
-	fetchGlobals(generatedAST, &retf, 2, 0)
+	ferr := fetchGlobals(generatedAST, &retf, 2, 0)
 
-	return &retf, nil
+	return &retf, ferr
 }

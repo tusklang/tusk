@@ -11,9 +11,15 @@ void errprint(char *msg)
 
 #define RESET "\033[0m"
 #define RED "\33[1;31m"
+#define BLUE "\x1B[36m"
 
-void errprint(char *msg)
+void compileErrorPrint(char *msg)
 {
-    fprintf(stderr, "%s%s%s\n", RED, msg, RESET);
+    fprintf(stderr, "%scompiler error: %s%s\n", RED, msg, RESET);
+}
+
+void parseErrorPrint(char *msg)
+{
+    fprintf(stderr, "%sparsing error: %s%s\n", BLUE, msg, RESET);
 }
 #endif

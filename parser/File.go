@@ -1,4 +1,4 @@
-package initialize
+package parser
 
 import (
 	"github.com/llir/llvm/ir"

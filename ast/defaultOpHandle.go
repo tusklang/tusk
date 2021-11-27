@@ -1,8 +1,10 @@
 package ast
 
+import "github.com/tusklang/tusk/errhandle"
+
 //handler for most operations in `groupsToAST`
 
-func defaultOperationHandle(exp []Group, index int) ([]*ASTNode, error) {
+func defaultOperationHandle(exp []Group, index int) ([]*ASTNode, *errhandle.TuskError) {
 
 	var (
 		//get the first and second half of the expression

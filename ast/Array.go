@@ -32,13 +32,18 @@ type Array struct {
 	ctyp data.Type
 }
 
-func (a *Array) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+func (a *Array) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle.TuskError {
 
 	a.btok = lex[*i]
 
 	sizl := braceMatcher(lex, i, []string{"[", "{", "("}, []string{"]", "}", ")"}, true, "")
 	*i++
-	sizg := grouper(sizl)
+	sizg, e := grouper(sizl)
+
+	if e != nil {
+		return e
+	}
+
 	siz, e := groupsToAST(sizg)
 
 	if e != nil {
@@ -59,7 +64,12 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	//parse the typename
 	if lex[*i].Type == "(" || lex[*i].Type == "varname" {
 		a.typtok = lex[*i]
-		typg := groupSpecific(lex, i, nil, 1)
+		typg, e := groupSpecific(lex, i, nil, 1)
+
+		if e != nil {
+			return e
+		}
+
 		typ, e := groupsToAST(typg)
 
 		if e != nil {
@@ -88,7 +98,12 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	if lex[*i].Type == "{" {
 		a.typtok = lex[*i]
 		arrl := braceMatcher(lex, i, []string{"{"}, []string{"}"}, true, "")
-		arrg := grouper(arrl)
+		arrg, e := grouper(arrl)
+
+		if e != nil {
+			return e
+		}
+
 		arr, e := groupsToAST(arrg)
 
 		if e != nil {
@@ -175,7 +190,7 @@ func (a *Array) CompileVariedLengthArray(compiler *Compiler, class *data.Class, 
 	if function == nil || function.ActiveBlock == nil || function == compiler.InitFunc {
 		//error
 		//cannot use varied length arrays outside of a function
-		compiler.AddError(errhandle.NewTuskErrorFTok(
+		compiler.AddError(errhandle.NewCompileErrorFTok(
 			"invalid varied array",
 			"cannot use a varied array outside of a function body",
 			a.btok,

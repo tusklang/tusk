@@ -1,4 +1,4 @@
-package initialize
+package parser
 
 type ConfigData struct {
 	Entry        string   `json:"entry"`

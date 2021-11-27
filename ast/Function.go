@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"errors"
-
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/data"
@@ -22,7 +20,7 @@ type Function struct {
 	ftok, ntok, ptok, rtok, btok tokenizer.Token
 }
 
-func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e error) {
+func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e *errhandle.TuskError) {
 	f.ftok = lex[*i]
 	*i++ //skip the "fn" token
 
@@ -40,7 +38,13 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e erro
 
 	f.ptok = lex[*i]
 
-	p, e := groupsToAST(grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, "")))
+	gr, e := grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, ""))
+
+	if e != nil {
+		return e
+	}
+
+	p, e := groupsToAST(gr)
 
 	if e != nil {
 		return e
@@ -71,7 +75,11 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e erro
 					Type: v,
 				}
 			default:
-				return errors.New("invalid syntax: named parameters must have a type")
+				return errhandle.NewParseErrorFTok(
+					"untyped param",
+					"named parameters must have types",
+					g.GetMTok(),
+				)
 			}
 
 		default:
@@ -89,7 +97,12 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e erro
 		//read the return type
 		//if there is no body, terminator, or assignment next, it has to be a return type
 		f.rtok = lex[*i]
-		rtg := groupSpecific(lex, i, []string{"{", ";"}, -1)
+		rtg, e := groupSpecific(lex, i, []string{"{", ";"}, -1)
+
+		if e != nil {
+			return e
+		}
+
 		rt, e := groupsToAST(rtg)
 
 		if e != nil {
@@ -101,7 +114,13 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e erro
 
 	if *i < len(lex) && lex[*i].Type == "{" {
 		f.btok = lex[*i]
-		f.Body = grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, ""))[0].(*Block)
+		fbody, e := grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, ""))
+
+		if e != nil {
+			return e
+		}
+
+		f.Body = fbody[0].(*Block)
 		return nil
 	}
 
@@ -150,7 +169,7 @@ func (f *Function) CompileSig(compiler *Compiler, class *data.Class, node *ASTNo
 		//function names are only for global functions
 		//we remove the name of the function from the object when compiling a global function
 		//if it has a name, it is in a local scope, and it was not declared anonymous
-		compiler.AddError(errhandle.NewTuskErrorFTok(
+		compiler.AddError(errhandle.NewCompileErrorFTok(
 			"named lambda",
 			"lambda functions cannot be named, try assigning the function to a variable",
 			f.ntok,

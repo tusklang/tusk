@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/llir/llvm/ir"
@@ -31,14 +30,18 @@ type VarDecl struct {
 	globalerr   bool
 }
 
-func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle.TuskError {
 
 	vd.kwtok = lex[*i]
 
 	*i++
 
 	if lex[*i].Type != "varname" {
-		return errors.New("expected a variable name")
+		return errhandle.NewParseErrorFTok(
+			"expected variable name",
+			"",
+			lex[*i],
+		)
 	}
 
 	vd.vnametok = lex[*i]
@@ -51,7 +54,11 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	if lex[*i].Name == ":" {
 		*i++
 		vd.typtok = lex[*i]
-		t, e := groupsToAST(groupSpecific(lex, i, []string{"=", ";"}, -1))
+		tg, e := groupSpecific(lex, i, []string{"=", ";"}, -1)
+		if e != nil {
+			return e
+		}
+		t, e := groupsToAST(tg)
 		if e != nil {
 			return e
 		}
@@ -62,7 +69,11 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
 	if lex[*i].Name == "=" {
 		*i++
 		vd.valtok = lex[*i]
-		v, e := groupsToAST(grouper(braceMatcher(lex, i, allopeners, allclosers, false, "terminator")))
+		vg, e := grouper(braceMatcher(lex, i, allopeners, allclosers, false, "terminator"))
+		if e != nil {
+			return e
+		}
+		v, e := groupsToAST(vg)
 		if e != nil {
 			return e
 		}
@@ -106,7 +117,7 @@ func (vd *VarDecl) getDeclType(compiler *Compiler, class *data.Class, function *
 		vtype = vt
 	default:
 		//error
-		compiler.AddError(errhandle.NewTuskErrorFTok(
+		compiler.AddError(errhandle.NewCompileErrorFTok(
 			"invalid type",
 			"value cannot be used as a type",
 			vd.typtok,
@@ -145,7 +156,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		//var varname
 		//error
 		//cannot determine what type this variable is
-		compiler.AddError(errhandle.NewTuskErrorFTok(
+		compiler.AddError(errhandle.NewCompileErrorFTok(
 			"cannot infer type",
 			"provide a type or a value for this variable",
 			vd.vnametok,
@@ -155,7 +166,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 
 	switch varval.(type) {
 	case *data.InvalidType:
-		compiler.AddError(errhandle.NewTuskErrorFTok(
+		compiler.AddError(errhandle.NewCompileErrorFTok(
 			"invalid value",
 			"",
 			vd.valtok,
@@ -181,7 +192,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		} else {
 			//compiler error
 			//variable value type doesn't match inputted type
-			compiler.AddError(errhandle.NewTuskErrorFTok(
+			compiler.AddError(errhandle.NewCompileErrorFTok(
 				"mismatched types",
 				fmt.Sprintf("expected type %s", varval.TType().TypeData().String()),
 				vd.typtok,
@@ -209,7 +220,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 		//error
 		//tusk can't assume types of globals
 		//(atleast not yet)
-		compiler.AddError(errhandle.NewTuskErrorFTok(
+		compiler.AddError(errhandle.NewCompileErrorFTok(
 			"untyped global",
 			"add a type to this global",
 			vd.vnametok,
@@ -265,7 +276,7 @@ func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *data.Class, function
 		} else {
 			//compiler error
 			//variable value type doesn't match inputted type
-			compiler.AddError(errhandle.NewTuskErrorFTok(
+			compiler.AddError(errhandle.NewCompileErrorFTok(
 				"mismatched types",
 				fmt.Sprintf("expected type %s", val.TType().TypeData().String()),
 				vd.typtok,

@@ -1,4 +1,4 @@
-package initialize
+package parser
 
 type Program struct {
 	Packages []*Package

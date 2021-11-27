@@ -1,6 +1,8 @@
 package ast
 
-func arrIndexHandle(items []Group, i int) ([]*ASTNode, error) {
+import "github.com/tusklang/tusk/errhandle"
+
+func arrIndexHandle(items []Group, i int) ([]*ASTNode, *errhandle.TuskError) {
 	var idx = items[i].(*Array)
 	idx.useAsIndex = true
 

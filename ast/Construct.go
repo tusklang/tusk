@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"errors"
-
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -21,14 +19,18 @@ type Construct struct {
 	tok tokenizer.Token
 }
 
-func (c *Construct) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+func (c *Construct) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle.TuskError {
 
 	c.tok = lex[*i]
 
 	*i++
 
 	if lex[*i].Type != "fn" {
-		return errors.New("constructors must be functions")
+		return errhandle.NewParseErrorFTok(
+			"expected function",
+			"a constructor must be a function",
+			lex[*i],
+		)
 	}
 
 	var fnobj = &Function{}
@@ -38,10 +40,6 @@ func (c *Construct) Parse(lex []tokenizer.Token, i *int, stopAt []string) error 
 
 	if e != nil { //if the function parse returned an error
 		return e
-	}
-
-	if fnobj.RetType != nil { //constructors cannot return anything
-		return errors.New("constructor cannot include a return type")
 	}
 
 	c.FnObj = fnobj
@@ -94,7 +92,7 @@ func (c *Construct) CompileConstructor(compiler *Compiler, class *data.Class) er
 	default:
 		//error
 		//expected a function
-		compiler.AddError(errhandle.NewTuskErrorFTok(
+		compiler.AddError(errhandle.NewCompileErrorFTok(
 			"constructors must be functions",
 			"",
 			c.tok,
@@ -107,7 +105,7 @@ func (c *Construct) CompileConstructor(compiler *Compiler, class *data.Class) er
 	if !constructor.RetType().Equals(data.NewPrimitive(types.Void)) {
 		//error
 		//constructors cannot have return types
-		compiler.AddError(errhandle.NewTuskErrorFTok(
+		compiler.AddError(errhandle.NewCompileErrorFTok(
 			"constructors cannot have return types",
 			"",
 			c.tok,

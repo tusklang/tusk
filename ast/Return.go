@@ -2,6 +2,7 @@ package ast
 
 import (
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -11,17 +12,22 @@ type Return struct {
 	tok tokenizer.Token
 }
 
-func (r *Return) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+func (r *Return) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle.TuskError {
 
 	r.tok = lex[*i]
 
 	*i++
 
 	retval := braceMatcher(lex, i, allopeners, allclosers, false, "terminator")
-	retvalAST, e := groupsToAST(grouper(retval))
+	rg, e := grouper(retval)
 
-	//if there is no retval, then just return the `e`
-	if len(retvalAST) == 0 {
+	if e != nil {
+		return e
+	}
+
+	retvalAST, e := groupsToAST(rg)
+
+	if e != nil || len(retvalAST) == 0 /*if there isn't a retval, don't go any further*/ {
 		return e
 	}
 

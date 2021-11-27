@@ -1,10 +1,11 @@
-package initialize
+package parser
 
 import (
 	"github.com/tusklang/tusk/ast"
+	"github.com/tusklang/tusk/errhandle"
 )
 
-func fetchGlobals(tree []*ast.ASTNode, file *File, access int, crel int /*class relation, instance is 0, static is 1, and link is 2*/) {
+func fetchGlobals(tree []*ast.ASTNode, file *File, access int, crel int /*class relation, instance is 0, static is 1, and link is 2*/) *errhandle.TuskError {
 
 	for _, v := range tree {
 
@@ -22,13 +23,13 @@ func fetchGlobals(tree []*ast.ASTNode, file *File, access int, crel int /*class 
 				Func:   g,
 			})
 		case *ast.Public:
-			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 0, crel)
+			return fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 0, crel)
 		case *ast.Protected:
-			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 1, crel)
+			return fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 1, crel)
 		case *ast.Private:
-			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 2, crel)
+			return fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 2, crel)
 		case *ast.Static:
-			fetchGlobals([]*ast.ASTNode{g.Declaration}, file, access, 1)
+			return fetchGlobals([]*ast.ASTNode{g.Declaration}, file, access, 1)
 		case *ast.Link:
 
 			g.Access = access
@@ -41,6 +42,14 @@ func fetchGlobals(tree []*ast.ASTNode, file *File, access int, crel int /*class 
 
 		case *ast.Construct:
 			file.Constructor = g
+		default:
+			return errhandle.NewParseErrorFTok(
+				"invalid global",
+				"",
+				g.GetMTok(),
+			)
 		}
 	}
+
+	return nil
 }

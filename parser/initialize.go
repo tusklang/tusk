@@ -1,12 +1,13 @@
-package initialize
+package parser
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
+
+	"github.com/tusklang/tusk/errhandle"
 )
 
-//this package is used to initialize the program
+//this package is used to parse the program
 /*
 	- comprehending project structure
 	- dependency managment
@@ -32,7 +33,13 @@ func Initialize(configFileName string) *Program {
 
 	var startpkg Package
 
-	parsePackage(".", &startpkg)
+	packerr := parsePackage(".", &startpkg)
+
+	if packerr != nil {
+		packerr.Print()
+		errhandle.PKill()
+		return nil
+	}
 
 	prog.Packages = startpkg.ChildPacks
 
@@ -40,7 +47,6 @@ func Initialize(configFileName string) *Program {
 		//error
 		//this means there are files that are not within a package, which is forbidden (as of current)
 		//any entry files must be placed within a package, usually entry/<files go here>
-		fmt.Println("error: found files not contained within a package")
 	}
 
 	return &prog

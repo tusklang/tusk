@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -33,7 +34,7 @@ func getValue(tok tokenizer.Token) data.Value {
 	return nil
 }
 
-func (dv *DataValue) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+func (dv *DataValue) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle.TuskError {
 	dv.Value = getValue(lex[*i])
 	dv.tok = lex[*i]
 	return nil

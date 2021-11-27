@@ -1,9 +1,8 @@
 package ast
 
 import (
-	"errors"
-
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -22,17 +21,17 @@ var bmatches = map[string]string{
 var allopeners = []string{"{", "("}
 var allclosers = []string{"}", ")"}
 
-func (b *Block) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e error) {
-
-	if lex[*i].Type != "(" && lex[*i].Type != "{" {
-		return errors.New("given lex is not a group")
-	}
+func (b *Block) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e *errhandle.TuskError) {
 
 	b.tok = lex[*i]
 
 	b.BlockType = lex[*i].Type
 
-	gcontent := grouper(braceMatcher(lex, i, []string{lex[*i].Type}, []string{bmatches[lex[*i].Type]}, true, ""))
+	gcontent, e := grouper(braceMatcher(lex, i, []string{lex[*i].Type}, []string{bmatches[lex[*i].Type]}, true, ""))
+
+	if e != nil {
+		return e
+	}
 
 	b.Sub, e = groupsToAST(gcontent)
 

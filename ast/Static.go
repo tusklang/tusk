@@ -2,6 +2,7 @@ package ast
 
 import (
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -11,7 +12,7 @@ type Static struct {
 	tok tokenizer.Token
 }
 
-func (s *Static) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e error) {
+func (s *Static) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e *errhandle.TuskError) {
 	s.tok = lex[*i]
 	return parseAccessSpec(s, lex, i)
 }

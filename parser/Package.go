@@ -1,4 +1,4 @@
-package initialize
+package parser
 
 type Package struct {
 	Name       string

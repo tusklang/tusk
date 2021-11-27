@@ -2,6 +2,7 @@ package ast
 
 import (
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -9,7 +10,7 @@ type NullValue struct {
 	tok tokenizer.Token
 }
 
-func (nv *NullValue) Parse(lex []tokenizer.Token, i *int, stopAt []string) error {
+func (nv *NullValue) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle.TuskError {
 	nv.tok = lex[*i]
 	return nil
 }

@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -77,7 +78,7 @@ func testStopAt(token tokenizer.Token, sa []string) bool {
 }
 
 //function for extra customizability with grouping
-func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string, maxlen int) []Group {
+func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string, maxlen int) ([]Group, *errhandle.TuskError) {
 	var fin []Group
 	ostart := *startAt
 
@@ -137,16 +138,20 @@ func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string, maxl
 			//the token given isn't recognized by tusk
 		}
 
-		_ = gr.Parse(tokens, startAt, stopAt)
+		e := gr.Parse(tokens, startAt, stopAt)
+
+		if e != nil {
+			return nil, e
+		}
 
 		fin = append(fin, gr)
 	}
 
-	return fin
+	return fin, nil
 }
 
 //function used as shorthand for `groupSpecific` when some params aren't required
-func grouper(tokens []tokenizer.Token) []Group {
+func grouper(tokens []tokenizer.Token) ([]Group, *errhandle.TuskError) {
 	tmp := 0
 	return groupSpecific(tokens, &tmp, nil, -1)
 }

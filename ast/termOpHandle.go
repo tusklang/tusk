@@ -1,8 +1,10 @@
 package ast
 
+import "github.com/tusklang/tusk/errhandle"
+
 //handle the terminator in `groupsToAST`
 
-func termOpHandle(exp []Group, index int) ([]*ASTNode, error) {
+func termOpHandle(exp []Group, index int) ([]*ASTNode, *errhandle.TuskError) {
 
 	//first use the default handler to get a left and right side
 	defaultOp, e := defaultOperationHandle(exp, index)

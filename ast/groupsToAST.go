@@ -1,5 +1,7 @@
 package ast
 
+import "github.com/tusklang/tusk/errhandle"
+
 //used to group operations into a tree
 /*
 pub fn int main() {
@@ -17,9 +19,9 @@ pub fn main
 			-> 4
 */
 
-func groupsToAST(items []Group) ([]*ASTNode, error) {
+func groupsToAST(items []Group) ([]*ASTNode, *errhandle.TuskError) {
 
-	var opList = []map[string]func(exp []Group, index int) ([]*ASTNode, error){
+	var opList = []map[string]func(exp []Group, index int) ([]*ASTNode, *errhandle.TuskError){
 		{
 			";":   termOpHandle,
 			",":   termOpHandle,

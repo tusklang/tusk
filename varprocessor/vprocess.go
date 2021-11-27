@@ -3,7 +3,7 @@ package varprocessor
 import (
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/errhandle"
-	"github.com/tusklang/tusk/initialize"
+	"github.com/tusklang/tusk/parser"
 )
 
 //decl structure used to store variable declarations
@@ -43,7 +43,7 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl, in
 			if _, exists := m[g.Name]; exists {
 				//error
 				//variable with that name has already been declared
-				p.compiler.AddError(errhandle.NewTuskErrorFTok(
+				p.compiler.AddError(errhandle.NewCompileErrorFTok(
 					"duplicated varname",
 					"try renaming this variable",
 					g.GetMTok(),
@@ -72,7 +72,7 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl, in
 			if !(ex1 || ex2) {
 				//error
 				//there isn't a variable declared with that name
-				p.compiler.AddError(errhandle.NewTuskErrorFTok(
+				p.compiler.AddError(errhandle.NewCompileErrorFTok(
 					"undefined variable",
 					"",
 					g.GetMTok(),
@@ -86,7 +86,7 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl, in
 			}
 
 			if !d.static && instatic {
-				p.compiler.AddError(errhandle.NewTuskErrorFTok(
+				p.compiler.AddError(errhandle.NewCompileErrorFTok(
 					"accessing an instance member from a static member",
 					"try making this global's declaration static",
 					g.GetMTok(),
@@ -159,7 +159,7 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl, in
 	}
 }
 
-func (p *VarProcessor) ProcessVars(file *initialize.File) {
+func (p *VarProcessor) ProcessVars(file *parser.File) {
 
 	var globals = make(map[string]decl)
 
