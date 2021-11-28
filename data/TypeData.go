@@ -52,8 +52,20 @@ func (td *TypeData) String() string {
 	}
 
 	if td.HasFlag("array") {
+
 		valtyp := td.GetOtherDat("valtyp").(Type)
-		base = fmt.Sprintf("[]%s", valtyp.TypeData())
+
+		if td.Name() == "fixed" {
+			//it's a fixed array
+			length := td.GetOtherDat("length").(*Integer).GetInt()
+			base = fmt.Sprintf("[%d]%s", length, valtyp.TypeData())
+		} else if td.Name() == "varied" {
+			base = fmt.Sprintf("[varied]%s", valtyp.TypeData())
+		} else {
+			//it's a slice
+			base = fmt.Sprintf("[]%s", valtyp.TypeData())
+		}
+
 	}
 
 	if td.HasFlag("ptr") {

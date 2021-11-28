@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"fmt"
+
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
@@ -67,9 +69,17 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle
 	}
 
 	//parse the typename
-	if lex[*i].Type == "(" || lex[*i].Type == "varname" {
+	if lex[*i].Type == "(" || lex[*i].Type == "[" || lex[*i].Type == "varname" {
+
+		var sarr bool
+		origi := *i
+
+		if lex[*i].Type == "[" {
+			sarr = true
+		}
+
 		a.typtok = lex[*i]
-		typg, e := groupSpecific(lex, i, nil, 1)
+		typg, e := groupSpecific(lex, i, []string{"{"}, 1)
 
 		if e != nil {
 			return e
@@ -81,7 +91,25 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle
 			return e
 		}
 
-		a.Typ = typ[0]
+		typIsIdx := false
+
+		//this whole thing is to check if the user wrote
+		//	[][]i32{} (nested array)
+		//	test[0][0] (indexing a nested array)
+		if sarr {
+			switch g := typ[0].Group.(type) {
+			case *Array:
+				if g.Siz != nil && g.Arr == nil && g.Typ == nil {
+					*i = origi
+					typIsIdx = true
+				}
+			}
+		}
+
+		if !typIsIdx {
+			a.Typ = typ[0]
+		}
+
 	}
 
 	if *i >= len(lex) {
@@ -134,6 +162,23 @@ func (a *Array) GetMTok() tokenizer.Token {
 	return a.btok
 }
 
+func (a *Array) checkValTyp(compiler *Compiler, function *data.Function, class *data.Class, curval *data.Value, v Group) bool {
+	if !(*curval).TType().Equals(a.ctyp) {
+		//try casting it first
+		if casted := compiler.CastStore.RunCast(true, a.ctyp, *curval, v, compiler, function, class); casted != nil {
+			*curval = casted
+		} else {
+			compiler.AddError(errhandle.NewCompileErrorFTok(
+				"wrong type for array value",
+				fmt.Sprintf("expected type %s but got %s", a.ctyp.TypeData(), (*curval).TypeData()),
+				v.GetMTok(),
+			))
+			return false
+		}
+	}
+	return true
+}
+
 func (a *Array) CompileSlice(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 
 	var decl value.Value
@@ -158,6 +203,9 @@ func (a *Array) CompileSlice(compiler *Compiler, class *data.Class, node *ASTNod
 		loadeddecl := block.NewLoad(types.NewPointer(a.ctyp.Type()), decl)
 		for k, v := range a.Arr {
 			vc := v.Group.Compile(compiler, class, v, function)
+			if !a.checkValTyp(compiler, function, class, &vc, v.Group) {
+				return data.NewInvalidType()
+			}
 			gep := block.NewGetElementPtr(a.ctyp.Type(), loadeddecl, constant.NewInt(types.I32, int64(k)))
 			block.NewStore(vc.LLVal(function), gep)
 		}
@@ -184,6 +232,9 @@ func (a *Array) CompileFixedArray(compiler *Compiler, class *data.Class, node *A
 		//fill the array with the values needed
 		for k, v := range a.Arr {
 			vc := v.Group.Compile(compiler, class, v, function)
+			if !a.checkValTyp(compiler, function, class, &vc, v.Group) {
+				return data.NewInvalidType()
+			}
 			gep := block.NewGetElementPtr(arrtyp, decl, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, int64(k)))
 			block.NewStore(vc.LLVal(function), gep)
 		}
@@ -227,6 +278,9 @@ func (a *Array) CompileVariedLengthArray(compiler *Compiler, class *data.Class, 
 
 		for k, v := range a.Arr {
 			vc := v.Group.Compile(compiler, class, v, function)
+			if !a.checkValTyp(compiler, function, class, &vc, v.Group) {
+				return data.NewInvalidType()
+			}
 			gep := block.NewGetElementPtr(a.ctyp.Type(), alc, constant.NewInt(types.I32, int64(k)))
 			block.NewStore(vc.LLVal(function), gep)
 		}

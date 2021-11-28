@@ -1,6 +1,8 @@
 package ast
 
-import "github.com/tusklang/tusk/errhandle"
+import (
+	"github.com/tusklang/tusk/errhandle"
+)
 
 //used to group operations into a tree
 /*

@@ -1,3 +1,6 @@
+link fn printf(#i8, i32);
+
 pub stat fn main() {
-    var a: []i32 = [3]i64{};
+    var a = [][]i32{[]i32{1}};
+    printf("%d\n", a[0][0]);
 };
