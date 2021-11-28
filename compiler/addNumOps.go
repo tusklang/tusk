@@ -27,15 +27,15 @@ func addNumOps(compiler *ast.Compiler) {
 		//because we use v in the operations, we need a v value that is persistent for each iteration
 		var v = _v
 
-		compiler.OperationStore.NewOperation("+", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		compiler.OperationStore.NewOperation("+", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 			return data.NewInstVariable(function.ActiveBlock.NewAdd(left.LLVal(function), right.LLVal(function)), v)
 		})
 
-		compiler.OperationStore.NewOperation("-", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		compiler.OperationStore.NewOperation("-", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 			return data.NewInstVariable(function.ActiveBlock.NewSub(left.LLVal(function), right.LLVal(function)), v)
 		})
 
-		compiler.OperationStore.NewOperation("*", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		compiler.OperationStore.NewOperation("*", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 			return data.NewInstVariable(function.ActiveBlock.NewMul(left.LLVal(function), right.LLVal(function)), v)
 		})
 
@@ -45,14 +45,14 @@ func addNumOps(compiler *ast.Compiler) {
 	for k, _v := range ast.InttypeV {
 		v := _v
 
-		compiler.OperationStore.NewOperation("/", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		compiler.OperationStore.NewOperation("/", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 			return data.NewInstVariable(function.ActiveBlock.NewSDiv(left.LLVal(function), right.LLVal(function)), v)
 		})
 	}
 	for k, _v := range ast.UinttypeV {
 		v := _v
 
-		compiler.OperationStore.NewOperation("/", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		compiler.OperationStore.NewOperation("/", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 			return data.NewInstVariable(function.ActiveBlock.NewUDiv(left.LLVal(function), right.LLVal(function)), v)
 		})
 	}
@@ -60,19 +60,19 @@ func addNumOps(compiler *ast.Compiler) {
 	for k, _v := range ast.FloattypeV {
 		var v = _v
 
-		compiler.OperationStore.NewOperation("+", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		compiler.OperationStore.NewOperation("+", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 			return data.NewInstVariable(function.ActiveBlock.NewFAdd(left.LLVal(function), right.LLVal(function)), v)
 		})
 
-		compiler.OperationStore.NewOperation("-", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		compiler.OperationStore.NewOperation("-", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 			return data.NewInstVariable(function.ActiveBlock.NewFSub(left.LLVal(function), right.LLVal(function)), v)
 		})
 
-		compiler.OperationStore.NewOperation("*", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		compiler.OperationStore.NewOperation("*", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 			return data.NewInstVariable(function.ActiveBlock.NewFMul(left.LLVal(function), right.LLVal(function)), v)
 		})
 
-		compiler.OperationStore.NewOperation("/", k, k, func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		compiler.OperationStore.NewOperation("/", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 			return data.NewInstVariable(function.ActiveBlock.NewFDiv(left.LLVal(function), right.LLVal(function)), v)
 		})
 

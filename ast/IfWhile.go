@@ -21,7 +21,11 @@ func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) *errhandle.T
 	*i++
 
 	statement.SetCondTok(lex[*i])
-	cg, e := grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, ""))
+	cgbm, e := braceMatcher(lex, i, []string{"("}, []string{")"}, false, "")
+	if e != nil {
+		return e
+	}
+	cg, e := grouper(cgbm)
 	if e != nil {
 		return e
 	}
@@ -34,7 +38,11 @@ func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) *errhandle.T
 	*i++
 
 	statement.SetBTok(lex[*i])
-	bg, e := grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator"))
+	bgbm, e := braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator")
+	if e != nil {
+		return e
+	}
+	bg, e := grouper(bgbm)
 	if e != nil {
 		return e
 	}
@@ -50,7 +58,11 @@ func ifwhileParse(statement IfWhile, lex []tokenizer.Token, i *int) *errhandle.T
 		if *i+1 < len(lex) && lex[*i+1].Name == "else" {
 			//else clause detected
 			*i += 2 //skip the semicolon & "else"
-			elsebody, e := grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator"))
+			elsebodybm, e := braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "terminator")
+			if e != nil {
+				return e
+			}
+			elsebody, e := grouper(elsebodybm)
 			if e != nil {
 				return e
 			}

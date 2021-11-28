@@ -36,7 +36,12 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle
 
 	a.btok = lex[*i]
 
-	sizl := braceMatcher(lex, i, []string{"[", "{", "("}, []string{"]", "}", ")"}, true, "")
+	sizl, e := braceMatcher(lex, i, []string{"[", "{", "("}, []string{"]", "}", ")"}, true, "")
+
+	if e != nil {
+		return e
+	}
+
 	*i++
 	sizg, e := grouper(sizl)
 
@@ -97,7 +102,12 @@ func (a *Array) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle
 	//if there is no { after the type, then it is being used as the var type
 	if lex[*i].Type == "{" {
 		a.typtok = lex[*i]
-		arrl := braceMatcher(lex, i, []string{"{"}, []string{"}"}, true, "")
+		arrl, e := braceMatcher(lex, i, []string{"{"}, []string{"}"}, true, "")
+
+		if e != nil {
+			return e
+		}
+
 		arrg, e := grouper(arrl)
 
 		if e != nil {
@@ -198,7 +208,7 @@ func (a *Array) CompileVariedLengthArray(compiler *Compiler, class *data.Class, 
 		return nil
 	}
 
-	sizi := compiler.CastStore.RunCast(true, data.NewPrimitive(types.I64), a.csiz, compiler, function, class) //force the length to an i64
+	sizi := compiler.CastStore.RunCast(true, data.NewPrimitive(types.I64), a.csiz, a.Siz.Group, compiler, function, class) //force the length to an i64
 	var curlen value.Value
 	var alc *ir.InstAlloca
 	block := function.ActiveBlock

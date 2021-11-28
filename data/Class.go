@@ -115,7 +115,7 @@ func (c *Class) Equals(t Type) bool {
 }
 
 func (c *Class) FullName() string {
-	return c.ParentPackage.FullName + "." + c.Name
+	return c.ParentPackage.FullName + c.CName
 }
 
 func (c *Class) Alignment() uint64 {

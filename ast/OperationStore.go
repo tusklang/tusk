@@ -7,7 +7,7 @@ import (
 type operationdef struct {
 	left, right string
 	operation   string
-	handler     func(left, right data.Value, compiler *Compiler, function *data.Function, class *data.Class) data.Value
+	handler     func(left, right data.Value, lcg, rcg Group, compiler *Compiler, function *data.Function, class *data.Class) data.Value
 }
 
 type OperationStore struct {
@@ -18,7 +18,7 @@ func NewOperationStore() *OperationStore {
 	return &OperationStore{}
 }
 
-func (os *OperationStore) NewOperation(operation string, ltype, rtype string, handler func(left, right data.Value, compiler *Compiler, function *data.Function, class *data.Class) data.Value) {
+func (os *OperationStore) NewOperation(operation string, ltype, rtype string, handler func(left, right data.Value, lcg, rcg Group, compiler *Compiler, function *data.Function, class *data.Class) data.Value) {
 	os.operations = append(os.operations, operationdef{
 		left:      ltype,
 		right:     rtype,
@@ -33,14 +33,14 @@ var (
 	untypedfloatprec = []string{"f64", "f32"}
 )
 
-func (os *OperationStore) checkuntypedr(lval, rval data.Value, operation string, compiler *Compiler, function *data.Function, class *data.Class) data.Value {
+func (os *OperationStore) checkuntypedr(lval, rval data.Value, lcg, rcg Group, operation string, compiler *Compiler, function *data.Function, class *data.Class) data.Value {
 
 	//store the original
 	krval := rval
 
 	var prec []string
 
-	if rval != nil {
+	if rval != nil && rval.TType() != nil {
 		if rval.TType().TypeData().Name() == "untypedint" {
 			prec = untypedintprec
 		} else if rval.TType().TypeData().Name() == "untypedfloat" {
@@ -51,7 +51,9 @@ func (os *OperationStore) checkuntypedr(lval, rval data.Value, operation string,
 	for _, vi := range prec {
 		if ok := os.runoperation(
 			lval,
-			compiler.CastStore.RunCast(true, Numtypes[vi], krval, compiler, function, class),
+			compiler.CastStore.RunCast(true, Numtypes[vi], krval, rcg, compiler, function, class),
+			lcg,
+			rcg,
 			operation,
 			compiler,
 			function,
@@ -61,17 +63,17 @@ func (os *OperationStore) checkuntypedr(lval, rval data.Value, operation string,
 		}
 	}
 
-	return os.runoperation(lval, rval, operation, compiler, function, class)
+	return os.runoperation(lval, rval, lcg, rcg, operation, compiler, function, class)
 }
 
-func (os *OperationStore) checkuntypedl(lval, rval data.Value, operation string, compiler *Compiler, function *data.Function, class *data.Class) data.Value {
+func (os *OperationStore) checkuntypedl(lval, rval data.Value, lcg, rcg Group, operation string, compiler *Compiler, function *data.Function, class *data.Class) data.Value {
 
 	//store the original
 	klval := lval
 
 	var prec []string
 
-	if lval != nil {
+	if lval != nil && lval.TType() != nil {
 		if lval.TType().TypeData().Name() == "untypedint" {
 			prec = untypedintprec
 		} else if lval.TType().TypeData().Name() == "untypedfloat" {
@@ -81,8 +83,10 @@ func (os *OperationStore) checkuntypedl(lval, rval data.Value, operation string,
 
 	for _, vi := range prec {
 		if ok := os.checkuntypedr(
-			compiler.CastStore.RunCast(true, Numtypes[vi], klval, compiler, function, class),
+			compiler.CastStore.RunCast(true, Numtypes[vi], klval, lcg, compiler, function, class),
 			rval,
+			lcg,
+			rcg,
 			operation,
 			compiler,
 			function,
@@ -92,14 +96,14 @@ func (os *OperationStore) checkuntypedl(lval, rval data.Value, operation string,
 		}
 	}
 
-	return os.checkuntypedr(lval, rval, operation, compiler, function, class)
+	return os.checkuntypedr(lval, rval, lcg, rcg, operation, compiler, function, class)
 }
 
-func (os *OperationStore) runoperation(lval, rval data.Value, operation string, compiler *Compiler, function *data.Function, class *data.Class) data.Value {
+func (os *OperationStore) runoperation(lval, rval data.Value, lcg, rcg Group, operation string, compiler *Compiler, function *data.Function, class *data.Class) data.Value {
 	for _, v := range os.operations {
 		if operation == v.operation && matchOpdef(lval, v.left) && matchOpdef(rval, v.right) {
 			//if the types match with the operation
-			return v.handler(lval, rval, compiler, function, class)
+			return v.handler(lval, rval, lcg, rcg, compiler, function, class)
 		}
 	}
 
@@ -107,6 +111,6 @@ func (os *OperationStore) runoperation(lval, rval data.Value, operation string, 
 	return nil
 }
 
-func (os *OperationStore) RunOperation(lval, rval data.Value, operation string, compiler *Compiler, function *data.Function, class *data.Class) data.Value {
-	return os.checkuntypedl(lval, rval, operation, compiler, function, class)
+func (os *OperationStore) RunOperation(lval, rval data.Value, lcg, rcg Group, operation string, compiler *Compiler, function *data.Function, class *data.Class) data.Value {
+	return os.checkuntypedl(lval, rval, lcg, rcg, operation, compiler, function, class)
 }

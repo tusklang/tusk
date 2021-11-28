@@ -92,7 +92,7 @@ func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string, maxl
 		case "return":
 			gr = &Return{}
 		case "{":
-			fallthrough
+			gr = &Block{}
 		case "(":
 			gr = &Block{}
 		case "[":
@@ -145,6 +145,7 @@ func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string, maxl
 		}
 
 		fin = append(fin, gr)
+
 	}
 
 	return fin, nil

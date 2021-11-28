@@ -27,7 +27,13 @@ func (b *Block) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e *errhan
 
 	b.BlockType = lex[*i].Type
 
-	gcontent, e := grouper(braceMatcher(lex, i, []string{lex[*i].Type}, []string{bmatches[lex[*i].Type]}, true, ""))
+	contbm, e := braceMatcher(lex, i, []string{lex[*i].Type}, []string{bmatches[lex[*i].Type]}, true, "")
+
+	if e != nil {
+		return e
+	}
+
+	gcontent, e := grouper(contbm)
 
 	if e != nil {
 		return e

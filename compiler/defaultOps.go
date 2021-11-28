@@ -10,6 +10,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 )
 
 func initDefaultOps(compiler *ast.Compiler) {
@@ -18,13 +19,19 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 	addNumOps(compiler)
 
-	compiler.OperationStore.NewOperation("=", "var", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("=", "var", "*", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
 		if !left.TType().Equals(right.TType()) {
-			right = compiler.CastStore.RunCast(true, left.TType(), right, compiler, function, class)
+			right = compiler.CastStore.RunCast(true, left.TType(), right, rcg, compiler, function, class)
 			if right == nil {
 				//error
 				//dst and src types don't match
+				compiler.AddError(errhandle.NewCompileErrorFTok(
+					"mismatched types",
+					fmt.Sprintf("expected type %s", left.TType().TypeData().String()),
+					rcg.GetMTok(),
+				))
+				return data.NewInvalidType()
 			}
 		}
 
@@ -44,11 +51,11 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return left
 	})
 
-	compiler.OperationStore.NewOperation("->", "type", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
-		return compiler.CastStore.RunCast(false, left.(data.Type), right, compiler, function, class)
+	compiler.OperationStore.NewOperation("->", "type", "*", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		return compiler.CastStore.RunCast(false, left.(data.Type), right, rcg, compiler, function, class)
 	})
 
-	compiler.OperationStore.NewOperation(".", "package", "udvar", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation(".", "package", "udvar", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
 		pack := left.(*data.Package)
 		sub := right.(*data.UndeclaredVar).Name
@@ -66,21 +73,61 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return cclass
 	})
 
-	compiler.OperationStore.NewOperation(".", "class", "udvar", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation(".", "class", "udvar", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
-		cclass := left.(*data.Class)
+		classt := left.(*data.Class)
 		sub := right.(*data.UndeclaredVar).Name
 
-		if cclass.Static[sub].Access == 2 && !cclass.Equals(class) {
-			//error
-			//trying to access a private field
-			fmt.Println("trying to access private static field " + class.Name)
+		if _, ok := classt.Static[sub]; !ok {
+			//it doesn't exist
+			//this could mean that it's in the instance/methods
+			//if it is, then indicate it to the dev
+			//otherwise say it doesn't exist
+
+			err := "field not found in class"
+
+			var inInstanceH = func() {
+				compiler.AddError(errhandle.NewCompileErrorFTok(
+					err,
+					fmt.Sprintf("field '%s' is in the instance of %s", sub, classt.FullName()),
+					rcg.GetMTok(),
+				))
+			}
+
+			if _, inInstance := classt.Instance[sub]; inInstance {
+				inInstanceH()
+			} else {
+				//it could still be a method
+				if _, inMethods := classt.Methods[sub]; inMethods {
+					inInstanceH()
+				} else {
+					//it's not a method or instance var, it doesn't exist in the class
+					compiler.AddError(errhandle.NewCompileErrorFTok(
+						err,
+						fmt.Sprintf("field '%s' not found in class %s", sub, classt.FullName()),
+						rcg.GetMTok(),
+					))
+				}
+			}
+
+			return data.NewInvalidType()
 		}
 
-		return cclass.Static[sub].Value
+		if classt.Static[sub].Access == 2 && !classt.Equals(class) {
+			//error
+			//trying to access a private field
+			compiler.AddError(errhandle.NewCompileErrorFTok(
+				"unable to access field",
+				fmt.Sprintf("field %s is marked '%s' and cannot be accessed from class '%s'", sub, "private", class.FullName()),
+				rcg.GetMTok(),
+			))
+			return data.NewInvalidType()
+		}
+
+		return classt.Static[sub].Value
 	})
 
-	compiler.OperationStore.NewOperation(".", "instance", "udvar", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation(".", "instance", "udvar", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
 		inst := left.LLVal(function)
 		sub := right.(*data.UndeclaredVar).Name
@@ -97,6 +144,12 @@ func initDefaultOps(compiler *ast.Compiler) {
 			if ivar, ok = classt.Methods[sub]; !ok {
 				//error
 				//field `sub` does not exist in class
+				compiler.AddError(errhandle.NewCompileErrorFTok(
+					"nonexistent field",
+					fmt.Sprintf("field '%s' does not exist in class %s", sub, class.FullName()),
+					rcg.GetMTok(),
+				))
+				return data.NewInvalidType()
 			} else {
 				fieldtyp = "method"
 			}
@@ -107,7 +160,12 @@ func initDefaultOps(compiler *ast.Compiler) {
 		if ivar.Access == 2 && !classt.Equals(class) {
 			//error
 			//trying to access a private field
-			fmt.Println("trying to access private instance field " + class.Name)
+			compiler.AddError(errhandle.NewCompileErrorFTok(
+				"unable to access field",
+				fmt.Sprintf("field %s is marked '%s' and cannot be accessed from class '%s'", sub, "private", class.FullName()),
+				rcg.GetMTok(),
+			))
+			return data.NewInvalidType()
 		}
 
 		switch fieldtyp {
@@ -140,7 +198,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return nil
 	})
 
-	compiler.OperationStore.NewOperation("()", "func", "fncallb", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("()", "func", "fncallb", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
 		f := left.LLVal(function)
 		fcb := right.(*data.FnCallBlock)
@@ -158,15 +216,34 @@ func initDefaultOps(compiler *ast.Compiler) {
 		if len(fcb.Args) != len(tf.ParamTypes)+tad {
 			//error
 			//args given doesn't match args in sig
+
+			//the error message is "expected {n} arguments" but if {n} is 1, it should just say "argument" so
+			addS := "s"
+			if len(tf.ParamTypes) == 1 {
+				addS = ""
+			}
+
+			compiler.AddError(errhandle.NewCompileErrorFTok(
+				"incorrect argument count",
+				fmt.Sprintf("expected %d argument%s but got %d instead", len(tf.ParamTypes), addS, len(fcb.Args)),
+				rcg.GetMTok(),
+			))
+			return data.NewInvalidType()
 		}
 
 		for k, v := range tf.ParamTypes {
 			if !v.Equals(fcb.Args[k].TType()) {
-				if cast := compiler.CastStore.RunCast(true, v, fcb.Args[k], compiler, function, class); cast != nil {
+				if cast := compiler.CastStore.RunCast(true, v, fcb.Args[k], rcg, compiler, function, class); cast != nil {
 					fcb.Args[k] = cast
 				} else {
-					//compiler error
+					//error
 					//variable value type doesn't match inputted type
+					compiler.AddError(errhandle.NewCompileErrorFTok(
+						"incorrect type provided",
+						fmt.Sprintf("expected type %s for argument %d but got %s instead", v.TypeData(), k+1, fcb.Args[k].TType().TypeData()),
+						rcg.GetMTok(),
+					))
+					return data.NewInvalidType()
 				}
 			}
 			args = append(args, fcb.Args[k].LLVal(function))
@@ -197,16 +274,16 @@ func initDefaultOps(compiler *ast.Compiler) {
 		)
 	})
 
-	compiler.OperationStore.NewOperation("()", "class", "fncallb", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("()", "class", "fncallb", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
 		cclass := left.(*data.Class)
 		fcb := right.(*data.FnCallBlock)
 
-		return compiler.OperationStore.RunOperation(cclass.Construct, fcb, "()", compiler, function, class)
+		return compiler.OperationStore.RunOperation(cclass.Construct, fcb, lcg, rcg, "()", compiler, function, class)
 	})
 
 	//array indexing
-	compiler.OperationStore.NewOperation("[]", "slice&array", "i32", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("[]", "slice&array", "i32", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		gept := left.TType().(*data.SliceArray).ValType().Type()
 		gep := function.ActiveBlock.NewGetElementPtr(gept, left.LLVal(function), right.LLVal(function))
 		gep.InBounds = true
@@ -216,7 +293,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 		)
 	})
 
-	compiler.OperationStore.NewOperation("[]", "fixed&array", "i32", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("[]", "fixed&array", "i32", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		farr := left.TType().(*data.FixedArray)
 		gept := farr.Type()
 
@@ -237,7 +314,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 		)
 	})
 
-	compiler.OperationStore.NewOperation("[]", "varied&array", "i32", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("[]", "varied&array", "i32", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		varr := left.TType().(*data.VariedLengthArray)
 		gept := varr.ValType().Type()
 		gep := function.ActiveBlock.NewGetElementPtr(gept, left.LLVal(function), right.LLVal(function))
@@ -249,14 +326,14 @@ func initDefaultOps(compiler *ast.Compiler) {
 	})
 	////////////////
 
-	compiler.OperationStore.NewOperation("#", "-", "ptr&var", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("#", "-", "ptr&var", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewVariable(
 			right.LLVal(function),
 			right.TType().(*data.Pointer).PType(),
 		)
 	})
 
-	compiler.OperationStore.NewOperation("#", "-", "type", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("#", "-", "type", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
 		ptrt := data.NewPointer(right.TType())
 		ptrt.SetToType() //make it a type, not a value
@@ -264,49 +341,49 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return ptrt
 	})
 
-	compiler.OperationStore.NewOperation("==", "*", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("==", "*", "*", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(
 			function.ActiveBlock.NewICmp(enum.IPredEQ, left.LLVal(function), right.LLVal(function)),
 			data.NewPrimitive(types.I1),
 		)
 	})
 
-	compiler.OperationStore.NewOperation("!=", "*", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("!=", "*", "*", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(
 			function.ActiveBlock.NewICmp(enum.IPredNE, left.LLVal(function), right.LLVal(function)),
 			data.NewPrimitive(types.I1),
 		)
 	})
 
-	compiler.OperationStore.NewOperation(">", "*", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation(">", "*", "*", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(
 			function.ActiveBlock.NewZExt(function.ActiveBlock.NewICmp(enum.IPredUGT, left.LLVal(function), right.LLVal(function)), types.I32),
 			data.NewPrimitive(types.I1),
 		)
 	})
 
-	compiler.OperationStore.NewOperation(">=", "*", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation(">=", "*", "*", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(
 			function.ActiveBlock.NewICmp(enum.IPredUGE, left.LLVal(function), right.LLVal(function)),
 			data.NewPrimitive(types.I1),
 		)
 	})
 
-	compiler.OperationStore.NewOperation("<", "*", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("<", "*", "*", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(
 			function.ActiveBlock.NewICmp(enum.IPredULT, left.LLVal(function), right.LLVal(function)),
 			data.NewPrimitive(types.I1),
 		)
 	})
 
-	compiler.OperationStore.NewOperation("<=", "*", "*", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("<=", "*", "*", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		return data.NewInstVariable(
 			function.ActiveBlock.NewICmp(enum.IPredULE, left.LLVal(function), right.LLVal(function)),
 			data.NewPrimitive(types.I1),
 		)
 	})
 
-	compiler.OperationStore.NewOperation("@", "-", "var", func(left, right data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.OperationStore.NewOperation("@", "-", "var", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 		vd := data.NewInstVariable(
 			right.(*data.Variable).FetchAssig(),
 			data.NewPointer(right.(*data.Variable).TType()),

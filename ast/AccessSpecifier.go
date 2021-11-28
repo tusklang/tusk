@@ -13,7 +13,12 @@ func parseAccessSpec(spec AccessSpecifier, lex []tokenizer.Token, i *int) *errha
 	*i++
 
 	//match everything up to the next semicolon (that isn't enclosed in a brace)
-	bm := braceMatcher(lex, i, allopeners, allclosers, false, "terminator")
+	bm, e := braceMatcher(lex, i, allopeners, allclosers, false, "terminator")
+
+	if e != nil {
+		return e
+	}
+
 	g, e := grouper(bm)
 
 	if e != nil {

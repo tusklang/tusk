@@ -1,6 +1,8 @@
 package compiler
 
 import (
+	"fmt"
+
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
@@ -9,6 +11,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/data"
+	"github.com/tusklang/tusk/errhandle"
 )
 
 var (
@@ -20,7 +23,7 @@ var (
 func addCastArray(auto bool, compiler *ast.Compiler, typArr []string, fromType string, fn func(tname string, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value) {
 	for _, _v := range typArr {
 		v := _v
-		compiler.CastStore.NewCast(auto, v, fromType, func(toType data.Type, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		compiler.CastStore.NewCast(auto, v, fromType, func(toType data.Type, fromData data.Value, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 			return fn(v, fromData, compiler, function, class)
 		})
 	}
@@ -43,7 +46,7 @@ func addXCasts2(auto, slice bool, compiler *ast.Compiler, fromArr []string, toAr
 				continue
 			}
 
-			compiler.CastStore.NewCast(auto, vv, v, func(toType data.Type, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+			compiler.CastStore.NewCast(auto, vv, v, func(toType data.Type, fromData data.Value, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 				return data.NewInstVariable(fn(fromData, compiler, function, class, ast.Numtypes[vv].Type()), ast.Numtypes[vv])
 			})
 
@@ -135,14 +138,24 @@ func initDefaultCasts(compiler *ast.Compiler) {
 	})
 
 	//other casts
-	compiler.CastStore.NewCast(true, "slice", "fixed", func(toType data.Type, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.CastStore.NewCast(true, "slice", "fixed", func(toType data.Type, fromData data.Value, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 
-		if !fromData.TypeData().GetOtherDat("valtyp").(data.Type).Equals(toType.TypeData().GetOtherDat("valtyp").(data.Type)) {
+		fromt := fromData.TypeData().GetOtherDat("valtyp").(data.Type)
+		tot := toType.TypeData().GetOtherDat("valtyp").(data.Type)
+		if !fromt.Equals(tot) {
 			//error
 			//slice type and fixed type don't match
 			//this is someting like:
 			//	[]i32 -> []i64{};
 			//most likely
+
+			compiler.AddError(errhandle.NewCompileErrorFTok(
+				"invalid slice cast",
+				fmt.Sprintf("fixed array of type %s cannot be casted to a slice of type %s", fromt.TypeData(), tot.TypeData()),
+				rcg.GetMTok(),
+			))
+
+			return data.NewInvalidType()
 		}
 
 		toTypet := toType.(*data.SliceArray)
@@ -186,7 +199,25 @@ func initDefaultCasts(compiler *ast.Compiler) {
 		return data.NewInstVariable(loaded, data.NewPointer(toTypet.ValType()))
 	})
 
-	compiler.CastStore.NewCast(true, "slice", "varied", func(toType data.Type, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+	compiler.CastStore.NewCast(true, "slice", "varied", func(toType data.Type, fromData data.Value, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+
+		fromt := fromData.TypeData().GetOtherDat("valtyp").(data.Type)
+		tot := toType.TypeData().GetOtherDat("valtyp").(data.Type)
+		if !fromt.Equals(tot) {
+			//error
+			//slice type and fixed type don't match
+			//this is someting like:
+			//	[]i32 -> []i64{};
+			//most likely
+
+			compiler.AddError(errhandle.NewCompileErrorFTok(
+				"invalid slice cast",
+				fmt.Sprintf("varied array of type %s cannot be casted to a slice of type %s", fromt.TypeData(), tot.TypeData()),
+				rcg.GetMTok(),
+			))
+
+			return data.NewInvalidType()
+		}
 
 		toTypet := toType.(*data.SliceArray)                //convert the toType to a slice array (we know it is one)
 		malloc := compiler.LinkedFunctions["malloc"]        //fetch the malloc function

@@ -23,13 +23,21 @@ func fetchGlobals(tree []*ast.ASTNode, file *File, access int, crel int /*class 
 				Func:   g,
 			})
 		case *ast.Public:
-			return fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 0, crel)
+			if e := fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 0, crel); e != nil {
+				return e
+			}
 		case *ast.Protected:
-			return fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 1, crel)
+			if e := fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 1, crel); e != nil {
+				return e
+			}
 		case *ast.Private:
-			return fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 2, crel)
+			if e := fetchGlobals([]*ast.ASTNode{g.Declaration}, file, 2, crel); e != nil {
+				return e
+			}
 		case *ast.Static:
-			return fetchGlobals([]*ast.ASTNode{g.Declaration}, file, access, 1)
+			if e := fetchGlobals([]*ast.ASTNode{g.Declaration}, file, access, 1); e != nil {
+				return e
+			}
 		case *ast.Link:
 
 			g.Access = access

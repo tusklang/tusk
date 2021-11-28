@@ -38,7 +38,13 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e *err
 
 	f.ptok = lex[*i]
 
-	gr, e := grouper(braceMatcher(lex, i, []string{"("}, []string{")"}, false, ""))
+	grbm, e := braceMatcher(lex, i, []string{"("}, []string{")"}, false, "")
+
+	if e != nil {
+		return e
+	}
+
+	gr, e := grouper(grbm)
 
 	if e != nil {
 		return e
@@ -114,7 +120,13 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e *err
 
 	if *i < len(lex) && lex[*i].Type == "{" {
 		f.btok = lex[*i]
-		fbody, e := grouper(braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, ""))
+		fbodbm, e := braceMatcher(lex, i, []string{"{"}, []string{"}"}, false, "")
+
+		if e != nil {
+			return e
+		}
+
+		fbody, e := grouper(fbodbm)
 
 		if e != nil {
 			return e

@@ -27,19 +27,18 @@ func (o *Operation) GetMTok() tokenizer.Token {
 
 func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 
-	var (
-		lc data.Value
-		rc data.Value
-	)
-
 	//parse the left and right operands
 	//only if they exist
 	//some operators are only one side (e.g. !, ~, etc...)
+	var lc, rc data.Value
+	var lcg, rcg Group
 	if len(node.Left) != 0 {
-		lc = node.Left[0].Group.Compile(compiler, class, node.Left[0], function)
+		lcg = node.Left[0].Group
+		lc = lcg.Compile(compiler, class, node.Left[0], function)
 	}
 	if len(node.Right) != 0 {
-		rc = node.Right[0].Group.Compile(compiler, class, node.Right[0], function)
+		rcg = node.Right[0].Group
+		rc = rcg.Compile(compiler, class, node.Right[0], function)
 	}
 
 	if o.OpType == "." {
@@ -58,7 +57,7 @@ func (o *Operation) Compile(compiler *Compiler, class *data.Class, node *ASTNode
 
 	}
 
-	rop := compiler.OperationStore.RunOperation(lc, rc, o.OpType, compiler, function, class)
+	rop := compiler.OperationStore.RunOperation(lc, rc, lcg, rcg, o.OpType, compiler, function, class)
 
 	if rop == nil {
 

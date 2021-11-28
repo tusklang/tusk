@@ -106,6 +106,7 @@ func (a *FixedArray) Type() types.Type {
 func (a *FixedArray) TypeData() *TypeData {
 	td := NewTypeData("fixed")
 	td.AddFlag("array")
+	td.AddFlag("type")
 	td.AddOtherDat("valtyp", a.ValType().(Value))
 	td.AddOtherDat("length", NewInteger(constant.NewInt(types.I32, int64(a.Length()))))
 	return td

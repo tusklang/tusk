@@ -1,5 +1,7 @@
 package data
 
+import "fmt"
+
 type TypeData struct {
 	nam      string
 	flags    map[string]bool
@@ -47,6 +49,11 @@ func (td *TypeData) String() string {
 
 	if base == "fncallb" {
 		return "arglist"
+	}
+
+	if td.HasFlag("array") {
+		valtyp := td.GetOtherDat("valtyp").(Type)
+		base = fmt.Sprintf("[]%s", valtyp.TypeData())
 	}
 
 	if td.HasFlag("ptr") {

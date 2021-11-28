@@ -43,6 +43,7 @@ func (a *SliceArray) Type() types.Type {
 func (a *SliceArray) TypeData() *TypeData {
 	td := NewTypeData("slice")
 	td.AddFlag("array")
+	td.AddFlag("type")
 	td.AddOtherDat("valtyp", a.ValType().(Value))
 	return td
 }

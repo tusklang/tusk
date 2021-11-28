@@ -45,6 +45,7 @@ func (a *VariedLengthArray) Type() types.Type {
 func (a *VariedLengthArray) TypeData() *TypeData {
 	td := NewTypeData("varied")
 	td.AddFlag("array")
+	td.AddFlag("type")
 	td.AddOtherDat("valtyp", a.ValType().(Value))
 	td.AddOtherDat("length", NewInstVariable(a.length, NewPrimitive(a.length.Type())))
 	return td

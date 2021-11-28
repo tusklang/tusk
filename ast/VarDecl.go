@@ -69,7 +69,11 @@ func (vd *VarDecl) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhan
 	if lex[*i].Name == "=" {
 		*i++
 		vd.valtok = lex[*i]
-		vg, e := grouper(braceMatcher(lex, i, allopeners, allclosers, false, "terminator"))
+		vgbm, e := braceMatcher(lex, i, allopeners, allclosers, false, "terminator")
+		if e != nil {
+			return e
+		}
+		vg, e := grouper(vgbm)
 		if e != nil {
 			return e
 		}
@@ -187,7 +191,7 @@ func (vd *VarDecl) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 
 	if !vtype.Equals(varval.TType()) {
 
-		if cast := compiler.CastStore.RunCast(true, vtype, varval, compiler, function, class); cast != nil {
+		if cast := compiler.CastStore.RunCast(true, vtype, varval, vd.Value.Group, compiler, function, class); cast != nil {
 			varval = cast
 		} else {
 			//compiler error
@@ -271,7 +275,7 @@ func (vd *VarDecl) CompileGlobal(compiler *Compiler, class *data.Class, function
 
 	if !vd.decltyp.Equals(val.TType()) {
 
-		if cast := compiler.CastStore.RunCast(true, vd.decltyp, val, compiler, function, class); cast != nil {
+		if cast := compiler.CastStore.RunCast(true, vd.decltyp, val, vd.Value.Group, compiler, function, class); cast != nil {
 			val = cast
 		} else {
 			//compiler error
