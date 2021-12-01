@@ -53,12 +53,12 @@ func Tokenizer(data, filenam string) (tokens []Token) {
 				c += mlen
 				col += mlen
 
-				if matched == "\n" {
-					row++
+				if strings.Contains(matched, "\n") {
+					row += strings.Count(matched, "\n")
 					col = 1
 				}
 
-				continue
+				break
 			}
 		}
 	}
@@ -68,7 +68,7 @@ func Tokenizer(data, filenam string) (tokens []Token) {
 
 	for _, v := range tokens {
 
-		if v.Type == "whitespace" || v.Type == "newline" {
+		if v.Type == "whitespace" || v.Type == "newline" || v.Type == "comment" {
 			continue
 		}
 

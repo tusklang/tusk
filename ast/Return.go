@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"fmt"
+
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
@@ -9,14 +11,16 @@ import (
 type Return struct {
 	Val *ASTNode
 
-	tok tokenizer.Token
+	kwtok, rettok tokenizer.Token
 }
 
 func (r *Return) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandle.TuskError {
 
-	r.tok = lex[*i]
+	r.kwtok = lex[*i]
 
 	*i++
+
+	r.rettok = lex[*i]
 
 	retval, e := braceMatcher(lex, i, allopeners, allclosers, false, "terminator")
 
@@ -42,7 +46,7 @@ func (r *Return) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandl
 }
 
 func (r *Return) GetMTok() tokenizer.Token {
-	return r.tok
+	return r.kwtok
 }
 
 func (r *Return) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
@@ -55,7 +59,18 @@ func (r *Return) Compile(compiler *Compiler, class *data.Class, node *ASTNode, f
 	crval := r.Val.Group.Compile(compiler, class, r.Val, function) //compile the return val
 
 	if !crval.TType().Equals(function.RetType()) {
+		ocrv := crval
 		crval = compiler.CastStore.RunCast(true, function.RetType(), crval, r.Val.Group, compiler, function, class)
+		if crval == nil {
+			//error
+			//return type doesn't match the type here
+			compiler.AddError(errhandle.NewCompileErrorFTok(
+				"wrong return type",
+				fmt.Sprintf("expected type %s to return but got %s", function.RetType().TypeData(), ocrv.TypeData()),
+				r.rettok,
+			))
+			return nil
+		}
 	}
 
 	function.ActiveBlock.NewRet(crval.LLVal(function))

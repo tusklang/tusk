@@ -94,7 +94,7 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl, in
 			}
 
 			if d.macro != nil {
-				tree[k] = d.macro
+				*tree[k] = *d.macro
 			} else {
 				g.Name = d.nname //rename the variable in the ast
 			}
@@ -107,7 +107,8 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl, in
 
 			for _, v := range g.Params {
 				m[v.Name] = decl{
-					nname: p.nextvar(),
+					nname:  p.nextvar(),
+					static: true,
 				}
 				v.Name = m[v.Name].nname
 			}
@@ -203,7 +204,8 @@ func (p *VarProcessor) ProcessVars(file *parser.File) {
 			//process the function params
 			for _, vv := range v.Func.Params {
 				m[vv.Name] = decl{
-					nname: p.nextvar(),
+					nname:  p.nextvar(),
+					static: true,
 				}
 				vv.Name = m[vv.Name].nname
 			}

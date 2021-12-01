@@ -5,12 +5,17 @@ type TokenItem struct {
 	tokentype string
 }
 
-var keywords = []string{"fn", "return", "var", "if", "else", "while", "pub", "prv", "ptr", "stat", "link", "construct", "this"}
+var keywords = []string{"fn", "return", "var", "if", "else", "while", "for", "pub", "prv", "ptr", "stat", "link", "construct", "this"}
 
 var tokenlist = []TokenItem{
 
 	{("\\;"), "terminator"}, //semicolon
 	{("\\,"), "terminator"}, //comma
+
+	/************ comments ************/
+	{"\\/\\/.*?(?=\\n|$)", "comment"},     //single line comment
+	{"\\/\\*[\\s\\S]*?\\*\\/", "comment"}, //multi line comment https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch07s06.html#:~:text=We%20use%20%E2%80%B9%20.,last%20*/%20in%20the%20file.
+	/**********************************/
 
 	/************ whitespace ************/
 	{("\\n"), "newline"},       //newline
