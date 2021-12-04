@@ -54,7 +54,7 @@ func Compile(prog *parser.Program, outfile string) {
 	var processor = varprocessor.NewProcessor(&compiler)
 
 	//initialize the operations
-	var initfunc = m.NewFunc("_tusk_init", types.Void) //initialize func ran before main
+	var initfunc = m.NewFunc(".tusk.initfunc", types.Void) //initialize func ran before main
 	compiler.InitFunc = data.NewFunc(initfunc, data.NewPrimitive(types.Void))
 	compiler.InitFunc.ActiveBlock = initfunc.NewBlock("")
 
@@ -159,8 +159,12 @@ func Compile(prog *parser.Program, outfile string) {
 	//use the malloc function to allocate instances/objects
 	mallocf := m.NewFunc("malloc", types.I64Ptr)
 	mallocf.Sig.Variadic = true
-
 	compiler.LinkedFunctions["malloc"] = mallocf
+
+	//use the free function to deallocate instances/objects
+	freef := m.NewFunc("free", types.I64Ptr)
+	freef.Sig.Variadic = true
+	compiler.LinkedFunctions["free"] = freef
 
 	for ic, c := range cclasses {
 

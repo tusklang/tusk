@@ -68,6 +68,8 @@ type Function struct {
 	//given functions's class, if it is a method
 	MethodClass *Class
 	///////////////////
+
+	AllocatedObjs []value.Value //objects allocated (on the heap) in this function
 }
 
 func NewFunc(f *ir.Func, ret Type) *Function {

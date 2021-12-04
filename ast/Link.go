@@ -81,10 +81,12 @@ func (l *Link) Compile(compiler *Compiler, class *data.Class, node *ASTNode, fun
 	aname := l.AName //name in the linked binary
 	dtype := l.DType.Group.Compile(compiler, class, l.DType, function)
 
-	if dtype.TypeData().Name() != "func" {
+	if dtype.TypeData().Name() != "lambda" {
 		//error
 		//linked values must be functions
 	}
+
+	dtype = dtype.(*data.Lambda).Func()
 
 	if lf, exists := compiler.LinkedFunctions[aname]; exists {
 		return l.addToClass(lf, compiler, dtype, class)

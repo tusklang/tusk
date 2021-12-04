@@ -225,6 +225,16 @@ func (f *Function) CompileBody(ffunc *data.Function, compiler *Compiler, class *
 			ffunc.ActiveBlock.Term = v
 		}
 
+		for _, v := range rf.Blocks {
+			if v.Term == nil {
+				compiler.AddError(errhandle.NewCompileErrorFTok(
+					"missing return",
+					"",
+					f.ftok,
+				))
+			}
+		}
+
 		//add the function to the actual llvm bytecode (only if it has a body)
 		compiler.Module.Funcs = append(compiler.Module.Funcs, rf)
 	}
@@ -233,7 +243,7 @@ func (f *Function) CompileBody(ffunc *data.Function, compiler *Compiler, class *
 func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 	ffunc := f.CompileSig(compiler, class, node, function)
 	f.CompileBody(ffunc, compiler, class, node, function)
-	return ffunc
+	return data.NewLambda(ffunc, ffunc.Type())
 }
 
 func (f *Function) DeclareGlobal(compiler *Compiler, class *data.Class, static bool, access int) {

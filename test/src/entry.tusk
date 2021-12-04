@@ -1,3 +1,6 @@
+link fn printf(#i8, i32);
+
 pub stat fn main() {
-    /*hello*/
+    var test = fn() {};
+    test();
 };

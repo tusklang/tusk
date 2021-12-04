@@ -106,11 +106,20 @@ func (p *VarProcessor) process(tree []*ast.ASTNode, declared map[string]decl, in
 			m := mergemap(declared, curscope)
 
 			for _, v := range g.Params {
+
+				if v.Type != nil {
+					p.process([]*ast.ASTNode{v.Type}, m, instatic)
+				}
+
 				m[v.Name] = decl{
 					nname:  p.nextvar(),
 					static: true,
 				}
 				v.Name = m[v.Name].nname
+			}
+
+			if g.RetType != nil {
+				p.process([]*ast.ASTNode{g.RetType}, m, instatic)
 			}
 
 			if g.Body != nil {
@@ -203,11 +212,20 @@ func (p *VarProcessor) ProcessVars(file *parser.File) {
 
 			//process the function params
 			for _, vv := range v.Func.Params {
+
+				if vv.Type != nil {
+					p.process([]*ast.ASTNode{vv.Type}, m, v.CRel == 1)
+				}
+
 				m[vv.Name] = decl{
 					nname:  p.nextvar(),
 					static: true,
 				}
 				vv.Name = m[vv.Name].nname
+			}
+
+			if v.Func.RetType != nil {
+				p.process([]*ast.ASTNode{v.Func.RetType}, m, v.CRel == 1)
 			}
 
 			p.process(v.Func.Body.Sub, m, v.CRel == 1) //process the function body
@@ -222,6 +240,8 @@ func (p *VarProcessor) ProcessVars(file *parser.File) {
 			}
 
 			p.process([]*ast.ASTNode{v.Value.Value}, mergemap(p.predecl, globals), v.CRel == 1) //process the declaration's assigned value
+		} else if v.Link != nil {
+			p.process([]*ast.ASTNode{v.Link.DType}, mergemap(p.predecl, globals), true)
 		}
 
 	}

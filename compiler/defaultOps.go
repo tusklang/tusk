@@ -17,6 +17,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 	compiler.OperationStore = ast.NewOperationStore()
 
+	//numeric operators are stored in a different init functions b/c it's neat i guess
 	addNumOps(compiler)
 
 	compiler.OperationStore.NewOperation("=", "var", "*", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
@@ -178,6 +179,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 			return cloned
 		case "var":
 			//instance variable
+
 			gep := function.ActiveBlock.NewGetElementPtr(
 				classt.SType,
 				inst,
@@ -279,7 +281,9 @@ func initDefaultOps(compiler *ast.Compiler) {
 		cclass := left.(*data.Class)
 		fcb := right.(*data.FnCallBlock)
 
-		return compiler.OperationStore.RunOperation(cclass.Construct, fcb, lcg, rcg, "()", compiler, function, class)
+		alc := compiler.OperationStore.RunOperation(cclass.Construct, fcb, lcg, rcg, "()", compiler, function, class)
+		function.AllocatedObjs = append(function.AllocatedObjs, alc.LLVal(function))
+		return alc
 	})
 
 	//array indexing

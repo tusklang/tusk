@@ -113,6 +113,8 @@ func (vd *VarDecl) getDeclType(compiler *Compiler, class *data.Class, function *
 		vtype = vt
 	case *data.Function:
 		vtype = vt
+	case *data.Lambda:
+		vtype = vt
 	case *data.FixedArray:
 		vtype = vt
 	case *data.SliceArray:
@@ -230,6 +232,16 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 			vd.vnametok,
 		))
 		vd.globalerr = true
+
+		if static {
+			class.AppendStatic(vd.Name, data.NewInvalidType(), data.NewInvalidType(), access)
+		} else {
+
+			class.SType.Fields = append(class.SType.Fields, types.Void)
+
+			class.AppendInstance(vd.Name, data.NewInvalidType(), access)
+		}
+
 		return nil
 	}
 

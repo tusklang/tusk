@@ -40,6 +40,7 @@ type Compiler struct {
 	VarMap          map[string]data.Value  //map of all the variables declared
 	LinkedFunctions map[string]*ir.Func    //map of all the linked functions used (e.g. glibc functions)
 	Errors          []*errhandle.TuskError //list of all errors generated while compiling a program
+	lambdacnt       uint64                 //amount of lambdas used in the program
 }
 
 func (c *Compiler) AddVar(name string, v data.Value) {
@@ -52,4 +53,9 @@ func (c *Compiler) FetchVar(name string) data.Value {
 
 func (c *Compiler) AddError(e *errhandle.TuskError) {
 	c.Errors = append(c.Errors, e)
+}
+
+func (c *Compiler) LambdaInc() uint64 {
+	c.lambdacnt++
+	return c.lambdacnt
 }

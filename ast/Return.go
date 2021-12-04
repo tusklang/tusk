@@ -3,6 +3,7 @@ package ast
 import (
 	"fmt"
 
+	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/errhandle"
 	"github.com/tusklang/tusk/tokenizer"
@@ -51,6 +52,8 @@ func (r *Return) GetMTok() tokenizer.Token {
 
 func (r *Return) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 
+	var crvalLL value.Value
+
 	if r.Val == nil {
 		function.ActiveBlock.NewRet(nil)
 		return nil
@@ -73,6 +76,7 @@ func (r *Return) Compile(compiler *Compiler, class *data.Class, node *ASTNode, f
 		}
 	}
 
-	function.ActiveBlock.NewRet(crval.LLVal(function))
+	crvalLL = crval.LLVal(function)
+	function.ActiveBlock.NewRet(crvalLL)
 	return nil
 }
