@@ -243,7 +243,7 @@ func (f *Function) CompileBody(ffunc *data.Function, compiler *Compiler, class *
 func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 	ffunc := f.CompileSig(compiler, class, node, function)
 	f.CompileBody(ffunc, compiler, class, node, function)
-	return data.NewLambda(ffunc, ffunc.Type())
+	return ffunc
 }
 
 func (f *Function) DeclareGlobal(compiler *Compiler, class *data.Class, static bool, access int) {

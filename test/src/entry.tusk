@@ -1,6 +1,5 @@
 link fn printf(#i8, i32);
 
 pub stat fn main() {
-    var test = fn() {};
-    test();
+    var a = 1;
 };

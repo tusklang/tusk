@@ -113,8 +113,6 @@ func (vd *VarDecl) getDeclType(compiler *Compiler, class *data.Class, function *
 		vtype = vt
 	case *data.Function:
 		vtype = vt
-	case *data.Lambda:
-		vtype = vt
 	case *data.FixedArray:
 		vtype = vt
 	case *data.SliceArray:
