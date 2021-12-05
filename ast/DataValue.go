@@ -23,12 +23,22 @@ func parseFloat(n string) float64 {
 	return nv
 }
 
+func parseBool(n string) bool {
+	if n == "true" {
+		return true
+	} else {
+		return false
+	}
+}
+
 func getValue(tok tokenizer.Token) data.Value {
 	switch tok.Type {
 	case "int":
 		return data.NewUntypedInteger(parseInt(tok.Name))
 	case "float":
 		return data.NewUntypedFloat(parseFloat(tok.Name))
+	case "bool":
+		return data.NewBoolean(parseBool(tok.Name))
 	}
 
 	return nil

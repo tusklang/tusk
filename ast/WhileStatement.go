@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"fmt"
+
 	"github.com/llir/llvm/ir"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/errhandle"
@@ -58,6 +60,22 @@ func (ws *WhileStatement) Compile(compiler *Compiler, class *data.Class, node *A
 	rest := function.LLFunc.NewBlock("") //block to store the rest of the code (after this while statement)
 
 	cond := ws.Condition[0].Group.Compile(compiler, class, ws.Condition[0], function)
+
+	if !cond.TType().Equals(Booltype) {
+		if cast := compiler.CastStore.RunCast(true, Booltype, cond, ws.Condition[0].Group, compiler, function, class); cast != nil {
+			cond = cast
+		} else {
+			//compiler error
+			//variable value type doesn't match inputted type
+			compiler.AddError(errhandle.NewCompileErrorFTok(
+				"while condition not bool",
+				fmt.Sprintf("expected bool type in a while condition but got %s", cond.TypeData()),
+				ws.condtok,
+			))
+			return nil
+		}
+	}
+
 	wscond.NewCondBr(cond.LLVal(function), wsbod, rest)
 
 	function.ActiveBlock = wsbod

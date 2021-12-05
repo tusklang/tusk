@@ -7,6 +7,8 @@ import (
 	"github.com/tusklang/tusk/errhandle"
 )
 
+var Booltype = data.NewNamedPrimitive(types.I1, "bool")
+
 var InttypeV = map[string]data.Type{
 	"i128": data.NewPrimitive(types.I128),
 	"i64":  data.NewPrimitive(types.I64),

@@ -137,6 +137,12 @@ func initDefaultCasts(compiler *ast.Compiler) {
 		return data.NewInstVariable(constant.NewFloat(ast.Numtypes[tname].Type().(*types.FloatType), fromData.(*data.Float).UTypVal), ast.Numtypes[tname])
 	})
 
+	//add int to bool casts
+
+	addCastArray(true, compiler, append(inttypes, uinttypes...), "bool", func(tname string, fromData data.Value, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+		return data.NewInstVariable(function.ActiveBlock.NewZExt(fromData.LLVal(function), ast.Numtypes[tname].Type()), ast.Numtypes[tname])
+	})
+
 	//other casts
 	compiler.CastStore.NewCast(true, "slice", "fixed", func(toType data.Type, fromData data.Value, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 

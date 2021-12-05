@@ -7,7 +7,7 @@ import (
 )
 
 type Boolean struct {
-	val *Integer
+	val int64
 }
 
 func NewBoolean(val bool) *Boolean {
@@ -18,20 +18,20 @@ func NewBoolean(val bool) *Boolean {
 	}
 
 	return &Boolean{
-		val: NewInteger(constant.NewInt(types.I1, ival)),
+		val: ival,
 	}
 }
 
 func (b *Boolean) LLVal(function *Function) value.Value {
-	return b.val.LLVal(function)
+	return constant.NewInt(types.I1, b.val)
 }
 
 func (b *Boolean) TType() Type {
-	return NewPrimitive(types.I1)
+	return NewNamedPrimitive(types.I1, "bool")
 }
 
 func (b *Boolean) Type() types.Type {
-	return types.I32
+	return types.I1
 }
 
 func (b *Boolean) TypeData() *TypeData {
