@@ -177,11 +177,11 @@ func Compile(prog *parser.Program, outfile string) {
 			}
 
 			if v.Func != nil {
-				v.Func.DeclareGlobal(&compiler, c, v.CRel == 1, v.Access)
+				v.Func.DeclareGlobal(&compiler, c, parser.IsStatic(v), parser.IsPure(v), v.Access)
 				continue
 			}
 
-			v.Value.DeclareGlobal(c.ParentPackage.FullName+"."+c.Name+"_"+v.Value.Name, &compiler, c, v.CRel == 1, v.Access)
+			v.Value.DeclareGlobal(c.ParentPackage.FullName+"."+c.Name+"_"+v.Value.Name, &compiler, c, parser.IsStatic(v), v.Access)
 		}
 
 		//if there is a constructor, compile the signature
@@ -192,16 +192,8 @@ func Compile(prog *parser.Program, outfile string) {
 
 	for ic, c := range cclasses {
 
-		var newAlloc = c.Construct.ActiveBlock.NewAlloca(types.NewPointer(c.SType))
-		c.Construct.ActiveBlock.NewStore(
-			c.Construct.ActiveBlock.NewBitCast(
-				c.Construct.ActiveBlock.NewCall(mallocf, constant.NewInt(types.I64, int64(c.TypSiz))),
-				types.NewPointer(c.SType),
-			),
-			newAlloc,
-		)
-
-		c.ConstructAlloc = c.Construct.ActiveBlock.NewLoad(types.NewPointer(c.SType), newAlloc)
+		var newAlloc = c.Construct.ActiveBlock.NewAlloca(c.SType)
+		c.ConstructAlloc = newAlloc
 
 		for _, v := range ic.Globals {
 
@@ -214,12 +206,14 @@ func Compile(prog *parser.Program, outfile string) {
 					compileToFn = c.Construct
 				case 1:
 					//static
+					fallthrough
+				case 3:
 					compileToFn = compiler.InitFunc
 				}
 
 				v.Value.CompileGlobal(&compiler, c, compileToFn)
 			} else if v.Func != nil {
-				v.Func.CompileGlobal(&compiler, c, v.CRel == 1)
+				v.Func.CompileGlobal(&compiler, c, parser.IsStatic(v))
 			}
 
 		}
@@ -229,7 +223,7 @@ func Compile(prog *parser.Program, outfile string) {
 			ic.Constructor.CompileConstructor(&compiler, c)
 		}
 
-		c.Construct.ActiveBlock.NewRet(c.ConstructAlloc) //return the allocated object at the end of the 'new' function
+		c.Construct.ActiveBlock.NewRet(c.Construct.ActiveBlock.NewLoad(c.SType, c.ConstructAlloc)) //return the allocated object at the end of the 'new' function
 	}
 
 	if compiler.Errors != nil {

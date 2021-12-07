@@ -13,6 +13,8 @@ type Function struct {
 	ParamTypes  []Type
 	ret         Type
 
+	IsPure bool
+
 	nam string
 
 	//list of terminators to append

@@ -111,6 +111,8 @@ func groupSpecific(tokens []tokenizer.Token, startAt *int, stopAt []string, maxl
 			gr = &Static{}
 		case "link":
 			gr = &Link{}
+		case "pure":
+			gr = &Pure{}
 		case "var":
 			gr = &VarDecl{}
 		case "terminator":

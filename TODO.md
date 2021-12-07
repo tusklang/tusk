@@ -33,3 +33,7 @@ this doesn't work still
 - Standard library
 
 Make one
+
+- Pure Functions
+
+Very big functional programming concept

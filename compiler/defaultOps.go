@@ -174,15 +174,23 @@ func initDefaultOps(compiler *ast.Compiler) {
 			//method
 
 			cloned := data.CloneFunc(ivar.Value.(*data.Function))
-			cloned.Instance = inst
+
+			if varv, ok := left.(*data.Variable); ok {
+				cloned.Instance = varv.FetchAssig()
+			} else {
+				cloned.Instance = inst
+			}
 
 			return cloned
 		case "var":
 			//instance variable
 
+			tofetch := function.ActiveBlock.NewAlloca(inst.Type())
+			function.ActiveBlock.NewStore(inst, tofetch)
+
 			gep := function.ActiveBlock.NewGetElementPtr(
 				classt.SType,
-				inst,
+				tofetch,
 				constant.NewInt(types.I32, 0),
 				constant.NewInt(types.I32, ivar.Index),
 			)
@@ -208,14 +216,12 @@ func initDefaultOps(compiler *ast.Compiler) {
 		tf := left.TType().(*data.Function)
 
 		var args []value.Value
-		var tad int //this value is a boolean (int) used to store if the function is a method or not
 
 		if left.TypeData().HasFlag("method") {
 			args = append(args, left.InstanceV())
-			tad = 1
 		}
 
-		if len(fcb.Args) != len(tf.ParamTypes)+tad {
+		if len(fcb.Args) != len(tf.ParamTypes) {
 			//error
 			//args given doesn't match args in sig
 

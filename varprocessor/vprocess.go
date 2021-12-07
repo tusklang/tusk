@@ -195,7 +195,7 @@ func (p *VarProcessor) ProcessVars(file *parser.File) {
 		//add all the globals
 		globals[nam] = decl{
 			nname:  nam,
-			static: v.CRel != 0,
+			static: parser.IsStatic(v),
 		}
 	}
 
@@ -214,7 +214,7 @@ func (p *VarProcessor) ProcessVars(file *parser.File) {
 			for _, vv := range v.Func.Params {
 
 				if vv.Type != nil {
-					p.process([]*ast.ASTNode{vv.Type}, m, v.CRel == 1)
+					p.process([]*ast.ASTNode{vv.Type}, m, parser.IsStatic(v))
 				}
 
 				m[vv.Name] = decl{
@@ -225,10 +225,10 @@ func (p *VarProcessor) ProcessVars(file *parser.File) {
 			}
 
 			if v.Func.RetType != nil {
-				p.process([]*ast.ASTNode{v.Func.RetType}, m, v.CRel == 1)
+				p.process([]*ast.ASTNode{v.Func.RetType}, m, parser.IsStatic(v))
 			}
 
-			p.process(v.Func.Body.Sub, m, v.CRel == 1) //process the function body
+			p.process(v.Func.Body.Sub, m, parser.IsStatic(v)) //process the function body
 		} else if v.Value != nil {
 
 			if v.Value.Value == nil {
@@ -239,7 +239,7 @@ func (p *VarProcessor) ProcessVars(file *parser.File) {
 				continue
 			}
 
-			p.process([]*ast.ASTNode{v.Value.Value}, mergemap(p.predecl, globals), v.CRel == 1) //process the declaration's assigned value
+			p.process([]*ast.ASTNode{v.Value.Value}, mergemap(p.predecl, globals), parser.IsStatic(v)) //process the declaration's assigned value
 		} else if v.Link != nil {
 			p.process([]*ast.ASTNode{v.Link.DType}, mergemap(p.predecl, globals), true)
 		}

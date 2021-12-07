@@ -23,7 +23,7 @@ func compileClass(compiler *ast.Compiler, f *parser.File, ipack *parser.Package,
 	d := compiler.Module.NewTypeDef("tuskclass."+ipack.FullName()+f.Name, stype)
 
 	//define the function to create a new instance of this class
-	initf := compiler.Module.NewFunc("tuskclass.new."+ipack.FullName()+f.Name, types.NewPointer(d))
+	initf := compiler.Module.NewFunc("tuskclass.new."+ipack.FullName()+f.Name, d)
 	tc.Construct = data.NewFunc(initf, tc)
 	tc.Construct.ActiveBlock = initf.NewBlock("")
 

@@ -38,6 +38,11 @@ func fetchGlobals(tree []*ast.ASTNode, file *File, access int, crel int /*class 
 			if e := fetchGlobals([]*ast.ASTNode{g.Declaration}, file, access, 1); e != nil {
 				return e
 			}
+		case *ast.Pure:
+			if e := fetchGlobals([]*ast.ASTNode{g.Declaration}, file, access, 3); e != nil {
+				return e
+			}
+
 		case *ast.Link:
 
 			g.Access = access

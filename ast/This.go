@@ -25,5 +25,5 @@ func (t *This) Compile(compiler *Compiler, class *data.Class, node *ASTNode, fun
 		//cannot use `this` on non-methods
 	}
 
-	return data.NewInstVariable(function.LLFunc.Params[0], data.NewInstance(function.MethodClass))
+	return data.NewVariable(function.LLFunc.Params[0], data.NewInstance(function.MethodClass))
 }

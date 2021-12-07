@@ -99,6 +99,10 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int, stopAt []string) (e *err
 
 	f.Params = plist
 
+	if *i >= len(lex) {
+		return nil
+	}
+
 	if lex[*i].Type != "{" && lex[*i].Type != "terminator" && lex[*i].Name != "=" {
 		//read the return type
 		//if there is no body, terminator, or assignment next, it has to be a return type
@@ -246,7 +250,7 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 	return ffunc
 }
 
-func (f *Function) DeclareGlobal(compiler *Compiler, class *data.Class, static bool, access int) {
+func (f *Function) DeclareGlobal(compiler *Compiler, class *data.Class, static bool, pure bool, access int) {
 	stoname := f.Name
 
 	//we do this to detect functions declared within the non-global scope that have names
@@ -261,9 +265,10 @@ func (f *Function) DeclareGlobal(compiler *Compiler, class *data.Class, static b
 
 	var fn = f.CompileSig(compiler, class, nil, nil)
 	fn.SetLName(stoname)
+	fn.IsPure = pure
 
 	if static {
-		class.AppendStatic(stoname, fn, fn.TType(), access)
+		class.AppendStatic(stoname, fn, fn.TType(), access, pure)
 	} else {
 		class.NewMethod(stoname, fn, access)
 	}

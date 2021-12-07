@@ -1,4 +1,3 @@
 {
-    "entry": "src.entry",
-    "dependencies": []
+    "entry": "src.entry"
 }

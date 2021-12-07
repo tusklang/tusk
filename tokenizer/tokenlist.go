@@ -5,7 +5,7 @@ type TokenItem struct {
 	tokentype string
 }
 
-var keywords = []string{"fn", "return", "var", "if", "else", "while", "for", "pub", "prv", "ptr", "stat", "link", "construct", "this"}
+var keywords = []string{"fn", "return", "var", "if", "else", "while", "for", "pub", "prv", "ptr", "stat", "pure", "link", "construct", "this"}
 
 var tokenlist = []TokenItem{
 

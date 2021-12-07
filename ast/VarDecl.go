@@ -232,7 +232,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 		vd.globalerr = true
 
 		if static {
-			class.AppendStatic(vd.Name, data.NewInvalidType(), data.NewInvalidType(), access)
+			class.AppendStatic(vd.Name, data.NewInvalidType(), data.NewInvalidType(), access, false)
 		} else {
 
 			class.SType.Fields = append(class.SType.Fields, types.Void)
@@ -256,7 +256,7 @@ func (vd *VarDecl) DeclareGlobal(name string, compiler *Compiler, class *data.Cl
 
 		nv := data.NewVariable(vd.declaration, vtype)
 
-		class.AppendStatic(vd.Name, nv, nv.TType(), access)
+		class.AppendStatic(vd.Name, nv, nv.TType(), access, false)
 	} else {
 
 		//instance variable

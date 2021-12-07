@@ -17,6 +17,7 @@ type ClassField struct {
 		2 - private
 	*/
 	Access int
+	Pure   bool
 	Value  Value
 }
 type Class struct {
@@ -59,11 +60,12 @@ func (c *Class) AddInstanceItem(name string, typ Type, idx int64, access int) {
 	}
 }
 
-func (c *Class) AppendStatic(name string, val Value, typ Type, access int) {
+func (c *Class) AppendStatic(name string, val Value, typ Type, access int, pure bool) {
 	c.Static[name] = &ClassField{
 		Type:   typ,
 		Value:  val,
 		Access: access,
+		Pure:   pure,
 	}
 }
 
@@ -94,7 +96,7 @@ func (c *Class) TType() Type {
 }
 
 func (c *Class) Type() types.Type {
-	return types.NewPointer(c.SType)
+	return c.SType
 }
 
 func (c *Class) TypeData() *TypeData {

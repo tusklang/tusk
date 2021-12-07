@@ -19,6 +19,7 @@ type GlobalDecl struct {
 		0: instance
 		1: static
 		2: link
+		3: pure
 	*/
 	CRel        int
 	Value       *ast.VarDecl

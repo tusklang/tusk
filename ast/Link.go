@@ -72,7 +72,7 @@ func (l *Link) addToClass(lf *ir.Func, compiler *Compiler, dtype data.Value, cla
 	tfd.ParamTypes = dtype.(*data.Function).ParamTypes
 	compiler.AddVar(l.TName, tfd)
 
-	class.AppendStatic(l.stname, tfd, tfd.TType(), l.Access)
+	class.AppendStatic(l.stname, tfd, tfd.TType(), l.Access, false)
 	return nil
 }
 

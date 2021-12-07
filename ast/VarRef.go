@@ -24,6 +24,8 @@ func (vr *VarRef) GetMTok() tokenizer.Token {
 func (vr *VarRef) Compile(compiler *Compiler, class *data.Class, node *ASTNode, function *data.Function) data.Value {
 	fetched := compiler.FetchVar(vr.Name)
 
+	var global, pure bool
+
 	if fetched == nil {
 
 		//check the class' static variables if there is no variable declared with x name
@@ -32,6 +34,8 @@ func (vr *VarRef) Compile(compiler *Compiler, class *data.Class, node *ASTNode, 
 
 		if _fetched != nil {
 			fetched = _fetched.Value
+			global = true
+			pure = _fetched.Pure
 		}
 
 		if fetched == nil {
@@ -39,6 +43,18 @@ func (vr *VarRef) Compile(compiler *Compiler, class *data.Class, node *ASTNode, 
 			return data.NewUndeclaredVar(vr.Name)
 		}
 
+	}
+
+	if function != nil && function.IsPure && global && !pure {
+		//if the function we're in is pure
+		//make sure that we're not using any globals, or global functions
+		//(other functions that aren't pure***)
+		compiler.AddError(errhandle.NewCompileErrorFTok(
+			"pure function accessing impure global",
+			"cannot access globals from pure functions",
+			vr.tok,
+		))
+		return data.NewInvalidType()
 	}
 
 	return fetched
