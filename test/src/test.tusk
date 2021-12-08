@@ -1,0 +1,10 @@
+link fn printf(#i8, i32);
+
+pure fn test() i32 {
+    return src.a.abcd();
+};
+
+pub stat fn main() {
+    printf("%d\n", test());
+    printf("%d\n", test());
+};

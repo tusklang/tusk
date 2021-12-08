@@ -125,7 +125,19 @@ func initDefaultOps(compiler *ast.Compiler) {
 			return data.NewInvalidType()
 		}
 
-		return classt.Static[sub].Value
+		sval := classt.Static[sub].Value
+
+		if fnv, isfn := sval.(*data.Function); function.IsPure && !(isfn && fnv.IsPure) {
+			//if we're in a pure function, we can't access an impure global
+			compiler.AddError(errhandle.NewCompileErrorFTok(
+				"pure function accessing impure global",
+				"cannot access globals from pure functions",
+				rcg.GetMTok(),
+			))
+			return data.NewInvalidType()
+		}
+
+		return sval
 	})
 
 	compiler.OperationStore.NewOperation(".", "instance", "udvar", func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {

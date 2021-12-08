@@ -3,6 +3,7 @@ package ast
 import (
 	"fmt"
 
+	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/errhandle"
@@ -43,6 +44,8 @@ func (r *Return) Parse(lex []tokenizer.Token, i *int, stopAt []string) *errhandl
 
 	r.Val = retvalAST[0]
 
+	*i--
+
 	return e
 }
 
@@ -78,5 +81,11 @@ func (r *Return) Compile(compiler *Compiler, class *data.Class, node *ASTNode, f
 
 	crvalLL = crval.LLVal(function)
 	function.ActiveBlock.NewRet(crvalLL)
+
+	//all code after a return is unreachable, so it's placed into a dummy block
+	//this block isn't ever compiled to llvm
+	//it's just here to absorb all obsolete instructions
+	function.ActiveBlock = ir.NewBlock("")
+
 	return nil
 }

@@ -12,10 +12,6 @@ Allow for mode DRY code
 
 Most modern languages have built in support for these already
 
-- For & For each loops
-
-Pretty helpful
-
 - Lambda functions
 
 ```
@@ -36,4 +32,5 @@ Make one
 
 - Pure Functions
 
-Very big functional programming concept
+Put this on the backburner:
+    Pure functions can access static globals from other files at the moment, fix this
