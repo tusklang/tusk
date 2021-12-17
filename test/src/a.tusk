@@ -1,3 +1,0 @@
-pub stat fn abcd() i32 {
-    return 1;
-};

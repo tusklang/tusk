@@ -39,6 +39,7 @@ var tokenlist = []TokenItem{
 	{("\\-"), "operation"},    // -
 	{("\\*"), "operation"},    // *
 	{("\\/"), "operation"},    // /
+	{("\\%"), "operation"},    // %
 	{("\\!\\="), "operation"}, // !=
 	{("\\=\\="), "operation"}, // ==
 	{("\\>\\="), "operation"}, // >=

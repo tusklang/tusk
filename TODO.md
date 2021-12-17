@@ -2,7 +2,15 @@
 
 - Add custom operator overloading
 
-Coming soon
+Gonna look something like this
+
+```
+pub fn +(otherarg: type) {
+
+};
+```
+
+maybe
 
 - Generics
 
@@ -29,8 +37,3 @@ this doesn't work still
 - Standard library
 
 Make one
-
-- Pure Functions
-
-Put this on the backburner:
-    Pure functions can access static globals from other files at the moment, fix this

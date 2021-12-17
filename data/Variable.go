@@ -6,8 +6,9 @@ import (
 )
 
 type Variable struct {
-	inst value.Value
-	typ  Type
+	inst  value.Value
+	typ   Type
+	owner Value
 
 	loadinst func(*Variable, *Function) value.Value
 }

@@ -1,10 +1,5 @@
-link fn printf(#i8, i32);
-
-pure fn test() i32 {
-    return src.a.abcd();
-};
+link fn printf(#i8, f64);
 
 pub stat fn main() {
-    printf("%d\n", test());
-    printf("%d\n", test());
+    printf("%f\n", 32.292 % 21.1);
 };

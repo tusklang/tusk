@@ -48,12 +48,20 @@ func addNumOps(compiler *ast.Compiler) {
 		compiler.OperationStore.NewOperation("/", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 			return data.NewInstVariable(function.ActiveBlock.NewSDiv(left.LLVal(function), right.LLVal(function)), v)
 		})
+
+		compiler.OperationStore.NewOperation("%", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+			return data.NewInstVariable(function.ActiveBlock.NewSRem(left.LLVal(function), right.LLVal(function)), v)
+		})
 	}
 	for k, _v := range ast.UinttypeV {
 		v := _v
 
 		compiler.OperationStore.NewOperation("/", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
 			return data.NewInstVariable(function.ActiveBlock.NewUDiv(left.LLVal(function), right.LLVal(function)), v)
+		})
+
+		compiler.OperationStore.NewOperation("/", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+			return data.NewInstVariable(function.ActiveBlock.NewURem(left.LLVal(function), right.LLVal(function)), v)
 		})
 	}
 
@@ -76,5 +84,8 @@ func addNumOps(compiler *ast.Compiler) {
 			return data.NewInstVariable(function.ActiveBlock.NewFDiv(left.LLVal(function), right.LLVal(function)), v)
 		})
 
+		compiler.OperationStore.NewOperation("%", k, k, func(left, right data.Value, lcg, rcg ast.Group, compiler *ast.Compiler, function *data.Function, class *data.Class) data.Value {
+			return data.NewInstVariable(function.ActiveBlock.NewFRem(left.LLVal(function), right.LLVal(function)), v)
+		})
 	}
 }

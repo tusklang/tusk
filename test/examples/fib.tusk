@@ -1,5 +1,0 @@
-pub stat fn fib(n: i32) i32 {
-    //naive recursive method
-    if (n <= 1) return n;
-    return fib(n - 2) + fib(n - 1);
-};

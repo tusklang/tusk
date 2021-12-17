@@ -69,6 +69,7 @@ func groupsToAST(items []Group) ([]*ASTNode, *errhandle.TuskError) {
 		{
 			"*":   defaultOperationHandle,
 			"/":   defaultOperationHandle,
+			"%":   defaultOperationHandle,
 			"ltr": nil,
 		},
 		{
